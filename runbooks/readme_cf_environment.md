@@ -11,18 +11,25 @@
     1) extract from KeyVault and ensure intermediate certificates
 1) configure resource groups
     1) Web Application Firewall
+        1) lifecycle -- updated when web add is added or deleted, updated when TLS keys rotated
+        1) resources
 
         | Resource Name | Life Cycle | Resource Group | Location | Type |
         |---------------|------------|----------------|----------|------|
-        |atgcfexpag                               |x|CF-EXP|           southcentralus|  Microsoft.Network/applicationGateways|
-        |atgcfexppip                              |x|CF-EXP|           southcentralus|  Microsoft.Network/publicIPAddresses|
-        |atgcfexpag                               |x|CF-EXP|           southcentralus|  Microsoft.Network/virtualNetworks|
+        |atgcfexpag     |app add/delete|CF-EXP|           southcentralus|  Microsoft.Network/applicationGateways|
+        |atgcfexppip    |app add/delete|CF-EXP|           southcentralus|  Microsoft.Network/publicIPAddresses|
+        |atgcfexpag     |app add/delete|CF-EXP|           southcentralus|  Microsoft.Network/virtualNetworks|
+        |atgcf-auth-proxy                         |app add/delete|CF-EXP|           southcentralus|  Microsoft.Web/sites|
+        |atfcfexpdev/webappatgcfauthproxy         |app add/delete|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries/webhooks|
+        |atgcfexpasp1                             |app add/delete|CF-EXP|           southcentralus|  Microsoft.Web/serverFarms|
 
     1) Container Registry
+        1) lifecycle -- longer than related web service resource group
+        1) resources
 
         | Resource Name | Life Cycle | Resource Group | Location | Type |
         |---------------|------------|----------------|----------|------|
-        |atfcfexpdev                              |x|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries|
+        |atfcfexpdev    |longer than Web Service resource group|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries|
 
     1) Database Server(s)
         1) lifecycle -- `infinite`, depends on product SLA
@@ -41,6 +48,7 @@
 
     1) Key Vault
         1) re-use existing atrius key vault
+        1) lifecycle -- based on key rotation policy
         1) is used for:
             1) full-chain TLS certificate
             1) mssql server - database password
@@ -49,6 +57,11 @@
             | Resource Name | Life Cycle | Resource Group | Location | Type |
             |---------------|------------|----------------|----------|------|
             |CF-EXP-KV                                |deprecate|CF-EXP|           southcentralus|  Microsoft.KeyVault/vaults|
+
+    1) Monitoring/Logging/Observability
+        1) lifecycle -- longer than related web service resource group
+        1) resources
+        1) not activated for MVP (Oct 1, 2019)
 
     1) Web Services
         1) lifecycle -- `sprint`, regular updates (for dev, the lifecyle is `commit` per each service)
@@ -59,11 +72,9 @@
             |---------------|------------|----------------|----------|------|
             |atgcfexp-ag-post-auth                    |x|CF-EXP|           southcentralus|  Microsoft.Network/applicationGateways|
             |atgcfexp-post-auth-pip                   |deprecate|CF-EXP|           southcentralus|  Microsoft.Network/publicIPAddresses|
-            |atgcfexpasp1                             |x|CF-EXP|           southcentralus|  Microsoft.Web/serverFarms|
             |atgcfxlssp                               |x|CF-EXP|           southcentralus|  Microsoft.Web/serverFarms|
             |atgcf-admin-api                          |x|CF-EXP|           southcentralus|  Microsoft.Web/sites|
             |atgcf-app                                |x|CF-EXP|           southcentralus|  Microsoft.Web/sites|
-            |atgcf-auth-proxy                         |x|CF-EXP|           southcentralus|  Microsoft.Web/sites|
             |atgcf-cf-self-healing                    |x|CF-EXP|           southcentralus|  Microsoft.Web/sites|
             |atgcf-health-api                         |x|CF-EXP|           southcentralus|  Microsoft.Web/sites|
             |atgcf-ingest-api                         |x|CF-EXP|           southcentralus|  Microsoft.Web/sites|
@@ -71,7 +82,6 @@
             |atgcf-self-healing-app                   |x|CF-EXP|           southcentralus|  Microsoft.Web/sites|
             |atfcfexpdev/webappatgcfadminapi          |x|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries/webhooks|
             |atfcfexpdev/webappatgcfapp               |x|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries/webhooks|
-            |atfcfexpdev/webappatgcfauthproxy         |x|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries/webhooks|
             |atfcfexpdev/webappatgcfhealthapi         |x|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries/webhooks|
             |atfcfexpdev/webappatgcfingestapi         |x|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries/webhooks|
             |atfcfexpdev/webappatgcfselfhealingapi    |x|CF-EXP|           southcentralus|  Microsoft.ContainerRegistry/registries/webhooks|
