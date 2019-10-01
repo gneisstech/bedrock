@@ -1,0 +1,49 @@
+@startuml
+autonumber
+
+Control A1000
+Actor Bryan
+Entity Atrius
+Participant Self_Healing_v1 #green
+Participant Self_Healing_v2 #cyan
+Database SH_Raw_data
+Participant Self_Healing_Web_API #pink
+Actor Self_Healing_Reviewer
+
+== existing August 2019 ==
+
+group v1
+    Atrius -> Self_Healing_v1: Request =  LightsMap + Uncommissioned [w/Neighbors]
+    Atrius <- Self_Healing_v1: Response = Recommended_Pairing
+end
+
+== Oct2019 ==
+
+group Oct2019_MVP
+    Atrius -> Self_Healing_v1: Request = LightsMap + Uncommissioned [w/Neighbors]
+    Self_Healing_v1 -> Self_Healing_v2: Request = [A] LightsMap + Uncommissioned [w/Neighbors]
+    Self_Healing_v2 -> SH_Raw_data: [A] LightsMap + Uncommissioned [w/Neighbors] + Recommended_Pairing (proposed)
+    Self_Healing_v2 <- SH_Raw_data: (stored)
+    Self_Healing_v1 <- Self_Healing_v2: Response = Recommended_Pairing (empty set)
+    Atrius <- Self_Healing_v1: Response = Recommended_Pairing (empty set)
+
+
+    group approve_pairings
+        Self_Healing_Web_API <- Self_Healing_Reviewer: retrieve available Recommended_Pairing
+        SH_Raw_data <- Self_Healing_Web_API: retrieve available Recommended_Pairing (s)
+        SH_Raw_data -> Self_Healing_Web_API: Recommended_Pairing (s)
+        Self_Healing_Web_API -> Self_Healing_Reviewer: Proposed updates
+        Self_Healing_Web_API <- Self_Healing_Reviewer: Approved updates
+    end
+
+    Atrius -> Self_Healing_v1: Request = LightsMap + Uncommissioned [w/Neighbors]
+    Self_Healing_v1 -> Self_Healing_v2: Request = [B] LightsMap + Uncommissioned [w/Neighbors]
+    Self_Healing_v2 -> SH_Raw_data: request approved_pairings
+    Self_Healing_v2 <- SH_Raw_data: Retrieve = [A] LightsMap + Uncommissioned [w/Neighbors] + Recommended_Pairing (approved set)
+    Self_Healing_v2 -> Self_Healing_v2: Compare [A == B]
+    Self_Healing_v1 <- Self_Healing_v2: Response = Recommended_Pairing (approved set)
+
+    Atrius <- Self_Healing_v1: Response = Recommended_Pairing (approved set)
+end
+
+@enduml

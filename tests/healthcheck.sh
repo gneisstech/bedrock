@@ -46,7 +46,7 @@ function check_auth_proxy () {
 
 function check_app () {
   echo "=== begin checking app URL of site"
-  curl_auth "$(dev_site_url)/cf-app/"
+  curl_auth "$(dev_site_url)/cf-app"
   echo "=== done checking app URL of site"
 }
 
@@ -62,10 +62,23 @@ function check_ingest_api () {
   echo "=== begin checking ingest_api URL of site"
 }
 
-function check_visualization_api () {
-  echo "=== begin checking visualization_api URL of site"
-  curl_auth "$(dev_site_url)/cf-visualization"
-  echo "=== begin checking visualization_api URL of site"
+function check_health_api () {
+  echo "=== begin checking health_api URL of site"
+  curl_auth "$(dev_site_url)/cf-health"
+  echo
+  echo "=== begin checking health_api URL of site"
+}
+
+function check_self_healing_app () {
+  echo "=== begin checking self_healing_app URL of site"
+  curl_auth "$(dev_site_url)/cf-self-healing"
+  echo "=== begin checking self_healing_app URL of site"
+}
+
+function check_self_healing_api () {
+  echo "=== begin checking self_healing_api URL of site"
+  curl_auth "$(dev_site_url)/cf-self-healing-api"
+  echo "=== begin checking self_healing_api URL of site"
 }
 
 function healthcheck () {
@@ -74,7 +87,9 @@ function healthcheck () {
   check_app
   check_admin_api
   check_ingest_api
-  check_visualization_api
+  check_health_api
+  check_self_healing_app
+  check_self_healing_api
 }
 
 healthcheck
