@@ -29,7 +29,7 @@ function curl_auth () {
   local -r theURL="${1}"
   curl -sS -H "Authorization: Bearer $(site_token)" "${theURL}" --fail -w "%{http_code}: " -o /dev/null 2>/dev/null || echo "Unauthorized"
 }
-
+z
 function check_main () {
   echo "=== begin checking root URL of site"
   curl -sS "$(dev_site_url)"
@@ -46,7 +46,7 @@ function check_auth_proxy () {
 
 function check_app () {
   echo "=== begin checking app URL of site"
-  curl_auth "$(dev_site_url)/cf-app"
+  curl_auth "$(dev_site_url)/cf-app/"
   echo "=== done checking app URL of site"
 }
 
@@ -71,7 +71,7 @@ function check_health_api () {
 
 function check_self_healing_app () {
   echo "=== begin checking self_healing_app URL of site"
-  curl_auth "$(dev_site_url)/cf-self-healing"
+  curl_auth "$(dev_site_url)/cf-self-healing/"
   echo "=== begin checking self_healing_app URL of site"
 }
 
