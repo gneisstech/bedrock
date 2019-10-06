@@ -29,8 +29,8 @@ function invoke_layer () {
 }
 
 function deploy_environment () {
-    invoke_layer 'iaas' 'deploy_iaas'
-    # invoke_layer 'paas' 'deploy_paas'
+    # invoke_layer 'iaas' 'deploy_iaas'
+    invoke_layer 'paas' 'deploy_paas'
     # invoke_layer 'saas' 'deploy_saas'
 }
 
