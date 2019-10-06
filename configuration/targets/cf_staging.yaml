@@ -1,0 +1,198 @@
+---
+target:
+  metadata:
+    product_name: &productName 'connected-facilities-staging'
+    environment_name: &environmentName 'atg-cf-exp2-staging'
+    default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
+    tenants:
+      app_registration: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
+      service_deployment: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+    default_azure_location: &defaultAzureLocation 'southcentralus'
+  iaas:
+    location: *defaultAzureLocation
+    resource_groups:
+      # pre-existing Atrius resource groups with shared configuration state
+      - name: &atriusDnsRG 'atriusops-allspicedev'
+        action: 'read'
+      # CF Staging resource groups
+      - name: &defaultRG 'atg-cf-exp2'
+        action: 'create'
+      - name: &cfWafRG 'atg-cf-exp2-waf'
+        action: 'create'
+      - name: &cfDbRG 'atg-cf-exp2-db'
+        action: 'create'
+      - name: &cfKeysRG 'atg-cf-exp2-keys'
+        action: 'create'
+      - name: &cfAcrRG 'atg-cf-exp2-acr'
+        action: 'create'
+      - name: &cfNetworksRG 'atg-cf-exp2-networks'
+        action: 'create'
+      - name: &cfAppSvcRG 'atg-cf-exp2-appsvc'
+        action: 'create'
+      - name: &cfAuthNSvcRG 'atg-cf-exp2-authnsvc'
+        action: 'create'
+      - name: &cfObserversRG 'atg-cf-exp2-observers'
+        action: 'create'
+    networking:
+      public_ip:
+        - name: &wafIP 'atg-cf-exp2-waf-pip'
+          resource_group: *cfNetworksRG
+          arm_type: 'Microsoft.Network/publicIPAddresses'
+          action: 'create'
+        - name: 'atg-cf-exp2-post-auth-pip'
+          resource_group: *cfNetworksRG
+          arm_type: 'Microsoft.Network/publicIPAddresses'
+          action: 'create'
+      dns_a_records:
+        - zone: 'dev.atrius-iot.com'
+          host: 'cf-staging'
+          fqdn: 'cf-staging.dev.atrius-iot.com.'
+          resource_group: *atriusDnsRG
+          a_record_ttl: 3600
+          a_record_public_ip: *wafIP
+          action: 'create'
+      vnets:
+        - name: 'atg-cf-exp2-vnet'
+          resource_group: *cfNetworksRG
+          cidr: '10.1.0.0/16'
+          arm_type: 'Microsoft.Network/virtualNetworks'
+          action: 'create'
+          subnets:
+            - name: 'atg-cf-exp2-0-subnet'
+              cidr: '10.1.0.0/24'
+            - name: 'atg-cf-exp2-1-subnet'
+              cidr: '10.1.1.0/24'
+  paas:
+    location: *defaultAzureLocation
+    keyvaults:
+      # pre-existing Atrius key vault with shared configuration state
+      - name: &atriusKVName 'FIXME'
+        action: 'read'
+      # CF Dev Key Vault
+      - name: &kvName 'atg-cf-exp2--master-kv'
+        resource_group: *cfKeysRG
+        arm_type: 'Microsoft.KeyVault/vaults'
+        action: 'create'
+    databases:
+      servers:
+        - name: 'atg-cf-exp2--sqls'
+          arm_type: 'Microsoft.Sql/servers'
+      databases:
+        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-admin'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          action: 'preserve'
+        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-ingest'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          action: 'preserve'
+        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-self-healing'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          action: 'preserve'
+        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-twin01-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          action: 'preserve'
+        - name: 'atg-cf-exp2-sqls/master'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          action: 'preserve'
+    server_farms:
+      - name: &authServiceFarm 'atg-cf-exp2-authservice-asp'
+        arm_type: 'Microsoft.Web/serverFarms'
+        action: 'create'
+      - name: &webServiceFarm 'atg-cf-exp2-webservice-asp'
+        arm_type: 'Microsoft.Web/serverFarms'
+        action: 'create'
+    container_registries:
+      - name: &primaryACR 'atg-cf-exp2-dev-registry'
+        resource_group: *cfAcrRG
+        uri: &uriPrimaryACR 'https://atg-cf-exp2-dev-registry.azurecr.io'
+        arm_type: 'Microsoft.ContainerRegistry/registries'
+        action: 'create'
+        web_hooks:
+          - name: 'webappatgcfauthproxy'
+            actions:
+              - 'push'
+            scope: 'cf-oauth-proxy-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfapp'
+            actions:
+              - 'push'
+            scope: 'cf-react-app-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfadminapi'
+            actions:
+              - 'push'
+            scope: 'cf-ruby-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfhealthapi'
+            actions:
+              - 'push'
+            scope: 'cf-ruby-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfingestapi'
+            actions:
+              - 'push'
+            scope: 'cf-ruby-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfselfhealingapp'
+            actions:
+              - 'push'
+            scope: 'cf-self-healing-app-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfselfhealingapi'
+            actions:
+              - 'push'
+            scope: 'cf-self-healing-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+  saas:
+    authn_services:
+      farm: *authServiceFarm
+      services:
+        - name: 'atg-cf-exp2-auth-proxy'
+          arm_type: ' Microsoft.Web/sites'
+          resourceGroup: *cfAuthNSvcRG
+          scope: 'cf-oauth-proxy-docker:connected-facilities'
+          serviceUri: 'https://$atg-cf-exp2-auth-proxy:WPJQg8bBwFhHxJgr5yf2LPi7WEdE7gnpdc1WvwDaRQwtMkBaAJsvaqxBFT6W@atg-cf-exp2-auth-proxy.scm.azurewebsites.net/docker/hook'
+          action: 'create'
+    web_services:
+      farm: *webServiceFarm
+      services:
+        # Health services
+        - name: 'atg-cf-exp2-app'
+          arm_type: ' Microsoft.Web/sites'
+          config:
+            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            - DOCKER_ENABLE_CI: true
+            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            - WEBSITE_HTTPLOGGING_RETENTION_DAYS]: 7
+          connection-strings:
+          container-settings:
+            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-react-app-docker:connected-facilities'
+          action: 'create'
+        - name: 'atg-cf-exp2-admin-api'
+          arm_type: 'Microsoft.Web/sites'
+          action: 'create'
+        - name: 'atg-cf-exp2-health-api'
+          arm_type: ' Microsoft.Web/sites'
+          action: 'create'
+        - name: 'atg-cf-exp2-ingest-api'
+          arm_type: ' Microsoft.Web/sites'
+          action: 'create'
+        # Self Healing services
+        - name: 'atg-cf-exp2-self-healing-app'
+          arm_type: ' Microsoft.Web/sites'
+          action: 'create'
+        - name: 'atg-cf-exp2-self-healing-api'
+          arm_type: ' Microsoft.Web/sites'
+          action: 'create'
+    application_gateways:
+      - name: 'atg-cf-exp2-waf-ag'
+        arm_type: 'Microsoft.Network/applicationGateways'
+        action: 'preserve'
+      - name: 'atg-cf-exp2-post-authn-ag'
+        arm_type: 'Microsoft.Network/applicationGateways'
+        action: 'preserve'
