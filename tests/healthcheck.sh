@@ -29,7 +29,7 @@ function curl_auth () {
   local -r theURL="${1}"
   curl -sS -H "Authorization: Bearer $(site_token)" "${theURL}" --fail -w "%{http_code}: " -o /dev/null 2>/dev/null || echo "Unauthorized"
 }
-z
+
 function check_main () {
   echo "=== begin checking root URL of site"
   curl -sS "$(dev_site_url)"
