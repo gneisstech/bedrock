@@ -63,30 +63,27 @@ function dns_a_record_ttl () {
         jq -r -e ".networking.dns_a_records[] | select(.host == \"$(dns_a_record_host)\") | .a_record_ttl"
 }
 
-function dns_a_record_public_ip_name () {
+function public_ip_name () {
     iaas_configuration | \
         jq -r -e ".networking.dns_a_records[] | select(.host == \"$(dns_a_record_host)\") | .a_record_public_ip"
 }
 
 function public_ip_resource_group () {
     iaas_configuration | \
-        jq -r -e ".networking.public_ip[] | select(.name == \"$(dns_a_record_public_ip_name)\") | .resource_group"
+        jq -r -e ".networking.public_ip[] | select(.name == \"$(public_ip_name)\") | .resource_group"
 }
 
-function public_ip_info () {
-    az network public-ip show \
-        --name  "$(dns_a_record_public_ip_name)" \
-        --resource-group "$(public_ip_resource_group)" \
-        2> /dev/null \
-    || echo '{"ipAddress" : "ipv4.invalid"}'
+function public_ip_subscription () {
+    iaas_configuration | \
+        jq -r -e ".networking.public_ip[] | select(.name == \"$(public_ip_name)\") | .subscription"
 }
 
-function extract_ipv4_from_public_ip () {
-    public_ip_info | jq -r '.ipAddress'
-}
-
-function get_ipv4_address_for_public_ip () {
-    extract_ipv4_from_public_ip || echo "reference_to[$(dns_a_record_public_ip_name)]"
+function dns_target_resource () {
+    local subscription, rg, pip
+    subscription="$(public_ip_subscription)"
+    rg="$(public_ip_resource_group)"
+    pip="$(public_ip_name)"
+    echo "/subscriptions/${subscription}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${pip}"
 }
 
 function create_dns_a_record () {
@@ -94,13 +91,9 @@ function create_dns_a_record () {
         --name "$(dns_a_record_host)" \
         --resource-group "$(dns_a_record_resource_group)" \
         --zone-name "$(dns_a_record_zone)" \
+        --target-resource "$(dns_target_resource)" \
         --if-none-match \
         -ttl "$(dns_a_record_ttl)"
-    echo az network dns record-set a add-record \
-        --ipv4-address "$(get_ipv4_address_for_public_ip)" \
-        --record-set-name "$(dns_a_record_host)" \
-        --resource-group "$(dns_a_record_resource_group)" \
-        --zone-name "$(dns_a_record_zone)"
 }
 
 function dns_zone_exists () {

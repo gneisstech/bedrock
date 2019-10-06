@@ -15,28 +15,29 @@ target:
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
       # CF Staging resource groups
-      - name: &defaultRG 'atg-cf-exp2'
+      - name: &defaultRG 'atg-cf-exp2-rg'
         action: 'create'
-      - name: &cfWafRG 'atg-cf-exp2-waf'
+      - name: &cfWafRG 'atg-cf-exp2-waf-rg'
         action: 'create'
-      - name: &cfDbRG 'atg-cf-exp2-db'
+      - name: &cfDbRG 'atg-cf-exp2-db-rg'
         action: 'create'
-      - name: &cfKeysRG 'atg-cf-exp2-keys'
+      - name: &cfKeysRG 'atg-cf-exp2-keys-rg'
         action: 'create'
-      - name: &cfAcrRG 'atg-cf-exp2-acr'
+      - name: &cfAcrRG 'atg-cf-exp2-acr-rg'
         action: 'create'
-      - name: &cfNetworksRG 'atg-cf-exp2-networks'
+      - name: &cfNetworksRG 'atg-cf-exp2-networks-rg'
         action: 'create'
-      - name: &cfAppSvcRG 'atg-cf-exp2-appsvc'
+      - name: &cfAppSvcRG 'atg-cf-exp2-appsvc-rg'
         action: 'create'
-      - name: &cfAuthNSvcRG 'atg-cf-exp2-authnsvc'
+      - name: &cfAuthNSvcRG 'atg-cf-exp2-authnsvc-rg'
         action: 'create'
-      - name: &cfObserversRG 'atg-cf-exp2-observers'
+      - name: &cfObserversRG 'atg-cf-exp2-observers-rg'
         action: 'create'
     networking:
       public_ip:
         - name: &wafIP 'atg-cf-exp2-waf-pip'
           resource_group: *cfNetworksRG
+          subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
           action: 'create'
         - name: 'atg-cf-exp2-post-auth-pip'
@@ -69,79 +70,114 @@ target:
       - name: &atriusKVName 'FIXME'
         action: 'read'
       # CF Dev Key Vault
-      - name: &kvName 'atg-cf-exp2--master-kv'
+      - name: &kvName 'atg-cf-exp2-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
     databases:
       servers:
-        - name: 'atg-cf-exp2--sqls'
+        - name: &cfDefaultDbServer 'atg-cf-exp2-sqls'
           arm_type: 'Microsoft.Sql/servers'
-      databases:
-        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-admin'
-          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          admin_name: 'atg-cf-exp2-sqls-admin-user'
+          admin_password_kv:
+            vault: *kvName
+            key: 'admin-atg-cf-exp2-sqls'
           action: 'preserve'
-        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-ingest'
+      instances:
+        - name: 'atg-cf-exp2-admin'
           arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '100G'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-self-healing'
+        - name: 'atg-cf-exp2-ingest'
           arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '100G'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: 'atg-cf-exp2-sqls/atg-cf-exp2-twin01-db'
+        - name: 'atg-cf-exp2-self-healing'
           arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '100G'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: 'atg-cf-exp2-sqls/master'
+        - name: 'atg-cf-exp2-twin01-db'
           arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '100G'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_Gen5_2'
+          action: 'preserve'
+        - name: 'master'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '100G'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_Gen5_2'
           action: 'preserve'
     server_farms:
       - name: &authServiceFarm 'atg-cf-exp2-authservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
+        resource_group: *cfAuthNSvcRG
+        is_linux: true
+        number_of_workers: 1
+        sku: 'PremiumV2'
         action: 'create'
       - name: &webServiceFarm 'atg-cf-exp2-webservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
+        resource_group: *cfAppSvcRG
+        is_linux: true
+        number_of_workers: 1
+        sku: 'PremiumV2'
         action: 'create'
     container_registries:
       - name: &primaryACR 'atg-cf-exp2-dev-registry'
+        arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
         uri: &uriPrimaryACR 'https://atg-cf-exp2-dev-registry.azurecr.io'
-        arm_type: 'Microsoft.ContainerRegistry/registries'
+        sku: 'Standard'
+        admin_enabled: true
         action: 'create'
-        web_hooks:
-          - name: 'webappatgcfauthproxy'
-            actions:
-              - 'push'
-            scope: 'cf-oauth-proxy-docker:connected-facilities'
-            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          - name: 'webappatgcfapp'
-            actions:
-              - 'push'
-            scope: 'cf-react-app-docker:connected-facilities'
-            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          - name: 'webappatgcfadminapi'
-            actions:
-              - 'push'
-            scope: 'cf-ruby-api-docker:connected-facilities'
-            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          - name: 'webappatgcfhealthapi'
-            actions:
-              - 'push'
-            scope: 'cf-ruby-api-docker:connected-facilities'
-            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          - name: 'webappatgcfingestapi'
-            actions:
-              - 'push'
-            scope: 'cf-ruby-api-docker:connected-facilities'
-            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          - name: 'webappatgcfselfhealingapp'
-            actions:
-              - 'push'
-            scope: 'cf-self-healing-app-docker:connected-facilities'
-            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          - name: 'webappatgcfselfhealingapi'
-            actions:
-              - 'push'
-            scope: 'cf-self-healing-api-docker:connected-facilities'
-            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
   saas:
     authn_services:
       farm: *authServiceFarm
@@ -150,7 +186,13 @@ target:
           arm_type: ' Microsoft.Web/sites'
           resourceGroup: *cfAuthNSvcRG
           scope: 'cf-oauth-proxy-docker:connected-facilities'
-          serviceUri: 'https://$atg-cf-exp2-auth-proxy:WPJQg8bBwFhHxJgr5yf2LPi7WEdE7gnpdc1WvwDaRQwtMkBaAJsvaqxBFT6W@atg-cf-exp2-auth-proxy.scm.azurewebsites.net/docker/hook'
+          acr_webhook:
+            name: 'atg-cf-exp2-auth-proxy-wh'
+            repository: *primaryACR
+            actions:
+              - 'push'
+            scope: 'cf-oauth-proxy-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           action: 'create'
     web_services:
       farm: *webServiceFarm
@@ -158,6 +200,15 @@ target:
         # Health services
         - name: 'atg-cf-exp2-app'
           arm_type: ' Microsoft.Web/sites'
+          resourceGroup: *cfAuthNSvcRG
+          scope: 'cf-react-app-docker:connected-facilities'
+          acr_webhook:
+              name: 'atg-cf-exp2-app-wh'
+              repository: *primaryACR
+              actions:
+                - 'push'
+              scope: 'cf-react-app-docker:connected-facilities'
+              arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             - DOCKER_ENABLE_CI: true
@@ -196,3 +247,30 @@ target:
       - name: 'atg-cf-exp2-post-authn-ag'
         arm_type: 'Microsoft.Network/applicationGateways'
         action: 'preserve'
+
+        web_hooks:
+          - name: 'webappatgcfadminapi'
+            actions:
+              - 'push'
+            scope: 'cf-ruby-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfhealthapi'
+            actions:
+              - 'push'
+            scope: 'cf-ruby-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfingestapi'
+            actions:
+              - 'push'
+            scope: 'cf-ruby-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfselfhealingapp'
+            actions:
+              - 'push'
+            scope: 'cf-self-healing-app-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          - name: 'webappatgcfselfhealingapi'
+            actions:
+              - 'push'
+            scope: 'cf-self-healing-api-docker:connected-facilities'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
