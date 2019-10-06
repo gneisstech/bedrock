@@ -79,7 +79,7 @@ function public_ip_subscription () {
 }
 
 function dns_target_resource () {
-    local subscription, rg, pip
+    local subscription rg pip
     subscription="$(public_ip_subscription)"
     rg="$(public_ip_resource_group)"
     pip="$(public_ip_name)"
