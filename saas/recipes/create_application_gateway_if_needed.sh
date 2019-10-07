@@ -60,31 +60,18 @@ function application_gateway_already_exists () {
 function foo3 () {
 cat <<END3
     --cert-file "$(gw_attr '')" \
-    --cert-password "$(gw_attr '')" \
-    --private-ip-address "$(gw_attr 'private_ip_addresses')" \
-    --public-ip-address "$(gw_attr 'public_ip_addresses')" \
-    --waf-policy "$(gw_attr 'waf_policy')"
+    --cert-password "$(gw_attr '')"
 END3
 }
 
-function list_servers () {
-    gw_attr 'servers' | jq -r -e '@tsv'
-}
-
-function optional_certificate_options () {
-    echo -n ''
-}
-
-function optional_private_ip_addresses () {
-    echo -n ''
-}
-
-function optional_public_ip_addresses () {
-    echo -n ''
-}
-
-function optional_waf_policy () {
-    echo -n ''
+function options_list_if_present () {
+    local -r option_key="${1}"
+    local -r option_config="${2}"
+    local option_value
+    option_value="$(gw_attr "${option_config}" | jq -r -e '@tsv')"
+    if [[ -n "${option_value}" ]]; then
+        echo -n "--${option_key} ${option_value}"
+    fi
 }
 
 function deploy_application_gateway () {
@@ -95,19 +82,18 @@ function deploy_application_gateway () {
         --max-capacity "$(gw_attr 'max_capacity')" \
         --min-capacity "$(gw_attr 'min_capacity')" \
         --capacity "$(gw_attr 'capacity')" \
-        $(optional_certificate_options) \
-        --connection-draining-timeout "$(gw_attr 'connection_draining_timeout')" \
         --frontend-port "$(gw_attr 'frontend_port')" \
         --http-settings-cookie-based-affinity "$(gw_attr 'http_settings_cookie_based_affinity')" \
         --http-settings-port "$(gw_attr 'http_settings_port')" \
         --http-settings-protocol "$(gw_attr 'http_settings_protocol')" \
         --http2 "$(gw_attr 'http2')" \
         --routing-rule-type "$(gw_attr 'routing_rule_type')" \
-        --servers "$(list_servers)" \
         --sku "$(gw_attr 'sku')" \
-        $(optional_private_ip_addresses) \
-        $(optional_public_ip_addresses) \
-        $(optional_waf_policy)
+        $(options_list_if_present 'servers' 'servers') \
+        $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
+        $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
+        $(options_list_if_present 'waf-policy' 'waf_policy') \
+        $(certificate_options)
 }
 
 function foo () {

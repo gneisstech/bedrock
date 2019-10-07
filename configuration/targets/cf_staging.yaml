@@ -3,11 +3,13 @@ target:
   metadata:
     product_name: &productName 'connected-facilities-staging'
     environment_name: &environmentName 'atg-cf-exp2-staging'
-    default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
-    tenants:
-      app_registration: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
-      service_deployment: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
     default_azure_location: &defaultAzureLocation 'southcentralus'
+    default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
+    service_deployment:
+      tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+    app_registration:
+      tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
+      application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -67,7 +69,7 @@ target:
     location: *defaultAzureLocation
     keyvaults:
       # pre-existing Atrius key vault with shared configuration state
-      - name: &atriusKVName 'FIXME'
+      - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
       # CF Dev Key Vault
       - name: &kvName 'atg-cf-exp2-master-kv'
@@ -198,38 +200,38 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           upstreamHost: &postAuthnGateway 'atg-cf-exp2-post-authn-ag'
           config:
-            - DOCKER_ENABLE_CI: true
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - OAUTH2_PROXY_CLIENT_ID: '3a6085d9-676a-473c-832f-b73b2b7f7561'  # @@ TODO copy from AD setup
-            - OAUTH2_PROXY_CLIENT_SECRET: 'N:uB=Ru5x0B23iycRNTmNlz+sMDb=1UX'  # @@ TODO copy from AD setup
-            - OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
-            - OAUTH2_PROXY_COOKIE_REFRESH: '5m'
-            - OAUTH2_PROXY_COOKIE_SECRET: 'tpXdkNP5Ugmjsq9AErIuQWROsrOFzZhwNjeUDcBtTm8='  # @@ TODO regen freuently
-            - OAUTH2_PROXY_EMAIL_DOMAINS: '*'
-            - OAUTH2_PROXY_EXTRA_JWT_ISSUERS: 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/=https://management.core.windows.net/'
-            - OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
-            - OAUTH2_PROXY_PASS_ACCESS_TOKEN: true
-            - OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: true
-            - OAUTH2_PROXY_PING_PATH: '/'
-            - OAUTH2_PROXY_PROVIDER: 'azure'
-            - OAUTH2_PROXY_REDIRECT_URL: 'https://cf.dev.atrius-iot.com/oauth2/callback'  # @@ TODO derive from FQDN
-            - OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: true
-            - OAUTH2_PROXY_SILENCE_PING_LOGGING: true
-            - OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: true
-            - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true
-            - OAUTH2_PROXY_UPSTREAMS: 'http://atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com/'  # @@ TODO derive from upstream application gateway
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            - WEBSITES_PORT: 4180
-            - WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-          connection-strings:
-          container-settings:
-            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-oauth-proxy-docker:connected-facilities'
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
+            OAUTH2_PROXY_CLIENT_SECRET: 'N:uB=Ru5x0B23iycRNTmNlz+sMDb=1UX'  # @@ TODO copy from AD setup
+            OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
+            OAUTH2_PROXY_COOKIE_REFRESH: '5m'
+            OAUTH2_PROXY_COOKIE_SECRET: 'tpXdkNP5Ugmjsq9AErIuQWROsrOFzZhwNjeUDcBtTm8='  # @@ TODO regen freuently
+            OAUTH2_PROXY_EMAIL_DOMAINS: '*'
+            OAUTH2_PROXY_EXTRA_JWT_ISSUERS: 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/=https://management.core.windows.net/'
+            OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
+            OAUTH2_PROXY_PASS_ACCESS_TOKEN: true
+            OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: true
+            OAUTH2_PROXY_PING_PATH: '/'
+            OAUTH2_PROXY_PROVIDER: 'azure'
+            OAUTH2_PROXY_REDIRECT_URL: 'https://cf.dev.atrius-iot.com/oauth2/callback'  # @@ TODO derive from FQDN
+            OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: true
+            OAUTH2_PROXY_SILENCE_PING_LOGGING: true
+            OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: true
+            OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true
+            OAUTH2_PROXY_UPSTREAMS: 'http://atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com/'  # @@ TODO derive from upstream application gateway
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITES_PORT: 4180
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-oauth-proxy-docker:connected-facilities'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
     web_services:
       farm: *webServiceFarm
@@ -249,19 +251,19 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            - DOCKER_ENABLE_CI: true
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            - WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-          connection-strings:
-          container-settings:
-            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-react-app-docker:connected-facilities'
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-react-app-docker:connected-facilities'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         - name: &cfHealthAdminApi 'atg-cf-exp2-admin-api'
           arm_type: 'Microsoft.Web/sites'
@@ -277,13 +279,13 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            - DOCKER_ENABLE_CI: true
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            - WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-          connection-strings:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
             - name: 'DATABASE_URL'
               type: 'SQLServer'
               db_user: *cfDefaultDBAdminName
@@ -293,12 +295,12 @@ target:
               server: *cfDefaultDbServer
               port: 1433
               schema: *healthSchema
-          container-settings:
-            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         - name: &cfHealthApi 'atg-cf-exp2-health-api'
           arm_type: 'Microsoft.Web/sites'
@@ -314,13 +316,13 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            - DOCKER_ENABLE_CI: true
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            - WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-          connection-strings:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
             - name: 'DATABASE_URL'
               type: 'SQLServer'
               db_user: *cfDefaultDBAdminName
@@ -330,12 +332,12 @@ target:
               server: *cfDefaultDbServer
               port: 1433
               schema: *healthSchema
-          container-settings:
-            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         - name: &cfHealthIngestApi 'atg-cf-exp2-ingest-api'
           arm_type: 'Microsoft.Web/sites'
@@ -351,13 +353,13 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            - DOCKER_ENABLE_CI: true
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            - WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-          connection-strings:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
             - name: 'DATABASE_URL'
               type: 'SQLServer'
               db_user: *cfDefaultDBAdminName
@@ -367,12 +369,12 @@ target:
               server: *cfDefaultDbServer
               port: 1433
               schema: *healthSchema
-          container-settings:
-            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         # Self Healing services
         - name: &cfSelfHealingApp 'atg-cf-exp2-self-healing-app'
@@ -389,19 +391,19 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            - DOCKER_ENABLE_CI: true
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            - WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-          connection-strings:
-          container-settings:
-            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-self-healing-app-docker:connected-facilities'
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-self-healing-app-docker:connected-facilities'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         - name: &cfSelfHealingApi 'atg-cf-exp2-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
@@ -417,13 +419,13 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            - DOCKER_ENABLE_CI: true
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            - WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-          connection-strings:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
             - name: 'DATABASE_URL'
               type: 'SQLServer'
               db_user: *cfDefaultDBAdminName
@@ -433,12 +435,12 @@ target:
               server: *cfDefaultDbServer
               port: 1433
               schema: *selfHealingSchema
-          container-settings:
-            - DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-self-healing-api-docker:connected-facilities'
-            - DOCKER_REGISTRY_SERVER_PASSWORD: ''
-            - DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            - DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            - WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-self-healing-api-docker:connected-facilities'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
     application_gateways:
       - name: 'atg-cf-exp2-waf-ag'
@@ -468,6 +470,14 @@ target:
           request_body_check: true
           rule_set_type: 'OWASP'
           rule_set_version: '3.1'
+        tls_certificate:
+          origin:
+            vault_name: *atriusKVName
+            tls_secret_name: 'developer-devatrius-iotcom'
+          deploy:
+            vault_name: *kvName
+            tls_cert_secret_name: 'developer-devatrius-iotcom-tls-cert'
+            tls_password_secret_name: 'developer-devatrius-iotcom-password'
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'

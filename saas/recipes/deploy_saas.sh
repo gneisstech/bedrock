@@ -72,7 +72,7 @@ function deploy_application_gateways () {
 function deploy_saas () {
     deploy_authn_services
     deploy_web_services
-    deploy_application_gateways
+#    deploy_application_gateways
 }
 
 deploy_saas
