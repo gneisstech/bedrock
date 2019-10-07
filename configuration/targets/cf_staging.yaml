@@ -81,8 +81,9 @@ target:
           resource_group: *cfDbRG
           admin_name: 'atg-cf-exp2-sqls-admin-user'
           admin_password_kv:
-            vault: *kvName
-            key: 'admin-atg-cf-exp2-sqls'
+            vault: 'CF-EXP-KV'  # retire this once build pipeline is available @@ TODO
+            resource_group: 'CF-EXP'  # retire this once build pipeline is available @@ TODO
+            secret_name: 'admin-pw-for-atg-cf-exp2-sqls'
           action: 'preserve'
       instances:
         - name: 'atg-cf-exp2-admin'

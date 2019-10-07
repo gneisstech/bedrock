@@ -22,10 +22,6 @@ function database_server_name () {
     echo "${DATABASE_SERVER_NAME}"
 }
 
-function database_server_admin_password () {
-    echo "changeme-soon-@@-TODO"
-}
-
 function repo_root () {
     git rev-parse --show-toplevel
 }
@@ -38,15 +34,59 @@ function invoke_layer () {
 }
 
 function target_config () {
-    echo "$(repo_root)/${TARGET_CONFIG}"
+    echo -n "$(repo_root)/${TARGET_CONFIG}"
 }
 
 function paas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
+function server_attr () {
+    local -r attr="${1}"
+    paas_configuration | jq -r -e ".databases.servers[] | select(.name == \"$(database_server_name)\") | .${attr}"
+}
+
 function database_server_resource_group () {
-    paas_configuration | jq -r -e ".databases.servers[] | select(.name == \"$(database_server_name)\") | .resource_group"
+    server_attr 'resource_group'
+}
+
+function database_server_admin_name () {
+    server_attr 'admin_name'
+}
+
+function fetch_kv_database_server_admin_password () {
+    az keyvault secret show \
+        --vault-name "$(server_attr 'admin_password_kv.vault')" \
+        --name "$(server_attr 'admin_password_kv.secret_name')" \
+        2> /dev/null \
+    | jq -r '.value'
+}
+
+function random_key () {
+    hexdump -n 27 -e '"%02X"'  /dev/urandom
+}
+
+function create_kv_database_server_admin_password () {
+    local password
+    password=$(random_key)
+    az keyvault secret set \
+        --vault-name "$(server_attr 'admin_password_kv.vault')" \
+        --name "$(server_attr 'admin_password_kv.secret_name')" \
+        --description "admin password for database server [$(database_server_name)]" \
+        --value "${password}" \
+    | jq -r '.value'
+}
+
+function database_server_admin_password () {
+    local password
+    password=$(fetch_kv_database_server_admin_password)
+    if [[ -z "${password:-}" ]]; then
+        password=$(create_kv_database_server_admin_password)
+        if [[ -z "${password:-}" ]]; then
+            return 1
+        fi
+    fi
+    echo -n "${password}"
 }
 
 function database_server_already_exists () {
@@ -54,10 +94,6 @@ function database_server_already_exists () {
         --name "$(database_server_name)" \
         --resource-group "$(database_server_resource_group)" \
         > /dev/null 2>&1
-}
-
-function database_server_admin_name () {
-    paas_configuration | jq -r -e ".databases.servers[] | select(.name == \"$(database_server_name)\") | .admin_name"
 }
 
 function deploy_database_server () {
