@@ -1,0 +1,34 @@
+{
+  "etag": "W/\"f46b4bb4-32fd-46a9-afb1-9956104dcf4b\"",
+  "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/publicIPAddresses/atgcfexppip",
+  "identity": null,
+  "kind": null,
+  "location": "southcentralus",
+  "managedBy": null,
+  "name": "atgcfexppip",
+  "plan": null,
+  "properties": {
+    "idleTimeoutInMinutes": 4,
+    "ipAddress": "40.119.3.58",
+    "ipConfiguration": {
+      "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/frontendIPConfigurations/appGwPublicFrontendIp",
+      "resourceGroup": "CF-EXP"
+    },
+    "ipTags": [],
+    "provisioningState": "Succeeded",
+    "publicIPAddressVersion": "IPv4",
+    "publicIPAllocationMethod": "Static",
+    "resourceGuid": "6b499080-9811-41b4-b3a5-63010df84a20"
+  },
+  "resourceGroup": "CF-EXP",
+  "sku": {
+    "capacity": null,
+    "family": null,
+    "model": null,
+    "name": "Standard",
+    "size": null,
+    "tier": "Regional"
+  },
+  "tags": null,
+  "type": "Microsoft.Network/publicIPAddresses"
+}

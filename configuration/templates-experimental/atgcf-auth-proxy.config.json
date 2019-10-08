@@ -1,0 +1,127 @@
+[
+  {
+    "name": "DOCKER_ENABLE_CI",
+    "slotSetting": false,
+    "value": "true"
+  },
+  {
+    "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+    "slotSetting": false,
+    "value": null
+  },
+  {
+    "name": "DOCKER_REGISTRY_SERVER_URL",
+    "slotSetting": false,
+    "value": "https://atfcfexpdev.azurecr.io"
+  },
+  {
+    "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+    "slotSetting": false,
+    "value": "atfcfexpdev"
+  },
+  {
+    "name": "OAUTH2_PROXY_CLIENT_ID",
+    "slotSetting": false,
+    "value": "3a6085d9-676a-473c-832f-b73b2b7f7561"
+  },
+  {
+    "name": "OAUTH2_PROXY_CLIENT_SECRET",
+    "slotSetting": false,
+    "value": "N:uB=Ru5x0B23iycRNTmNlz+sMDb=1UX"
+  },
+  {
+    "name": "OAUTH2_PROXY_COOKIE_EXPIRE",
+    "slotSetting": false,
+    "value": "20m"
+  },
+  {
+    "name": "OAUTH2_PROXY_COOKIE_REFRESH",
+    "slotSetting": false,
+    "value": "5m"
+  },
+  {
+    "name": "OAUTH2_PROXY_COOKIE_SECRET",
+    "slotSetting": false,
+    "value": "tpXdkNP5Ugmjsq9AErIuQWROsrOFzZhwNjeUDcBtTm8="
+  },
+  {
+    "name": "OAUTH2_PROXY_EMAIL_DOMAINS",
+    "slotSetting": false,
+    "value": "*"
+  },
+  {
+    "name": "OAUTH2_PROXY_EXTRA_JWT_ISSUERS",
+    "slotSetting": false,
+    "value": "https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/=https://management.core.windows.net/"
+  },
+  {
+    "name": "OAUTH2_PROXY_HTTP_ADDRESS",
+    "slotSetting": false,
+    "value": "0.0.0.0:4180"
+  },
+  {
+    "name": "OAUTH2_PROXY_PASS_ACCESS_TOKEN",
+    "slotSetting": false,
+    "value": "true"
+  },
+  {
+    "name": "OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER",
+    "slotSetting": false,
+    "value": "true"
+  },
+  {
+    "name": "OAUTH2_PROXY_PING_PATH",
+    "slotSetting": false,
+    "value": "/"
+  },
+  {
+    "name": "OAUTH2_PROXY_PROVIDER",
+    "slotSetting": false,
+    "value": "azure"
+  },
+  {
+    "name": "OAUTH2_PROXY_REDIRECT_URL",
+    "slotSetting": false,
+    "value": "https://cf.dev.atrius-iot.com/oauth2/callback"
+  },
+  {
+    "name": "OAUTH2_PROXY_SET_AUTHORIZATION_HEADER",
+    "slotSetting": false,
+    "value": "true"
+  },
+  {
+    "name": "OAUTH2_PROXY_SILENCE_PING_LOGGING",
+    "slotSetting": false,
+    "value": "true"
+  },
+  {
+    "name": "OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS",
+    "slotSetting": false,
+    "value": "true"
+  },
+  {
+    "name": "OAUTH2_PROXY_SKIP_PROVIDER_BUTTON",
+    "slotSetting": false,
+    "value": "true"
+  },
+  {
+    "name": "OAUTH2_PROXY_UPSTREAMS",
+    "slotSetting": false,
+    "value": "http://atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com/"
+  },
+  {
+    "name": "WEBSITE_HTTPLOGGING_RETENTION_DAYS",
+    "slotSetting": false,
+    "value": "7"
+  },
+  {
+    "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+    "slotSetting": false,
+    "value": "false"
+  },
+  {
+    "name": "WEBSITES_PORT",
+    "slotSetting": false,
+    "value": "4180"
+  }
+]

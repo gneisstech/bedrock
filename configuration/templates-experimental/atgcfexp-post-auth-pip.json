@@ -1,0 +1,38 @@
+{
+  "etag": "W/\"2576af68-ee9b-46c9-843b-9548fd1f9dea\"",
+  "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/publicIPAddresses/atgcfexp-post-auth-pip",
+  "identity": null,
+  "kind": null,
+  "location": "southcentralus",
+  "managedBy": null,
+  "name": "atgcfexp-post-auth-pip",
+  "plan": null,
+  "properties": {
+    "dnsSettings": {
+      "domainNameLabel": "atgcfexp-post-auth-pip",
+      "fqdn": "atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com"
+    },
+    "idleTimeoutInMinutes": 4,
+    "ipAddress": "104.214.107.93",
+    "ipConfiguration": {
+      "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/frontendIPConfigurations/atgcfexp-post-auth-public-ip",
+      "resourceGroup": "CF-EXP"
+    },
+    "ipTags": [],
+    "provisioningState": "Succeeded",
+    "publicIPAddressVersion": "IPv4",
+    "publicIPAllocationMethod": "Dynamic",
+    "resourceGuid": "90743906-ac69-4f30-9538-37f8c8f8c605"
+  },
+  "resourceGroup": "CF-EXP",
+  "sku": {
+    "capacity": null,
+    "family": null,
+    "model": null,
+    "name": "Basic",
+    "size": null,
+    "tier": "Regional"
+  },
+  "tags": null,
+  "type": "Microsoft.Network/publicIPAddresses"
+}

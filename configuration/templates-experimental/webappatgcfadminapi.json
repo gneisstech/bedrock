@@ -1,0 +1,14 @@
+{
+  "actions": [
+    "push"
+  ],
+  "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.ContainerRegistry/registries/atfcfexpdev/webhooks/webappatgcfadminapi",
+  "location": "southcentralus",
+  "name": "webappatgcfadminapi",
+  "provisioningState": "Succeeded",
+  "resourceGroup": "CF-EXP",
+  "scope": "cf-ruby-api-docker:connected-facilities",
+  "status": "enabled",
+  "tags": {},
+  "type": "Microsoft.ContainerRegistry/registries/webhooks"
+}
