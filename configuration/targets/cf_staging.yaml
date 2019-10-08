@@ -213,19 +213,21 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
             OAUTH2_PROXY_CLIENT_SECRET:
-              - '##secure_secret:vault='
+              - '##secure_secret={"vault":"'
               - *cfDefaultDBKeyVault
-              - ';secret_name='
-              - 'oauth2_proxy_client_secret'
-              - ';##'
+              - '","secret_name":"'
+              - 'oauth2-proxy-client-secret'
+              - '"}'
+              - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
             OAUTH2_PROXY_COOKIE_REFRESH: '5m'
             OAUTH2_PROXY_COOKIE_SECRET:
-              - '##secure_secret:vault='
+              - '##secure_secret={"vault":"'
               - *cfDefaultDBKeyVault
-              - ';secret_name='
-              - 'oauth2_proxy_cookie_secret'
-              - ';##'
+              - '","secret_name":"'
+              - 'oauth2-proxy-cookie-secret'
+              - '"}'
+              - '##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
             OAUTH2_PROXY_EXTRA_JWT_ISSUERS:
               - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
@@ -359,11 +361,12 @@ target:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '##secure_secret:vault='
+                - '##secure_secret={"vault":"'
                 - *cfDefaultDBKeyVault
-                - ';secret_name='
+                - '","secret_name":"'
                 - *cfDefaultDBSecretName
-                - ';##'
+                - '"}'
+                - '##'
                 - '@'
                 - *cfDefaultDbServer
                 - ':'
@@ -422,10 +425,11 @@ target:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '##secure_secret:vault='
+                - '##secure_secret={"vault":"'
                 - *cfDefaultDBKeyVault
-                - ';secret_name='
+                - '","secret_name":"'
                 - *cfDefaultDBSecretName
+                - '"}'
                 - '##'
                 - '@'
                 - *cfDefaultDbServer
@@ -485,10 +489,11 @@ target:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '##secure_secret:vault='
+                - '##secure_secret={"vault":"'
                 - *cfDefaultDBKeyVault
-                - ';secret_name='
+                - '","secret_name":"'
                 - *cfDefaultDBSecretName
+                - '"}'
                 - '##'
                 - '@'
                 - *cfDefaultDbServer
@@ -596,10 +601,11 @@ target:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '##secure_secret:vault='
+                - '##secure_secret={"vault":"'
                 - *cfDefaultDBKeyVault
-                - ';secret_name='
+                - '","secret_name":"'
                 - *cfDefaultDBSecretName
+                - '"}'
                 - '##'
                 - '@'
                 - *cfDefaultDbServer

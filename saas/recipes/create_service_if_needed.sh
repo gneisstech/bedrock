@@ -75,29 +75,61 @@ function service_container_path () {
     echo "$(svc_attr 'container.registry')/$(svc_attr 'container.name'):$(svc_attr 'container.tag')"
 }
 
-function get_db_password () {
-    local -r vault="${1}"
-    local -r secret_name="${2}"
-    echo "fixme010"
-}
-
 function process_acr_registry_key () {
     local -r theString="${1}"
     local acr_name rg_name theMessage
     theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
-    acr_name=$(jq -r '.registry' <<< "${theMessage}")
-    rg_name=$(jq -r '.resource_group' <<< "${theMessage}")
+    acr_name="$(jq -r '.registry' <<< "${theMessage}")"
+    rg_name="$(jq -r '.resource_group' <<< "${theMessage}")"
     az acr credential show --name "${acr_name}" --resource-group "${rg_name}" 2> /dev/null || echo "FIXME_PASSWORD"
+}
+
+function get_vault_secret () {
+    local -r vault="${1}"
+    local -r secret_name="${2}"
+    az keyvault secret show \
+        --vault-name "${vault}" \
+        --name "${secret_name}" \
+        2> /dev/null \
+    | jq -r '.value'
+}
+
+function set_vault_secret () {
+    local -r vault="${1}"
+    local -r secret_name="${2}"
+    local -r secret="${3}"
+    az keyvault secret set \
+        --vault-name "${vault}" \
+        --name "${secret_name}" \
+        --description 'secure secret from deployment automation' \
+        --value "${secret}" \
+        2> /dev/null
+}
+
+function random_key () {
+    hexdump -n 27 -e '"%02X"' /dev/urandom
 }
 
 function process_secure_secret () {
     local -r theString="${1}"
-    echo "FAKE_SECRET"
+    local vault secret_name theMessage secret
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    vault="$(jq -r '.vault' <<< "${theMessage}")"
+    secret_name="$(jq -r '.secret_name' <<< "${theMessage}")"
+    secret="$(get_vault_secret "${vault}" "${secret_name}")"
+    if [[ -z "${secret}" ]]; then
+        set_vault_secret "${vault}" "${secret_name}" "$(random_key)" > /dev/null
+        secret="$(get_vault_secret "${vault}" "${secret_name}")"
+    fi
+    if [[ -z "${secret}" ]]; then
+        secret="FAKE_SECRET"
+    fi
+    echo "${secret}"
 }
 
 function dispatch_functions () {
     declare -a myarray
-    let i=0
+    (( i=0 ))
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
         if (( i % 2 == 1 )); then
@@ -117,9 +149,9 @@ function dispatch_functions () {
         ((++i))
     done
 
-    let i=0
+    (( i=0 ))
     while (( ${#myarray[@]} > i )); do
-        printf "${myarray[i++]}"
+        printf '%s' "${myarray[i++]}"
     done
 }
 
