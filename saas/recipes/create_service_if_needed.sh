@@ -57,7 +57,7 @@ function svc_string () {
     svc_attr "${attr}" | jq -r -e ".${key} | if type==\"array\" then join(\"\") else . end"
 }
 
-function authn_service_resource_group () {
+function service_resource_group () {
     svc_attr 'resource_group'
 }
 

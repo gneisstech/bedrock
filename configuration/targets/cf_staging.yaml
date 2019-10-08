@@ -189,12 +189,13 @@ target:
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAuthNSvcRG
           container:
-            registry: 'atfcfexpdev.azurecr.io'
-            name: 'cf-oauth-proxy-docker'
-            tag: 'connected-facilities'
+            registry: *primaryACR
+            name: &authnContainer 'cf-oauth-proxy-docker'
+            tag: &authnTag 'connected-facilities'
           acr_webhook:
             name: 'atg-cf-exp2-auth-proxy-wh'
-            repository: *primaryACR
+            registry: *primaryACR
+            status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
@@ -227,7 +228,13 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
           container_settings:
-            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-oauth-proxy-docker:connected-facilities'
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *authnContainer
+              - ':'
+              - *authnTag
             DOCKER_REGISTRY_SERVER_PASSWORD: ''
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
@@ -241,12 +248,13 @@ target:
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
-            registry: 'atfcfexpdev.azurecr.io'
-            name: 'cf-react-app-docker'
-            tag: 'connected-facilities'
+            registry: *primaryACR
+            name: &healthAppContainer 'cf-react-app-docker'
+            tag: &healthAppTag 'connected-facilities'
           acr_webhook:
             name: 'atg-cf-exp2-app-wh'
-            repository: *primaryACR
+            registry: *primaryACR
+            status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
@@ -259,7 +267,13 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
           container_settings:
-            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-react-app-docker:connected-facilities'
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *healthAppContainer
+              - ':'
+              - *healthAppTag
             DOCKER_REGISTRY_SERVER_PASSWORD: ''
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
@@ -269,12 +283,13 @@ target:
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
-            registry: 'atfcfexpdev.azurecr.io'
-            name: 'cf-ruby-api-docker'
-            tag: 'connected-facilities'
+            registry: *primaryACR
+            name: &adminApiContainer 'cf-ruby-api-docker'
+            tag: &adminApiTag 'connected-facilities'
           acr_webhook:
             name: 'atg-cf-exp2-admin-api-wh'
-            repository: *primaryACR
+            registry: *primaryACR
+            status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
@@ -296,7 +311,13 @@ target:
               port: 1433
               schema: *healthSchema
           container_settings:
-            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *adminApiContainer
+              - ':'
+              - *adminApiTag
             DOCKER_REGISTRY_SERVER_PASSWORD: ''
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
@@ -306,12 +327,13 @@ target:
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
-            registry: 'atfcfexpdev.azurecr.io'
-            name: 'cf-ruby-api-docker'
-            tag: 'connected-facilities'
+            registry: *primaryACR
+            name: &healthApiContainer 'cf-ruby-api-docker'
+            tag: &healthApiTag 'connected-facilities'
           acr_webhook:
             name: 'atg-cf-exp2-health-api-wh'
-            repository: *primaryACR
+            registry: *primaryACR
+            status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
@@ -333,7 +355,13 @@ target:
               port: 1433
               schema: *healthSchema
           container_settings:
-            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *healthApiContainer
+              - ':'
+              - *healthApiTag
             DOCKER_REGISTRY_SERVER_PASSWORD: ''
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
@@ -343,12 +371,13 @@ target:
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
-            registry: 'atfcfexpdev.azurecr.io'
-            name: 'cf-ruby-api-docker'
-            tag: 'connected-facilities'
+            registry: *primaryACR
+            name: &healthIngestContainer 'cf-ruby-api-docker'
+            tag: &healthIngestTag 'connected-facilities'
           acr_webhook:
             name: 'atg-cf-exp2-ingest-api-wh'
-            repository: *primaryACR
+            registry: *primaryACR
+            status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
@@ -370,7 +399,13 @@ target:
               port: 1433
               schema: *healthSchema
           container_settings:
-            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-ruby-api-docker:connected-facilities'
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *healthIngestContainer
+              - ':'
+              - *healthIngestTag
             DOCKER_REGISTRY_SERVER_PASSWORD: ''
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
@@ -381,12 +416,13 @@ target:
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
-            registry: 'atfcfexpdev.azurecr.io'
-            name: 'cf-self-healing-app-docker'
-            tag: 'connected-facilities'
+            registry: *primaryACR
+            name: &shAPPContainer 'cf-self-healing-app-docker'
+            tag: &shAPPTag 'connected-facilities'
           acr_webhook:
             name: 'atg-cf-exp2-self-healing-app-wh'
-            repository: *primaryACR
+            registry: *primaryACR
+            status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
@@ -399,7 +435,13 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
           container_settings:
-            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-self-healing-app-docker:connected-facilities'
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *shAPPContainer
+              - ':'
+              - *shAPPTag
             DOCKER_REGISTRY_SERVER_PASSWORD: ''
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
@@ -409,12 +451,13 @@ target:
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
-            registry: 'atfcfexpdev.azurecr.io'
-            name: 'cf-self-healing-api-docker'
-            tag: 'connected-facilities'
+            registry: *primaryACR
+            name: &shAPIContainer 'cf-self-healing-api-docker'
+            tag: &shAPITag 'connected-facilities'
           acr_webhook:
             name: 'atg-cf-exp2-self-healing-api-wh'
-            repository: *primaryACR
+            registry: *primaryACR
+            status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
@@ -436,7 +479,13 @@ target:
               port: 1433
               schema: *selfHealingSchema
           container_settings:
-            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|atfcfexpdev.azurecr.io/cf-self-healing-api-docker:connected-facilities'
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *shAPIContainer
+              - ':'
+              - *shAPITag
             DOCKER_REGISTRY_SERVER_PASSWORD: ''
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
