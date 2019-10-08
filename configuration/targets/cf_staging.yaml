@@ -302,19 +302,15 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             SQLServer:
-              db_funk: "funky monkey"
               DATABASE_URL:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '{{'
-                - ' { secure_secret: {vault: '
+                - '##secure_secret:vault='
                 - *cfDefaultDBKeyVault
-                - ', secret_name: '
+                - ';secret_name='
                 - *cfDefaultDBSecretName
-                - '} '
-                - '} '
-                - '}}'
+                - ';##'
                 - '@'
                 - *cfDefaultDbServer
                 - ':'
@@ -361,14 +357,11 @@ target:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '{{'
-                - ' { secure_secret: {vault: '
+                - '##secure_secret:vault='
                 - *cfDefaultDBKeyVault
-                - ', secret_name: '
+                - ';secret_name='
                 - *cfDefaultDBSecretName
-                - '} '
-                - '} '
-                - '}}'
+                - '##'
                 - '@'
                 - *cfDefaultDbServer
                 - ':'
@@ -415,14 +408,11 @@ target:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '{{'
-                - ' { secure_secret: {vault: '
+                - '##secure_secret:vault='
                 - *cfDefaultDBKeyVault
-                - ', secret_name: '
+                - ';secret_name='
                 - *cfDefaultDBSecretName
-                - '} '
-                - '} '
-                - '}}'
+                - '##'
                 - '@'
                 - *cfDefaultDbServer
                 - ':'
@@ -505,14 +495,11 @@ target:
                 - 'sqlserver://'
                 - *cfDefaultDBAdminName
                 - ':'
-                - '{{'
-                - ' { secure_secret: {vault: '
+                - '##secure_secret:vault='
                 - *cfDefaultDBKeyVault
-                - ', secret_name: '
+                - ';secret_name='
                 - *cfDefaultDBSecretName
-                - '} '
-                - '} '
-                - '}}'
+                - '##'
                 - '@'
                 - *cfDefaultDbServer
                 - ':'

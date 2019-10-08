@@ -60,7 +60,7 @@ function svc_string () {
 function svc_strings () {
     local -r attr="${1}"
     local -r key="${2}"
-    svc_attr "${attr}" | jq -r -e ".${key}[] | if type==\"array\" then join(\"\") else . end"
+    svc_attr "${attr}" | jq -r -e ".${key} as \$config | \$config | [ keys[] | \"\(.)=\(\$config[.] | if type==\"array\" then join(\"\") else . end  )\" ] | @tsv"
 }
 
 function service_resource_group () {
