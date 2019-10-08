@@ -47,8 +47,8 @@ target:
           arm_type: 'Microsoft.Network/publicIPAddresses'
           action: 'create'
       dns_a_records:
-        - zone: 'dev.atrius-iot.com'
-          host: 'cf-staging'
+        - zone: &dnsZone 'dev.atrius-iot.com'
+          host: &dnsHost 'cf-staging'
           fqdn: 'cf-staging.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           a_record_ttl: 3600
@@ -202,27 +202,50 @@ target:
           upstreamHost: &postAuthnGateway 'atg-cf-exp2-post-authn-ag'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
-            OAUTH2_PROXY_CLIENT_SECRET: 'N:uB=Ru5x0B23iycRNTmNlz+sMDb=1UX'  # @@ TODO copy from AD setup
+            OAUTH2_PROXY_CLIENT_SECRET:
+              - '##secure_secret:vault='
+              - *cfDefaultDBKeyVault
+              - ';secret_name='
+              - 'oauth2_proxy_client_secret'
+              - ';##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
             OAUTH2_PROXY_COOKIE_REFRESH: '5m'
-            OAUTH2_PROXY_COOKIE_SECRET: 'tpXdkNP5Ugmjsq9AErIuQWROsrOFzZhwNjeUDcBtTm8='  # @@ TODO regen freuently
+            OAUTH2_PROXY_COOKIE_SECRET:
+              - '##secure_secret:vault='
+              - *cfDefaultDBKeyVault
+              - ';secret_name='
+              - 'oauth2_proxy_cookie_secret'
+              - ';##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
-            OAUTH2_PROXY_EXTRA_JWT_ISSUERS: 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/=https://management.core.windows.net/'
+            OAUTH2_PROXY_EXTRA_JWT_ISSUERS:
+              - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+              - '='
+              - 'https://management.core.windows.net/'
             OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
             OAUTH2_PROXY_PASS_ACCESS_TOKEN: true
             OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: true
             OAUTH2_PROXY_PING_PATH: '/'
             OAUTH2_PROXY_PROVIDER: 'azure'
-            OAUTH2_PROXY_REDIRECT_URL: 'https://cf.dev.atrius-iot.com/oauth2/callback'  # @@ TODO derive from FQDN
+            OAUTH2_PROXY_REDIRECT_URL:
+              - 'https://'
+              - *dnsHost
+              - '.'
+              - *dnsZone
+              - '/oauth2/callback'
             OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: true
             OAUTH2_PROXY_SILENCE_PING_LOGGING: true
             OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: true
             OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true
-            OAUTH2_PROXY_UPSTREAMS: 'http://atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com/'  # @@ TODO derive from upstream application gateway
+            OAUTH2_PROXY_UPSTREAMS:  # @@ TODO convert to https and private ip on vnet
+              - 'http://'
+              - *postAuthnIP
+              - '.'
+              - *defaultAzureLocation
+              - '.cloudapp.azure.com/'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITES_PORT: 4180
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
@@ -235,7 +258,7 @@ target:
               - *authnContainer
               - ':'
               - *authnTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -260,7 +283,7 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -274,7 +297,7 @@ target:
               - *healthAppContainer
               - ':'
               - *healthAppTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -295,7 +318,7 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -325,7 +348,7 @@ target:
               - *adminApiContainer
               - ':'
               - *adminApiTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -346,7 +369,7 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -376,7 +399,7 @@ target:
               - *healthApiContainer
               - ':'
               - *healthApiTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -397,7 +420,7 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -427,7 +450,7 @@ target:
               - *healthIngestContainer
               - ':'
               - *healthIngestTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -449,7 +472,7 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -463,7 +486,7 @@ target:
               - *shAPPContainer
               - ':'
               - *shAPPTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -484,7 +507,7 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -514,7 +537,7 @@ target:
               - *shAPIContainer
               - ':'
               - *shAPITag
-            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false

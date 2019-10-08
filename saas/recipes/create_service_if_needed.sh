@@ -81,9 +81,14 @@ function get_db_password () {
     echo "fixme010"
 }
 
+function interpolate_functions () {
+    echo -n "interpolating: " > /dev/stderr
+    tee /dev/stderr
+}
+
 function prepare_connection_strings () {
     local type="${1}"
-    svc_strings 'connection_strings' "${type}"
+    svc_strings 'connection_strings' "${type}" | interpolate_functions
 }
 
 function connection_string_types () {
@@ -103,19 +108,24 @@ function set_connection_strings () {
     fi
 }
 
-function svc_appsettings () {
-    svc_attr 'config' | jq -r '. as $config | keys[] | "\(.)=\($config[.])"'
+function container_settings_string () {
+    local -r key="${1}"
+    svc_string 'container_settings' "${key}" | interpolate_functions
 }
 
 function set_container_settings () {
     echo az webapp config container set \
         --name "$(service_name)" \
         --resource-group "$(service_resource_group)" \
-        --docker-custom-image-name "$(svc_string 'container_settings' 'DOCKER_CUSTOM_IMAGE_NAME')" \
-        --docker-registry-server-password "$(svc_string 'container_settings' 'DOCKER_REGISTRY_SERVER_PASSWORD')" \
-        --docker-registry-server-url "$(svc_string 'container_settings' 'DOCKER_REGISTRY_SERVER_URL')" \
-        --docker-registry-server-user "$(svc_string 'container_settings' 'DOCKER_REGISTRY_SERVER_USERNAME')" \
-        --enable-app-service-storage "$(svc_string 'container_settings' 'WEBSITES_ENABLE_APP_SERVICE_STORAGE')"
+        --docker-custom-image-name "$(container_settings_string 'DOCKER_CUSTOM_IMAGE_NAME')" \
+        --docker-registry-server-password "$(container_settings_string 'DOCKER_REGISTRY_SERVER_PASSWORD')" \
+        --docker-registry-server-url "$(container_settings_string 'DOCKER_REGISTRY_SERVER_URL')" \
+        --docker-registry-server-user "$(container_settings_string 'DOCKER_REGISTRY_SERVER_USERNAME')" \
+        --enable-app-service-storage "$(container_settings_string 'WEBSITES_ENABLE_APP_SERVICE_STORAGE')"
+}
+
+function svc_appsettings () {
+    svc_attr 'config' | jq -r '. as $config | keys[] | "\(.)=\($config[.])"' | interpolate_functions
 }
 
 function set_app_settings () {
