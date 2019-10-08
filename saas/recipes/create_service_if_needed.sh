@@ -81,9 +81,50 @@ function get_db_password () {
     echo "fixme010"
 }
 
+function process_acr_registry_key () {
+    local -r theString="${1}"
+    local acr_name rg_name theMessage
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    acr_name=$(jq -r '.registry' <<< "${theMessage}")
+    rg_name=$(jq -r '.resource_group' <<< "${theMessage}")
+    az acr credential show --name "${acr_name}" --resource-group "${rg_name}" 2> /dev/null || echo "FIXME_PASSWORD"
+}
+
+function process_secure_secret () {
+    local -r theString="${1}"
+    echo "FAKE_SECRET"
+}
+
+function dispatch_functions () {
+    declare -a myarray
+    let i=0
+    while IFS=$'\n' read -r line_data; do
+        local array_entry="${line_data}"
+        if (( i % 2 == 1 )); then
+            case "$line_data" in
+                acr_registry_key*)
+                    array_entry="$(process_acr_registry_key "${line_data}")"
+                    ;;
+                secure_secret*)
+                    array_entry="$(process_secure_secret "${line_data}")"
+                    ;;
+                *)
+                   array_entry="UNDEFINED_FUNCTION [${line_data}]"
+                   ;;
+            esac
+        fi
+        myarray[i]="${array_entry}"
+        ((++i))
+    done
+
+    let i=0
+    while (( ${#myarray[@]} > i )); do
+        printf "${myarray[i++]}"
+    done
+}
+
 function interpolate_functions () {
-    echo -n "interpolating: " > /dev/stderr
-    tee /dev/stderr
+    awk '{gsub(/##/,"\n"); print}' | dispatch_functions
 }
 
 function prepare_connection_strings () {
@@ -125,7 +166,7 @@ function set_container_settings () {
 }
 
 function svc_appsettings () {
-    svc_attr 'config' | jq -r '. as $config | keys[] | "\(.)=\($config[.])"' | interpolate_functions
+    svc_strings '' 'config' | interpolate_functions
 }
 
 function set_app_settings () {

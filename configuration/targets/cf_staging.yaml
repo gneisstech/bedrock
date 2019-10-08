@@ -174,10 +174,10 @@ target:
         sku: 'PremiumV2'
         action: 'create'
     container_registries:
-      - name: &primaryACR 'atg-cf-exp2-dev-registry'
+      - name: &primaryACR 'atgcfexp2devregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://atg-cf-exp2-dev-registry.azurecr.io'
+        uri: &uriPrimaryACR 'https://atgcfexp2devregistry.azurecr.io'
         sku: 'Standard'
         admin_enabled: true
         action: 'create'
@@ -202,7 +202,13 @@ target:
           upstreamHost: &postAuthnGateway 'atg-cf-exp2-post-authn-ag'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
@@ -258,7 +264,13 @@ target:
               - *authnContainer
               - ':'
               - *authnTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -283,7 +295,13 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -297,7 +315,13 @@ target:
               - *healthAppContainer
               - ':'
               - *healthAppTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -318,7 +342,13 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -348,7 +378,13 @@ target:
               - *adminApiContainer
               - ':'
               - *adminApiTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -369,7 +405,13 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -399,7 +441,13 @@ target:
               - *healthApiContainer
               - ':'
               - *healthApiTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -420,7 +468,13 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -450,7 +504,13 @@ target:
               - *healthIngestContainer
               - ':'
               - *healthIngestTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -472,7 +532,13 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -486,7 +552,13 @@ target:
               - *shAPPContainer
               - ':'
               - *shAPPTag
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -507,7 +579,13 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             DOCKER_ENABLE_CI: true
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
@@ -537,7 +615,13 @@ target:
               - *shAPIContainer
               - ':'
               - *shAPITag
-            DOCKER_REGISTRY_SERVER_PASSWORD: '##acr_registry_key##'
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
