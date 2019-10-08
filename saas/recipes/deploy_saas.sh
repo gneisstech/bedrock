@@ -36,25 +36,16 @@ function saas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.saas'
 }
 
-function authn_service_names () {
-    saas_configuration | jq -r -e '[.authn_services.services[] | select(.action == "create") | .name ] | @tsv'
+function service_names () {
+    local -r service_group="${1}"
+    saas_configuration | jq -r -e "[.${service_group}.services[] | select(.action == \"create\") | .name ] | @tsv"
 }
 
-function deploy_authn_services () {
-    local authn_service_name
-    for authn_service_name in $(authn_service_names); do
-        invoke_layer 'saas' 'create_authn_service_if_needed' "${authn_service_name}"
-    done
-}
-
-function web_service_names () {
-    saas_configuration | jq -r -e '[.web_services.services[] | select(.action == "create") | .name ] | @tsv'
-}
-
-function deploy_web_services () {
-    local web_service_name
-    for web_service_name in $(web_service_names); do
-        invoke_layer 'saas' 'create_web_service_if_needed' "${web_service_name}"
+function deploy_services () {
+    local -r service_group="${1}"
+    local service_name
+    for service_name in $(service_names "${service_group}"); do
+        invoke_layer 'saas' 'create_service_if_needed' "${service_name}" "${service_group}"
     done
 }
 
@@ -70,9 +61,9 @@ function deploy_application_gateways () {
 }
 
 function deploy_saas () {
-    deploy_authn_services
-    deploy_web_services
-#    deploy_application_gateways
+    deploy_services 'authn_services'
+    deploy_services 'web_services'
+    deploy_application_gateways
 }
 
 deploy_saas
