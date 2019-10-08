@@ -301,15 +301,26 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
-            - name: 'DATABASE_URL'
-              type: 'SQLServer'
-              db_user: *cfDefaultDBAdminName
-              db_password:
-                vault: *cfDefaultDBKeyVault
-                secret_name: *cfDefaultDBSecretName
-              server: *cfDefaultDbServer
-              port: 1433
-              schema: *healthSchema
+            SQLServer:
+              db_funk: "funky monkey"
+              DATABASE_URL:
+                - 'sqlserver://'
+                - *cfDefaultDBAdminName
+                - ':'
+                - '{{'
+                - ' { secure_secret: {vault: '
+                - *cfDefaultDBKeyVault
+                - ', secret_name: '
+                - *cfDefaultDBSecretName
+                - '} '
+                - '} '
+                - '}}'
+                - '@'
+                - *cfDefaultDbServer
+                - ':'
+                - 1433
+                - '/'
+                - *healthSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -345,15 +356,25 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
-            - name: 'DATABASE_URL'
-              type: 'SQLServer'
-              db_user: *cfDefaultDBAdminName
-              db_password:
-                vault: *cfDefaultDBKeyVault
-                secret_name: *cfDefaultDBSecretName
-              server: *cfDefaultDbServer
-              port: 1433
-              schema: *healthSchema
+            SQLServer:
+              DATABASE_URL:
+                - 'sqlserver://'
+                - *cfDefaultDBAdminName
+                - ':'
+                - '{{'
+                - ' { secure_secret: {vault: '
+                - *cfDefaultDBKeyVault
+                - ', secret_name: '
+                - *cfDefaultDBSecretName
+                - '} '
+                - '} '
+                - '}}'
+                - '@'
+                - *cfDefaultDbServer
+                - ':'
+                - 1433
+                - '/'
+                - *healthSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -389,15 +410,25 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
-            - name: 'DATABASE_URL'
-              type: 'SQLServer'
-              db_user: *cfDefaultDBAdminName
-              db_password:
-                vault: *cfDefaultDBKeyVault
-                secret_name: *cfDefaultDBSecretName
-              server: *cfDefaultDbServer
-              port: 1433
-              schema: *healthSchema
+            SQLServer:
+              DATABASE_URL:
+                - 'sqlserver://'
+                - *cfDefaultDBAdminName
+                - ':'
+                - '{{'
+                - ' { secure_secret: {vault: '
+                - *cfDefaultDBKeyVault
+                - ', secret_name: '
+                - *cfDefaultDBSecretName
+                - '} '
+                - '} '
+                - '}}'
+                - '@'
+                - *cfDefaultDbServer
+                - ':'
+                - 1433
+                - '/'
+                - *healthSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -469,15 +500,25 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
-            - name: 'DATABASE_URL'
-              type: 'SQLServer'
-              db_user: *cfDefaultDBAdminName
-              db_password:
-                vault: *cfDefaultDBKeyVault
-                secret_name: *cfDefaultDBSecretName
-              server: *cfDefaultDbServer
-              port: 1433
-              schema: *selfHealingSchema
+            SQLServer:
+              DATABASE_URL:
+                - 'sqlserver://'
+                - *cfDefaultDBAdminName
+                - ':'
+                - '{{'
+                - ' { secure_secret: {vault: '
+                - *cfDefaultDBKeyVault
+                - ', secret_name: '
+                - *cfDefaultDBSecretName
+                - '} '
+                - '} '
+                - '}}'
+                - '@'
+                - *cfDefaultDbServer
+                - ':'
+                - 1433
+                - '/'
+                - *selfHealingSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'

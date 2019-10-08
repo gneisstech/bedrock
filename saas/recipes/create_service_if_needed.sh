@@ -48,13 +48,19 @@ function saas_configuration () {
 
 function svc_attr () {
     local -r attr="${1}"
-    saas_configuration | jq -r -e ".${SERVICE_GROUP}.services[] | select(.name == \"$(service_name)\") | .${attr}"
+    saas_configuration | jq -r -e ".${SERVICE_GROUP}.services[] | select(.name == \"$(service_name)\") | .${attr} // empty"
 }
 
 function svc_string () {
     local -r attr="${1}"
     local -r key="${2}"
     svc_attr "${attr}" | jq -r -e ".${key} | if type==\"array\" then join(\"\") else . end"
+}
+
+function svc_strings () {
+    local -r attr="${1}"
+    local -r key="${2}"
+    svc_attr "${attr}" | jq -r -e ".${key}[] | if type==\"array\" then join(\"\") else . end"
 }
 
 function service_resource_group () {
@@ -75,42 +81,26 @@ function get_db_password () {
     echo "fixme010"
 }
 
-function prepare_connection_string () {
-    local index="${1}"
-    local theString
-    theString="$(svc_attr "connection_strings[${index}].name")"
-    theString="${theString}=sqlserver://"
-    theString="${theString}$(svc_attr "connection_strings[${index}].db_user")"
-    theString="${theString}:"
-    theString="${theString}$( \
-        get_db_password \
-        "$(svc_attr "connection_strings[${index}].db_password.vault")" \
-        "$(svc_attr "connection_strings[${index}].db_password.secret_name")" \
-    )"
-    theString="${theString}@"
-    theString="${theString}$(svc_attr "connection_strings[${index}].server")"
-    theString="${theString}:"
-    theString="${theString}$(svc_attr "connection_strings[${index}].port")"
-    theString="${theString}/"
-    theString="${theString}$(svc_attr "connection_strings[${index}].schema")"
-    echo "${theString}"
+function prepare_connection_strings () {
+    local type="${1}"
+    svc_strings 'connection_strings' "${type}"
 }
 
-function count_connection_strings () {
-    svc_attr 'connection_strings' | jq -r -e 'length // 0'
+function connection_string_types () {
+    svc_attr 'connection_strings' | jq -r -e 'keys | @tsv'
 }
 
 function set_connection_strings () {
-    local i
-    for i in $(seq 0 "$(count_connection_strings)"); do
-        if [[ "SQLServer" == "$(svc_attr "connection_strings[${i}].type")" ]]; then
+    if [[ -n "$(svc_attr 'connection_strings')" ]]; then
+        local i
+        for i in $(connection_string_types); do
             echo az webapp config connection-string set \
                 --name "$(service_name)" \
                 --resource-group "$(service_resource_group)" \
-                --connection-string-type "$(svc_attr "connection_strings[${i}].type")" \
-                --settings "$(prepare_connection_string "${i}")"
-        fi
-    done
+                --connection-string-type "${i}" \
+                --settings "$(prepare_connection_strings "${i}")"
+        done
+    fi
 }
 
 function svc_appsettings () {
