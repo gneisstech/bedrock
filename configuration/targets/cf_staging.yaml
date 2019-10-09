@@ -652,7 +652,7 @@ target:
         http_settings_cookie_based_affinity: 'Disabled'
         http_settings_port: 80
         http_settings_protocol: 'Http'
-        http2: true
+        http2: 'Enabled'
         routing_rule_type: 'Basic'
         sku: 'WAF_v2'
         servers:
