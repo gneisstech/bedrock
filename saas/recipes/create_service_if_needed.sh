@@ -82,7 +82,12 @@ function process_acr_registry_key () {
     theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
     acr_name="$(jq -r '.registry' <<< "${theMessage}")"
     rg_name="$(jq -r '.resource_group' <<< "${theMessage}")"
-    az acr credential show --name "${acr_name}" --resource-group "${rg_name}" 2> /dev/null || echo "FIXME_PASSWORD"
+    az acr credential show \
+        --name "${acr_name}" \
+        --resource-group "${rg_name}" \
+        2> /dev/null \
+    | jq -r -e '.passwords[0].value' \
+    || echo "FIXME_PASSWORD"
 }
 
 function get_vault_secret () {
@@ -198,6 +203,13 @@ function set_container_settings () {
         --enable-app-service-storage "$(container_settings_string 'WEBSITES_ENABLE_APP_SERVICE_STORAGE')"
 }
 
+function enable_container_continuous_deployment () {
+    $AZ_TRACE webapp deployment container config \
+        --name "$(service_name)" \
+        --resource-group "$(service_resource_group)" \
+        --enable-cd
+}
+
 function svc_appsettings () {
     svc_strings '' 'config' | interpolate_functions
 }
@@ -219,14 +231,14 @@ function webhook_uri () {
         --name "$(service_name)" \
         --resource-group "$(service_resource_group)" \
         2> /dev/null \
-    | jq -r -e '.CI_CD_URL // "unavailable"'
+    | jq -r -e '.CI_CD_URL // "https://unavailable"'
 }
 
 function set_webhook () {
     # shellcheck disable=SC2046
     $AZ_TRACE acr webhook create \
         --name "$(svc_attr 'acr_webhook.name')" \
-        --resource-group "$(service_resource_group)" \
+        --resource-group "$(svc_attr 'acr_webhook.resource_group')" \
         --registry "$(svc_attr 'acr_webhook.registry')" \
         --scope "$(svc_attr 'container.name'):$(svc_attr 'container.tag')" \
         --status "$(svc_attr 'acr_webhook.status')" \
@@ -249,6 +261,7 @@ function deploy_service () {
         --deployment-container-image-name "$(service_container_path)"
     set_connection_strings
     set_container_settings
+    enable_container_continuous_deployment
     set_app_settings
     set_webhook
 }
