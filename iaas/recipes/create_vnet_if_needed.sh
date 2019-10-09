@@ -88,7 +88,7 @@ function deploy_subnet () {
     local -r index="${1}"
     $AZ_TRACE network vnet subnet create \
         --name "$(subnet_name "${index}")" \
-        --vnet_name "$(vnet_name)" \
+        --vnet-name "$(vnet_name)" \
         --resource-group "$(vnet_resource_group)" \
         --address-prefixes "$(subnet_cidr "${index}")"
 }

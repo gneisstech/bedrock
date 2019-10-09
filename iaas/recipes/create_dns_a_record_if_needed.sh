@@ -94,7 +94,7 @@ function create_dns_a_record () {
         --zone-name "$(dns_a_record_zone)" \
         --target-resource "$(dns_target_resource)" \
         --if-none-match \
-        -ttl "$(dns_a_record_ttl)"
+        --ttl "$(dns_a_record_ttl)"
 }
 
 function dns_zone_exists () {
