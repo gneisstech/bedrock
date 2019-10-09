@@ -63,11 +63,18 @@ function server_farm_already_exists () {
     | fail_empty_set
 }
 
+function linux_option_if_needed () {
+    if [[ "true" == "$(plan_attr 'is_linux')" ]]; then
+        echo "--is-linux"
+    fi
+}
+
 function deploy_server_farm () {
+    #  shellcheck disable=SC2046
     $AZ_TRACE appservice plan create \
         --name "$(server_farm_name)" \
         --resource-group "$(server_farm_resource_group)" \
-        --is-linux "$(plan_attr 'is_linux')" \
+        "$(linux_option_if_needed)" \
         --number-of-workers "$(plan_attr 'number_of_workers')" \
         --sku "$(plan_attr 'sku')"
 }

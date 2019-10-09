@@ -69,7 +69,7 @@ function random_key () {
 
 function create_kv_database_server_admin_password () {
     local password
-    password=$(random_key)
+    password="pass!$(random_key)"
     az keyvault secret set \
         --vault-name "$(server_attr 'admin_password_kv.vault')" \
         --name "$(server_attr 'admin_password_kv.secret_name')" \
@@ -91,7 +91,7 @@ function database_server_admin_password () {
 }
 
 function database_server_already_exists () {
-    az sql server \
+    az sql server show \
         --name "$(database_server_name)" \
         --resource-group "$(database_server_resource_group)" \
         > /dev/null 2>&1
