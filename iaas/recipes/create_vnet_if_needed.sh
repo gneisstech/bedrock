@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -54,7 +55,7 @@ function vnet_already_exists () {
 }
 
 function deploy_vnet () {
-    echo az network vnet create \
+    $AZ_TRACE network vnet create \
         --name "$(vnet_name)" \
         --resource-group "$(vnet_resource_group)" \
         --address-prefixes "$(vnet_cidr)"
@@ -85,7 +86,7 @@ function subnet_cidr () {
 
 function deploy_subnet () {
     local -r index="${1}"
-    echo az network vnet subnet create \
+    $AZ_TRACE network vnet subnet create \
         --name "$(subnet_name "${index}")" \
         --vnet_name "$(vnet_name)" \
         --resource-group "$(vnet_resource_group)" \

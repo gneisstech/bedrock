@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -87,7 +88,7 @@ function dns_target_resource () {
 }
 
 function create_dns_a_record () {
-    echo az network dns record-set a create \
+    $AZ_TRACE network dns record-set a create \
         --name "$(dns_a_record_host)" \
         --resource-group "$(dns_a_record_resource_group)" \
         --zone-name "$(dns_a_record_zone)" \

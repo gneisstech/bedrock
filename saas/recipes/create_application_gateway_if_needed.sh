@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -76,7 +77,7 @@ function options_list_if_present () {
 
 function deploy_application_gateway () {
     #  shellcheck disable=SC2046
-    echo az network application-gateway create \
+    $AZ_TRACE network application-gateway create \
         --name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --max-capacity "$(gw_attr 'max_capacity')" \

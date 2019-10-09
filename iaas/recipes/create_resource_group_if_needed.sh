@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -32,7 +33,7 @@ function resource_group_already_exists () {
 }
 
 function create_resource_group () {
-    echo az group create --name "$(rg_name)" --location "$(rg_location)"
+    $AZ_TRACE group create --name "$(rg_name)" --location "$(rg_location)"
 }
 
 function create_resource_group_if_needed () {

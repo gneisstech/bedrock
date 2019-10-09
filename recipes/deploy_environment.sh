@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -x AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -28,7 +29,14 @@ function invoke_layer () {
   "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
 }
 
+function init_trace () {
+    if [[ -z "${AZ_TRACE}" ]]; then
+        export AZ_TRACE="echo az"
+    fi
+}
+
 function deploy_environment () {
+    init_trace
     #invoke_layer 'iaas' 'deploy_iaas'
     #invoke_layer 'paas' 'deploy_paas'
     invoke_layer 'saas' 'deploy_saas'

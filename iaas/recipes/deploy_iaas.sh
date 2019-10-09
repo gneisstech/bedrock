@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------

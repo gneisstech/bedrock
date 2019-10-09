@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -50,7 +51,7 @@ function public_ip_already_exists () {
 }
 
 function create_public_ip () {
-    echo az network public-ip create \
+    $AZ_TRACE network public-ip create \
         --name "$(public_ip_name)" \
         --resource-group "$(public_ip_resource_group)" \
         --allocation-method 'Static'

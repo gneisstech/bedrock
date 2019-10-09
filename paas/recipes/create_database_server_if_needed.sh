@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -97,7 +98,7 @@ function database_server_already_exists () {
 }
 
 function deploy_database_server () {
-    echo az sql server create \
+    $AZ_TRACE sql server create \
         --name "$(database_server_name)" \
         --resource-group "$(database_server_resource_group)" \
         --assign-identity \

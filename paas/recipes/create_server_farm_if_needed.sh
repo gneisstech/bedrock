@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -63,7 +64,7 @@ function server_farm_already_exists () {
 }
 
 function deploy_server_farm () {
-    echo az appservice plan create \
+    $AZ_TRACE appservice plan create \
         --name "$(server_farm_name)" \
         --resource-group "$(server_farm_resource_group)" \
         --is-linux "$(plan_attr 'is_linux')" \

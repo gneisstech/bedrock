@@ -43,10 +43,10 @@ function keyvault_already_exists () {
 }
 
 function create_keyvault () {
-  echo az keyvault create \
-    --name "$(keyvault_name)" \
-    --resource-group "$(get_keyvault_rg)" \
-    --enabled-for-template-deployment
+    $AZ_TRACE keyvault create \
+        --name "$(keyvault_name)" \
+        --resource-group "$(get_keyvault_rg)" \
+        --enabled-for-template-deployment
 }
 
 function create_keyvault_if_needed () {

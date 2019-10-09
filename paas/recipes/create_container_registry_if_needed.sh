@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -62,7 +63,7 @@ function container_registry_already_exists () {
 }
 
 function deploy_container_registry () {
-    echo az acr create \
+    $AZ_TRACE acr create \
         --name "$(container_registry_name)" \
         --resource-group "$(container_registry_resource_group)" \
         --sku "$(acr_attr 'sku')" \

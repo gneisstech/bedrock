@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -172,7 +173,7 @@ function set_connection_strings () {
     if [[ -n "$(svc_attr 'connection_strings')" ]]; then
         local i
         for i in $(connection_string_types); do
-            echo az webapp config connection-string set \
+            $AZ_TRACE webapp config connection-string set \
                 --name "$(service_name)" \
                 --resource-group "$(service_resource_group)" \
                 --connection-string-type "${i}" \
@@ -187,7 +188,7 @@ function container_settings_string () {
 }
 
 function set_container_settings () {
-    echo az webapp config container set \
+    $AZ_TRACE webapp config container set \
         --name "$(service_name)" \
         --resource-group "$(service_resource_group)" \
         --docker-custom-image-name "$(container_settings_string 'DOCKER_CUSTOM_IMAGE_NAME')" \
@@ -203,7 +204,7 @@ function svc_appsettings () {
 
 function set_app_settings () {
     # shellcheck disable=SC2046
-    echo az webapp config appsettings set \
+    $AZ_TRACE webapp config appsettings set \
         --name "$(service_name)" \
         --resource-group "$(service_resource_group)" \
         --settings $(svc_appsettings)
@@ -223,7 +224,7 @@ function webhook_uri () {
 
 function set_webhook () {
     # shellcheck disable=SC2046
-    echo az acr webhook create \
+    $AZ_TRACE acr webhook create \
         --name "$(svc_attr 'acr_webhook.name')" \
         --resource-group "$(service_resource_group)" \
         --registry "$(svc_attr 'acr_webhook.registry')" \
@@ -241,7 +242,7 @@ function service_already_exists () {
 }
 
 function deploy_service () {
-    echo az webapp create \
+    $AZ_TRACE webapp create \
         --name "$(service_name)" \
         --resource-group "$(service_resource_group)" \
         --plan "$(service_plan)" \
@@ -257,4 +258,3 @@ function create_service_if_needed () {
 }
 
 create_service_if_needed
-
