@@ -216,7 +216,7 @@ target:
               - '##secure_secret={"vault":"'
               - *cfDefaultDBKeyVault
               - '","secret_name":"'
-              - 'oauth2-proxy-client-secret'
+              - &oauthProxyClientSecretName 'atg-cf-oauth2-proxy-client-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
@@ -225,7 +225,7 @@ target:
               - '##secure_secret={"vault":"'
               - *cfDefaultDBKeyVault
               - '","secret_name":"'
-              - 'oauth2-proxy-cookie-secret'
+              - 'atg-cf-oauth2-proxy-cookie-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
@@ -238,7 +238,7 @@ target:
             OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: true
             OAUTH2_PROXY_PING_PATH: '/'
             OAUTH2_PROXY_PROVIDER: 'azure'
-            OAUTH2_PROXY_REDIRECT_URL:
+            OAUTH2_PROXY_REDIRECT_URL: &appAuthCallbackURL
               - 'https://'
               - *dnsHost
               - '.'
@@ -696,3 +696,11 @@ target:
         waf_config:
           enabled: false
         action: 'preserve'
+    application_registration:
+      tenant: *appRegistrationTenant
+      application_id: *appRegistrationID
+      variables:
+        app_auth_callback_url: *appAuthCallbackURL
+      client_secret:
+        vault: *cfDefaultDBKeyVault
+        secret_name: *oauthProxyClientSecretName

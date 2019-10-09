@@ -60,10 +60,16 @@ function deploy_application_gateways () {
     done
 }
 
+function register_application () {
+    local -r service_group="${1}"
+    invoke_layer 'saas' 'register_application_if_needed' "${service_group}"
+}
+
 function deploy_saas () {
     deploy_services 'authn_services'
     deploy_services 'web_services'
     deploy_application_gateways
+    register_application 'application_registration'
 }
 
 deploy_saas
