@@ -91,7 +91,7 @@ function new_reply_urls_array () {
 function add_reply_url_to_application_if_needed () {
     # shellcheck disable=SC2046
     echo az ad app update \
-        --subscription "${previous_subscription}" \
+        --subscription "$(svc_attr 'tenant')" \
         --id "$(svc_attr 'application_id')" \
         --reply_urls $(new_reply_urls_array)
 }
@@ -104,7 +104,7 @@ function add_client_secret_to_application () {
     if [[ -n "${secret}" ]]; then
         az account set --subscription "$(svc_attr 'tenant')"
         echo az ad app update \
-            --subscription "${previous_subscription}" \
+            --subscription "$(svc_attr 'tenant')" \
             --id "$(svc_attr 'application_id')" \
             --credential-description "$(svc_attr 'client_secret.secret_name')" \
             --password "${secret}"
