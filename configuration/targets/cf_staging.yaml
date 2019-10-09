@@ -591,6 +591,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            DATABASE_CONN_STRING: ''  # will be overridden by the connection string
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
@@ -605,22 +606,22 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             SQLServer:
-              DATABASE_URL:
-                - 'sqlserver://'
+              DATABASE_CONN_STRING:
+                - 'DRIVER={FreeTDS};SERVER='
+                - *cfDefaultDbServer
+                - ';DATABASE='
+                - *selfHealingSchema
+                - ';UID='
                 - *cfDefaultDBAdminName
-                - ':'
+                - ';PWD='
                 - '##secure_secret={"vault":"'
                 - *cfDefaultDBKeyVault
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
                 - '##'
-                - '@'
-                - *cfDefaultDbServer
-                - ':'
+                - ';PORT='
                 - 1433
-                - '/'
-                - *selfHealingSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -687,7 +688,7 @@ target:
         http_settings_cookie_based_affinity: 'Disabled'
         http_settings_port: 80
         http_settings_protocol: 'Http'
-        http2: true
+        http2: 'Enabled'
         routing_rule_type: 'Basic'
         sku: 'WAF_v2'
         servers:
