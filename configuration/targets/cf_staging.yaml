@@ -722,3 +722,4 @@ target:
       client_secret:
         vault: *cfDefaultDBKeyVault
         secret_name: *oauthProxyClientSecretName
+        description: 'cf-authn-gw'
