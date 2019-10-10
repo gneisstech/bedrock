@@ -60,6 +60,42 @@ function application_gateway_already_exists () {
 
 function foo3 () {
 cat <<END3
+az network application-gateway --help
+
+Group
+    az network application-gateway : Manage application-level routing and load balancing services.
+        To learn more about Application Gateway, visit https://docs.microsoft.com/azure/application-
+        gateway/application-gateway-create-gateway-cli.
+
+Subgroups:
+    address-pool        : Manage address pools of an application gateway.
+    auth-cert           : Manage authorization certificates of an application gateway.
+    frontend-ip         : Manage frontend IP addresses of an application gateway.
+    frontend-port       : Manage frontend ports of an application gateway.
+    http-listener       : Manage HTTP listeners of an application gateway.
+    http-settings       : Manage HTTP settings of an application gateway.
+    probe               : Manage probes to gather and evaluate information on a gateway.
+    redirect-config     : Manage redirect configurations.
+    rewrite-rule        : Manage rewrite rules of an application gateway.
+    root-cert           : Manage trusted root certificates of an application gateway.
+    rule                : Evaluate probe information and define routing rules.
+    ssl-cert            : Manage SSL certificates of an application gateway.
+    ssl-policy          : Manage the SSL policy of an application gateway.
+    url-path-map        : Manage URL path maps of an application gateway.
+    waf-config          : Configure the settings of a web application firewall.
+    waf-policy          : Manage application gateway web application firewall (WAF) policies.
+
+Commands:
+    create              : Create an application gateway.
+    delete              : Delete an application gateway.
+    list                : List application gateways.
+    show                : Get the details of an application gateway.
+    show-backend-health : Get information on the backend health of an application gateway.
+    start               : Start an application gateway.
+    stop                : Stop an application gateway.
+    update              : Update an application gateway.
+    wait                : Place the CLI in a waiting state until a condition of the application
+                          gateway is met.
     --cert-file "$(gw_attr '')" \
     --cert-password "$(gw_attr '')"
 END3
@@ -73,6 +109,10 @@ function options_list_if_present () {
     if [[ -n "${option_value}" ]]; then
         echo -n "--${option_key} ${option_value}"
     fi
+}
+
+function certificate_options () {
+    echo ""
 }
 
 function deploy_application_gateway () {
@@ -95,10 +135,25 @@ function deploy_application_gateway () {
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
         $(options_list_if_present 'waf-policy' 'waf_policy') \
         $(certificate_options)
+
+    # address_pool (backends)
+    # front_end_ip
+    # front_end_port
+    # http_listener
+    # http_settings
+    # probe
+    # rewrite_rules
+    # request_routing_rules
+    # ssl_cert
+    # ssl_policy
+    # waf_config
+    #
 }
 
 function foo () {
-cat <<END
+cat > /dev/null <<END
+
+
         --no-wait                             : Do not wait for the long-running operation to finish.
         --tags                                : Space-separated tags in 'key[=value]' format. Use '' to
                                                 clear existing tags.
@@ -122,7 +177,10 @@ END
 }
 
 function foo2 () {
-cat <<END2
+cat >/dev/null <<END2
+
+https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
+
 az network application-gateway waf-config set --enabled {false, true}
                                               [--disabled-rule-groups]
                                               [--disabled-rules]

@@ -39,13 +39,18 @@ target:
     networking:
       public_ip:
         - name: &wafIP 'atg-cf-exp2-waf-pip'
-          resource_group: *cfNetworksRG
+          resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
+          sku: 'Standard'
+          allocation_method: 'Static'
           action: 'create'
         - name: &postAuthnIP 'atg-cf-exp2-post-auth-pip'
-          resource_group: *cfNetworksRG
+          resource_group: *cfAuthNSvcRG
+          subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
+          sku: 'Standard'
+          allocation_method: 'Static'
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
@@ -648,7 +653,7 @@ target:
         capacity: 2
         min_capacity: 2
         max_capacity: 10
-        frontend_port: 443
+        frontend_port: 80  # @@ fixme
         http_settings_cookie_based_affinity: 'Disabled'
         http_settings_port: 80
         http_settings_protocol: 'Http'
@@ -658,6 +663,10 @@ target:
         servers:
           - *cfAuthnService
         private_ip_addresses: []
+        # lessons learned: if a named pip exists and provided, but in a different RG, the WAF template tries to create
+        # the same name in its own RG, and fails because it uses an incompatible SKU to do it.
+        # the workarounds are to (1) create the named pip in the WAF RG prior to creating the WAF, or (2) use
+        # the full resource ID path of the prexisting pip in the other RG
         public_ip_addresses:
           - *wafIP
         waf_policy: []
@@ -684,7 +693,7 @@ target:
         capacity: 2
         min_capacity: 2
         max_capacity: 10
-        frontend_port: 443
+        frontend_port: 80  # @@ fixme
         http_settings_cookie_based_affinity: 'Disabled'
         http_settings_port: 80
         http_settings_protocol: 'Http'
