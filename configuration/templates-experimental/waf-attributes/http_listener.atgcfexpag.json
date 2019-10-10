@@ -1,0 +1,26 @@
+[
+  {
+    "customErrorConfigurations": null,
+    "etag": "W/\"2e6e70ca-b90e-4bd8-97fc-a50c30280e67\"",
+    "frontendIpConfiguration": {
+      "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/frontendIPConfigurations/appGwPublicFrontendIp",
+      "resourceGroup": "CF-EXP"
+    },
+    "frontendPort": {
+      "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/frontendPorts/port_443",
+      "resourceGroup": "CF-EXP"
+    },
+    "hostName": null,
+    "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/httpListeners/listener1",
+    "name": "listener1",
+    "protocol": "Https",
+    "provisioningState": "Succeeded",
+    "requireServerNameIndication": false,
+    "resourceGroup": "CF-EXP",
+    "sslCertificate": {
+      "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/sslCertificates/wc3.dev.atrius-iot.com",
+      "resourceGroup": "CF-EXP"
+    },
+    "type": "Microsoft.Network/applicationGateways/httpListeners"
+  }
+]

@@ -42,8 +42,13 @@ function iaas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.iaas'
 }
 
+function ip_attr () {
+    local -r attr="${1}"
+    iaas_configuration | jq -r -e ".networking.public_ip[] | select(.name == \"$(public_ip_name)\") | .${attr}"
+}
+
 function public_ip_resource_group () {
-    iaas_configuration | jq -r -e ".networking.public_ip[] | select(.name == \"$(public_ip_name)\") | .resource_group"
+    ip_attr 'resource_group'
 }
 
 function public_ip_already_exists () {
@@ -53,8 +58,9 @@ function public_ip_already_exists () {
 function create_public_ip () {
     $AZ_TRACE network public-ip create \
         --name "$(public_ip_name)" \
-        --resource-group "$(public_ip_resource_group)" \
-        --allocation-method 'Static'
+        --resource-group "$(ip_attr 'resource_group')" \
+        --sku "$(ip_attr 'sku')" \
+        --allocation-method "$(ip_attr 'allocation_method')"
 }
 
 function create_public_ip_if_needed () {
