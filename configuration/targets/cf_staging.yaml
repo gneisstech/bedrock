@@ -666,7 +666,7 @@ target:
         # lessons learned: if a named pip exists and provided, but in a different RG, the WAF template tries to create
         # the same name in its own RG, and fails because it uses an incompatible SKU to do it.
         # the workarounds are to (1) create the named pip in the WAF RG prior to creating the WAF, or (2) use
-        # the full resource ID path of the prexisting pip in the other RG
+        # the full resource ID path of the pre-existing pip in the other RG
         public_ip_addresses:
           - *wafIP
         waf_policy: []
@@ -678,6 +678,16 @@ target:
           request_body_check: true
           rule_set_type: 'OWASP'
           rule_set_version: '3.1'
+        tls_policy:
+          name: 'cf-strict-tls-policy'
+          cipherSuites:
+            - 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+            - 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+            - 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+            - 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+            - 'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
+          minProtocolVersion: 'TLSv1_2'
+          policyType: Custom
         tls_certificate:
           origin:
             vault_name: *atriusKVName
@@ -686,6 +696,36 @@ target:
             vault_name: *kvName
             tls_cert_secret_name: 'developer-devatrius-iotcom-tls-cert'
             tls_password_secret_name: 'developer-devatrius-iotcom-password'
+        probe:
+          name: &wafProbe 'cf-strict-probe'
+          arm_type: 'Microsoft.Network/applicationGateways/probes'
+          interval: 30
+          timeout: 30
+          match:
+            body: ''
+            statusCodes:
+              - '200-399'
+          minServers: 0
+          path: '/'
+          pickHostNameFromBackendHttpSettings: true
+          protocol: 'Http'
+          unhealthyThreshold: 3
+        http_settings:
+          name: 'cf-default-http-settings'
+          arm_type: 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection'
+          affinityCookieName: 'ApplicationGatewayAffinity'
+          authenticationCertificates: []
+          connectionDraining: 0
+          cookieBasedAffinity: 'Disabled'
+          path: ''
+          pickHostNameFromBackendAddress: true
+          port: 80
+          probe:
+            name: *wafProbe
+          probeEnabled: false
+          protocol: Http
+          requestTimeout: 20
+          trustedRootCertificates: []
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'

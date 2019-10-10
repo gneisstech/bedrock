@@ -56,6 +56,7 @@ function application_gateway_already_exists () {
         --name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         > /dev/null 2>&1
+    false # @@ TODO remove me
 }
 
 function foo3 () {
@@ -115,7 +116,7 @@ function certificate_options () {
     echo ""
 }
 
-function deploy_application_gateway () {
+function create_application_gateway () {
     #  shellcheck disable=SC2046
     $AZ_TRACE network application-gateway create \
         --name "$(application_gateway_name)" \
@@ -135,70 +136,114 @@ function deploy_application_gateway () {
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
         $(options_list_if_present 'waf-policy' 'waf_policy') \
         $(certificate_options)
+}
 
-    # address_pool (backends)
+function set_waf_config () {
+    $AZ_TRACE network application-gateway waf-config set \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --enabled "$(gw_attr 'waf_config.enabled')" \
+        --file-upload-limit "$(gw_attr 'waf_config.file_upload_limit')" \
+        --firewall-mode "$(gw_attr 'waf_config.firewall_mode')" \
+        --max-request-body-size "$(gw_attr 'waf_config.max_request_body_size')" \
+        --request-body-check "$(gw_attr 'waf_config.request_body_check')" \
+        --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
+        --rule-set-version "$(gw_attr 'waf_config.rule_set_version')"
+}
+
+function gw_attr_size () {
+    local -r attr="${1}"
+    gw_attr "${attr}" | jq -r -e 'length // 0'
+}
+
+function authentication_certificates_option () {
+    if [[ "0" != "$(gw_attr_size 'http_settings.authenticationCertificates')" ]]; then
+        echo "--auth-certs "
+        gw_attr 'http_settings.authenticationCertificates' | jq -r -e '. | @tsv' 2> /dev/null
+    fi
+}
+
+function trusted_root_certificates_option () {
+    if [[ "0" != "$(gw_attr_size 'http_settings.trustedRootCertificates')" ]]; then
+        echo "--root-certs"
+        gw_attr 'http_settings.trustedRootCertificates' | jq -r -e '. | @tsv' 2> /dev/null
+    fi
+}
+
+function http_settings () {
+    #  shellcheck disable=SC2046
+    $AZ_TRACE network application-gateway http-settings create \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "$(gw_attr 'http_settings.name')" \
+        --port "$(gw_attr 'http_settings.port')" \
+        --affinity-cookie-name "$(gw_attr 'http_settings.affinityCookieName')" \
+        "$(authentication_certificates_option)" \
+        --connection-draining-timeout "$(gw_attr 'http_settings.connectionDraining')" \
+        --cookie-based-affinity "$(gw_attr 'http_settings.cookieBasedAffinity')" \
+        --enable-probe "$(gw_attr 'http_settings.probeEnabled')" \
+        --host-name-from-backend-pool "$(gw_attr 'http_settings.pickHostNameFromBackendAddress')" \
+        --path "$(gw_attr 'http_settings.path')" \
+        --probe "$(gw_attr 'http_settings.probe.name')" \
+        --protocol "$(gw_attr 'http_settings.protocol')" \
+        "$(trusted_root_certificates_option)" \
+        --timeout "$(gw_attr 'http_settings.requestTimeout')"
+}
+
+function match_status_codes () {
+    gw_attr 'probe.match.statusCodes' | jq -r -e '. | @tsv' 2> /dev/null
+}
+
+function set_probe () {
+    $AZ_TRACE network application-gateway probe create \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "$(gw_attr 'probe.name')" \
+        --path "$(gw_attr 'probe.path')" \
+        --protocol "$(gw_attr 'probe.protocol')" \
+        --host-name-from-http-settings "$(gw_attr 'probe.pickHostNameFromBackendHttpSettings')" \
+        --interval "$(gw_attr 'probe.interval')" \
+        --match-body "$(gw_attr 'probe.match.body')" \
+        --match-status-codes "$(match_status_codes)" \
+        --min-servers "$(gw_attr 'probe.minServers')" \
+        --threshold "$(gw_attr 'probe.unhealthyThreshold')" \
+        --timeout "$(gw_attr 'probe.timeout')"
+}
+
+function cipher_suites () {
+    gw_attr 'tls_policy.cipherSuites' | jq -r -e '. | @tsv' 2> /dev/null
+}
+
+function set_ssl_policy () {
+    $AZ_TRACE network application-gateway ssl-policy set \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "$(gw_attr 'tls_policy.name')" \
+        --cipher-suites  "$(cipher_suites)" \
+        --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')" \
+        --policy-type  "$(gw_attr 'tls_policy.policyType')"
+}
+
+#
+# https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
+#
+function deploy_application_gateway () {
+#    create_application_gateway
+    set_waf_config
+
     # front_end_ip
-    # front_end_port
     # http_listener
     # http_settings
-    # probe
+    set_probe
+    # redirect-config
     # rewrite_rules
     # request_routing_rules
     # ssl_cert
-    # ssl_policy
-    # waf_config
-    #
+    set_ssl_policy
+
+    # url_path_map
 }
 
-function foo () {
-cat > /dev/null <<END
-
-
-        --no-wait                             : Do not wait for the long-running operation to finish.
-        --tags                                : Space-separated tags in 'key[=value]' format. Use '' to
-                                                clear existing tags.
-        --validate                            : Generate and validate the ARM template without creating
-                                                any resources.
-        --zones -z                            : Space-separated list of availability zones into which to
-                                                provision the resource.  Allowed values: 1, 2, 3.
-        --public-ip-address-allocation        : The kind of IP allocation to use when creating a new
-                                                public IP.  Default: Dynamic.
-        --subnet                              : Name or ID of the subnet. Will create resource if it
-                                                does not exist. If name specified, also specify --vnet-
-                                                name.  Default: default.
-        --subnet-address-prefix               : The CIDR prefix to use when creating a new subnet.
-                                                Default: 10.0.0.0/24.
-        --vnet-address-prefix                 : The CIDR prefix to use when creating a new VNet.
-                                                Default: 10.0.0.0/16.
-        --vnet-name                           : The virtual network (VNet) name.
-
-END
-
-}
-
-function foo2 () {
-cat >/dev/null <<END2
-
-https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
-
-az network application-gateway waf-config set --enabled {false, true}
-                                              [--disabled-rule-groups]
-                                              [--disabled-rules]
-                                              [--exclusion]
-                                              [--file-upload-limit]
-                                              [--firewall-mode {Detection, Prevention}]
-                                              [--gateway-name]
-                                              [--ids]
-                                              [--max-request-body-size]
-                                              [--no-wait]
-                                              [--request-body-check {false, true}]
-                                              [--resource-group]
-                                              [--rule-set-type]
-                                              [--rule-set-version]
-                                              [--subscription]
-END2
-
-}
 function create_application_gateway_if_needed () {
     application_gateway_already_exists || deploy_application_gateway
 }
