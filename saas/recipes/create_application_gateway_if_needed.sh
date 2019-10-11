@@ -51,12 +51,15 @@ function application_gateway_resource_group () {
     gw_attr 'resource_group'
 }
 
+function random_key () {
+    hexdump -n 27 -e '"%02X"'  /dev/urandom
+}
+
 function application_gateway_already_exists () {
     az network application-gateway show \
         --name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         > /dev/null 2>&1
-    false # @@ TODO remove me
 }
 
 function foo3 () {
@@ -97,8 +100,6 @@ Commands:
     update              : Update an application gateway.
     wait                : Place the CLI in a waiting state until a condition of the application
                           gateway is met.
-    --cert-file "$(gw_attr '')" \
-    --cert-password "$(gw_attr '')"
 END3
 }
 
@@ -112,13 +113,78 @@ function options_list_if_present () {
     fi
 }
 
-function certificate_options () {
-    echo ""
+function get_original_cert_from_shared_vault () {
+    $AZ_TRACE keyvault secret show \
+        --vault-name "$(gw_attr 'tls_certificate.origin.vault_name')" \
+        --name "$(gw_attr 'tls_certificate.origin.tls_secret_name')" \
+        2> /dev/null \
+    | jq -r '.value'
+}
+
+function pkcs12_to_pem () {
+    base64 --decode | openssl pkcs12 -nodes -in /dev/stdin -passin 'pass:'
+}
+
+function fail_empty_set () {
+    grep -q '^'
+}
+
+function has_intermediate_pem () {
+    local -r pem="${1}"
+    local -r entrust_certificate_name='Subject:.*CN=Entrust Certification Authority - L1K'
+    echo "${pem}" | openssl x509 -noout -text | grep "${entrust_certificate_name}" | fail_empty_set
+}
+
+function get_issuer_intermediate_cert_url () {
+    openssl x509 -noout -text | grep 'CA Issuers - URI:' | sed -e 's|.*URI:||'
+}
+
+function get_intermediate_pem () {
+    local -r url="${1}"
+    curl -sS "${url}" | openssl x509 -inform der -in /dev/stdin -out /dev/stdout
+}
+
+function add_intermediate_certificate () {
+    local pem issuer_intermediate_cert_url intermediate_pem
+    pem="$(cat /dev/stdin)"
+    echo "${pem}"
+    if ! has_intermediate_pem "${pem}"; then
+        issuer_intermediate_cert_url="$(echo "${pem}" | get_issuer_intermediate_cert_url)"
+        intermediate_pem="$(get_intermediate_pem "${issuer_intermediate_cert_url}" )"
+        echo "${intermediate_pem}"
+    fi
+}
+
+function sign_as_pfx () {
+    local -r pem="${1}"
+    local -r password="${2}"
+    local tmpFile
+    tmpFile="$(mktemp)"
+    echo "${pem}" > "${tmpFile}"
+    openssl pkcs12 -export -out /dev/stdout -in "${tmpFile}" -passout "pass:${password}"
+    rm "${tmpFile}"
+}
+
+function pfx_certificate () {
+    local password="${1}"
+    local pem
+    pem=$(get_original_cert_from_shared_vault | pkcs12_to_pem | add_intermediate_certificate)
+    sign_as_pfx "${pem}" "${password}"
+}
+
+function cert_file_options () {
+    if [[ "0" != "$(gw_attr_size 'tls_certificate')" ]]; then
+        echo "--cert-file <( pfx_certificate \"\${password}\")"
+        echo "--cert-password \"\${password}\""
+    fi
 }
 
 function create_application_gateway () {
-    #  shellcheck disable=SC2046
-    $AZ_TRACE network application-gateway create \
+    local password
+    password="$(random_key)"
+
+    # shellcheck disable=SC2046
+    eval $AZ_TRACE network application-gateway create \
         --name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --max-capacity "$(gw_attr 'max_capacity')" \
@@ -135,20 +201,27 @@ function create_application_gateway () {
         $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
         $(options_list_if_present 'waf-policy' 'waf_policy') \
-        $(certificate_options)
+        $(cert_file_options)
 }
 
 function set_waf_config () {
-    $AZ_TRACE network application-gateway waf-config set \
-        --gateway-name "$(application_gateway_name)" \
-        --resource-group "$(application_gateway_resource_group)" \
-        --enabled "$(gw_attr 'waf_config.enabled')" \
-        --file-upload-limit "$(gw_attr 'waf_config.file_upload_limit')" \
-        --firewall-mode "$(gw_attr 'waf_config.firewall_mode')" \
-        --max-request-body-size "$(gw_attr 'waf_config.max_request_body_size')" \
-        --request-body-check "$(gw_attr 'waf_config.request_body_check')" \
-        --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
-        --rule-set-version "$(gw_attr 'waf_config.rule_set_version')"
+    if [[ "0" != "$(gw_attr_size 'waf_config')" ]]; then
+        $AZ_TRACE network application-gateway waf-config set \
+            --gateway-name "$(application_gateway_name)" \
+            --resource-group "$(application_gateway_resource_group)" \
+            --enabled "$(gw_attr 'waf_config.enabled')" \
+            --file-upload-limit "$(gw_attr 'waf_config.file_upload_limit')" \
+            --firewall-mode "$(gw_attr 'waf_config.firewall_mode')" \
+            --max-request-body-size "$(gw_attr 'waf_config.max_request_body_size')" \
+            --request-body-check "$(gw_attr 'waf_config.request_body_check')" \
+            --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
+            --rule-set-version "$(gw_attr 'waf_config.rule_set_version')"
+    else
+        $AZ_TRACE network application-gateway waf-config set \
+            --gateway-name "$(application_gateway_name)" \
+            --resource-group "$(application_gateway_resource_group)" \
+            --enabled false
+    fi
 }
 
 function gw_attr_size () {
@@ -171,23 +244,25 @@ function trusted_root_certificates_option () {
 }
 
 function http_settings () {
-    #  shellcheck disable=SC2046
-    $AZ_TRACE network application-gateway http-settings create \
-        --gateway-name "$(application_gateway_name)" \
-        --resource-group "$(application_gateway_resource_group)" \
-        --name "$(gw_attr 'http_settings.name')" \
-        --port "$(gw_attr 'http_settings.port')" \
-        --affinity-cookie-name "$(gw_attr 'http_settings.affinityCookieName')" \
-        "$(authentication_certificates_option)" \
-        --connection-draining-timeout "$(gw_attr 'http_settings.connectionDraining')" \
-        --cookie-based-affinity "$(gw_attr 'http_settings.cookieBasedAffinity')" \
-        --enable-probe "$(gw_attr 'http_settings.probeEnabled')" \
-        --host-name-from-backend-pool "$(gw_attr 'http_settings.pickHostNameFromBackendAddress')" \
-        --path "$(gw_attr 'http_settings.path')" \
-        --probe "$(gw_attr 'http_settings.probe.name')" \
-        --protocol "$(gw_attr 'http_settings.protocol')" \
-        "$(trusted_root_certificates_option)" \
-        --timeout "$(gw_attr 'http_settings.requestTimeout')"
+    if [[ "0" != "$(gw_attr_size 'http_settings')" ]]; then
+        #  shellcheck disable=SC2046
+        $AZ_TRACE network application-gateway http-settings create \
+            --gateway-name "$(application_gateway_name)" \
+            --resource-group "$(application_gateway_resource_group)" \
+            --name "$(gw_attr 'http_settings.name')" \
+            --port "$(gw_attr 'http_settings.port')" \
+            --affinity-cookie-name "$(gw_attr 'http_settings.affinityCookieName')" \
+            $(authentication_certificates_option) \
+            --connection-draining-timeout "$(gw_attr 'http_settings.connectionDraining')" \
+            --cookie-based-affinity "$(gw_attr 'http_settings.cookieBasedAffinity')" \
+            --enable-probe "$(gw_attr 'http_settings.probeEnabled')" \
+            --host-name-from-backend-pool "$(gw_attr 'http_settings.pickHostNameFromBackendAddress')" \
+            --path "$(gw_attr 'http_settings.path')" \
+            --probe "$(gw_attr 'http_settings.probe.name')" \
+            --protocol "$(gw_attr 'http_settings.protocol')" \
+            $(trusted_root_certificates_option) \
+            --timeout "$(gw_attr 'http_settings.requestTimeout')"
+    fi
 }
 
 function match_status_codes () {
@@ -195,19 +270,21 @@ function match_status_codes () {
 }
 
 function set_probe () {
-    $AZ_TRACE network application-gateway probe create \
-        --gateway-name "$(application_gateway_name)" \
-        --resource-group "$(application_gateway_resource_group)" \
-        --name "$(gw_attr 'probe.name')" \
-        --path "$(gw_attr 'probe.path')" \
-        --protocol "$(gw_attr 'probe.protocol')" \
-        --host-name-from-http-settings "$(gw_attr 'probe.pickHostNameFromBackendHttpSettings')" \
-        --interval "$(gw_attr 'probe.interval')" \
-        --match-body "$(gw_attr 'probe.match.body')" \
-        --match-status-codes "$(match_status_codes)" \
-        --min-servers "$(gw_attr 'probe.minServers')" \
-        --threshold "$(gw_attr 'probe.unhealthyThreshold')" \
-        --timeout "$(gw_attr 'probe.timeout')"
+    if [[ "0" != "$(gw_attr_size 'probe')" ]]; then
+        $AZ_TRACE network application-gateway probe create \
+            --gateway-name "$(application_gateway_name)" \
+            --resource-group "$(application_gateway_resource_group)" \
+            --name "$(gw_attr 'probe.name')" \
+            --path "$(gw_attr 'probe.path')" \
+            --protocol "$(gw_attr 'probe.protocol')" \
+            --host-name-from-http-settings "$(gw_attr 'probe.pickHostNameFromBackendHttpSettings')" \
+            --interval "$(gw_attr 'probe.interval')" \
+            --match-body "$(gw_attr 'probe.match.body')" \
+            --match-status-codes "$(match_status_codes)" \
+            --min-servers "$(gw_attr 'probe.minServers')" \
+            --threshold "$(gw_attr 'probe.unhealthyThreshold')" \
+            --timeout "$(gw_attr 'probe.timeout')"
+    fi
 }
 
 function cipher_suites () {
@@ -215,37 +292,51 @@ function cipher_suites () {
 }
 
 function set_ssl_policy () {
-    $AZ_TRACE network application-gateway ssl-policy set \
-        --gateway-name "$(application_gateway_name)" \
-        --resource-group "$(application_gateway_resource_group)" \
-        --name "$(gw_attr 'tls_policy.name')" \
-        --cipher-suites  "$(cipher_suites)" \
-        --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')" \
-        --policy-type  "$(gw_attr 'tls_policy.policyType')"
+    if [[ "0" != "$(gw_attr_size 'tls_policy')" ]]; then
+        $AZ_TRACE network application-gateway ssl-policy set \
+            --gateway-name "$(application_gateway_name)" \
+            --resource-group "$(application_gateway_resource_group)" \
+            --name "$(gw_attr 'tls_policy.name')" \
+            --cipher-suites  "$(cipher_suites)" \
+            --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')" \
+            --policy-type  "$(gw_attr 'tls_policy.policyType')"
+    fi
+}
+
+function url_path_map () {
+    if [[ "0" != "$(gw_attr_size 'url_path_map')" ]]; then
+        true
+    fi
 }
 
 #
 # https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
 #
 function deploy_application_gateway () {
-#    create_application_gateway
-    set_waf_config
+    create_application_gateway
+}
 
-    # front_end_ip
-    # http_listener
-    # http_settings
+function update_application_gateway_config () {
+set -x
+    set_waf_config
+    http_settings
     set_probe
-    # redirect-config
     # rewrite_rules
-    # request_routing_rules
     # ssl_cert
     set_ssl_policy
+    url_path_map
 
-    # url_path_map
+    ####################
+    # we are using the following defaults created by "application-gateway create"
+    # front_end_ip
+    # http_listener
+    # redirect-config
+    # request_routing_rules
 }
 
 function create_application_gateway_if_needed () {
     application_gateway_already_exists || deploy_application_gateway
+    update_application_gateway_config
 }
 
 create_application_gateway_if_needed
