@@ -294,12 +294,18 @@ function cipher_suites () {
 function set_ssl_policy () {
     if [[ "0" != "$(gw_attr_size 'tls_policy')" ]]; then
         $AZ_TRACE network application-gateway ssl-policy set \
+            --policy-type  "$(gw_attr 'tls_policy.policyType')" \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
             --name "$(gw_attr 'tls_policy.name')" \
             --cipher-suites  "$(cipher_suites)" \
-            --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')" \
-            --policy-type  "$(gw_attr 'tls_policy.policyType')"
+            --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')"
+    fi
+}
+
+function rewrite_rules () {
+    if [[ "0" != "$(gw_attr_size 'rewrite_rule_sets')" ]]; then
+        true
     fi
 }
 
@@ -313,17 +319,21 @@ function url_path_map () {
 # https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
 #
 function deploy_application_gateway () {
+    echo "checkpoint create_application_gateway" > /dev/stderr
     create_application_gateway
+    echo "checkpoint set_waf_config" > /dev/stderr
+    set_waf_config
 }
 
 function update_application_gateway_config () {
-set -x
-    set_waf_config
-    http_settings
+    echo "checkpoint set_probe" > /dev/stderr
     set_probe
-    # rewrite_rules
-    # ssl_cert
-    set_ssl_policy
+    echo "checkpoint http_settings" > /dev/stderr
+    http_settings
+    echo "checkpoint rewrite_rules" > /dev/stderr
+    rewrite_rules
+    # set_ssl_policy
+    echo "checkpoint url_path_map" > /dev/stderr
     url_path_map
 
     ####################
@@ -332,6 +342,7 @@ set -x
     # http_listener
     # redirect-config
     # request_routing_rules
+    # ssl_cert
 }
 
 function create_application_gateway_if_needed () {
