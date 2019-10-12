@@ -47,6 +47,11 @@ function gw_attr () {
     saas_configuration | jq -r -e ".application_gateways[] | select(.name == \"$(application_gateway_name)\") | .${attr}"
 }
 
+function gw_attr_size () {
+    local -r attr="${1}"
+    gw_attr "${attr}" | jq -r -e 'length // 0'
+}
+
 function application_gateway_resource_group () {
     gw_attr 'resource_group'
 }
@@ -63,7 +68,7 @@ function application_gateway_already_exists () {
 }
 
 function foo3 () {
-cat <<END3
+cat > /dev/null <<END3
 az network application-gateway --help
 
 Group
@@ -183,7 +188,7 @@ function create_application_gateway () {
     local password
     password="$(random_key)"
 
-    # shellcheck disable=SC2046
+    # shellcheck disable=SC2046,SC2086
     eval $AZ_TRACE network application-gateway create \
         --name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
@@ -224,9 +229,22 @@ function set_waf_config () {
     fi
 }
 
-function gw_attr_size () {
-    local -r attr="${1}"
-    gw_attr "${attr}" | jq -r -e 'length // 0'
+function address_pool_names () {
+    gw_attr 'address_pools' | jq -r -e ' . | @tsv'
+}
+
+function address_pools () {
+    if [[ "0" != "$(gw_attr_size 'address_pools')" ]]; then
+        local server
+        for server in $(address_pool_names); do
+            # basic strategy is one address pool per server type, and one server type per address pool
+            $AZ_TRACE network application-gateway address_pool set \
+                --gateway-name "$(application_gateway_name)" \
+                --resource-group "$(application_gateway_resource_group)" \
+                --name "${server}-pool" \
+                --servers "${server}"
+        done
+    fi
 }
 
 function authentication_certificates_option () {
@@ -294,25 +312,218 @@ function cipher_suites () {
 function set_ssl_policy () {
     if [[ "0" != "$(gw_attr_size 'tls_policy')" ]]; then
         $AZ_TRACE network application-gateway ssl-policy set \
-            --policy-type  "$(gw_attr 'tls_policy.policyType')" \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
             --name "$(gw_attr 'tls_policy.name')" \
             --cipher-suites  "$(cipher_suites)" \
-            --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')"
+            --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')" \
+            --policy-type  "$(gw_attr 'tls_policy.policyType')"
     fi
+}
+
+function rule_set_attr () {
+    local -r rule_set_name="${1}"
+    local -r attr="${2}"
+    gw_attr 'rewrite_rule_sets[]' | jq -r -e "select(.name == \"${rule_set_name}\" ) | .${attr}"
+}
+
+function rewrite_rule_set_rule_names () {
+    local -r rule_set_name="${1}"
+    rule_set_attr "${rule_set_name}" 'rewriteRules[]' | jq -r -e '[ .name ] | @tsv'
+}
+
+function rule_set_rule_attr () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    local -r attr="${3}"
+    rule_set_attr "${rule_set_name}" 'rewriteRules[]' \
+        | jq -r -e "select(.name == \"${rule_name}\" ) | .${attr}"
+}
+
+function rule_set_rule_attr_length () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    local -r attr="${3}"
+    rule_set_rule_attr "${rule_set_name}" "${rule_name}" "${attr}"  | jq -r -e '. | length'
+}
+
+function request_headers_option () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    local length
+    length="$(rule_set_rule_attr_length  "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations')"
+    if [[ "0" != "${length}" ]]; then
+        echo "--request_headers"
+        rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations' | jq -r -e '[ .[] |  "\(.headerName)=\(.headerValue)" ] | @tsv'
+    fi
+}
+
+function response_headers_option () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    local length
+    length="$(rule_set_rule_attr_length "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations')"
+    if [[ "0" != "${length}" ]]; then
+        echo "--response_headers"
+        rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations' | jq -r -e '.[] | [ "\(.headerName)=\(.headerValue)" ] | @tsv'
+    fi
+}
+
+function create_rewrite_ruleset_rule () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    # shellcheck disable=SC2046
+    $AZ_TRACE network application-gateway rewrite-rule create \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --rule-set-name "${rule_set_name}" \
+        --rule-name "${rule_name}" \
+        --sequence "$(rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'ruleSequence')" \
+        $(request_headers_option "${rule_set_name}" "${rule_name}") \
+        $(response_headers_option "${rule_set_name}" "${rule_name}")
+}
+
+function create_rewrite_ruleset_rule_conditions () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    local length
+    length="$(rule_set_rule_attr_length "${rule_set_name}" "${rule_name}" 'conditions')"
+    if [[ "0" != "${length}" ]]; then
+        for i in $(seq 0 $(( length - 1)) ); do
+            # shellcheck disable=SC2046
+            $AZ_TRACE network application-gateway rewrite-rule condition create \
+                --gateway-name "$(application_gateway_name)" \
+                --resource-group "$(application_gateway_resource_group)" \
+                --rule-set-name "${rule_set_name}" \
+                --rule-name "${rule_name}" \
+                --variable "$(rule_set_rule_attr "${rule_set_name}" "${rule_name}" "conditions[${i}].variable" )" \
+                --ignore-case "$(rule_set_rule_attr "${rule_set_name}" "${rule_name}" "conditions[${i}].ignoreCase")" \
+                --negate "$(rule_set_rule_attr "${rule_set_name}" "${rule_name}"  "conditions[${i}].negate" )" \
+                --pattern "$(rule_set_rule_attr "${rule_set_name}" "${rule_name}" "conditions[${i}].pattern")"
+        done
+    fi
+}
+
+function create_rewrite_rules () {
+    local -r rule_set_name="${1}"
+    local rule_name
+    for rule_name in $(rewrite_rule_set_rule_names "${rule_set_name}"); do
+        create_rewrite_ruleset_rule "${rule_set_name}" "${rule_name}"
+        create_rewrite_ruleset_rule_conditions "${rule_set_name}" "${rule_name}" || (echo  "boom!" > /dev/stderr)
+    done
+}
+
+function rewrite_rule_set_names () {
+    gw_attr 'rewrite_rule_sets[]' | jq -r -e '[ .name ]| @tsv'
+}
+
+function create_rewrite_rule_set () {
+    local -r rule_set_name="${1}"
+    $AZ_TRACE network application-gateway rewrite-rule set create \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "${rule_set_name}"
 }
 
 function rewrite_rules () {
     if [[ "0" != "$(gw_attr_size 'rewrite_rule_sets')" ]]; then
-        true
+        local rule_set_name
+        for rule_set_name in $(rewrite_rule_set_names); do
+            create_rewrite_rule_set "${rule_set_name}"
+            create_rewrite_rules "${rule_set_name}"
+        done
     fi
+cat > /dev/null <<FOO03
+
+rewrites->sets->(associated routing rule + rules[] (conditions, actions(attributes)  )
+
+Command
+    az network application-gateway rewrite-rule condition create : Create a rewrite rule condition.
+
+Arguments
+    --gateway-name      [Required] : Name of the application gateway.
+    --resource-group -g [Required] : Name of resource group. You can configure the default group
+                                     using 'az configure --defaults group=<name>'.
+    --rule-name         [Required] : Name of the rewrite rule.
+    --rule-set-name     [Required] : Name of the rewrite rule set.
+    --variable          [Required] : The variable whose value is being evaluated.  Values from: az
+                                     network application-gateway rewrite-rule condition list-server-
+                                     variables.
+    --ignore-case                  : Make comparison case-insensitive.  Allowed values: false, true.
+    --negate                       : Check the negation of the condition.  Allowed values: false,
+                                     true.
+    --no-wait                      : Do not wait for the long-running operation to finish.
+    --pattern                      : The pattern, either fixed string or regular expression, that
+                                     evaluates the truthfulness of the condition.
+
+FOO03
+}
+
+function url_path_map_rule_names () {
+    gw_attr '' | jq -r -e ' . | @tsv'
+}
+
+function url_path_map_rules () {
+    if [[ "0" != "$(gw_attr_size 'url_path_map')" ]]; then
+        local rule_name
+        for rule_name in $(url_path_map_rule_names); do
+            # basic strategy is one address pool per server type, and one server type per address pool
+            # shellcheck disable=SC2046
+            $AZ_TRACE network application-gateway url-path-map rule create \
+                --gateway-name "$(application_gateway_name)" \
+                --resource-group "$(application_gateway_resource_group)" \
+                --name "${rule_name}" \
+                --path-map-name "XyZZy" \
+                --address-pool "XyZZy" \
+                --http-settings "XyZZy" \
+                --redirect-config "XyZZy" \
+                --paths $(path_map_rule_paths)
+        done
+    fi
+}
+
+function url_path_map_names () {
+    gw_attr '' | jq -r -e ' . | @tsv'
 }
 
 function url_path_map () {
     if [[ "0" != "$(gw_attr_size 'url_path_map')" ]]; then
-        true
+        local path_map_name
+        for path_map_name in $(url_path_map_names); do
+            # basic strategy is one address pool per server type, and one server type per address pool
+            # shellcheck disable=SC2046
+            $AZ_TRACE network application-gateway url-path-map create \
+                --gateway-name "$(application_gateway_name)" \
+                --resource-group "$(application_gateway_resource_group)" \
+                --name "${path_map_name}" \
+                --rule_name "XyZZy" \
+                --address-pool "XyZZy" \
+                --http-settings "XyZZy" \
+                --redirect-config "XyZZy" \
+                --paths $(path_map_rule_paths)
+        done
     fi
+
+cat > /dev/null <<FOO01
+
+Command
+    az network application-gateway url-path-map create : Create a URL path map.
+        The map must be created with at least one rule. This command requires the creation of the
+        first rule at the time the map is created. To learn more visit
+        https://docs.microsoft.com/azure/application-gateway/application-gateway-create-url-route-
+        cli.
+
+Arguments
+    --default-address-pool         : The name or ID of the default backend address pool, if
+                                     different from --address-pool.
+    --default-http-settings        : The name or ID of the default HTTP settings, if different from
+                                     --http-settings.
+    --default-redirect-config      : The name or ID of the default redirect configuration.
+
+First Rule Arguments
+    --rule-name                    : The name of the url-path-map rule.  Default: default.
+
+FOO01
 }
 
 #
@@ -322,27 +533,33 @@ function deploy_application_gateway () {
     echo "checkpoint create_application_gateway" > /dev/stderr
     create_application_gateway
     echo "checkpoint set_waf_config" > /dev/stderr
-    set_waf_config
+    #set_waf_config
 }
 
 function update_application_gateway_config () {
+    echo "checkpoint address_pool" > /dev/stderr
+    address_pools
     echo "checkpoint set_probe" > /dev/stderr
-    set_probe
+#    set_probe
     echo "checkpoint http_settings" > /dev/stderr
     http_settings
     echo "checkpoint rewrite_rules" > /dev/stderr
     rewrite_rules
     # set_ssl_policy
     echo "checkpoint url_path_map" > /dev/stderr
-    url_path_map
+    #url_path_map
 
     ####################
     # we are using the following defaults created by "application-gateway create"
+    # auth_cert
     # front_end_ip
+    # front_end_port
     # http_listener
     # redirect-config
     # request_routing_rules
+    # root_cert
     # ssl_cert
+    # waf_policy
 }
 
 function create_application_gateway_if_needed () {
