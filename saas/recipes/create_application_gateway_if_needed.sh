@@ -309,15 +309,26 @@ function cipher_suites () {
     gw_attr 'tls_policy.cipherSuites' | jq -r -e '. | @tsv' 2> /dev/null
 }
 
+function ssl_policy_cipher_suites () {
+    if [[ "0" != "$(gw_attr_size 'tls_policy.cipherSuites')" ]]; then
+        local cipher_option="--cipher-suites"
+        local cipher_suite
+        for cipher_suite in $(cipher_suites); do
+            cipher_option="${cipher_option} ${cipher_suite}"
+        done
+        echo "${cipher_option}"
+    fi
+}
+
 function set_ssl_policy () {
     if [[ "0" != "$(gw_attr_size 'tls_policy')" ]]; then
+        # shellcheck disable=SC2046
         $AZ_TRACE network application-gateway ssl-policy set \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
-            --name "$(gw_attr 'tls_policy.name')" \
-            --cipher-suites  "$(cipher_suites)" \
+            --policy-type  "$(gw_attr 'tls_policy.policyType')" \
             --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')" \
-            --policy-type  "$(gw_attr 'tls_policy.policyType')"
+            "$(ssl_policy_cipher_suites)"
     fi
 }
 
@@ -545,7 +556,7 @@ function update_application_gateway_config () {
     http_settings
     echo "checkpoint rewrite_rules" > /dev/stderr
     rewrite_rules
-    # set_ssl_policy
+    set_ssl_policy
     echo "checkpoint url_path_map" > /dev/stderr
     #url_path_map
 
