@@ -692,7 +692,7 @@ target:
         tls_certificate:
           origin:
             vault_name: *atriusKVName
-            tls_secret_name: 'developer-devatrius-iotcom'
+            tls_secret_name: 'wildcarddevatrius-iotcom'
         probe:
           name: &wafProbe 'cf-strict-probe'
           arm_type: 'Microsoft.Network/applicationGateways/probes'
