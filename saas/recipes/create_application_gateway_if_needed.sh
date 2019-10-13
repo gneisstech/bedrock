@@ -178,7 +178,9 @@ function pfx_certificate () {
 }
 
 function cert_file_options () {
-    if [[ "0" != "$(gw_attr_size 'tls_certificate')" ]]; then
+    local length
+    length="$(gw_attr_size 'tls_certificate')"
+    if [[ "0" != "${length}" ]]; then
         echo "--cert-file <( pfx_certificate \"\${password}\")"
         echo "--cert-password \"\${password}\""
     fi
@@ -583,4 +585,3 @@ function create_application_gateway_if_needed () {
 }
 
 create_application_gateway_if_needed
-
