@@ -364,7 +364,7 @@ function request_headers_option () {
     local length
     length="$(rewrite_rule_set_rule_attr_length  "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations')"
     if [[ "0" != "${length}" ]]; then
-        echo "--request_headers"
+        echo "--request-headers"
         rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations' | jq -r -e '[ .[] |  "\(.headerName)=\(.headerValue)" ] | @tsv'
     fi
 }
@@ -375,7 +375,7 @@ function response_headers_option () {
     local length
     length="$(rewrite_rule_set_rule_attr_length "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations')"
     if [[ "0" != "${length}" ]]; then
-        echo "--response_headers"
+        echo "--response-headers"
         rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations' | jq -r -e '.[] | [ "\(.headerName)=\(.headerValue)" ] | @tsv'
     fi
 }
@@ -388,7 +388,7 @@ function create_rewrite_ruleset_rule () {
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --rule-set-name "${rule_set_name}" \
-        --rule-name "${rule_name}" \
+        --name "${rule_name}" \
         --sequence "$(rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'ruleSequence')" \
         $(request_headers_option "${rule_set_name}" "${rule_name}") \
         $(response_headers_option "${rule_set_name}" "${rule_name}")
@@ -496,7 +496,7 @@ function create_remaining_path_rules () {
         for index in $(seq 1 $(( rule_count - 1 ))); do
         # @@ TODO FIXME "-pool"
         # shellcheck disable=SC2046
-        $AZ_TRACE network application-gateway rule create \
+        $AZ_TRACE network application-gateway url-path-map rule create \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
             --path-map-name "${url_path_map_name}" \
@@ -540,69 +540,6 @@ function url_path_maps () {
     fi
 }
 
-function foo01 () {
-cat > /dev/null <<FOO01
-function rewrite_rule_set_rule_names () {
-    local -r rule_set_name="${1}"
-    rewrite_rule_set_attr "${rule_set_name}" 'rewriteRules[]' | jq -r -e '[ .name ] | @tsv'
-}
-
-function rewrite_rule_set_rule_attr () {
-    local -r rule_set_name="${1}"
-    local -r rule_name="${2}"
-    local -r attr="${3}"
-    rewrite_rule_set_attr "${rule_set_name}" 'rewriteRules[]' \
-        | jq -r -e "select(.name == \"${rule_name}\" ) | .${attr}"
-}
-
-function rewrite_rule_set_rule_attr_length () {
-    local -r rule_set_name="${1}"
-    local -r rule_name="${2}"
-    local -r attr="${3}"
-    rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" "${attr}"  | jq -r -e '. | length'
-}
-
-function url_path_map_rules () {
-    if [[ "0" != "$(gw_attr_size 'url_path_maps')" ]]; then
-        local rule_name
-        for rule_name in $(url_path_map_rule_names); do
-            # basic strategy is one address pool per server type, and one server type per address pool
-            # shellcheck disable=SC2046
-            $AZ_TRACE network application-gateway url-path-map rule create \
-                --gateway-name "$(application_gateway_name)" \
-                --resource-group "$(application_gateway_resource_group)" \
-                --name "${rule_name}" \
-                --path-map-name "XyZZy" \
-                --address-pool "XyZZy" \
-                --http-settings "XyZZy" \
-                --redirect-config "XyZZy" \
-                --paths $(path_map_rule_paths)
-        done
-    fi
-}
-
-========================================================
-Command
-    az network application-gateway url-path-map rule create : Create a rule for a URL path map.
-
-Arguments
-    --gateway-name      [Required] : Name of the application gateway.
-    --name -n           [Required] : The name of the url-path-map rule.
-    --path-map-name     [Required] : The name of the URL path map.
-    --paths             [Required] : Space-separated list of paths to associate with the rule. Valid
-                                     paths start and end with "/" (ex: "/bar/").
-    --resource-group -g [Required] : Name of resource group. You can configure the default group
-                                     using `az configure --defaults group=<name>`.
-    --address-pool                 : The name or ID of the backend address pool to use with the
-                                     created rule.
-    --http-settings                : The name or ID of the HTTP settings to use with the created
-                                     rule.
-    --no-wait                      : Do not wait for the long-running operation to finish.
-    --redirect-config              : The name or ID of the redirect configuration to use with the
-                                     created rule.
-FOO01
-}
-
 #
 # https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
 #
@@ -610,20 +547,20 @@ function deploy_application_gateway () {
     echo "checkpoint create_application_gateway" > /dev/stderr
     create_application_gateway
     echo "checkpoint set_waf_config" > /dev/stderr
-    #set_waf_config
+    set_waf_config
 }
 
 function update_application_gateway_config () {
     echo "checkpoint address_pool"
     address_pools
     echo "checkpoint set_probe"
-    #set_probe
+    set_probe
     echo "checkpoint http_settings"
-    #http_settings
+    http_settings
     echo "checkpoint rewrite_rules"
-    #rewrite_rules
+    rewrite_rules
     echo "checkpoint set_ssl_policy"
-    #set_ssl_policy
+    set_ssl_policy
     echo "checkpoint url_path_map"
     url_path_maps
 
