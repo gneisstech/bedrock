@@ -811,139 +811,80 @@ target:
         http2: 'Enabled'
         routing_rule_type: 'Basic'
         sku: 'WAF_v2'
-        servers:
+        servers: &serverNames
           - *cfHealthApp
           - *cfHealthAdminApi
           - *cfHealthApi
           - *cfHealthIngestApi
           - *cfSelfHealingApp
           - *cfSelfHealingApi
+        address_pools: *serverNames
         private_ip_addresses: []
         public_ip_addresses:
           - *postAuthnIP
         waf_policy: []
-        waf_config: null
-        url_path_map:
-          - name: 'atgcfexp-routes-with-authn'
-            defaultBackendAddressPool: null
-            defaultBackendHttpSettings: null
+        url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
+          - name: 'atg-cf-exp2-post-authn-path-map-001'
+            arm_type: Microsoft.Network/applicationGateways/urlPathMaps
+            defaultBackendAddressPool: *cfHealthApp
+            defaultBackendHttpSettings: &postAuthNHttpSettings 'appGatewayBackendHttpSettings'
             defaultRedirectConfiguration: null
             defaultRewriteRuleSet: null
             pathRules:
-              - name: 'atgcfexp-app-path'
+              - name: 'post-authn-cf-health-app-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
-                backendAddressPool:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendAddressPools/atgcfexp-app-pool
-                  resourceGroup: CF-EXP
-                backendHttpSettings:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendHttpSettingsCollection/atgcfexp-app-http-setting
-                  resourceGroup: CF-EXP
+                backendAddressPool: *cfHealthApp
+                backendHttpSettings: *postAuthNHttpSettings
                 paths:
-                  - '/cf-app*'
+                  - '/cf-app'
+                  - '/cf-app/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-              - backendAddressPool:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendAddressPools/atgcfexp-admin-api-pool
-                  resourceGroup: CF-EXP
-                backendHttpSettings:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendHttpSettingsCollection/atgcfexp-app-http-setting
-                  resourceGroup: CF-EXP
-                etag: W/"a45bc458-6b49-4de3-b13c-bbfec37e23d1"
-                id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/urlPathMaps/atgcfexp-routes-with-authn/pathRules/atgcfexp-admin-path
-                name: atgcfexp-admin-path
+              - name: 'post-authn-cf-health-admin-api-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfHealthAdminApi
+                backendHttpSettings: *postAuthNHttpSettings
                 paths:
-                  - /cf-admin*
-                provisioningState: Succeeded
+                  - '/cf-admin'
+                  - '/cf-admin/*'
                 redirectConfiguration: null
-                resourceGroup: CF-EXP
                 rewriteRuleSet: null
-                type: Microsoft.Network/applicationGateways/urlPathMaps/pathRules
-              - backendAddressPool:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendAddressPools/atgcfexp-ingest-api-pool
-                  resourceGroup: CF-EXP
-                backendHttpSettings:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendHttpSettingsCollection/atgcfexp-app-http-setting
-                  resourceGroup: CF-EXP
-                etag: W/"a45bc458-6b49-4de3-b13c-bbfec37e23d1"
-                id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/urlPathMaps/atgcfexp-routes-with-authn/pathRules/atgcfexp-ingest-path
-                name: atgcfexp-ingest-path
+              - name: 'post-authn-cf-health-api-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfHealthApi
+                backendHttpSettings: *postAuthNHttpSettings
                 paths:
-                  - /cf-ingest*
-                provisioningState: Succeeded
+                  - '/cf-health'
+                  - '/cf-health/*'
                 redirectConfiguration: null
-                resourceGroup: CF-EXP
                 rewriteRuleSet: null
-                type: Microsoft.Network/applicationGateways/urlPathMaps/pathRules
-              - backendAddressPool:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendAddressPools/atgcfexp-self-healing-app-pool
-                  resourceGroup: CF-EXP
-                backendHttpSettings:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendHttpSettingsCollection/atgcfexp-app-http-setting
-                  resourceGroup: CF-EXP
-                etag: W/"a45bc458-6b49-4de3-b13c-bbfec37e23d1"
-                id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/urlPathMaps/atgcfexp-routes-with-authn/pathRules/atgcfexp-self-healing-app-path
-                name: atgcfexp-self-healing-app-path
+              - name: 'post-authn-cf-health-ingest-api-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfHealthIngestApi
+                backendHttpSettings: *postAuthNHttpSettings
                 paths:
-                  - /cf-self-healing/*
-                provisioningState: Succeeded
+                  - '/cf-ingest'
+                  - '/cf-ingest/*'
                 redirectConfiguration: null
-                resourceGroup: CF-EXP
                 rewriteRuleSet: null
-                type: Microsoft.Network/applicationGateways/urlPathMaps/pathRules
-              - backendAddressPool:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendAddressPools/atgcfexp-health-api-pool
-                  resourceGroup: CF-EXP
-                backendHttpSettings:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendHttpSettingsCollection/atgcfexp-app-http-setting
-                  resourceGroup: CF-EXP
-                etag: W/"a45bc458-6b49-4de3-b13c-bbfec37e23d1"
-                id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/urlPathMaps/atgcfexp-routes-with-authn/pathRules/atgcfexp-health-path
-                name: atgcfexp-health-path
+              - name: 'post-authn-cf-sel-healing-app-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfSelfHealingApp
+                backendHttpSettings: *postAuthNHttpSettings
                 paths:
-                  - /cf-health*
-                provisioningState: Succeeded
+                  - '/cf-self-healing'
+                  - '/cf-self-healing/*'
                 redirectConfiguration: null
-                resourceGroup: CF-EXP
                 rewriteRuleSet: null
-                type: Microsoft.Network/applicationGateways/urlPathMaps/pathRules
-              - backendAddressPool:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendAddressPools/atgcfexp-self-healing-api-pool
-                  resourceGroup: CF-EXP
-                backendHttpSettings:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendHttpSettingsCollection/atgcfexp-app-http-setting
-                  resourceGroup: CF-EXP
-                etag: W/"a45bc458-6b49-4de3-b13c-bbfec37e23d1"
-                id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/urlPathMaps/atgcfexp-routes-with-authn/pathRules/atgcfexp-self-healing-api-path
-                name: atgcfexp-self-healing-api-path
+              - name: 'post-authn-cf-sel-healing-api-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfSelfHealingApp
+                backendHttpSettings: *postAuthNHttpSettings
                 paths:
-                  - /cf-self-healing-api*
-                provisioningState: Succeeded
+                  - '/cf-self-healing-api'
+                  - '/cf-self-healing-api/*'
                 redirectConfiguration: null
-                resourceGroup: CF-EXP
                 rewriteRuleSet: null
-                type: Microsoft.Network/applicationGateways/urlPathMaps/pathRules
-              - backendAddressPool:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendAddressPools/atgcfexp-self-healing-app-pool
-                  resourceGroup: CF-EXP
-                backendHttpSettings:
-                  id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/backendHttpSettingsCollection/atgcfexp-app-http-setting
-                  resourceGroup: CF-EXP
-                etag: W/"a45bc458-6b49-4de3-b13c-bbfec37e23d1"
-                id: /subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexp-ag-post-auth/urlPathMaps/atgcfexp-routes-with-authn/pathRules/atgcfexp-self-healing-app-path2
-                name: atgcfexp-self-healing-app-path2
-                paths:
-                  - /cf-self-healing
-                provisioningState: Succeeded
-                redirectConfiguration: null
-                resourceGroup: CF-EXP
-                rewriteRuleSet: null
-                type: Microsoft.Network/applicationGateways/urlPathMaps/pathRules
-            provisioningState: Succeeded
-            resourceGroup: CF-EXP
-            type: Microsoft.Network/applicationGateways/urlPathMaps
-
-
-
         action: 'preserve'
     application_registration:
       tenant: *appRegistrationTenant
