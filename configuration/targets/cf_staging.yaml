@@ -882,10 +882,11 @@ target:
                   - '/cf-self-healing-api/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-        requestRoutingRules:
-          - name: *postAuthnGateway
+        request_routing_rules:
+          - name: 'rule1'
             arm_type: 'Microsoft.Network/applicationGateways/requestRoutingRules'
             properties:
+              address_pool: *cfHealthApp
               ruleType: 'PathBasedRouting'
               urlPathMap: *postAuthnUrlPathMap
         action: 'preserve'

@@ -587,10 +587,29 @@ function url_path_maps () {
     fi
 }
 
+function http_listener_attr () {
+    local -r attr="${1}"
+    gw_attr 'http_listener' | jq -r -e ".${attr}"
+}
+
+function http_listener () {
+    if [[ '0' != "$(gw_attr_size 'http_listener' )" ]]; then
+      # @@ TODO FIXME "-listener"
+      # shellcheck disable=SC2046
+      $AZ_TRACE network application-gateway http-listener create \
+          --gateway-name "$(application_gateway_name)" \
+          --resource-group "$(application_gateway_resource_group)" \
+          --name "$(http_listener_attr 'name' )-listener" \
+          --frontend-port "$(http_listener_attr 'frontend_port' )" \
+          --frontend-ip "$(http_listener_attr 'frontend_ip' )"
+    fi
+    true
+}
+
 function routing_rule_attr () {
     local -r routing_rule_name="${1}"
     local -r attr="${2}"
-    gw_attr 'requestRoutingRules[]' | jq -r -e "select(.name == \"${routing_rule_name}\" ) | .${attr}"
+    gw_attr 'request_routing_rules[]' | jq -r -e "select(.name == \"${routing_rule_name}\" ) | .${attr}"
 }
 
 function create_routing_rule () {
@@ -600,7 +619,8 @@ function create_routing_rule () {
     $AZ_TRACE network application-gateway rule create \
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
-        --name "${routing_rule_name}-routing" \
+        --name "${routing_rule_name}" \
+        --address-pool "$(routing_rule_attr "${routing_rule_name}" 'properties.address_pool' )-pool"  \
         --rule-type "$(routing_rule_attr "${routing_rule_name}" 'properties.ruleType' )"  \
         --url-path-map "$(routing_rule_attr "${routing_rule_name}" 'properties.urlPathMap' )"
 }
@@ -643,6 +663,8 @@ function update_application_gateway_config () {
     set_ssl_policy
     echo "checkpoint url_path_map"
     url_path_maps
+    echo "checkpoint http_listener"
+    http_listener
     echo "checkpoint routing rules"
     request_routing_rules
 
@@ -651,7 +673,6 @@ function update_application_gateway_config () {
     # auth_cert
     # front_end_ip
     # front_end_port
-    # http_listener
     # redirect-config
     # root_cert
     # ssl_cert
