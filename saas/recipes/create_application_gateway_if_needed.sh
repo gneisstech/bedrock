@@ -180,7 +180,7 @@ function pfx_certificate () {
 function cert_file_options () {
     local length
     length="$(gw_attr_size 'tls_certificate')"
-    if [[ "0" != "${length}" ]]; then
+    if [[ '0' != "${length}" ]]; then
         echo "--cert-file <( pfx_certificate \"\${password}\")"
         echo "--cert-password \"\${password}\""
     fi
@@ -212,7 +212,7 @@ function create_application_gateway () {
 }
 
 function set_waf_config () {
-    if [[ "0" != "$(gw_attr_size 'waf_config')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'waf_config')" ]]; then
         $AZ_TRACE network application-gateway waf-config set \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
@@ -236,7 +236,7 @@ function address_pool_names () {
 }
 
 function address_pools () {
-    if [[ "0" != "$(gw_attr_size 'address_pools')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'address_pools')" ]]; then
         local server
         for server in $(address_pool_names); do
             # basic strategy is one address pool per server type, and one server type per address pool
@@ -250,21 +250,21 @@ function address_pools () {
 }
 
 function authentication_certificates_option () {
-    if [[ "0" != "$(gw_attr_size 'http_settings.authenticationCertificates')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'http_settings.authenticationCertificates')" ]]; then
         echo "--auth-certs "
         gw_attr 'http_settings.authenticationCertificates' | jq -r -e '. | @tsv' 2> /dev/null
     fi
 }
 
 function trusted_root_certificates_option () {
-    if [[ "0" != "$(gw_attr_size 'http_settings.trustedRootCertificates')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'http_settings.trustedRootCertificates')" ]]; then
         echo "--root-certs"
         gw_attr 'http_settings.trustedRootCertificates' | jq -r -e '. | @tsv' 2> /dev/null
     fi
 }
 
 function http_settings () {
-    if [[ "0" != "$(gw_attr_size 'http_settings')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'http_settings')" ]]; then
         #  shellcheck disable=SC2046
         $AZ_TRACE network application-gateway http-settings create \
             --gateway-name "$(application_gateway_name)" \
@@ -290,7 +290,7 @@ function match_status_codes () {
 }
 
 function set_probe () {
-    if [[ "0" != "$(gw_attr_size 'probe')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'probe')" ]]; then
         $AZ_TRACE network application-gateway probe create \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
@@ -312,7 +312,7 @@ function cipher_suites () {
 }
 
 function ssl_policy_cipher_suites () {
-    if [[ "0" != "$(gw_attr_size 'tls_policy.cipherSuites')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'tls_policy.cipherSuites')" ]]; then
         local cipher_option="--cipher-suites"
         local cipher_suite
         for cipher_suite in $(cipher_suites); do
@@ -323,7 +323,7 @@ function ssl_policy_cipher_suites () {
 }
 
 function set_ssl_policy () {
-    if [[ "0" != "$(gw_attr_size 'tls_policy')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'tls_policy')" ]]; then
         # shellcheck disable=SC2046
         $AZ_TRACE network application-gateway ssl-policy set \
             --gateway-name "$(application_gateway_name)" \
@@ -365,7 +365,7 @@ function request_headers_option () {
     local -r rule_name="${2}"
     local length
     length="$(rewrite_rule_set_rule_attr_length  "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations')"
-    if [[ "0" != "${length}" ]]; then
+    if [[ '0' != "${length}" ]]; then
         echo "--request-headers"
         rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations' | jq -r -e '[ .[] |  "\(.headerName)=\(.headerValue)" ] | @tsv'
     fi
@@ -401,7 +401,7 @@ function create_rewrite_ruleset_rule_conditions () {
     local -r rule_name="${2}"
     local length
     length="$(rewrite_rule_set_rule_attr_length "${rule_set_name}" "${rule_name}" 'conditions')"
-    if [[ "0" != "${length}" ]]; then
+    if [[ '0' != "${length}" ]]; then
         local i
         for i in $(seq 0 $(( length - 1)) ); do
             # shellcheck disable=SC2046
@@ -440,7 +440,7 @@ function create_rewrite_rule_set () {
 }
 
 function rewrite_rules () {
-    if [[ "0" != "$(gw_attr_size 'rewrite_rule_sets')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'rewrite_rule_sets')" ]]; then
         local rule_set_name
         for rule_set_name in $(rewrite_rule_set_names); do
             create_rewrite_rule_set "${rule_set_name}"
@@ -486,7 +486,6 @@ function url_path_map_rule_paths () {
 
 function url_path_map_rule1_paths () {
     local url_path_map_name="${1}"
-    local rule1_paths
     url_path_map_rule_paths "${url_path_map_name}" '0'
 }
 
@@ -533,7 +532,7 @@ function url_path_map_names () {
 }
 
 function url_path_maps () {
-    if [[ "0" != "$(gw_attr_size 'url_path_maps')" ]]; then
+    if [[ '0' != "$(gw_attr_size 'url_path_maps')" ]]; then
         local url_path_map_name
         for url_path_map_name in $(url_path_map_names); do
             echo "checkpoint path_map_name: [${url_path_map_name}]"
