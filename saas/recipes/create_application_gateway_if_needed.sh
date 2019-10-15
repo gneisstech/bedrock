@@ -330,7 +330,7 @@ function set_ssl_policy () {
             --resource-group "$(application_gateway_resource_group)" \
             --policy-type  "$(gw_attr 'tls_policy.policyType')" \
             --min-protocol-version  "$(gw_attr 'tls_policy.minProtocolVersion')" \
-            "$(ssl_policy_cipher_suites)"
+            $(ssl_policy_cipher_suites)
     fi
 }
 
