@@ -361,6 +361,7 @@ function rewrite_rule_set_rule_attr_length () {
 }
 
 function escape_option_values () {
+    # shellcheck disable=SC1003
     sed -E "s|([ ;:'])|#\1|g" | tr '#' '\'
 }
 
@@ -421,7 +422,7 @@ function create_rewrite_ruleset_rule () {
     header_args[${#header_args[@]}]="$(response_headers_option "${rule_set_name}" "${rule_name}")"
     header_args[${#header_args[@]}]="$(response_headers_values "${rule_set_name}" "${rule_name}")"
 
-    # shellcheck disable=SC2046
+    # shellcheck disable=SC2046,SC2086
     eval $AZ_TRACE network application-gateway rewrite-rule create \
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
