@@ -360,6 +360,11 @@ function rewrite_rule_set_rule_attr_length () {
     rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" "${attr}"  | jq -r -e '. | length'
 }
 
+function escape_option_values () {
+    sed -E "s|([ ;:'])|#\1|g" | tr '#' '\'
+#    sed -e "s|([ ;:'])|\\1|g"
+}
+
 function request_headers_option () {
     local -r rule_set_name="${1}"
     local -r rule_name="${2}"
@@ -367,8 +372,21 @@ function request_headers_option () {
     length="$(rewrite_rule_set_rule_attr_length  "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations')"
     if [[ '0' != "${length}" ]]; then
         echo "--request-headers"
+    fi
+}
+
+function request_headers_values () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    local length
+    length="$(rewrite_rule_set_rule_attr_length  "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations')"
+    if [[ '0' != "${length}" ]]; then
         rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.requestHeaderConfigurations' | jq -r -e '[ .[] |  "\(.headerName)=\(.headerValue)" ] | @tsv'
     fi
+}
+
+function response_headers_option_value () {
+    rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations' | jq -r -e '.[0] | "\(.headerName)=\(.headerValue)"'
 }
 
 function response_headers_option () {
@@ -376,24 +394,44 @@ function response_headers_option () {
     local -r rule_name="${2}"
     local length
     length="$(rewrite_rule_set_rule_attr_length "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations')"
-    if [[ "0" != "${length}" ]]; then
-        echo "--response-headers"
-        rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations' | jq -r -e '.[] | [ "\(.headerName)=\(.headerValue)" ] | @tsv'
+    if [[ '0' != "${length}" ]]; then
+        echo '--response-headers'
+    fi
+}
+
+function response_headers_values () {
+    local -r rule_set_name="${1}"
+    local -r rule_name="${2}"
+    local length
+    length="$(rewrite_rule_set_rule_attr_length "${rule_set_name}" "${rule_name}" 'actionSet.responseHeaderConfigurations')"
+    if [[ '0' != "${length}" ]]; then
+        {
+            printf -- '%s' "$(response_headers_option_value | escape_option_values)"
+        } | tee /dev/stderr
+        echo > /dev/stderr
     fi
 }
 
 function create_rewrite_ruleset_rule () {
     local -r rule_set_name="${1}"
     local -r rule_name="${2}"
+    local -a header_args=()
+    header_args[${#header_args[@]}]="$(request_headers_option "${rule_set_name}" "${rule_name}")"
+    header_args[${#header_args[@]}]="$(request_headers_values "${rule_set_name}" "${rule_name}")"
+    header_args[${#header_args[@]}]="$(response_headers_option "${rule_set_name}" "${rule_name}")"
+    header_args[${#header_args[@]}]="$(response_headers_values "${rule_set_name}" "${rule_name}")"
+
+    for i in "${header_args[@]}"; do echo "${i}"; done
+    echo ${i} | od -xa > /dev/stderr
+
     # shellcheck disable=SC2046
-    $AZ_TRACE network application-gateway rewrite-rule create \
+    eval $AZ_TRACE network application-gateway rewrite-rule create \
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --rule-set-name "${rule_set_name}" \
         --name "${rule_name}" \
         --sequence "$(rewrite_rule_set_rule_attr "${rule_set_name}" "${rule_name}" 'ruleSequence')" \
-        $(request_headers_option "${rule_set_name}" "${rule_name}") \
-        $(response_headers_option "${rule_set_name}" "${rule_name}")
+        "${header_args[@]}"
 }
 
 function create_rewrite_ruleset_rule_conditions () {
