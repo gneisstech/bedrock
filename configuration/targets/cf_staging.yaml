@@ -50,8 +50,8 @@ target:
           resource_group: *cfAuthNSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
-          sku: 'Standard'
-          allocation_method: 'Static'
+          sku: 'Basic'
+          allocation_method: 'Dynamic'
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
@@ -802,15 +802,12 @@ target:
         arm_type: 'Microsoft.Network/applicationGateways'
         resource_group: *cfAuthNSvcRG
         capacity: 2
-        min_capacity: 2
-        max_capacity: 10
         frontend_port: 80  # @@ fixme
         http_settings_cookie_based_affinity: 'Disabled'
         http_settings_port: 80
         http_settings_protocol: 'Http'
         http2: 'Enabled'
-        routing_rule_type: 'Basic'
-        sku: 'WAF_v2'
+        sku: 'Standard_Medium'
         servers: &serverNames
           - *cfHealthApp
           - *cfHealthAdminApi
@@ -824,7 +821,7 @@ target:
           - *postAuthnIP
         waf_policy: []
         url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
-          - name: 'atg-cf-exp2-post-authn-path-map-001'
+          - name: &postAuthnUrlPathMap 'atg-cf-exp2-post-authn-path-map-001'
             arm_type: Microsoft.Network/applicationGateways/urlPathMaps
             defaultBackendAddressPool: *cfHealthApp
             defaultBackendHttpSettings: &postAuthNHttpSettings 'appGatewayBackendHttpSettings'
@@ -885,6 +882,12 @@ target:
                   - '/cf-self-healing-api/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
+        requestRoutingRules:
+          - name: *postAuthnGateway
+            arm_type: 'Microsoft.Network/applicationGateways/requestRoutingRules'
+            properties:
+              ruleType: 'PathBasedRouting'
+              urlPathMap: *postAuthnUrlPathMap
         action: 'preserve'
     application_registration:
       tenant: *appRegistrationTenant

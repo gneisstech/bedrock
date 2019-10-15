@@ -118,6 +118,17 @@ function options_list_if_present () {
     fi
 }
 
+function option_if_present () {
+    local -r option_key="${1}"
+    local -r option_config="${2}"
+    local option_length
+    option_length="$(gw_attr "${option_config}" | jq -r -e 'length')"
+    if [[ '0' != "${option_length}" ]]; then
+        printf -- "--%s %s" "${option_key}" "$(gw_attr "${option_config}" )"
+    fi
+    true
+}
+
 function get_original_cert_from_shared_vault () {
     $AZ_TRACE keyvault secret show \
         --vault-name "$(gw_attr 'tls_certificate.origin.vault_name')" \
@@ -194,16 +205,15 @@ function create_application_gateway () {
     eval $AZ_TRACE network application-gateway create \
         --name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
-        --max-capacity "$(gw_attr 'max_capacity')" \
-        --min-capacity "$(gw_attr 'min_capacity')" \
         --capacity "$(gw_attr 'capacity')" \
         --frontend-port "$(gw_attr 'frontend_port')" \
         --http-settings-cookie-based-affinity "$(gw_attr 'http_settings_cookie_based_affinity')" \
         --http-settings-port "$(gw_attr 'http_settings_port')" \
         --http-settings-protocol "$(gw_attr 'http_settings_protocol')" \
         --http2 "$(gw_attr 'http2')" \
-        --routing-rule-type "$(gw_attr 'routing_rule_type')" \
         --sku "$(gw_attr 'sku')" \
+        $(option_if_present 'max-capacity' 'max_capacity') \
+        $(option_if_present 'min-capacity' 'min_capacity') \
         $(options_list_if_present 'servers' 'servers') \
         $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
@@ -577,6 +587,39 @@ function url_path_maps () {
     fi
 }
 
+function routing_rule_attr () {
+    local -r routing_rule_name="${1}"
+    local -r attr="${2}"
+    gw_attr 'requestRoutingRules[]' | jq -r -e "select(.name == \"${routing_rule_name}\" ) | .${attr}"
+}
+
+function create_routing_rule () {
+    local routing_rule_name="${1}"
+
+    # shellcheck disable=SC2046
+    $AZ_TRACE network application-gateway rule create \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "${routing_rule_name}-routing" \
+        --rule-type "$(routing_rule_attr "${routing_rule_name}" 'properties.ruleType' )"  \
+        --url-path-map "$(routing_rule_attr "${routing_rule_name}" 'properties.urlPathMap' )"
+}
+
+function routing_rule_names () {
+    gw_attr 'request_routing_rules' | jq -r -e '.[] | [ .name ] | @tsv'
+}
+
+function request_routing_rules () {
+    if [[ '0' != "$(gw_attr_size 'request_routing_rules')" ]]; then
+        local routing_rule_name
+        for routing_rule_name in $(routing_rule_names); do
+            echo "checkpoint routing_rule_name: [${routing_rule_name}]"
+            create_routing_rule "${routing_rule_name}"
+        done
+    fi
+    true
+}
+
 #
 # https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
 #
@@ -600,6 +643,8 @@ function update_application_gateway_config () {
     set_ssl_policy
     echo "checkpoint url_path_map"
     url_path_maps
+    echo "checkpoint routing rules"
+    request_routing_rules
 
     ####################
     # we are using the following defaults created by "application-gateway create"
@@ -608,7 +653,6 @@ function update_application_gateway_config () {
     # front_end_port
     # http_listener
     # redirect-config
-    # request_routing_rules
     # root_cert
     # ssl_cert
     # waf_policy
