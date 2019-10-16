@@ -699,7 +699,6 @@ target:
           interval: 30
           timeout: 30
           match:
-            body: ''
             statusCodes:
               - '200-399'
           minServers: 0
@@ -714,12 +713,12 @@ target:
           authenticationCertificates: []
           connectionDraining: 0
           cookieBasedAffinity: 'Disabled'
-          path: ''
+          path: '/'
           pickHostNameFromBackendAddress: true
           port: 80
           probe:
             name: *wafProbe
-          probeEnabled: false
+          probeEnabled: true
           protocol: Http
           requestTimeout: 20
           trustedRootCertificates: []
@@ -820,6 +819,35 @@ target:
         public_ip_addresses:
           - *postAuthnIP
         waf_policy: []
+        probe:
+          name: &authnGwAppProbe 'cf-authn-strict-probe'
+          arm_type: 'Microsoft.Network/applicationGateways/probes'
+          interval: 30
+          timeout: 30
+          match:
+            statusCodes:
+              - '200-399'
+          minServers: 0
+          path: '/'
+          pickHostNameFromBackendHttpSettings: true
+          protocol: 'Http'
+          unhealthyThreshold: 3
+        http_settings:
+          name: 'cf-authn-default-http-settings'
+          arm_type: 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection'
+          affinityCookieName: 'ApplicationGatewayAffinity'
+          authenticationCertificates: []
+          connectionDraining: 0
+          cookieBasedAffinity: 'Disabled'
+          path: '/'
+          pickHostNameFromBackendAddress: true
+          port: 80
+          probe:
+            name: *authnGwAppProbe
+          probeEnabled: true
+          protocol: Http
+          requestTimeout: 20
+          trustedRootCertificates: []
         url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
           - name: &postAuthnUrlPathMap 'atg-cf-exp2-post-authn-path-map-001'
             arm_type: Microsoft.Network/applicationGateways/urlPathMaps
