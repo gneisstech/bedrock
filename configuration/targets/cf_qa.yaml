@@ -724,8 +724,8 @@ target:
           requestTimeout: 20
           trustedRootCertificates: []
         rewrite_rule_sets:
-          - name: security_headers
-            arm_type: Microsoft.Network/applicationGateways/rewriteRuleSets
+          - name: &wafRewriteRuleSet 'security_headers'
+            arm_type: 'Microsoft.Network/applicationGateways/rewriteRuleSets'
             rewriteRules:
               - actionSet:
                   requestHeaderConfigurations: []
@@ -804,6 +804,7 @@ target:
               address_pool: *cfAuthnService
               ruleType: 'Basic'
               http_setting: *cfWafHttpSetting
+              rewrite_rule_set: *wafRewriteRuleSet
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'
