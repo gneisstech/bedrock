@@ -1,8 +1,8 @@
 ---
 target:
   metadata:
-    product_name: &productName 'connected-facilities-qa'
-    environment_name: &environmentName 'atg-cf-exp-qa'
+    product_portfolio_name: &productName 'connected-facilities'
+    environment_name: &environmentName 'QA'
     default_azure_location: &defaultAzureLocation 'southcentralus'
     default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
     service_deployment:
@@ -18,24 +18,20 @@ target:
       # pre-existing Atrius resource groups with shared configuration state
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
-      # CF Staging resource groups
-      - name: &defaultRG 'atg-cf-exp-qa-rg'
+      # CF QA resource groups
+      - name: &cfWafRG 'CFWAF-BytelightQA-EXP'
         action: 'create'
-      - name: &cfWafRG 'atg-cf-exp-qa-waf-rg'
+      - name: &cfDbRG 'CFSQLS-BytelightQA-EXP'
         action: 'create'
-      - name: &cfDbRG 'atg-cf-exp-qa-db-rg'
+      - name: &cfKeysRG 'CFKV-BytelightQA-EXP'
         action: 'create'
-      - name: &cfKeysRG 'atg-cf-exp-qa-keys-rg'
+      - name: &cfAcrRG 'CFACR-BytelightQA-EXP'
         action: 'create'
-      - name: &cfAcrRG 'atg-cf-exp-qa-acr-rg'
+      - name: &cfNetworksRG 'CFVNET-BytelightQA-EXP'
         action: 'create'
-      - name: &cfNetworksRG 'atg-cf-exp-qa-networks-rg'
+      - name: &cfAppSvcRG 'CFWEB-BytelightQA-EXP'
         action: 'create'
-      - name: &cfAppSvcRG 'atg-cf-exp-qa-appsvc-rg'
-        action: 'create'
-      - name: &cfAuthNSvcRG 'atg-cf-exp-qa-authnsvc-rg'
-        action: 'create'
-      - name: &cfObserversRG 'atg-cf-exp-qa-observers-rg'
+      - name: &cfAuthNSvcRG 'CFAUTHN-BytelightQA-EXP'
         action: 'create'
     networking:
       public_ip:
@@ -927,4 +923,4 @@ target:
       client_secret:
         vault: *cfDefaultDBKeyVault
         secret_name: *oauthProxyClientSecretName
-        description: 'cf-authn-gw'
+        description: 'cf-qa-authn-gw'

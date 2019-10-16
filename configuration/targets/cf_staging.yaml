@@ -1,8 +1,8 @@
 ---
 target:
   metadata:
-    product_name: &productName 'connected-facilities-staging'
-    environment_name: &environmentName 'atg-cf-exp2-staging'
+    product_portfolio_name: &productName 'connected-facilities'
+    environment_name: &environmentName 'STAGING'
     default_azure_location: &defaultAzureLocation 'southcentralus'
     default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
     service_deployment:
@@ -19,23 +19,19 @@ target:
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
       # CF Staging resource groups
-      - name: &defaultRG 'atg-cf-exp2-rg'
+      - name: &cfWafRG 'CFWAF-BytelightDev-EXP'
         action: 'create'
-      - name: &cfWafRG 'atg-cf-exp2-waf-rg'
+      - name: &cfDbRG 'CFSQLS-BytelightDev-EXP'
         action: 'create'
-      - name: &cfDbRG 'atg-cf-exp2-db-rg'
+      - name: &cfKeysRG 'CFKV-BytelightDev-EXP'
         action: 'create'
-      - name: &cfKeysRG 'atg-cf-exp2-keys-rg'
+      - name: &cfAcrRG 'CFACR-BytelightDev-EXP'
         action: 'create'
-      - name: &cfAcrRG 'atg-cf-exp2-acr-rg'
+      - name: &cfNetworksRG 'CFVNET-BytelightDev-EXP'
         action: 'create'
-      - name: &cfNetworksRG 'atg-cf-exp2-networks-rg'
+      - name: &cfAppSvcRG 'CFWEB-BytelightDev-EXP'
         action: 'create'
-      - name: &cfAppSvcRG 'atg-cf-exp2-appsvc-rg'
-        action: 'create'
-      - name: &cfAuthNSvcRG 'atg-cf-exp2-authnsvc-rg'
-        action: 'create'
-      - name: &cfObserversRG 'atg-cf-exp2-observers-rg'
+      - name: &cfAuthNSvcRG 'CFAUTHN-BytelightDev-EXP'
         action: 'create'
     networking:
       public_ip:
@@ -927,4 +923,4 @@ target:
       client_secret:
         vault: *cfDefaultDBKeyVault
         secret_name: *oauthProxyClientSecretName
-        description: 'cf-authn-gw'
+        description: 'cf-staging-authn-gw'
