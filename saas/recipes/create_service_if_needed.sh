@@ -113,7 +113,7 @@ function set_vault_secret () {
 }
 
 function random_key () {
-    hexdump -n 27 -e '"%02X"' /dev/urandom
+    hexdump -n 16 -e '"%02X"' /dev/urandom
 }
 
 function process_secure_secret () {
