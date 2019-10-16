@@ -118,6 +118,19 @@ function options_list_if_present () {
     fi
 }
 
+function server_list_if_present () {
+    local -r option_key="${1}"
+    local -r option_config="${2}"
+    local option_value
+    #
+    # adding '.azurewebsites.net' allows AZURE to optimize the DNS lookups more securely
+    #
+    option_value="$(gw_attr "${option_config}" | jq -r -e '.[] | [ "\(.).azurewebsites.net" ] | @tsv')"
+    if [[ -n "${option_value}" ]]; then
+        echo -n "--${option_key} ${option_value}"
+    fi
+}
+
 function option_if_present () {
     local -r option_key="${1}"
     local -r option_config="${2}"
@@ -250,11 +263,15 @@ function address_pools () {
         local server
         for server in $(address_pool_names); do
             # basic strategy is one address pool per server type, and one server type per address pool
+
+            #
+            # adding '.azurewebsites.net' allows AZURE to optimize the DNS lookups more securely
+            #
             $AZ_TRACE network application-gateway address-pool create \
                 --gateway-name "$(application_gateway_name)" \
                 --resource-group "$(application_gateway_resource_group)" \
                 --name "${server}-pool" \
-                --servers "${server}"
+                --servers "${server}.azurewebsites.net"
         done
     fi
 }
@@ -301,6 +318,7 @@ function match_status_codes () {
 
 function set_probe () {
     if [[ '0' != "$(gw_attr_size 'probe')" ]]; then
+        # shellcheck disable=SC2046,SC2086
         $AZ_TRACE network application-gateway probe create \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
