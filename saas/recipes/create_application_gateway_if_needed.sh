@@ -224,6 +224,7 @@ function pfx_certificate () {
 }
 
 function cert_file_options () {
+    local password="${1}"
     local length
     length="$(gw_attr_size 'tls_certificate')"
     if [[ '0' != "${length}" ]]; then
@@ -253,7 +254,7 @@ function create_application_gateway () {
         $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
         $(options_list_if_present 'waf-policy' 'waf_policy') \
-        $(cert_file_options)
+        $(cert_file_options "${password}")
 }
 
 function set_waf_config () {
