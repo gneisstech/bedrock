@@ -36,10 +36,12 @@ function init_trace () {
 }
 
 function deploy_environment () {
+    date
     init_trace
     invoke_layer 'iaas' 'deploy_iaas'
     invoke_layer 'paas' 'deploy_paas'
     invoke_layer 'saas' 'deploy_saas'
+    date
 }
 
 deploy_environment
