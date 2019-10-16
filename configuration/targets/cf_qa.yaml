@@ -229,7 +229,7 @@ target:
               - '##secure_secret={"vault":"'
               - *cfDefaultDBKeyVault
               - '","secret_name":"'
-              - 'atg-cf-oauth2-proxy-cookie-secret'
+              - 'atg-cf-qa-oauth2-proxy-cookie-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
