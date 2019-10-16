@@ -220,7 +220,7 @@ target:
               - '##secure_secret={"vault":"'
               - *cfDefaultDBKeyVault
               - '","secret_name":"'
-              - &oauthProxyClientSecretName 'atg-cf-oauth2-proxy-client-secret'
+              - &oauthProxyClientSecretName 'atg-cf-staging-oauth2-proxy-client-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
