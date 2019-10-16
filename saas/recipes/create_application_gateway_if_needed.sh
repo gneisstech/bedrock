@@ -677,11 +677,11 @@ function create_routing_rule () {
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --name "${routing_rule_name}" \
-        $(routing_rule_option_if_present  "${routing_rule_name}" 'http-setting' 'properties.http_setting') \
-        $(routing_rule_option_if_present  "${routing_rule_name}" 'http-listener' 'properties.http_listener') \
+        $(routing_rule_option_if_present "${routing_rule_name}" 'http-setting' 'properties.http_setting') \
+        $(routing_rule_option_if_present "${routing_rule_name}" 'http-listener' 'properties.http_listener') \
         --address-pool "$(routing_rule_attr "${routing_rule_name}" 'properties.address_pool' )-pool"  \
         --rule-type "$(routing_rule_attr "${routing_rule_name}" 'properties.ruleType' )"  \
-        --url-path-map "$(routing_rule_attr "${routing_rule_name}" 'properties.urlPathMap' )"
+        $(routing_rule_option_if_present "${routing_rule_name}" 'url-path-map' 'properties.urlPathMap')
 }
 
 function routing_rule_names () {

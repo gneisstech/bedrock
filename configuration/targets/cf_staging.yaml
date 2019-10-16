@@ -657,8 +657,9 @@ target:
         http2: 'Enabled'
         routing_rule_type: 'Basic'
         sku: 'WAF_v2'
-        servers:
+        servers: &wafServers
           - *cfAuthnService
+        address_pools: *wafServers
         private_ip_addresses: []
         # lessons learned: if a named pip exists and provided, but in a different RG, the WAF template tries to create
         # the same name in its own RG, and fails because it uses an incompatible SKU to do it.
@@ -703,7 +704,7 @@ target:
           protocol: 'Http'
           unhealthyThreshold: 3
         http_settings:
-          name: 'cf-default-http-settings'
+          name: &cfWafHttpSetting 'cf-default-http-settings'
           arm_type: 'Microsoft.Network/applicationGateways/backendHttpSettingsCollection'
           affinityCookieName: 'ApplicationGatewayAffinity'
           authenticationCertificates: []
@@ -792,6 +793,13 @@ target:
                 conditions: []
                 name: 'AccessControlAllowOrigin'
                 ruleSequence: 120
+        request_routing_rules:
+          - name: 'rule1'
+            arm_type: 'Microsoft.Network/applicationGateways/requestRoutingRules'
+            properties:
+              address_pool: *cfAuthnService
+              ruleType: 'Basic'
+              http_setting: *cfWafHttpSetting
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'
