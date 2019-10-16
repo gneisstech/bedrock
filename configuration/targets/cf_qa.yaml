@@ -1,8 +1,8 @@
 ---
 target:
   metadata:
-    product_name: &productName 'connected-facilities-staging'
-    environment_name: &environmentName 'atg-cf-exp2-staging'
+    product_name: &productName 'connected-facilities-qa'
+    environment_name: &environmentName 'atg-cf-exp-qa'
     default_azure_location: &defaultAzureLocation 'southcentralus'
     default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
     service_deployment:
@@ -19,34 +19,34 @@ target:
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
       # CF Staging resource groups
-      - name: &defaultRG 'atg-cf-exp2-rg'
+      - name: &defaultRG 'atg-cf-exp-qa-rg'
         action: 'create'
-      - name: &cfWafRG 'atg-cf-exp2-waf-rg'
+      - name: &cfWafRG 'atg-cf-exp-qa-waf-rg'
         action: 'create'
-      - name: &cfDbRG 'atg-cf-exp2-db-rg'
+      - name: &cfDbRG 'atg-cf-exp-qa-db-rg'
         action: 'create'
-      - name: &cfKeysRG 'atg-cf-exp2-keys-rg'
+      - name: &cfKeysRG 'atg-cf-exp-qa-keys-rg'
         action: 'create'
-      - name: &cfAcrRG 'atg-cf-exp2-acr-rg'
+      - name: &cfAcrRG 'atg-cf-exp-qa-acr-rg'
         action: 'create'
-      - name: &cfNetworksRG 'atg-cf-exp2-networks-rg'
+      - name: &cfNetworksRG 'atg-cf-exp-qa-networks-rg'
         action: 'create'
-      - name: &cfAppSvcRG 'atg-cf-exp2-appsvc-rg'
+      - name: &cfAppSvcRG 'atg-cf-exp-qa-appsvc-rg'
         action: 'create'
-      - name: &cfAuthNSvcRG 'atg-cf-exp2-authnsvc-rg'
+      - name: &cfAuthNSvcRG 'atg-cf-exp-qa-authnsvc-rg'
         action: 'create'
-      - name: &cfObserversRG 'atg-cf-exp2-observers-rg'
+      - name: &cfObserversRG 'atg-cf-exp-qa-observers-rg'
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP 'atg-cf-exp2-waf-pip'
+        - name: &wafIP 'atg-cf-exp-qa-waf-pip'
           resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
           sku: 'Standard'
           allocation_method: 'Static'
           action: 'create'
-        - name: &postAuthnIP 'atg-cf-exp2-post-auth-pip'
+        - name: &postAuthnIP 'atg-cf-exp-qa-post-auth-pip'
           resource_group: *cfAuthNSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
@@ -55,22 +55,22 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf-staging'
-          fqdn: 'cf-staging.dev.atrius-iot.com.'
+          host: &dnsHost 'cf-qa'
+          fqdn: 'cf-qa.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
       vnets:
-        - name: 'atg-cf-exp2-vnet'
+        - name: 'atg-cf-exp-qa-vnet'
           resource_group: *cfNetworksRG
           cidr: '10.1.0.0/16'
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
-            - name: 'atg-cf-exp2-0-subnet'
+            - name: 'atg-cf-exp-qa-0-subnet'
               cidr: '10.1.0.0/24'
-            - name: 'atg-cf-exp2-1-subnet'
+            - name: 'atg-cf-exp-qa-1-subnet'
               cidr: '10.1.1.0/24'
   paas:
     location: *defaultAzureLocation
@@ -79,23 +79,23 @@ target:
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
       # CF Dev Key Vault
-      - name: &kvName 'atg-cf-exp2-master-kv'
+      - name: &kvName 'atg-cf-exp-qa-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'atg-cf-exp2-sqls'
+        - name: &cfDefaultDbServer 'atg-cf-exp-qa-sqls'
           arm_type: 'Microsoft.Sql/servers'
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'atg-cf-exp2-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName 'atg-cf-exp-qa-sqls-admin-user'
           admin_password_kv:
             vault: &cfDefaultDBKeyVault 'CF-EXP-KV'  # retire this once build pipeline is available @@ TODO
             resource_group: 'CF-EXP'  # retire this once build pipeline is available @@ TODO
-            secret_name: &cfDefaultDBSecretName 'admin-pw-for-atg-cf-exp2-sqls'
+            secret_name: &cfDefaultDBSecretName 'admin-pw-for-atg-cf-exp-qa-sqls'
           action: 'preserve'
       instances:
-        - name: 'atg-cf-exp2-admin'
+        - name: 'atg-cf-exp-qa-admin'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -109,7 +109,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: 'atg-cf-exp2-ingest'
+        - name: 'atg-cf-exp-qa-ingest'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -123,7 +123,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: &selfHealingSchema 'atg-cf-exp2-self-healing'
+        - name: &selfHealingSchema 'atg-cf-exp-qa-self-healing'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -137,7 +137,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: &healthSchema 'atg-cf-exp2-twin01-db'
+        - name: &healthSchema 'atg-cf-exp-qa-twin01-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -166,14 +166,14 @@ target:
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
     server_farms:
-      - name: &authServiceFarm 'atg-cf-exp2-authservice-asp'
+      - name: &authServiceFarm 'atg-cf-exp-qa-authservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAuthNSvcRG
         is_linux: true
         number_of_workers: 1
         sku: 'P1V2'
         action: 'create'
-      - name: &webServiceFarm 'atg-cf-exp2-webservice-asp'
+      - name: &webServiceFarm 'atg-cf-exp-qa-webservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAppSvcRG
         is_linux: true
@@ -181,10 +181,10 @@ target:
         sku: 'P1V2'
         action: 'create'
     container_registries:
-      - name: &primaryACR 'atgcfexp2devregistry'
+      - name: &primaryACR 'atgcfexpqaregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://atgcfexp2devregistry.azurecr.io'
+        uri: &uriPrimaryACR 'https://atgcfexpqaregistry.azurecr.io'
         sku: 'Standard'
         admin_enabled: true
         action: 'create'
@@ -192,7 +192,7 @@ target:
     authn_services:
       farm: *authServiceFarm
       services:
-        - name: &cfAuthnService 'atg-cf-exp2-auth-proxy'
+        - name: &cfAuthnService 'atg-cf-exp-qa-auth-proxy'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAuthNSvcRG
           container:
@@ -200,14 +200,14 @@ target:
             name: &authnContainer 'cf-oauth-proxy-docker'
             tag: &authnTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2authproxywh'
+            name: 'atgcfexpqaauthproxywh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          upstreamHost: &postAuthnGateway 'atg-cf-exp2-post-authn-ag'
+          upstreamHost: &postAuthnGateway 'atg-cf-exp-qa-post-authn-ag'
           config:
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -289,7 +289,7 @@ target:
       farm: *webServiceFarm
       services:
         # Health services
-        - name: &cfHealthApp 'atg-cf-exp2-app'
+        - name: &cfHealthApp 'atg-cf-exp-qa-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -297,7 +297,7 @@ target:
             name: &healthAppContainer 'cf-react-app-docker'
             tag: &healthAppTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2appwh'
+            name: 'atgcfexpqaappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -337,7 +337,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthAdminApi 'atg-cf-exp2-admin-api'
+        - name: &cfHealthAdminApi 'atg-cf-exp-qa-admin-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -345,7 +345,7 @@ target:
             name: &adminApiContainer 'cf-ruby-api-docker'
             tag: &adminApiTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2adminapiwh'
+            name: 'atgcfexpqaadminapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -402,7 +402,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthApi 'atg-cf-exp2-health-api'
+        - name: &cfHealthApi 'atg-cf-exp-qa-health-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -410,7 +410,7 @@ target:
             name: &healthApiContainer 'cf-ruby-api-docker'
             tag: &healthApiTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2healthapiwh'
+            name: 'atgcfexpqahealthapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -467,7 +467,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthIngestApi 'atg-cf-exp2-ingest-api'
+        - name: &cfHealthIngestApi 'atg-cf-exp-qa-ingest-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -475,7 +475,7 @@ target:
             name: &healthIngestContainer 'cf-ruby-api-docker'
             tag: &healthIngestTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2ingestapiwh'
+            name: 'atgcfexpqaingestapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -533,7 +533,7 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         # Self Healing services
-        - name: &cfSelfHealingApp 'atg-cf-exp2-self-healing-app'
+        - name: &cfSelfHealingApp 'atg-cf-exp-qa-self-healing-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -541,7 +541,7 @@ target:
             name: &shAPPContainer 'cf-self-healing-app-docker'
             tag: &shAPPTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2selfhealingappwh'
+            name: 'atgcfexpqaselfhealingappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -581,7 +581,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfSelfHealingApi 'atg-cf-exp2-self-healing-api'
+        - name: &cfSelfHealingApi 'atg-cf-exp-qa-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -589,7 +589,7 @@ target:
             name: &shAPIContainer 'cf-self-healing-api-docker'
             tag: &shAPITag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2selfhealingapiwh'
+            name: 'atgcfexpqaselfhealingapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -648,7 +648,7 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
     application_gateways:
-      - name: 'atg-cf-exp2-waf-ag'
+      - name: 'atg-cf-exp-qa-waf-ag'
         arm_type: 'Microsoft.Network/applicationGateways'
         resource_group: *cfWafRG
         capacity: 2
@@ -849,7 +849,7 @@ target:
           requestTimeout: 20
           trustedRootCertificates: []
         url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
-          - name: &postAuthnUrlPathMap 'atg-cf-exp2-post-authn-path-map-001'
+          - name: &postAuthnUrlPathMap 'atg-cf-exp-qa-post-authn-path-map-001'
             arm_type: Microsoft.Network/applicationGateways/urlPathMaps
             defaultBackendAddressPool: *cfHealthApp
             defaultBackendHttpSettings: *postAuthNHttpSettings
