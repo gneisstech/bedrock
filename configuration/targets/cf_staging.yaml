@@ -864,7 +864,7 @@ target:
                   - '/cf-ingest/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-              - name: 'post-authn-cf-sel-healing-app-path-rule'
+              - name: 'post-authn-cf-self-healing-app-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
                 backendAddressPool: *cfSelfHealingApp
                 backendHttpSettings: *postAuthNHttpSettings
@@ -873,9 +873,9 @@ target:
                   - '/cf-self-healing/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-              - name: 'post-authn-cf-sel-healing-api-path-rule'
+              - name: 'post-authn-cf-self-healing-api-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
-                backendAddressPool: *cfSelfHealingApp
+                backendAddressPool: *cfSelfHealingApi
                 backendHttpSettings: *postAuthNHttpSettings
                 paths:
                   - '/cf-self-healing-api'
