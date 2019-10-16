@@ -1,0 +1,131 @@
+[
+  {
+    "etag": "W/\"2e6e70ca-b90e-4bd8-97fc-a50c30280e67\"",
+    "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/rewriteRuleSets/security_headers",
+    "name": "security_headers",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "CF-EXP",
+    "rewriteRules": [
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "Strict-Transport-Security",
+              "headerValue": "max-age=31536000"
+            }
+          ]
+        },
+        "conditions": [],
+        "name": "HSTS",
+        "ruleSequence": 100
+      },
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "Referrer-Policy",
+              "headerValue": "strict-origin-when-cross-origin"
+            }
+          ]
+        },
+        "conditions": [],
+        "name": "ReferrerPolicy",
+        "ruleSequence": 101
+      },
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "X-Frame-Options",
+              "headerValue": "sameorigin"
+            }
+          ]
+        },
+        "conditions": [],
+        "name": "XFrameOptions",
+        "ruleSequence": 102
+      },
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "Content-Security-Policy",
+              "headerValue": "default-src 'self'"
+            }
+          ]
+        },
+        "conditions": [
+          {
+            "ignoreCase": true,
+            "negate": true,
+            "pattern": "^.+$",
+            "variable": "http_resp_Content-Security-Policy"
+          }
+        ],
+        "name": "ContentSecurityPolicy",
+        "ruleSequence": 103
+      },
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "Feature-Policy",
+              "headerValue": "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'"
+            }
+          ]
+        },
+        "conditions": [],
+        "name": "FeaturePolicy",
+        "ruleSequence": 104
+      },
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "X-Content-Type-Options",
+              "headerValue": "nosniff"
+            }
+          ]
+        },
+        "conditions": [],
+        "name": "X-Content-Type-Options",
+        "ruleSequence": 108
+      },
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "Server",
+              "headerValue": ""
+            }
+          ]
+        },
+        "conditions": [],
+        "name": "DeleteServerHeader",
+        "ruleSequence": 110
+      },
+      {
+        "actionSet": {
+          "requestHeaderConfigurations": [],
+          "responseHeaderConfigurations": [
+            {
+              "headerName": "Access-Control-Allow-Origin",
+              "headerValue": "https://login.microsoftonline.com"
+            }
+          ]
+        },
+        "conditions": [],
+        "name": "AccessControlAllowOrigin",
+        "ruleSequence": 120
+      }
+    ],
+    "type": "Microsoft.Network/applicationGateways/rewriteRuleSets"
+  }
+]

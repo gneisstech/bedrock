@@ -52,6 +52,7 @@
         1) is used for:
             1) full-chain TLS certificate
             1) mssql server - database password
+            1) client app secret for Oauth2
         1) resources
     
             | Resource Name | Life Cycle | Resource Group | Location | Type |

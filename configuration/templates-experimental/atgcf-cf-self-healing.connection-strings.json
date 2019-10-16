@@ -1,0 +1,10 @@
+[
+  {
+    "name": "DATABASE_URL",
+    "slotSetting": false,
+    "value": {
+      "type": "SQLServer",
+      "value": "sqlserver://admin-atgcfexp-sqls:xsECkKyek7wUCFXFZNAGABW8@atgcfexp-sqls.database.windows.net:1433/atgcfexp-self-healing"
+    }
+  }
+]

@@ -1,0 +1,122 @@
+{
+  "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Web/sites/atgcf-cf-self-healing",
+  "identity": null,
+  "kind": "app,linux,container",
+  "location": "South Central US",
+  "managedBy": null,
+  "name": "atgcf-cf-self-healing",
+  "plan": null,
+  "properties": {
+    "adminEnabled": true,
+    "availabilityState": "Normal",
+    "buildVersion": null,
+    "cers": null,
+    "clientAffinityEnabled": false,
+    "clientCertEnabled": false,
+    "clientCertExclusionPaths": null,
+    "cloningInfo": null,
+    "computeMode": null,
+    "containerSize": 0,
+    "contentAvailabilityState": "Normal",
+    "csrs": [],
+    "dailyMemoryTimeQuota": 0,
+    "defaultHostName": "atgcf-cf-self-healing.azurewebsites.net",
+    "deploymentId": "atgcf-cf-self-healing",
+    "domainVerificationIdentifiers": null,
+    "enabled": true,
+    "enabledHostNames": [
+      "atgcf-cf-self-healing.azurewebsites.net",
+      "atgcf-cf-self-healing.scm.azurewebsites.net"
+    ],
+    "functionExecutionUnitsCache": null,
+    "geoDistributions": null,
+    "homeStamp": "waws-prod-sn1-161",
+    "hostNameSslStates": [
+      {
+        "hostType": "Standard",
+        "ipBasedSslResult": null,
+        "ipBasedSslState": "NotConfigured",
+        "name": "atgcf-cf-self-healing.azurewebsites.net",
+        "sslState": "Disabled",
+        "thumbprint": null,
+        "toUpdate": null,
+        "toUpdateIpBasedSsl": null,
+        "virtualIP": null
+      },
+      {
+        "hostType": "Repository",
+        "ipBasedSslResult": null,
+        "ipBasedSslState": "NotConfigured",
+        "name": "atgcf-cf-self-healing.scm.azurewebsites.net",
+        "sslState": "Disabled",
+        "thumbprint": null,
+        "toUpdate": null,
+        "toUpdateIpBasedSsl": null,
+        "virtualIP": null
+      }
+    ],
+    "hostNames": [
+      "atgcf-cf-self-healing.azurewebsites.net"
+    ],
+    "hostNamesDisabled": false,
+    "hostingEnvironment": null,
+    "hostingEnvironmentId": null,
+    "hostingEnvironmentProfile": null,
+    "httpsOnly": false,
+    "hyperV": false,
+    "inProgressOperationId": null,
+    "inboundIpAddress": "13.84.227.164",
+    "isXenon": false,
+    "kind": "app,linux,container",
+    "lastModifiedTimeUtc": "2019-10-01T14:40:55.93",
+    "maxNumberOfWorkers": null,
+    "name": "atgcf-cf-self-healing",
+    "outboundIpAddresses": "52.171.52.137,13.84.201.190",
+    "owner": null,
+    "possibleInboundIpAddresses": "13.84.227.164",
+    "possibleOutboundIpAddresses": "13.84.227.164,52.171.221.149,52.171.217.1,52.171.217.147,52.171.219.120,52.171.52.137,13.84.201.190",
+    "privateEndpointConnections": [],
+    "redundancyMode": "None",
+    "repositorySiteName": "atgcf-cf-self-healing",
+    "reserved": true,
+    "resourceGroup": "CF-EXP",
+    "runtimeAvailabilityState": "Normal",
+    "scmSiteAlsoStopped": false,
+    "selfLink": "https://waws-prod-sn1-161.api.azurewebsites.windows.net:454/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/webspaces/CF-EXP-SouthCentralUSwebspace/sites/atgcf-cf-self-healing",
+    "serverFarm": null,
+    "serverFarmId": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Web/serverfarms/atgcfexpasp1",
+    "siteConfig": null,
+    "siteDisabledReason": 0,
+    "siteMode": null,
+    "siteProperties": {
+      "appSettings": null,
+      "metadata": null,
+      "properties": [
+        {
+          "name": "LinuxFxVersion",
+          "value": "DOCKER|nginx"
+        },
+        {
+          "name": "WindowsFxVersion",
+          "value": null
+        }
+      ]
+    },
+    "sku": "PremiumV2",
+    "slotSwapStatus": null,
+    "sslCertificates": null,
+    "state": "Running",
+    "storageRecoveryDefaultState": "Running",
+    "suspendedTill": null,
+    "tags": {},
+    "targetBuildVersion": null,
+    "targetSwapSlot": null,
+    "trafficManagerHostNames": null,
+    "usageState": "Normal",
+    "webSpace": "CF-EXP-SouthCentralUSwebspace"
+  },
+  "resourceGroup": "CF-EXP",
+  "sku": null,
+  "tags": {},
+  "type": "Microsoft.Web/sites"
+}

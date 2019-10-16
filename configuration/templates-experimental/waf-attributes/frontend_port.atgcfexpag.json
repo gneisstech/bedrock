@@ -1,0 +1,11 @@
+[
+  {
+    "etag": "W/\"2e6e70ca-b90e-4bd8-97fc-a50c30280e67\"",
+    "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/frontendPorts/port_443",
+    "name": "port_443",
+    "port": 443,
+    "provisioningState": "Succeeded",
+    "resourceGroup": "CF-EXP",
+    "type": "Microsoft.Network/applicationGateways/frontendPorts"
+  }
+]

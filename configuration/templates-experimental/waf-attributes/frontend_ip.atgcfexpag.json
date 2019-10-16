@@ -1,0 +1,17 @@
+[
+  {
+    "etag": "W/\"2e6e70ca-b90e-4bd8-97fc-a50c30280e67\"",
+    "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/applicationGateways/atgcfexpag/frontendIPConfigurations/appGwPublicFrontendIp",
+    "name": "appGwPublicFrontendIp",
+    "privateIpAddress": null,
+    "privateIpAllocationMethod": "Dynamic",
+    "provisioningState": "Succeeded",
+    "publicIpAddress": {
+      "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.Network/publicIPAddresses/atgcfexppip",
+      "resourceGroup": "CF-EXP"
+    },
+    "resourceGroup": "CF-EXP",
+    "subnet": null,
+    "type": "Microsoft.Network/applicationGateways/frontendIPConfigurations"
+  }
+]

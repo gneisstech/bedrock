@@ -1,0 +1,4 @@
+{
+  "customHeaders": {},
+  "serviceUri": "https://$atgcf-ingest-api:76yGLXpLlPTguamaQefyg5gKXdgBNeihnCLahCWt0cQYCQ8LFTg8ldJmm5ax@atgcf-ingest-api.scm.azurewebsites.net/docker/hook"
+}

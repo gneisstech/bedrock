@@ -1,0 +1,81 @@
+{
+  "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourceGroups/CF-EXP/providers/Microsoft.KeyVault/vaults/CF-EXP-KV",
+  "identity": null,
+  "kind": null,
+  "location": "southcentralus",
+  "managedBy": null,
+  "name": "CF-EXP-KV",
+  "plan": null,
+  "properties": {
+    "accessPolicies": [
+      {
+        "objectId": "36bc7f6b-2161-415c-a00e-4332b59aaa99",
+        "permissions": {
+          "certificates": [
+            "Get",
+            "List",
+            "Update",
+            "Create",
+            "Import",
+            "Delete",
+            "Recover",
+            "Backup",
+            "Restore",
+            "ManageContacts",
+            "ManageIssuers",
+            "GetIssuers",
+            "ListIssuers",
+            "SetIssuers",
+            "DeleteIssuers"
+          ],
+          "keys": [
+            "Get",
+            "List",
+            "Update",
+            "Create",
+            "Import",
+            "Delete",
+            "Recover",
+            "Backup",
+            "Restore"
+          ],
+          "secrets": [
+            "Get",
+            "List",
+            "Set",
+            "Delete",
+            "Recover",
+            "Backup",
+            "Restore"
+          ]
+        },
+        "tenantId": "caadbe96-024e-4f67-82ec-fb28ff53d16d"
+      }
+    ],
+    "enabledForDeployment": true,
+    "enabledForDiskEncryption": false,
+    "enabledForTemplateDeployment": true,
+    "networkAcls": {
+      "bypass": "AzureServices",
+      "defaultAction": "Allow",
+      "ipRules": [],
+      "virtualNetworkRules": [
+        {
+          "id": "/subscriptions/5e49f516-d005-4ae8-a287-031c8573401c/resourcegroups/cf-exp/providers/microsoft.network/virtualnetworks/atgcfexpag/subnets/default",
+          "resourceGroup": "cf-exp"
+        }
+      ]
+    },
+    "provisioningState": "Succeeded",
+    "sku": {
+      "family": "A",
+      "name": "Premium"
+    },
+    "tenantId": "caadbe96-024e-4f67-82ec-fb28ff53d16d",
+    "vaultUri": "https://cf-exp-kv.vault.azure.net/"
+  },
+  "resourceGroup": "CF-EXP",
+  "sku": null,
+  "tags": {},
+  "type": "Microsoft.KeyVault/vaults"
+}

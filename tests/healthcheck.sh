@@ -46,7 +46,7 @@ function check_auth_proxy () {
 
 function check_app () {
   echo "=== begin checking app URL of site"
-  curl_auth "$(dev_site_url)/cf-app"
+  curl_auth "$(dev_site_url)/cf-app/"
   echo "=== done checking app URL of site"
 }
 
@@ -71,7 +71,7 @@ function check_health_api () {
 
 function check_self_healing_app () {
   echo "=== begin checking self_healing_app URL of site"
-  curl_auth "$(dev_site_url)/cf-self-healing"
+  curl_auth "$(dev_site_url)/cf-self-healing/"
   echo "=== begin checking self_healing_app URL of site"
 }
 
