@@ -89,6 +89,11 @@ target:
             vault: &cfDefaultDBKeyVault 'CF-EXP-KV'  # retire this once build pipeline is available @@ TODO
             resource_group: 'CF-EXP'  # retire this once build pipeline is available @@ TODO
             secret_name: &cfDefaultDBSecretName 'admin-pw-for-atg-cf-exp2-sqls'
+          default_firewall_rule:
+            name: 'AllowAllWindowsAzureIps'
+            arm_type: 'Microsoft.Sql/servers/firewallRules'
+            start_ip_address: '0.0.0.0'
+            end_ip_address: '0.0.0.0'
           action: 'preserve'
       instances:
         - name: 'atg-cf-exp2-admin'
