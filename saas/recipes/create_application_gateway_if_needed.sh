@@ -44,12 +44,12 @@ function saas_configuration () {
 
 function gw_attr () {
     local -r attr="${1}"
-    saas_configuration | jq -r -e ".application_gateways[] | select(.name == \"$(application_gateway_name)\") | .${attr}"
+    saas_configuration | jq -r ".application_gateways[] | select(.name == \"$(application_gateway_name)\") | .${attr}"
 }
 
 function gw_attr_size () {
     local -r attr="${1}"
-    gw_attr "${attr}" | jq -r -e 'length // 0'
+    saas_configuration | jq -r ".application_gateways[] | select(.name == \"$(application_gateway_name)\") | .${attr} | length // 0"
 }
 
 function application_gateway_resource_group () {
@@ -134,9 +134,7 @@ function server_list_if_present () {
 function option_if_present () {
     local -r option_key="${1}"
     local -r option_config="${2}"
-    local option_length
-    option_length="$(gw_attr "${option_config}" | jq -r -e 'length')"
-    if [[ '0' != "${option_length}" ]]; then
+    if [[ '0' != "$(gw_attr_size "${option_config}")" ]]; then
         printf -- "--%s %s" "${option_key}" "$(gw_attr "${option_config}" )"
     fi
     true
@@ -227,7 +225,7 @@ function create_application_gateway () {
         --sku "$(gw_attr 'sku')" \
         $(option_if_present 'max-capacity' 'max_capacity') \
         $(option_if_present 'min-capacity' 'min_capacity') \
-        $(options_list_if_present 'servers' 'servers') \
+        $(server_list_if_present 'servers' 'servers') \
         $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
         $(options_list_if_present 'waf-policy' 'waf_policy') \
@@ -247,7 +245,7 @@ function set_waf_config () {
             --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
             --rule-set-version "$(gw_attr 'waf_config.rule_set_version')"
     else
-        $AZ_TRACE network application-gateway waf-config set \
+        echo bypassing $AZ_TRACE network application-gateway waf-config set \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
             --enabled false
@@ -327,7 +325,7 @@ function set_probe () {
             --protocol "$(gw_attr 'probe.protocol')" \
             --host-name-from-http-settings "$(gw_attr 'probe.pickHostNameFromBackendHttpSettings')" \
             --interval "$(gw_attr 'probe.interval')" \
-            --match-body "$(gw_attr 'probe.match.body')" \
+            $(option_if_present 'match-body' 'probe.match.body') \
             --match-status-codes "$(match_status_codes)" \
             --min-servers "$(gw_attr 'probe.minServers')" \
             --threshold "$(gw_attr 'probe.unhealthyThreshold')" \
