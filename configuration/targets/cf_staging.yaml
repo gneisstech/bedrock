@@ -931,4 +931,4 @@ target:
       client_secret:
         vault: *cfDefaultDBKeyVault
         secret_name: *oauthProxyClientSecretName
-        description: 'cf-staging-authn-gw'
+        description: 'cf-staging-auth'  # unfortunately limited to 15 characters by AZ CLI
