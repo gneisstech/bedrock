@@ -327,7 +327,7 @@ function http_settings () {
             --cookie-based-affinity "$(gw_attr 'http_settings.cookieBasedAffinity')" \
             --enable-probe "$(gw_attr 'http_settings.probeEnabled')" \
             --host-name-from-backend-pool "$(gw_attr 'http_settings.pickHostNameFromBackendAddress')" \
-            --path "$(gw_attr 'http_settings.path')" \
+            $(option_if_present 'path' 'http_settings.path') \
             --probe "$(gw_attr 'http_settings.probe.name')" \
             --protocol "$(gw_attr 'http_settings.protocol')" \
             $(trusted_root_certificates_option) \

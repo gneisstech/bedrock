@@ -710,7 +710,6 @@ target:
           authenticationCertificates: []
           connectionDraining: 0
           cookieBasedAffinity: 'Disabled'
-          path: '/'
           pickHostNameFromBackendAddress: true
           port: 80
           probe:
@@ -843,7 +842,6 @@ target:
           authenticationCertificates: []
           connectionDraining: 0
           cookieBasedAffinity: 'Disabled'
-          path: '/'
           pickHostNameFromBackendAddress: true
           port: 80
           probe:
