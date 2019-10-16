@@ -628,6 +628,22 @@ function routing_rule_attr () {
     gw_attr 'request_routing_rules[]' | jq -r -e "select(.name == \"${routing_rule_name}\" ) | .${attr}"
 }
 
+function routing_rule_attr_size () {
+    local routing_rule_name="${1}"
+    local -r attr="${2}"
+    gw_attr 'request_routing_rules[]' | jq -r -e "select(.name == \"${routing_rule_name}\" ) | .${attr} | length // 0"
+}
+
+function routing_rule_option_if_present () {
+    local -r routing_rule_name="${1}"
+    local -r option_key="${2}"
+    local -r option_config="${3}"
+    if [[ '0' != "$(routing_rule_attr_size "${routing_rule_name}" "${option_config}")" ]]; then
+        printf -- "--%s %s" "${option_key}" "$(routing_rule_attr  "${routing_rule_name}" "${option_config}" )"
+    fi
+    true
+}
+
 function create_routing_rule () {
     local routing_rule_name="${1}"
 
@@ -636,6 +652,8 @@ function create_routing_rule () {
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --name "${routing_rule_name}" \
+        $(routing_rule_option_if_present  "${routing_rule_name}" 'http-setting' 'properties.http_setting') \
+        $(routing_rule_option_if_present  "${routing_rule_name}" 'http-listener' 'properties.http_listener') \
         --address-pool "$(routing_rule_attr "${routing_rule_name}" 'properties.address_pool' )-pool"  \
         --rule-type "$(routing_rule_attr "${routing_rule_name}" 'properties.ruleType' )"  \
         --url-path-map "$(routing_rule_attr "${routing_rule_name}" 'properties.urlPathMap' )"
