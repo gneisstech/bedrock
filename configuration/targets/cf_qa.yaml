@@ -3,7 +3,7 @@ target:
   metadata:
     product_portfolio_name: &productName 'connected-facilities'
     environment_name: &environmentName 'QA'
-    default_azure_location: &defaultAzureLocation 'southcentralus'
+    default_azure_location: &defaultAzureLocation 'eastus'
     default_azure_subscription: &defaultAzureSubscription 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Allspice-QA
     service_deployment:
       tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
