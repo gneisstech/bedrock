@@ -4,13 +4,13 @@ target:
     product_portfolio_name: &productName 'connected-facilities'
     environment_name: &environmentName 'QA'
     default_azure_location: &defaultAzureLocation 'southcentralus'
-    default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
+    default_azure_subscription: &defaultAzureSubscription 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Allspice-QA
     service_deployment:
       tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       # application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
-      application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  #
+      application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -19,30 +19,30 @@ target:
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
       # CF QA resource groups
-      - name: &cfWafRG 'CFWAF-BytelightQA-EXP'
+      - name: &cfWafRG 'CfWaf-AllspiceQA'
         action: 'create'
-      - name: &cfDbRG 'CFSQLS-BytelightQA-EXP'
+      - name: &cfDbRG 'CfData-AllspiceQA'
         action: 'create'
-      - name: &cfKeysRG 'CFKV-BytelightQA-EXP'
+      - name: &cfKeysRG 'CfKv-AllspiceQA'
         action: 'create'
-      - name: &cfAcrRG 'CFACR-BytelightQA-EXP'
+      - name: &cfAcrRG 'CfAcr-AllspiceQA'
         action: 'create'
-      - name: &cfNetworksRG 'CFVNET-BytelightQA-EXP'
+      - name: &cfNetworksRG 'CfVnet-AllspiceQA'
         action: 'create'
-      - name: &cfAppSvcRG 'CFWEB-BytelightQA-EXP'
+      - name: &cfAppSvcRG 'CfWeb-AllspiceQA'
         action: 'create'
-      - name: &cfAuthNSvcRG 'CFAUTHN-BytelightQA-EXP'
+      - name: &cfAuthNSvcRG 'CfAuthn-AllspiceQA'
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP 'atg-cf-exp-qa-waf-pip'
+        - name: &wafIP 'cf-allspice-qa-waf-pip'
           resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
           sku: 'Standard'
           allocation_method: 'Static'
           action: 'create'
-        - name: &postAuthnIP 'atg-cf-exp-qa-post-auth-pip'
+        - name: &postAuthnIP 'cf-allspice-qa-post-auth-pip'
           resource_group: *cfAuthNSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
@@ -51,22 +51,23 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf-qa'
-          fqdn: 'cf-qa.dev.atrius-iot.com.'
+          host: &dnsHost 'cf-qa01'
+          fqdn: 'cf-qa01.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
+          subscription: '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
       vnets:
-        - name: 'atg-cf-exp-qa-vnet'
+        - name: 'cf-allspice-qa-vnet'
           resource_group: *cfNetworksRG
           cidr: '10.1.0.0/16'
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
-            - name: 'atg-cf-exp-qa-0-subnet'
+            - name: 'cf-allspice-qa-0-subnet'
               cidr: '10.1.0.0/24'
-            - name: 'atg-cf-exp-qa-1-subnet'
+            - name: 'cf-allspice-qa-1-subnet'
               cidr: '10.1.1.0/24'
   paas:
     location: *defaultAzureLocation
@@ -75,20 +76,20 @@ target:
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
       # CF Dev Key Vault
-      - name: &kvName 'atg-cf-exp-qa-master-kv'
+      - name: &kvName 'cf-allspice-qa-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'atg-cf-exp-qa-sqls'
+        - name: &cfDefaultDbServer 'cf-allspice-qa-sqls'
           arm_type: 'Microsoft.Sql/servers'
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'atg-cf-exp-qa-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName 'cf-allspice-qa-sqls-admin-user'
           admin_password_kv:
             vault: &cfDefaultDBKeyVault 'CF-EXP-KV'  # retire this once build pipeline is available @@ TODO
             resource_group: 'CF-EXP'  # retire this once build pipeline is available @@ TODO
-            secret_name: &cfDefaultDBSecretName 'admin-pw-for-atg-cf-exp-qa-sqls'
+            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-allspice-qa-sqls'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
@@ -96,7 +97,7 @@ target:
             end_ip_address: '0.0.0.0'
           action: 'preserve'
       instances:
-        - name: 'atg-cf-exp-qa-admin'
+        - name: 'cf-allspice-qa-admin'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -110,7 +111,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: 'atg-cf-exp-qa-ingest'
+        - name: 'cf-allspice-qa-ingest'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -124,7 +125,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: &selfHealingSchema 'atg-cf-exp-qa-self-healing'
+        - name: &selfHealingSchema 'cf-allspice-qa-self-healing'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -138,7 +139,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: &healthSchema 'atg-cf-exp-qa-twin01-db'
+        - name: &healthSchema 'cf-allspice-qa-twin01-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -167,14 +168,14 @@ target:
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
     server_farms:
-      - name: &authServiceFarm 'atg-cf-exp-qa-authservice-asp'
+      - name: &authServiceFarm 'cf-allspice-qa-authservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAuthNSvcRG
         is_linux: true
         number_of_workers: 1
         sku: 'P1V2'
         action: 'create'
-      - name: &webServiceFarm 'atg-cf-exp-qa-webservice-asp'
+      - name: &webServiceFarm 'cf-allspice-qa-webservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAppSvcRG
         is_linux: true
@@ -182,10 +183,10 @@ target:
         sku: 'P1V2'
         action: 'create'
     container_registries:
-      - name: &primaryACR 'atgcfexpqaregistry'
+      - name: &primaryACR 'cfapspiceqaregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://atgcfexpqaregistry.azurecr.io'
+        uri: &uriPrimaryACR 'https://cfapspiceqaregistry.azurecr.io'
         sku: 'Standard'
         admin_enabled: true
         action: 'create'
@@ -193,7 +194,7 @@ target:
     authn_services:
       farm: *authServiceFarm
       services:
-        - name: &cfAuthnService 'atg-cf-exp-qa-auth-proxy'
+        - name: &cfAuthnService 'cf-allspice-qa-auth-proxy'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAuthNSvcRG
           container:
@@ -201,14 +202,14 @@ target:
             name: &authnContainer 'cf-oauth-proxy-docker'
             tag: &authnTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexpqaauthproxywh'
+            name: 'cfapspiceqaauthproxywh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          upstreamHost: &postAuthnGateway 'atg-cf-exp-qa-post-authn-ag'
+          upstreamHost: &postAuthnGateway 'cf-allspice-qa-post-authn-ag'
           config:
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -290,7 +291,7 @@ target:
       farm: *webServiceFarm
       services:
         # Health services
-        - name: &cfHealthApp 'atg-cf-exp-qa-app'
+        - name: &cfHealthApp 'cf-allspice-qa-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -298,7 +299,7 @@ target:
             name: &healthAppContainer 'cf-react-app-docker'
             tag: &healthAppTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexpqaappwh'
+            name: 'cfapspiceqaappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -338,7 +339,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthAdminApi 'atg-cf-exp-qa-admin-api'
+        - name: &cfHealthAdminApi 'cf-allspice-qa-admin-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -346,7 +347,7 @@ target:
             name: &adminApiContainer 'cf-ruby-api-docker'
             tag: &adminApiTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexpqaadminapiwh'
+            name: 'cfapspiceqaadminapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -403,7 +404,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthApi 'atg-cf-exp-qa-health-api'
+        - name: &cfHealthApi 'cf-allspice-qa-health-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -411,7 +412,7 @@ target:
             name: &healthApiContainer 'cf-ruby-api-docker'
             tag: &healthApiTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexpqahealthapiwh'
+            name: 'cfapspiceqahealthapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -468,7 +469,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthIngestApi 'atg-cf-exp-qa-ingest-api'
+        - name: &cfHealthIngestApi 'cf-allspice-qa-ingest-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -476,7 +477,7 @@ target:
             name: &healthIngestContainer 'cf-ruby-api-docker'
             tag: &healthIngestTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexpqaingestapiwh'
+            name: 'cfapspiceqaingestapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -534,7 +535,7 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         # Self Healing services
-        - name: &cfSelfHealingApp 'atg-cf-exp-qa-self-healing-app'
+        - name: &cfSelfHealingApp 'cf-allspice-qa-self-healing-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -542,7 +543,7 @@ target:
             name: &shAPPContainer 'cf-self-healing-app-docker'
             tag: &shAPPTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexpqaselfhealingappwh'
+            name: 'cfapspiceqaselfhealingappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -582,7 +583,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfSelfHealingApi 'atg-cf-exp-qa-self-healing-api'
+        - name: &cfSelfHealingApi 'cf-allspice-qa-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -590,7 +591,7 @@ target:
             name: &shAPIContainer 'cf-self-healing-api-docker'
             tag: &shAPITag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexpqaselfhealingapiwh'
+            name: 'cfapspiceqaselfhealingapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -649,7 +650,7 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
     application_gateways:
-      - name: 'atg-cf-exp-qa-waf-ag'
+      - name: 'cf-allspice-qa-waf-ag'
         arm_type: 'Microsoft.Network/applicationGateways'
         resource_group: *cfWafRG
         capacity: 2
@@ -804,7 +805,7 @@ target:
               address_pool: *cfAuthnService
               ruleType: 'Basic'
               http_setting: *cfWafHttpSetting
-              rewrite_rule_set: *wafRewriteRuleSet
+              rewrite_rule_set: *wafRewriteRuleSet  # @@ TODO -- manual at the moment - no way to set this via AZ CLI
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'
@@ -857,7 +858,7 @@ target:
           requestTimeout: 20
           trustedRootCertificates: []
         url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
-          - name: &postAuthnUrlPathMap 'atg-cf-exp-qa-post-authn-path-map-001'
+          - name: &postAuthnUrlPathMap 'cf-allspice-qa-post-authn-path-map-001'
             arm_type: Microsoft.Network/applicationGateways/urlPathMaps
             defaultBackendAddressPool: *cfHealthApp
             defaultBackendHttpSettings: *postAuthNHttpSettings
@@ -927,7 +928,7 @@ target:
               urlPathMap: *postAuthnUrlPathMap
               http_setting: *postAuthNHttpSettings
         action: 'preserve'
-    application_registration:
+    application_registration:  # @@ TODO manual - insufficient permissions from AZ CLI
       tenant: *appRegistrationTenant
       application_id: *appRegistrationID
       variables:
