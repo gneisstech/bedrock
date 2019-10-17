@@ -66,8 +66,21 @@ function iaas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.iaas'
 }
 
+function dns_a_record_attr () {
+    local -r attr="${1}"
+    iaas_configuration | jq -r -e ".networking.dns_a_records[] | select(.host == \"$(dns_a_record_host)\") | .${attr}"
+}
+
+function dns_a_record_resource_group () {
+    dns_a_record_attr 'resource_group'
+}
+
 function dns_a_record_zone () {
-    iaas_configuration | jq -r -e ".networking.dns_a_records[] | select(.host == \"$(dns_a_record_host)\") | .zone"
+    dns_a_record_attr 'zone'
+}
+
+function dns_a_record_subscription () {
+    dns_a_record_attr 'subscription'
 }
 
 function dns_a_record_already_exists () {
@@ -75,12 +88,8 @@ function dns_a_record_already_exists () {
         --name "$(dns_a_record_host)" \
         --resource-group "$(dns_a_record_resource_group)" \
         --zone-name "$(dns_a_record_zone)" \
+        --subscription "$(dns_a_record_subscription)" \
         > /dev/null 2>&1
-}
-
-function dns_a_record_resource_group () {
-    iaas_configuration | \
-        jq -r -e ".networking.dns_a_records[] | select(.host == \"$(dns_a_record_host)\") | .resource_group"
 }
 
 function dns_a_record_ttl () {
@@ -116,6 +125,7 @@ function create_dns_a_record () {
         --name "$(dns_a_record_host)" \
         --resource-group "$(dns_a_record_resource_group)" \
         --zone-name "$(dns_a_record_zone)" \
+        --subscription "$(dns_a_record_subscription)" \
         --target-resource "$(dns_target_resource)" \
         --if-none-match \
         --ttl "$(dns_a_record_ttl)"
@@ -125,6 +135,7 @@ function dns_zone_exists () {
     az network dns zone show \
         --name "$(dns_a_record_zone)" \
         --resource-group "$(dns_a_record_resource_group)" \
+        --subscription "$(dns_a_record_subscription)" \
         > /dev/null 2>&1
 }
 

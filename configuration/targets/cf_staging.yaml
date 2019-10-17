@@ -54,6 +54,7 @@ target:
           host: &dnsHost 'cf-staging'
           fqdn: 'cf-staging.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
+          subscription: *defaultAzureSubscription
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
