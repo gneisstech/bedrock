@@ -16,7 +16,7 @@ target:
     resource_groups:
       # for naming conventions, see: https://docs.acuitynext.net/wiki/azure-naming-conventions/
       # pre-existing Atrius resource groups with shared configuration state
-      - name: &atriusDnsRG 'atriusops-allspicedev'
+      - name: &atriusDnsRG 'atriusops-allspiceqa'
         action: 'read'
       # CF QA resource groups
       - name: &cfWafRG 'CfWaf-AllspiceQA'
@@ -50,11 +50,11 @@ target:
           allocation_method: 'Dynamic'
           action: 'create'
       dns_a_records:
-        - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf-qa01'
-          fqdn: 'cf-qa01.dev.atrius-iot.com.'
+        - zone: &dnsZone 'qa.atrius-iot.com'
+          host: &dnsHost 'cf'
+          fqdn: 'cf.qa.atrius-iot.com.'
           resource_group: *atriusDnsRG
-          subscription: '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
+          subscription: *defaultAzureSubscription
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
@@ -72,8 +72,8 @@ target:
   paas:
     location: *defaultAzureLocation
     keyvaults:
-      # pre-existing Atrius key vault with shared configuration state
-      - name: &atriusKVName 'atrius01kvbxkbdsepg6'
+      # pre-existing Atrius key vault with shared configuration state such as TLS certificate
+      - name: &atriusKVName 'atrius01kvjyfjczwcoo'
         action: 'read'
       # CF Dev Key Vault
       - name: &kvName 'cf-allspice-qa-master-kv'
@@ -692,10 +692,9 @@ target:
             - 'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
           minProtocolVersion: 'TLSv1_2'
           policyType: Custom
-        tls_certificate:
-          origin:
+        ssl_certs:
+          - name: 'wildcardqaatrius-iotcom'
             vault_name: *atriusKVName
-            tls_secret_name: 'wildcarddevatrius-iotcom'
         probe:
           name: &wafProbe 'cf-strict-probe'
           arm_type: 'Microsoft.Network/applicationGateways/probes'
@@ -768,7 +767,7 @@ target:
                   requestHeaderConfigurations: []
                   responseHeaderConfigurations:
                     - headerName: 'Feature-Policy'
-                      headerValue: |-
+                      headerValue: >-
                         accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope
                         'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'
                 conditions: []
