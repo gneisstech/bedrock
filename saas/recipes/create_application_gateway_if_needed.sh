@@ -165,9 +165,11 @@ function option_if_present () {
 }
 
 function get_original_cert_from_shared_vault () {
-    $AZ_TRACE keyvault secret show \
-        --vault-name "$(gw_attr 'tls_certificate.origin.vault_name')" \
-        --name "$(gw_attr 'tls_certificate.origin.tls_secret_name')" \
+    # @@ TODO refactor to support multiple TLS certificates
+    local ssl_cert_name="${1}"
+    az keyvault secret show \
+        --vault-name "$(gw_attr 'ssl_certs[0].vault_name')" \
+        --name "$(gw_attr 'ssl_certs[0].name')" \
         2> /dev/null \
     | jq -r '.value'
 }
@@ -218,17 +220,19 @@ function sign_as_pfx () {
 
 function pfx_certificate () {
     local password="${1}"
+    local ssl_cert_name="${2}"
     local pem
-    pem=$(get_original_cert_from_shared_vault | pkcs12_to_pem | add_intermediate_certificate)
+    pem=$(get_original_cert_from_shared_vault "${ssl_cert_name}" | pkcs12_to_pem | add_intermediate_certificate)
     sign_as_pfx "${pem}" "${password}"
 }
 
 function cert_file_options () {
     local password="${1}"
+    local ssl_cert_name="${2}"
     local length
-    length="$(gw_attr_size 'tls_certificate')"
+    length="$(gw_attr_size 'ssl_certs')"
     if [[ '0' != "${length}" ]]; then
-        echo "--cert-file <( pfx_certificate \"\${password}\")"
+        echo "--cert-file <( pfx_certificate \"\${password}\" \"\${ssl_cert_name}\")"
         echo "--cert-password \"\${password}\""
     fi
 }
@@ -254,7 +258,7 @@ function create_application_gateway () {
         $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
         $(options_list_if_present 'waf-policy' 'waf_policy') \
-        $(cert_file_options "${password}")
+        $(cert_file_options "${password}" 'default_tls_certificate')
 }
 
 function set_waf_config () {
@@ -270,6 +274,7 @@ function set_waf_config () {
             --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
             --rule-set-version "$(gw_attr 'waf_config.rule_set_version')"
     else
+        # shellcheck disable=SC2046,SC2086
         echo bypassing $AZ_TRACE network application-gateway waf-config set \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
@@ -699,6 +704,34 @@ function request_routing_rules () {
     true
 }
 
+function create_ssl_cert () {
+    local -r ssl_cert_name="${1}"
+    local password
+    password="$(random_key)"
+
+    # shellcheck disable=SC2046,SC2086
+    eval $AZ_TRACE network application-gateway ssl-cert create --debug \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "${ssl_cert_name}" \
+        $(cert_file_options "${password}" "${ssl_cert_name}")
+}
+
+function ssl_cert_names () {
+    gw_attr 'ssl_certs' | jq -r -e '.[] | [ .name ] | @tsv'
+}
+
+function ssl_cert () {
+    if [[ '0' != "$(gw_attr_size 'ssl_certs')" ]]; then
+        local ssl_cert_name
+        for ssl_cert_name in $(ssl_cert_names); do
+            echo "checkpoint ssl_cert: [${ssl_cert_name}]"
+            create_ssl_cert "${ssl_cert_name}"
+        done
+    fi
+    true
+}
+
 #
 # https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
 #
@@ -726,6 +759,8 @@ function update_application_gateway_config () {
     http_listener
     echo "checkpoint routing rules"
     request_routing_rules
+    echo "checkpoint ssl_cert"
+    ssl_cert
 
     ####################
     # we are using the following defaults created by "application-gateway create"
@@ -734,7 +769,6 @@ function update_application_gateway_config () {
     # front_end_port
     # redirect-config
     # root_cert
-    # ssl_cert
     # waf_policy
 }
 
