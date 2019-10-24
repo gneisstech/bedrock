@@ -77,8 +77,8 @@ target:
       # pre-existing Atrius key vault with shared configuration state such as TLS certificate
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
-      # CF Dev Key Vault
-      - name: &kvName 'cf-dev-master-kv'
+      # CF Prod Key Vault
+      - name: &kvName 'cf-staging-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
