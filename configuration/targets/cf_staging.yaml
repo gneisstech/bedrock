@@ -5,7 +5,8 @@ target:
     environment_name: &environmentName 'Staging'
     default_azure_location: &defaultAzureLocation 'southcentralus'
     default_azure_subscription: &defaultAzureSubscription 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
-    tls_cert_subscription: &subscription_AtriusUS '1b907cdd-2fcf-40e0-b8c9-6f18fce5d955'  # Acuity Brands, Inc. Atrius-US
+    tls_cert_subscription: &subscription_tls '1b907cdd-2fcf-40e0-b8c9-6f18fce5d955'  # Acuity Brands, Inc. Atrius-US
+    dns_subscription: &subscription_dns '1b907cdd-2fcf-40e0-b8c9-6f18fce5d955'  # Acuity Brands, Inc. Atrius-US
     service_deployment:
       tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
     app_registration:
@@ -55,7 +56,7 @@ target:
           host: &dnsHost 'cf'
           fqdn: 'cf-staging.us.atrius-iot.com.'
           resource_group: *atriusDnsRG
-          subscription: *defaultAzureSubscription
+          subscription: *subscription_dns
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
@@ -696,7 +697,7 @@ target:
         ssl_certs:
           - name: 'wildcardusatrius-iotcom'
             vault_name: *atriusKVName
-            subscription: *subscription_AtriusUS
+            subscription: *subscription_tls
         probe:
           name: &wafProbe 'cf-strict-probe'
           arm_type: 'Microsoft.Network/applicationGateways/probes'

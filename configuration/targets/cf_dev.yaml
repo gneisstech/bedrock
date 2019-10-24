@@ -5,7 +5,8 @@ target:
     environment_name: &environmentName 'Dev'
     default_azure_location: &defaultAzureLocation 'southcentralus'
     default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
-    tls_cert_subscription: &subscription_AllspiceDev '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     service_deployment:
       tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
     app_registration:
@@ -55,7 +56,7 @@ target:
           host: &dnsHost 'cf'
           fqdn: 'cf.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
-          subscription: *defaultAzureSubscription
+          subscription: *subscription_dns
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
@@ -696,7 +697,7 @@ target:
         ssl_certs:
           - name: 'wildcarddevatrius-iotcom'
             vault_name: *atriusKVName
-            subscription: *subscription_AllspiceDev
+            subscription: *subscription_tls
         probe:
           name: &wafProbe 'cf-strict-probe'
           arm_type: 'Microsoft.Network/applicationGateways/probes'
