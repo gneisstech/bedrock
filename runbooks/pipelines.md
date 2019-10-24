@@ -23,6 +23,13 @@
 1) commits shall be to branches identified by ticket #, description
     1) branch name example "/topic/paulc/12345 - new dashboard widget"
     2) developer shall NOT rebase their branch with master
+
+[[ @@ code review, pull request]]
+
+[[ @@ notification on failure]]
+
+[[ @@ branch naming master vs development]]
+
 2) on commit, cloud pipeline shall run, producing at a minimum
     1) merge latest 'master' into topic branch
         1) developer to resolve any merge conflicts
