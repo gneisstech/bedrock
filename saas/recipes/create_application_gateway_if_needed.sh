@@ -711,7 +711,7 @@ function create_ssl_cert () {
     password="$(random_key)"
 
     # shellcheck disable=SC2046,SC2086
-    eval $AZ_TRACE network application-gateway ssl-cert create --debug \
+    eval $AZ_TRACE network application-gateway ssl-cert create \
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --name "${ssl_cert_name}" \
@@ -776,6 +776,7 @@ function update_application_gateway_config () {
 function create_application_gateway_if_needed () {
     application_gateway_already_exists || deploy_application_gateway
     update_application_gateway_config
+    echo "completed application gateway"
 }
 
 create_application_gateway_if_needed
