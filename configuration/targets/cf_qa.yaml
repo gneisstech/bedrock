@@ -89,8 +89,8 @@ target:
           resource_group: *cfDbRG
           admin_name: &cfDefaultDBAdminName 'cf-qa-sqls-admin-user'
           admin_password_kv:
-            vault: &cfDefaultDBKeyVault 'cf-qa-kv'  # retire this once build pipeline is available @@ TODO
-            resource_group: 'cf-qa'  # retire this once build pipeline is available @@ TODO
+            vault: *kvName
+            resource_group: *cfKeysRG
             secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-qa-sqls'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
@@ -226,7 +226,7 @@ target:
             OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
             OAUTH2_PROXY_CLIENT_SECRET:
               - '##secure_secret={"vault":"'
-              - *cfDefaultDBKeyVault
+              - *kvName
               - '","secret_name":"'
               - &oauthProxyClientSecretName 'atg-cf-qa-oauth2-proxy-client-secret'
               - '"}'
@@ -236,7 +236,7 @@ target:
             OAUTH2_PROXY_COOKIE_REFRESH: '5m'
             OAUTH2_PROXY_COOKIE_SECRET:
               - '##secure_secret={"vault":"'
-              - *cfDefaultDBKeyVault
+              - *kvName
               - '","secret_name":"'
               - 'atg-cf-qa-oauth2-proxy-cookie-secret'
               - '"}'
@@ -377,7 +377,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ':'
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -442,7 +442,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ':'
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -507,7 +507,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ':'
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -626,7 +626,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ';PWD='
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -937,6 +937,6 @@ target:
       variables:
         app_auth_callback_url: *appAuthCallbackURL
       client_secret:
-        vault: *cfDefaultDBKeyVault
+        vault: *kvName
         secret_name: *oauthProxyClientSecretName
         description: 'cf-qa-auth'  # unfortunately limited to 15 characters by AZ CLI
