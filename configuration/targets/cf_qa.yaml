@@ -3,7 +3,7 @@ target:
   metadata:
     product_portfolio_name: &productName 'connected-facilities'
     environment_name: &environmentName 'QA'
-    default_azure_location: &defaultAzureLocation 'southcentralus'
+    default_azure_location: &defaultAzureLocation 'eastus'
     default_azure_subscription: &defaultAzureSubscription '781c62dc-1612-43e6-a0ca-a8138888691f'  # Acuity Brands, Inc. ConnectedFacilities-QA
     tls_cert_subscription: &subscription_tls 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Acuity Brands, Inc. Allspice-QA
     dns_subscription: &subscription_dns 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Acuity Brands, Inc. Allspice-QA

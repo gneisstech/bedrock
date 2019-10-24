@@ -3,7 +3,7 @@ target:
   metadata:
     product_portfolio_name: &productName 'connected-facilities'
     environment_name: &environmentName 'Staging'
-    default_azure_location: &defaultAzureLocation 'southcentralus'
+    default_azure_location: &defaultAzureLocation 'eastus'
     default_azure_subscription: &defaultAzureSubscription 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
     tls_cert_subscription: &subscription_tls '1b907cdd-2fcf-40e0-b8c9-6f18fce5d955'  # Acuity Brands, Inc. Atrius-US
     dns_subscription: &subscription_dns '1b907cdd-2fcf-40e0-b8c9-6f18fce5d955'  # Acuity Brands, Inc. Atrius-US
