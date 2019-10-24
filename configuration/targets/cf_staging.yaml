@@ -5,8 +5,8 @@ target:
     environment_name: &environmentName 'Staging'
     default_azure_location: &defaultAzureLocation 'eastus'
     default_azure_subscription: &defaultAzureSubscription 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
-    tls_cert_subscription: &subscription_tls '1b907cdd-2fcf-40e0-b8c9-6f18fce5d955'  # Acuity Brands, Inc. Atrius-US
-    dns_subscription: &subscription_dns '1b907cdd-2fcf-40e0-b8c9-6f18fce5d955'  # Acuity Brands, Inc. Atrius-US
+    tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     service_deployment:
       tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
     app_registration:
@@ -18,7 +18,7 @@ target:
     resource_groups:
       # for naming conventions, see: https://docs.acuitynext.net/wiki/azure-naming-conventions/
       # pre-existing Atrius resource groups with shared configuration state
-      - name: &atriusDnsRG 'AtriusOps-AtriusUs'
+      - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
       # CF Staging resource groups
       - name: &cfWafRG 'Waf-staging-CfProd'
@@ -52,9 +52,9 @@ target:
           allocation_method: 'Dynamic'
           action: 'create'
       dns_a_records:
-        - zone: &dnsZone 'us.atrius-iot.com'
+        - zone: &dnsZone 'dev.atrius-iot.com'
           host: &dnsHost 'cf'
-          fqdn: 'cf-staging.us.atrius-iot.com.'
+          fqdn: 'cf-staging.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
@@ -75,10 +75,10 @@ target:
     location: *defaultAzureLocation
     keyvaults:
       # pre-existing Atrius key vault with shared configuration state such as TLS certificate
-      - name: &atriusKVName 'atrius01kv627rshxzee'
+      - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
-      # CF Prod Key Vault
-      - name: &kvName 'cf-staging-master-kv'
+      # CF Dev Key Vault
+      - name: &kvName 'cf-dev-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
@@ -668,7 +668,7 @@ target:
           minProtocolVersion: 'TLSv1_2'
           policyType: Custom
         ssl_certs:
-          - name: 'wildcardusatrius-iotcom'
+          - name: 'wildcarddevatrius-iotcom'
             vault_name: *atriusKVName
             subscription: *subscription_tls
         probe:
