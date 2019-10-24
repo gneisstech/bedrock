@@ -233,8 +233,8 @@ function cert_file_options () {
     local length
     length="$(gw_attr_size 'ssl_certs')"
     if [[ '0' != "${length}" ]]; then
-        echo "--cert-file <( pfx_certificate \"\${password}\" \"\${ssl_cert_name}\")"
-        echo "--cert-password \"\${password}\""
+        echo "--cert-file <( pfx_certificate \"${password}\" \"${ssl_cert_name}\")"
+        echo "--cert-password \"${password}\""
     fi
 }
 
