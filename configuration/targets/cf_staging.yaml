@@ -2,15 +2,17 @@
 target:
   metadata:
     product_portfolio_name: &productName 'connected-facilities'
-    environment_name: &environmentName 'STAGING'
-    default_azure_location: &defaultAzureLocation 'southcentralus'
-    default_azure_subscription: &defaultAzureSubscription '5e49f516-d005-4ae8-a287-031c8573401c'  # Allspice-Dev
+    environment_name: &environmentName 'Staging'
+    default_azure_location: &defaultAzureLocation 'eastus'
+    default_azure_subscription: &defaultAzureSubscription 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
+    tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     service_deployment:
       tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
-      # application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
-      application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  #
+      # application_id: &appRegistrationID '6d566d2d-acfa-4fb0-a56b-c48ccc07cc53'  # Acuity Brands Atrius US UI
+      application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -19,30 +21,30 @@ target:
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
       # CF Staging resource groups
-      - name: &cfWafRG 'CFWAF-BytelightDev-EXP'
+      - name: &cfWafRG 'Waf-staging-CfProd'
         action: 'create'
-      - name: &cfDbRG 'CFSQLS-BytelightDev-EXP'
+      - name: &cfDbRG 'Data-staging-CfProd'
         action: 'create'
-      - name: &cfKeysRG 'CFKV-BytelightDev-EXP'
+      - name: &cfKeysRG 'Kv-staging-CfProd'
         action: 'create'
-      - name: &cfAcrRG 'CFACR-BytelightDev-EXP'
+      - name: &cfAcrRG 'Acr-staging-CfProd'
         action: 'create'
-      - name: &cfNetworksRG 'CFVNET-BytelightDev-EXP'
+      - name: &cfNetworksRG 'Vnet-staging-CfProd'
         action: 'create'
-      - name: &cfAppSvcRG 'CFWEB-BytelightDev-EXP'
+      - name: &cfAppSvcRG 'Web-staging-CfProd'
         action: 'create'
-      - name: &cfAuthNSvcRG 'CFAUTHN-BytelightDev-EXP'
+      - name: &cfAuthNSvcRG 'Authn-staging-CfProd'
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP 'atg-cf-exp2-waf-pip'
+        - name: &wafIP 'cf-staging-waf-pip'
           resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
           sku: 'Standard'
           allocation_method: 'Static'
           action: 'create'
-        - name: &postAuthnIP 'atg-cf-exp2-post-auth-pip'
+        - name: &postAuthnIP 'cf-staging-post-auth-pip'
           resource_group: *cfAuthNSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
@@ -51,45 +53,45 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf-staging'
+          host: &dnsHost 'cf'
           fqdn: 'cf-staging.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
-          subscription: *defaultAzureSubscription
+          subscription: *subscription_dns
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
       vnets:
-        - name: 'atg-cf-exp2-vnet'
+        - name: 'cf-staging-vnet'
           resource_group: *cfNetworksRG
           cidr: '10.1.0.0/16'
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
-            - name: 'atg-cf-exp2-0-subnet'
+            - name: 'cf-staging-0-subnet'
               cidr: '10.1.0.0/24'
-            - name: 'atg-cf-exp2-1-subnet'
+            - name: 'cf-staging-1-subnet'
               cidr: '10.1.1.0/24'
   paas:
     location: *defaultAzureLocation
     keyvaults:
-      # pre-existing Atrius key vault with shared configuration state
+      # pre-existing Atrius key vault with shared configuration state such as TLS certificate
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
-      # CF Dev Key Vault
-      - name: &kvName 'atg-cf-exp2-master-kv'
+      # CF Prod Key Vault
+      - name: &kvName 'cf-staging-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'atg-cf-exp2-sqls'
+        - name: &cfDefaultDbServer 'cf-staging-sqls'
           arm_type: 'Microsoft.Sql/servers'
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'atg-cf-exp2-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName 'cf-staging-sqls-admin-user'
           admin_password_kv:
-            vault: &cfDefaultDBKeyVault 'CF-EXP-KV'  # retire this once build pipeline is available @@ TODO
-            resource_group: 'CF-EXP'  # retire this once build pipeline is available @@ TODO
-            secret_name: &cfDefaultDBSecretName 'admin-pw-for-atg-cf-exp2-sqls'
+            vault: *kvName
+            resource_group: *cfKeysRG
+            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-staging-sqls'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
@@ -97,7 +99,7 @@ target:
             end_ip_address: '0.0.0.0'
           action: 'preserve'
       instances:
-        - name: 'atg-cf-exp2-admin'
+        - name: &selfHealingSchema 'cf-staging-self-healing'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -111,35 +113,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
-        - name: 'atg-cf-exp2-ingest'
-          arm_type: 'Microsoft.Sql/servers/databases'
-          resource_group: *cfDbRG
-          server: *cfDefaultDbServer
-          license_type: 'LicenseIncluded'
-          max_size: '100GB'
-          zone_redundant: false
-          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
-          collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'GeneralPurpose'
-          family: 'Gen5'
-          service_objective: 'GP_Gen5_2'
-          action: 'preserve'
-        - name: &selfHealingSchema 'atg-cf-exp2-self-healing'
-          arm_type: 'Microsoft.Sql/servers/databases'
-          resource_group: *cfDbRG
-          server: *cfDefaultDbServer
-          license_type: 'LicenseIncluded'
-          max_size: '100GB'
-          zone_redundant: false
-          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
-          collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'GeneralPurpose'
-          family: 'Gen5'
-          service_objective: 'GP_Gen5_2'
-          action: 'preserve'
-        - name: &healthSchema 'atg-cf-exp2-twin01-db'
+        - name: &healthSchema 'cf-staging-twin01-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -168,14 +142,14 @@ target:
           service_objective: 'GP_Gen5_2'
           action: 'preserve'
     server_farms:
-      - name: &authServiceFarm 'atg-cf-exp2-authservice-asp'
+      - name: &authServiceFarm 'cf-staging-authservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAuthNSvcRG
         is_linux: true
         number_of_workers: 1
         sku: 'P1V2'
         action: 'create'
-      - name: &webServiceFarm 'atg-cf-exp2-webservice-asp'
+      - name: &webServiceFarm 'cf-staging-webservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAppSvcRG
         is_linux: true
@@ -183,10 +157,10 @@ target:
         sku: 'P1V2'
         action: 'create'
     container_registries:
-      - name: &primaryACR 'atgcfexp2devregistry'
+      - name: &primaryACR 'cfstagingregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://atgcfexp2devregistry.azurecr.io'
+        uri: &uriPrimaryACR 'https://cfstagingregistry.azurecr.io'
         sku: 'Standard'
         admin_enabled: true
         action: 'create'
@@ -194,7 +168,7 @@ target:
     authn_services:
       farm: *authServiceFarm
       services:
-        - name: &cfAuthnService 'atg-cf-exp2-auth-proxy'
+        - name: &cfAuthnService 'cf-staging-auth-proxy'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAuthNSvcRG
           container:
@@ -202,14 +176,14 @@ target:
             name: &authnContainer 'cf-oauth-proxy-docker'
             tag: &authnTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2authproxywh'
+            name: 'cfstagingauthproxywh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          upstreamHost: &postAuthnGateway 'atg-cf-exp2-post-authn-ag'
+          upstreamHost: &postAuthnGateway 'cf-staging-post-authn-ag'
           config:
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -224,16 +198,17 @@ target:
             OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
             OAUTH2_PROXY_CLIENT_SECRET:
               - '##secure_secret={"vault":"'
-              - *cfDefaultDBKeyVault
+              - *kvName
               - '","secret_name":"'
               - &oauthProxyClientSecretName 'atg-cf-staging-oauth2-proxy-client-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
+            OAUTH2_PROXY_COOKIE_PATH: '/'
             OAUTH2_PROXY_COOKIE_REFRESH: '5m'
             OAUTH2_PROXY_COOKIE_SECRET:
               - '##secure_secret={"vault":"'
-              - *cfDefaultDBKeyVault
+              - *kvName
               - '","secret_name":"'
               - 'atg-cf-staging-oauth2-proxy-cookie-secret'
               - '"}'
@@ -291,7 +266,7 @@ target:
       farm: *webServiceFarm
       services:
         # Health services
-        - name: &cfHealthApp 'atg-cf-exp2-app'
+        - name: &cfHealthApp 'cf-staging-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -299,7 +274,7 @@ target:
             name: &healthAppContainer 'cf-react-app-docker'
             tag: &healthAppTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2appwh'
+            name: 'cfstagingappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -339,7 +314,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthAdminApi 'atg-cf-exp2-admin-api'
+        - name: &cfHealthAdminApi 'cf-staging-admin-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -347,7 +322,7 @@ target:
             name: &adminApiContainer 'cf-ruby-api-docker'
             tag: &adminApiTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2adminapiwh'
+            name: 'cfstagingadminapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -374,7 +349,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ':'
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -404,7 +379,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthApi 'atg-cf-exp2-health-api'
+        - name: &cfHealthApi 'cf-staging-health-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -412,7 +387,7 @@ target:
             name: &healthApiContainer 'cf-ruby-api-docker'
             tag: &healthApiTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2healthapiwh'
+            name: 'cfstaginghealthapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -439,7 +414,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ':'
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -469,7 +444,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfHealthIngestApi 'atg-cf-exp2-ingest-api'
+        - name: &cfHealthIngestApi 'cf-staging-ingest-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -477,7 +452,7 @@ target:
             name: &healthIngestContainer 'cf-ruby-api-docker'
             tag: &healthIngestTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2ingestapiwh'
+            name: 'cfstagingingestapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -504,7 +479,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ':'
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -535,7 +510,7 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
         # Self Healing services
-        - name: &cfSelfHealingApp 'atg-cf-exp2-self-healing-app'
+        - name: &cfSelfHealingApp 'cf-staging-self-healing-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -543,7 +518,7 @@ target:
             name: &shAPPContainer 'cf-self-healing-app-docker'
             tag: &shAPPTag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2selfhealingappwh'
+            name: 'cfstagingselfhealingappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -583,7 +558,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
-        - name: &cfSelfHealingApi 'atg-cf-exp2-self-healing-api'
+        - name: &cfSelfHealingApi 'cf-staging-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -591,7 +566,7 @@ target:
             name: &shAPIContainer 'cf-self-healing-api-docker'
             tag: &shAPITag 'connected-facilities'
           acr_webhook:
-            name: 'atgcfexp2selfhealingapiwh'
+            name: 'cfstagingselfhealingapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -623,7 +598,7 @@ target:
                 - *cfDefaultDBAdminName
                 - ';PWD='
                 - '##secure_secret={"vault":"'
-                - *cfDefaultDBKeyVault
+                - *kvName
                 - '","secret_name":"'
                 - *cfDefaultDBSecretName
                 - '"}'
@@ -650,7 +625,7 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           action: 'create'
     application_gateways:
-      - name: 'atg-cf-exp2-waf-ag'
+      - name: 'cf-staging-waf-ag'
         arm_type: 'Microsoft.Network/applicationGateways'
         resource_group: *cfWafRG
         capacity: 2
@@ -695,6 +670,7 @@ target:
         ssl_certs:
           - name: 'wildcarddevatrius-iotcom'
             vault_name: *atriusKVName
+            subscription: *subscription_tls
         probe:
           name: &wafProbe 'cf-strict-probe'
           arm_type: 'Microsoft.Network/applicationGateways/probes'
@@ -724,8 +700,8 @@ target:
           requestTimeout: 20
           trustedRootCertificates: []
         rewrite_rule_sets:
-          - name: security_headers
-            arm_type: Microsoft.Network/applicationGateways/rewriteRuleSets
+          - name: &wafRewriteRuleSet 'security_headers'
+            arm_type: 'Microsoft.Network/applicationGateways/rewriteRuleSets'
             rewriteRules:
               - actionSet:
                   requestHeaderConfigurations: []
@@ -804,6 +780,7 @@ target:
               address_pool: *cfAuthnService
               ruleType: 'Basic'
               http_setting: *cfWafHttpSetting
+              rewrite_rule_set: *wafRewriteRuleSet  # @@ TODO -- manual at the moment - no way to set this via AZ CLI
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'
@@ -856,7 +833,7 @@ target:
           requestTimeout: 20
           trustedRootCertificates: []
         url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
-          - name: &postAuthnUrlPathMap 'atg-cf-exp2-post-authn-path-map-001'
+          - name: &postAuthnUrlPathMap 'cf-staging-post-authn-path-map-001'
             arm_type: Microsoft.Network/applicationGateways/urlPathMaps
             defaultBackendAddressPool: *cfHealthApp
             defaultBackendHttpSettings: *postAuthNHttpSettings
@@ -926,12 +903,12 @@ target:
               urlPathMap: *postAuthnUrlPathMap
               http_setting: *postAuthNHttpSettings
         action: 'preserve'
-    application_registration:
+    application_registration:  # @@ TODO manual - insufficient permissions from AZ CLI
       tenant: *appRegistrationTenant
       application_id: *appRegistrationID
       variables:
         app_auth_callback_url: *appAuthCallbackURL
       client_secret:
-        vault: *cfDefaultDBKeyVault
+        vault: *kvName
         secret_name: *oauthProxyClientSecretName
         description: 'cf-staging-auth'  # unfortunately limited to 15 characters by AZ CLI

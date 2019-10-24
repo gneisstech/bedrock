@@ -59,12 +59,37 @@ function init_trace () {
     fi
 }
 
+function target_config () {
+    echo "$(repo_root)/${TARGET_CONFIG}"
+}
+
+function target_subscription () {
+    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.default_azure_subscription'
+}
+
+function set_subscription () {
+    local -r desired_subscription="${1}"
+    az account set --subscription "${desired_subscription}"
+}
+
+function set_target_subscription () {
+    set_subscription "$(target_subscription)"
+}
+
+function current_azure_subscription () {
+    az account show -o json | jq -r -e '.id'
+}
+
 function deploy_environment () {
+    local saved_subscription
     date
+    saved_subscription="$(current_azure_subscription)"
+    set_target_subscription
     init_trace
     invoke_layer 'iaas' 'deploy_iaas'
     invoke_layer 'paas' 'deploy_paas'
     invoke_layer 'saas' 'deploy_saas'
+    set_subscription "${saved_subscription}"
     date
 }
 

@@ -168,6 +168,7 @@ function get_original_cert_from_shared_vault () {
     # @@ TODO refactor to support multiple TLS certificates
     local ssl_cert_name="${1}"
     az keyvault secret show \
+        --subscription "$(gw_attr 'ssl_certs[0].subscription')" \
         --vault-name "$(gw_attr 'ssl_certs[0].vault_name')" \
         --name "$(gw_attr 'ssl_certs[0].name')" \
         2> /dev/null \
@@ -232,8 +233,8 @@ function cert_file_options () {
     local length
     length="$(gw_attr_size 'ssl_certs')"
     if [[ '0' != "${length}" ]]; then
-        echo "--cert-file <( pfx_certificate \"\${password}\" \"\${ssl_cert_name}\")"
-        echo "--cert-password \"\${password}\""
+        echo "--cert-file <( pfx_certificate \"${password}\" \"${ssl_cert_name}\")"
+        echo "--cert-password \"${password}\""
     fi
 }
 
@@ -710,7 +711,7 @@ function create_ssl_cert () {
     password="$(random_key)"
 
     # shellcheck disable=SC2046,SC2086
-    eval $AZ_TRACE network application-gateway ssl-cert create --debug \
+    eval $AZ_TRACE network application-gateway ssl-cert create \
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --name "${ssl_cert_name}" \
@@ -775,6 +776,7 @@ function update_application_gateway_config () {
 function create_application_gateway_if_needed () {
     application_gateway_already_exists || deploy_application_gateway
     update_application_gateway_config
+    echo "completed application gateway"
 }
 
 create_application_gateway_if_needed

@@ -102,7 +102,7 @@ function existing_reply_urls () {
 
 function add_to_jq_array () {
     local -r newElements="${1}"
-    jq -r -e ". += [ \"${newElements}\" ]"
+    jq -r -e ". += [ \"${newElements}\" ] | unique"
 }
 
 function new_reply_urls () {
@@ -115,31 +115,28 @@ function new_reply_urls_array () {
 
 function add_reply_url_to_application_if_needed () {
     # shellcheck disable=SC2046
-    echo az ad app update \
+    $AZ_TRACE ad app update \
         --id "$(svc_attr 'application_id')" \
-        --add replyUrls $(new_reply_urls_array)
+        --reply-urls $(new_reply_urls_array)
 }
 
 function add_client_secret_to_application () {
-    local -r previous_subscription="${1}"
-    local secret
-    az account set --subscription "${previous_subscription}"
-    secret="$(get_vault_secret "$(svc_attr 'client_secret.vault')" "$(svc_attr 'client_secret.secret_name')" )"
+    local -r secret="${1}"
     if [[ -n "${secret}" ]]; then
-        az account set --subscription "$(svc_attr 'tenant')"
-        echo az ad app credential reset --append  \
+        $AZ_TRACE ad app credential reset --append  \
             --id "$(svc_attr 'application_id')" \
             --credential-description "$(svc_attr 'client_secret.description')" \
             --password "${secret}"
     fi
-    az account set --subscription "${previous_subscription}"
 }
 
 function update_target_application () {
     local -r previous_subscription="${1}"
+    local secret
+    secret="$(get_vault_secret "$(svc_attr 'client_secret.vault')" "$(svc_attr 'client_secret.secret_name')" )"
     az account set --subscription "$(svc_attr 'tenant')"
     add_reply_url_to_application_if_needed
-    add_client_secret_to_application "${previous_subscription}"
+    add_client_secret_to_application "${secret}"
     az account set --subscription "${previous_subscription}"
 }
 
