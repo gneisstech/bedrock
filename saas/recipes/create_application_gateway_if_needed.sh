@@ -168,6 +168,7 @@ function get_original_cert_from_shared_vault () {
     # @@ TODO refactor to support multiple TLS certificates
     local ssl_cert_name="${1}"
     az keyvault secret show \
+        --subscription "$(gw_attr 'ssl_certs[0].subscription')" \
         --vault-name "$(gw_attr 'ssl_certs[0].vault_name')" \
         --name "$(gw_attr 'ssl_certs[0].name')" \
         2> /dev/null \
