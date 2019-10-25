@@ -86,6 +86,7 @@ target:
       servers:
         - name: &cfDefaultDbServer 'cf-qa-sqls'
           arm_type: 'Microsoft.Sql/servers'
+          subscription: *defaultAzureSubscription
           resource_group: *cfDbRG
           admin_name: &cfDefaultDBAdminName 'cf-qa-sqls-admin-user'
           admin_password_kv:
@@ -104,42 +105,28 @@ target:
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
-          max_size: '100GB'
+          max_size: '250GB'
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
           capacity: 2
-          tier: 'GeneralPurpose'
-          family: 'Gen5'
-          service_objective: 'GP_Gen5_2'
+          tier: 'Standard'
+          family: ''
+          service_objective: 'S0'
           action: 'preserve'
         - name: &healthSchema 'cf-qa-twin01-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
-          max_size: '100GB'
+          max_size: '250GB'
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
           capacity: 2
-          tier: 'GeneralPurpose'
-          family: 'Gen5'
-          service_objective: 'GP_Gen5_2'
-          action: 'preserve'
-        - name: 'master'
-          arm_type: 'Microsoft.Sql/servers/databases'
-          resource_group: *cfDbRG
-          server: *cfDefaultDbServer
-          license_type: 'LicenseIncluded'
-          max_size: '100GB'
-          zone_redundant: false
-          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
-          collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'GeneralPurpose'
-          family: 'Gen5'
-          service_objective: 'GP_Gen5_2'
+          tier: 'Standard'
+          family: ''
+          service_objective: 'S0'
           action: 'preserve'
     server_farms:
       - name: &authServiceFarm 'cf-qa-authservice-asp'
