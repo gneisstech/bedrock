@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_database_instance_if_needed.sh database_instance_name
+# usage: import_database.sh database_instance_name
 
 #
 # Maintainer: techguru@byiq.com
@@ -37,11 +37,14 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
-declare -rx AZ_TRACE
+declare -x AZ_TRACE
 
 # Arguments
 # ---------------------
 declare -rx DATABASE_INSTANCE_NAME="${1}"
+declare -rx BACPAC_STORAGE_ACCOUNT="${2}"
+declare -rx BACPAC_CONTAINER_NAME="${3}"
+declare -rx BACPAC_NAME="${4}"
 
 function database_instance_name (){
     echo "${DATABASE_INSTANCE_NAME}"
@@ -71,11 +74,6 @@ function db_attr () {
     paas_configuration | jq -r -e ".databases.instances[] | select(.name == \"$(database_instance_name)\") | .${attr}"
 }
 
-function db_attr_size () {
-    local -r attr="${1}"
-    paas_configuration | jq -r -e ".databases.instances[] | select(.name == \"$(database_instance_name)\") | .${attr} | length // 0"
-}
-
 function database_instance_resource_group () {
     db_attr "resource_group"
 }
@@ -84,41 +82,92 @@ function database_instance_server () {
     db_attr "server"
 }
 
-function database_instance_option_if_present () {
-    local -r option_key="${1}"
-    local -r option_config="${2}"
-    if [[ '0' != "$(db_attr_size "${option_config}")" ]]; then
-        printf -- "--%s %s" "${option_key}" "$(db_attr "${option_config}" )"
+function server_attr () {
+    local -r attr="${1}"
+    paas_configuration | jq -r -e ".databases.servers[] | select(.name == \"$(database_instance_server)\") | .${attr}"
+}
+
+function database_server_subscription () {
+    server_attr "subscription"
+}
+
+function database_server_resource_group () {
+    server_attr 'resource_group'
+}
+
+function database_server_admin_name () {
+    server_attr 'admin_name'
+}
+
+function storage_account_name () {
+    printf '%s' "${BACPAC_STORAGE_ACCOUNT}"
+}
+
+function container_name () {
+    printf '%s' "${BACPAC_CONTAINER_NAME}"
+}
+
+function bacpac_name () {
+    printf '%s' "${BACPAC_NAME}"
+}
+
+function fetch_kv_database_server_admin_password () {
+    az keyvault secret show \
+        --vault-name "$(server_attr 'admin_password_kv.vault')" \
+        --name "$(server_attr 'admin_password_kv.secret_name')" \
+        2> /dev/null \
+    | jq -r '.value'
+}
+
+function expiry_date () {
+    # date function options are highly sensitive to OS and shell versions
+    # for mac, 'brew install coreutils' to get gnu date
+    gdate --utc --date "+2 hours" '+%Y-%m-%dT%H:%MZ'
+}
+
+function az_storage_key () {
+set -x
+    az storage blob generate-sas \
+        --account-name "$(storage_account_name)" \
+        --container-name "$(container_name)" \
+        --name "$(bacpac_name)" \
+        --permissions 'r' \
+        --expiry "$(expiry_date)" \
+        -o tsv
+}
+
+function storage_key () {
+    printf '"?%s"' "$(az_storage_key)"
+}
+
+function storage_uri () {
+    printf "https://%s.blob.core.windows.net/%s/%s" "$(storage_account_name)" "$(container_name)" "$(bacpac_name)"
+}
+
+function database_import () {
+    $AZ_TRACE sql db import \
+        --subscription "$(database_server_subscription)" \
+        --name "$(database_instance_name)" \
+        --resource-group "$(database_instance_resource_group)" \
+        --server "$(database_instance_server)" \
+        --admin-password "$(fetch_kv_database_server_admin_password)" \
+        --admin-user "$(database_server_admin_name)" \
+        --storage-key "$(storage_key)" \
+        --storage-key-type 'SharedAccessKey' \
+        --storage-uri "$(storage_uri)"
+}
+
+function init_trace () {
+    if [[ -z "${AZ_TRACE}" ]]; then
+        export AZ_TRACE="echo az"
     fi
-    true
 }
 
-function database_instance_already_exists () {
-    az sql db show \
-        --name "$(database_instance_name)" \
-        --resource-group "$(database_instance_resource_group)" \
-        --server "$(database_instance_server)" \
-        > /dev/null 2>&1
+function import_database () {
+    date
+    init_trace
+    database_import
+    date
 }
 
-function deploy_database_instance () {
-    $AZ_TRACE sql db create \
-        --name "$(database_instance_name)" \
-        --resource-group "$(database_instance_resource_group)" \
-        --server "$(database_instance_server)" \
-        --license-type "$(db_attr 'license_type')" \
-        --max-size "$(db_attr 'max_size')" \
-        --zone-redundant "$(db_attr 'zone_redundant')" \
-        --catalog-collation "$(db_attr 'catalog_collation')" \
-        --collation "$(db_attr 'collation')" \
-        --capacity "$(db_attr 'capacity')" \
-        --tier "$(db_attr 'tier')" \
-        --service-objective "$(db_attr 'service_objective')" \
-        $(database_instance_option_if_present 'family' 'family')
-}
-
-function create_database_instance_if_needed () {
-    database_instance_already_exists || deploy_database_instance
-}
-
-create_database_instance_if_needed
+import_database
