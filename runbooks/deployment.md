@@ -238,15 +238,52 @@
 4) manual steps to complete the deployment
     1) due to insufficient privileges on other shared resources (they are in a privileged AD tenant)
         1) create a new app password on the Atrius UI "application registration"
-            1. put the new app password into the configuration of the AUTHN web app
-            2. put the new app password into the key vault
+            1. navigate to
+                `Acuity Brands Technical Services, INC - App registrations->Acuity Brands Atrius Dev UI`
+                note that it is in a different subscription.   Change to Dev/QA/US as appropriate for deployment environment
+            1. copy the client id from the "overview panel", you will need it later
+            1. navigate to the `Certificates & secrets` panel
+                1. add a new "Client Secret", name as `atg-cf-dev-oauth2-proxy-client-secret` (dev/qa/staging, etc)
+                1. copy the value of the new secret while it is still visible
+        1) put the new app password into the configuration of the AUTHN web app
+            1. navigate to  `Home->Resource groups->Authn-CfDev->cf-dev-auth-proxy - Configuration`
+            2. change the configuration option `OAUTH2_PROXY_CLIENT_SECRET` to have the new client secret
+        1) put the new app password into the key vault for the deployment environment
+            1. navigate to `Resource groups->Kv-CfDev->cf-dev-master-kv - Secrets->atg-cf-dev-oauth2-proxy-client-secret`
+            1. click `add a new version`
+            1. put the new client secret value into the value field
+        1) put the new app clinet id into the configuration of the AUTHN web app
+            1. navigate to  `Home->Resource groups->Authn-CfDev->cf-dev-auth-proxy - Configuration`
+            2. change the configuration option `OAUTH2_PROXY_CLIENT_ID` to have the value of the client id from above
         2) create a new callback URL on the Atrius UI "application registration" (Authorizations)
+            1. navigate to
+                `Acuity Brands Technical Services, INC - App registrations->Acuity Brands Atrius Dev UI - Authentication`
+                note that it is in a different subscription.   Change to Dev/QA/US as appropriate for deployment environment
+    1) due to insufficient privileges on other shared resources (they are in a privileged AD tenant)
+        1) add or update DNS zone records to point to the public IP on the WAF
+            
     2) due to AZ CLI lack of support for newer azure API (bind rewrite rules to routing rules on the AuthN AG)
-        1) 
+        1) navigate in portal to resourcegroup Waf-CF{dev,qa,staging,prod} and open the cf-{env}-waf-ag
+        2) navigate to rewrite rules, "security_headers"
+        3) click the box to associate with "rule1"
+        4) click "Next", click "Update"
+    3) recent breaking changes (not yet automated -- represent tech debt if automated:
+        1) navigate in portal to resourcegroup Waf-CF{dev,qa,staging,prod} and open the cf-{env}-waf-ag
+        1) navigate to "Web Application Firewall"
+        1) Turn off "inspect request body"
+        1) save the change
     3) load any related seed data into the databases
+        ```
+        TARGET_CONFIG=./configuration/targets/cf_dev.yaml AZ_TRACE=az ./paas/recipes/import_database.sh cf-dev-twin01-db cfexp2bytelightsa db-snaps atg-cf-exp2-twin01-db-2019-10-24-14-15.bacpac
+        ```
     4) seed the containers into the container registry
+        1) revise origin and target Azure Registry container names in the file `./recipes/promote_containers.sh`
+        2) run `./recipes/promote_containers.sh`
+        3) the webhooks will start the web apps
+    5) connect build pipelines to the container registry
+        1) @@ TODO
 
-5) everything should be working  (https://foo.com/cf-app, https://foo.com/cf-self-healing )
+5) wait a minute -- everything should be working  (https://foo.com/cf-app, https://foo.com/cf-self-healing )
 
 6) miscellanea:
     1) may need to file a ticket to add the WAF public IP to the appropriate DNS zone (post deployment)
