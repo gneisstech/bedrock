@@ -119,6 +119,10 @@ function fetch_kv_database_server_admin_password () {
     | jq -r '.value'
 }
 
+function database_server_admin_password () {
+    printf "'%s'" "$(fetch_kv_database_server_admin_password)"
+}
+
 function expiry_date () {
     # date function options are highly sensitive to OS and shell versions
     # for mac, 'brew install coreutils' to get gnu date
@@ -126,7 +130,6 @@ function expiry_date () {
 }
 
 function az_storage_key () {
-set -x
     az storage blob generate-sas \
         --account-name "$(storage_account_name)" \
         --container-name "$(container_name)" \
@@ -145,12 +148,12 @@ function storage_uri () {
 }
 
 function database_import () {
-    $AZ_TRACE sql db import \
+    eval $AZ_TRACE sql db import \
         --subscription "$(database_server_subscription)" \
         --name "$(database_instance_name)" \
         --resource-group "$(database_instance_resource_group)" \
         --server "$(database_instance_server)" \
-        --admin-password "$(fetch_kv_database_server_admin_password)" \
+        --admin-password "$(database_server_admin_password)" \
         --admin-user "$(database_server_admin_name)" \
         --storage-key "$(storage_key)" \
         --storage-key-type 'SharedAccessKey' \

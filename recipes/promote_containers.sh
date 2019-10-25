@@ -21,9 +21,9 @@ function repo_root () {
 }
 
 function promote_containers () {
-    local -r originRepo="atfcfexpdev.azurecr.io"
-    local -r targetRepo="atgcfexp2devregistry.azurecr.io"
-    local -r containers="cf-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-base cf-self-healing-api-docker cf-self-healing-app-docker"
+    local -r originRepo='atgcfexp2devregistry.azurecr.io'
+    local -r targetRepo='cfqaregistry.azurecr.io'
+    local -r containers='cf-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-base cf-self-healing-api-docker cf-self-healing-app-docker'
     for image in ${containers}; do
       local imageWithTag originPath targetPath
       imageWithTag="${image}:connected-facilities"

@@ -74,6 +74,10 @@ function db_attr () {
     paas_configuration | jq -r -e ".databases.instances[] | select(.name == \"$(database_instance_name)\") | .${attr}"
 }
 
+function database_instance_resource_group () {
+    db_attr "resource_group"
+}
+
 function database_instance_server () {
     db_attr "server"
 }
@@ -85,10 +89,6 @@ function server_attr () {
 
 function database_server_subscription () {
     server_attr "subscription"
-}
-
-function database_server_resource_group () {
-    server_attr 'resource_group'
 }
 
 function database_server_resource_group () {
@@ -119,6 +119,10 @@ function fetch_kv_database_server_admin_password () {
     | jq -r '.value'
 }
 
+function database_server_admin_password () {
+    printf "'%s'" "$(fetch_kv_database_server_admin_password)"
+}
+
 function expiry_date () {
     # date function options are highly sensitive to OS and shell versions
     # for mac, 'brew install coreutils' to get gnu date
@@ -126,7 +130,6 @@ function expiry_date () {
 }
 
 function az_storage_key () {
-set -x
     az storage blob generate-sas \
         --account-name "$(storage_account_name)" \
         --container-name "$(container_name)" \
@@ -141,16 +144,16 @@ function storage_key () {
 }
 
 function storage_uri () {
-    printf "https://%s.blob.core.windows.net/%s/%s" "$(storage_account_name)" "$(container_name)" "$(bacpac_name)"
+    printf 'https://%s.blob.core.windows.net/%s/%s' "$(storage_account_name)" "$(container_name)" "$(bacpac_name)"
 }
 
 function database_export () {
-    $AZ_TRACE sql db export \
+    eval $AZ_TRACE sql db export \
         --subscription "$(database_server_subscription)" \
         --name "$(database_instance_name)" \
         --resource-group "$(database_instance_resource_group)" \
         --server "$(database_instance_server)" \
-        --admin-password "$(fetch_kv_database_server_admin_password)" \
+        --admin-password "$(database_server_admin_password)" \
         --admin-user "$(database_server_admin_name)" \
         --storage-key "$(storage_key)" \
         --storage-key-type 'SharedAccessKey' \
