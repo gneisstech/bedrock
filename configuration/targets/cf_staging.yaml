@@ -190,7 +190,7 @@ target:
               - &oauthProxyClientSecretName 'cf-staging-oauth2-proxy-client-secret'
               - '"}'
               - '##'
-            OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
+            OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
             OAUTH2_PROXY_COOKIE_PATH: '/'
             OAUTH2_PROXY_COOKIE_REFRESH: '5m'
             OAUTH2_PROXY_COOKIE_SECRET:
