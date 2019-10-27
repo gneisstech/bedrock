@@ -11,8 +11,8 @@ target:
       tenant: &environmentTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
-      # application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
-      application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
+      application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
+      # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
   iaas:
     location: *defaultAzureLocation
     resource_groups:
