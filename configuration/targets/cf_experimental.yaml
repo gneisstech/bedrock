@@ -676,7 +676,7 @@ target:
           file_upload_limit: '100'
           firewall_mode: 'Prevention'
           max_request_body_size: '128'
-          request_body_check: true
+          request_body_check: false  # @@ TODO make this true ... implement 128kb limit for ingest TECH DEBT
           rule_set_type: 'OWASP'
           rule_set_version: '3.1'
         tls_policy:
