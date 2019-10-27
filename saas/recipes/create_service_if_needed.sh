@@ -295,6 +295,17 @@ function config_logging () {
     true
 }
 
+function config_tls () {
+    if [[ '0' != "$(svc_attr_size 'tls')" ]]; then
+        # shellcheck disable=SC2046
+        $AZ_TRACE webapp update \
+            --name "$(service_name)" \
+            --resource-group "$(service_resource_group)" \
+            --https-only "$(svc_attr 'tls')"
+    fi
+    true
+}
+
 function service_already_exists () {
     az webapp show \
         --name "$(service_name)" \
@@ -314,6 +325,7 @@ function deploy_service () {
     set_app_settings
     set_webhook
     config_logging
+    config_tls
 }
 
 function create_service_if_needed () {

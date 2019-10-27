@@ -264,6 +264,7 @@ target:
             failed_request_tracing: true
             level: 'warning'
             web_server_logging: 'filesystem'
+          tls: 'true'
           action: 'create'
     web_services:
       farm: *webServiceFarm
@@ -317,6 +318,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
+          tls: 'true'
           action: 'create'
         - name: &cfHealthAdminApi 'cf-exp-admin-api'
           arm_type: 'Microsoft.Web/sites'
@@ -383,6 +385,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
+          tls: 'true'
           action: 'create'
         - name: &cfHealthApi 'cf-exp-health-api'
           arm_type: 'Microsoft.Web/sites'
@@ -449,6 +452,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
+          tls: 'true'
           action: 'create'
         - name: &cfHealthIngestApi 'cf-exp-ingest-api'
           arm_type: 'Microsoft.Web/sites'
@@ -515,6 +519,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
+          tls: 'true'
           action: 'create'
         # Self Healing services
         - name: &cfSelfHealingApp 'cf-exp-self-healing-app'
@@ -565,6 +570,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
+          tls: 'true'
           action: 'create'
         - name: &cfSelfHealingApi 'cf-exp-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
@@ -632,6 +638,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
+          tls: 'true'
           action: 'create'
         # Echo debug service
         - name: &cfEchoDebug 'cf-exp-echo-debug-app'
@@ -656,6 +663,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
+          tls: 'true'
           action: 'create'
     application_gateways:
       - name: 'cf-exp-waf-ag'
