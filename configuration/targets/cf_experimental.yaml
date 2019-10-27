@@ -260,6 +260,13 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: &defaultWebAppLogging
+            application_logging: true
+            detailed_error_messages: true
+            docker_container_logging: 'filesystem'
+            failed_request_tracing: true
+            level: 'warning'
+            web_server_logging: 'filesystem'
           action: 'create'
     web_services:
       farm: *webServiceFarm
@@ -312,6 +319,7 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
           action: 'create'
         - name: &cfHealthAdminApi 'cf-exp-admin-api'
           arm_type: 'Microsoft.Web/sites'
@@ -377,6 +385,7 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
           action: 'create'
         - name: &cfHealthApi 'cf-exp-health-api'
           arm_type: 'Microsoft.Web/sites'
@@ -442,6 +451,7 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
           action: 'create'
         - name: &cfHealthIngestApi 'cf-exp-ingest-api'
           arm_type: 'Microsoft.Web/sites'
@@ -507,6 +517,7 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
           action: 'create'
         # Self Healing services
         - name: &cfSelfHealingApp 'cf-exp-self-healing-app'
@@ -556,6 +567,7 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
           action: 'create'
         - name: &cfSelfHealingApi 'cf-exp-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
@@ -622,6 +634,7 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
           action: 'create'
         # Echo debug service
         - name: &cfEchoDebug 'cf-exp-echo-debug-app'
@@ -645,6 +658,7 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: ''
             DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
           action: 'create'
     application_gateways:
       - name: 'cf-exp-waf-ag'

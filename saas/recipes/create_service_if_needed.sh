@@ -279,6 +279,22 @@ function set_webhook () {
     true
 }
 
+function config_logging () {
+    if [[ '0' != "$(svc_attr_size 'logging')" ]]; then
+        # shellcheck disable=SC2046
+        $AZ_TRACE webapp log config \
+            --name "$(service_name)" \
+            --resource-group "$(service_resource_group)" \
+            --application-logging "$(svc_attr 'logging.application_logging')" \
+            --detailed-error-messages "$(svc_attr 'logging.detailed_error_messages')" \
+            --docker-container-logging "$(svc_attr 'logging.docker_container_logging')" \
+            --failed-request-tracing "$(svc_attr 'logging.failed_request_tracing')" \
+            --level "$(svc_attr 'logging.level')" \
+            --web-server-logging "$(svc_attr 'logging.web_server_logging')"
+    fi
+    true
+}
+
 function service_already_exists () {
     az webapp show \
         --name "$(service_name)" \
@@ -297,6 +313,7 @@ function deploy_service () {
     enable_container_continuous_deployment
     set_app_settings
     set_webhook
+    config_logging
 }
 
 function create_service_if_needed () {
