@@ -76,6 +76,12 @@ function svc_attr () {
     saas_configuration | jq -r -e ".${SERVICE_GROUP}.services[] | select(.name == \"$(service_name)\") | .${attr} // empty"
 }
 
+function svc_attr_size () {
+    local -r attr="${1}"
+    saas_configuration | jq -r -e ".${SERVICE_GROUP}.services[] | select(.name == \"$(service_name)\") | .${attr} | length // 0"
+}
+
+
 function svc_string () {
     local -r attr="${1}"
     local -r key="${2}"
@@ -259,15 +265,18 @@ function webhook_uri () {
 }
 
 function set_webhook () {
-    # shellcheck disable=SC2046
-    $AZ_TRACE acr webhook create \
-        --name "$(svc_attr 'acr_webhook.name')" \
-        --resource-group "$(svc_attr 'acr_webhook.resource_group')" \
-        --registry "$(svc_attr 'acr_webhook.registry')" \
-        --scope "$(svc_attr 'container.name'):$(svc_attr 'container.tag')" \
-        --status "$(svc_attr 'acr_webhook.status')" \
-        --actions $(webhook_actions) \
-        --uri "$(webhook_uri)"
+    if [[ '0' != "$(svc_attr_size 'acr_webhook')" ]]; then
+        # shellcheck disable=SC2046
+        $AZ_TRACE acr webhook create \
+            --name "$(svc_attr 'acr_webhook.name')" \
+            --resource-group "$(svc_attr 'acr_webhook.resource_group')" \
+            --registry "$(svc_attr 'acr_webhook.registry')" \
+            --scope "$(svc_attr 'container.name'):$(svc_attr 'container.tag')" \
+            --status "$(svc_attr 'acr_webhook.status')" \
+            --actions $(webhook_actions) \
+            --uri "$(webhook_uri)"
+    fi
+    true
 }
 
 function service_already_exists () {
