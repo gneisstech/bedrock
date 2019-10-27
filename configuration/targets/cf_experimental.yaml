@@ -195,7 +195,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - &oauthProxyClientSecretName 'atg-cf-exp-oauth2-proxy-client-secret'
+              - &oauthProxyClientSecretName 'cf-exp-oauth2-proxy-client-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '20m'
@@ -205,7 +205,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - 'atg-cf-exp-oauth2-proxy-cookie-secret'
+              - 'cf-exp-oauth2-proxy-cookie-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
