@@ -61,8 +61,8 @@ target:
           a_record_public_ip: *wafIP
           action: 'create'
         - zone: 'dev.atrius-iot.com'
-          host: &postAuthnGateway 'cf-exp-post-authn'
-          fqdn: &postAuthnGatewayFqdn 'cf-exp-post-authn.dev.atrius-iot.com.'
+          host: &postAuthnGateway 'cf-exp-post-authn-ag'
+          fqdn: &postAuthnGatewayFqdn 'cf-exp-post-authn-ag.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
@@ -232,12 +232,9 @@ target:
             OAUTH2_PROXY_SILENCE_PING_LOGGING: true
             OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: true
             OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true
-            OAUTH2_PROXY_UPSTREAMS:  # @@ TODO convert to https and private ip on vnet
+            OAUTH2_PROXY_UPSTREAMS:  # @@ TODO private ip on vnet
               - 'https://'
-              - *postAuthnIP
-              - '.'
-              - *defaultAzureLocation
-              - '.cloudapp.azure.com/'
+              - *postAuthnGatewayFqdn
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITES_PORT: 4180
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
