@@ -147,13 +147,13 @@
 ---
 >           upstreamHost: &postAuthnGateway 'cf-qa-post-authn-ag'
 203c203
-<               - &oauthProxyClientSecretName 'atg-cf-dev-oauth2-proxy-client-secret'
+<               - &oauthProxyClientSecretName 'cf-dev-oauth2-proxy-client-secret'
 ---
->               - &oauthProxyClientSecretName 'atg-cf-qa-oauth2-proxy-client-secret'
+>               - &oauthProxyClientSecretName 'cf-qa-oauth2-proxy-client-secret'
 213c213
-<               - 'atg-cf-dev-oauth2-proxy-cookie-secret'
+<               - 'cf-dev-oauth2-proxy-cookie-secret'
 ---
->               - 'atg-cf-qa-oauth2-proxy-cookie-secret'
+>               - 'cf-qa-oauth2-proxy-cookie-secret'
 269c269
 <         - name: &cfHealthApp 'cf-dev-app'
 ---
@@ -243,13 +243,13 @@
                 note that it is in a different subscription.   Change to Dev/QA/US as appropriate for deployment environment
             1. copy the client id from the "overview panel", you will need it later
             1. navigate to the `Certificates & secrets` panel
-                1. add a new "Client Secret", name as `atg-cf-dev-oauth2-proxy-client-secret` (dev/qa/staging, etc)
+                1. add a new "Client Secret", name as `cf-dev-oauth2-proxy-client-secret` (dev/qa/staging, etc)
                 1. copy the value of the new secret while it is still visible
         1) put the new app password into the configuration of the AUTHN web app
             1. navigate to  `Home->Resource groups->Authn-CfDev->cf-dev-auth-proxy - Configuration`
             2. change the configuration option `OAUTH2_PROXY_CLIENT_SECRET` to have the new client secret
         1) put the new app password into the key vault for the deployment environment
-            1. navigate to `Resource groups->Kv-CfDev->cf-dev-master-kv - Secrets->atg-cf-dev-oauth2-proxy-client-secret`
+            1. navigate to `Resource groups->Kv-CfDev->cf-dev-master-kv - Secrets->cf-dev-oauth2-proxy-client-secret`
             1. click `add a new version`
             1. put the new client secret value into the value field
         1) put the new app clinet id into the configuration of the AUTHN web app
