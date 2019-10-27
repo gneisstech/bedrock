@@ -259,6 +259,8 @@
             1. navigate to
                 `Acuity Brands Technical Services, INC - App registrations->Acuity Brands Atrius Dev UI - Authentication`
                 note that it is in a different subscription.   Change to Dev/QA/US as appropriate for deployment environment
+        6) add another configuration variable "API_KEY" to the self-healing-api webapp, it's value is provided by the developer of the SHL_v1 service
+            1. @@ TODO automation and placement of this secret in an Ops Keyvault that is shared across subscriptions
     1) due to insufficient privileges on other shared resources (they are in a privileged AD tenant)
         1) add or update DNS zone records to point to the public IP on the WAF
             
