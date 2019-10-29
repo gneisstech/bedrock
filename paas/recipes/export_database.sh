@@ -148,6 +148,7 @@ function storage_uri () {
 }
 
 function database_export () {
+    # shellcheck disable=SC2046,SC2086
     eval $AZ_TRACE sql db export \
         --subscription "$(database_server_subscription)" \
         --name "$(database_instance_name)" \

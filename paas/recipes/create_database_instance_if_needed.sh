@@ -102,6 +102,7 @@ function database_instance_already_exists () {
 }
 
 function deploy_database_instance () {
+    # shellcheck disable=SC2046,SC2086
     $AZ_TRACE sql db create \
         --name "$(database_instance_name)" \
         --resource-group "$(database_instance_resource_group)" \

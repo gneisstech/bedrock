@@ -148,6 +148,7 @@ function storage_uri () {
 }
 
 function database_import () {
+    # shellcheck disable=SC2046,SC2086
     eval $AZ_TRACE sql db import \
         --subscription "$(database_server_subscription)" \
         --name "$(database_instance_name)" \
