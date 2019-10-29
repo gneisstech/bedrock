@@ -306,6 +306,53 @@ function config_tls () {
     true
 }
 
+function option_if_present () {
+    local -r option_key="${1}"
+    local -r option_config="${2}"
+    if [[ '0' != "$(svc_attr_size "${option_config}")" ]]; then
+        printf -- "--%s %s" "${option_key}" "$(svc_attr "${option_config}" )"
+    fi
+    true
+}
+
+function option_string_if_present () {
+    local -r option_flag="${1}"
+    local -r option_attr="${2}"
+    local -r option_key="${3}"
+    if [[ '0' != "$(svc_attr_size "${option_attr}.${option_key}")" ]]; then
+        printf -- "--%s %s" "${option_flag}" "$(svc_string "${option_attr}" "${option_key}" )"
+    fi
+    true
+}
+
+function config_access_restriction () {
+    local -r index="${1}"
+    # azure preview feature @@ TODO techdebt
+    # shellcheck disable=SC2046
+    $AZ_TRACE webapp config access-restriction add \
+        --name "$(service_name)" \
+        --resource-group "$(service_resource_group)" \
+        --priority "$(svc_attr "access_restrictions[${index}].priority")" \
+        --rule-name "'$(svc_attr "access_restrictions[${index}].rule_name")'" \
+        --action "$(svc_attr "access_restrictions[${index}].action")" \
+        --description "'$(svc_attr "access_restrictions[${index}].description")'" \
+        --ignore-missing-endpoint "$(svc_attr "access_restrictions[${index}].ignore_missing_endpoint")" \
+        $(option_if_present 'ip-address' "access_restrictions[${index}].ip_address") \
+        --scm-site "$(svc_attr "access_restrictions[${index}].scm_site")" \
+        $(option_if_present 'subnet' "access_restrictions[${index}].subnet") \
+        $(option_string_if_present 'vnet-name' "access_restrictions[${index}]" 'vnet_name')
+}
+
+function config_access_restrictions () {
+    if [[ '0' != "$(svc_attr_size 'access_restrictions')" ]]; then
+        local i
+        for i in $(seq 0 $(( $(svc_attr_size 'access_restrictions') - 1)) ); do
+            config_access_restriction "${i}"
+        done
+    fi
+    true
+}
+
 function service_already_exists () {
     az webapp show \
         --name "$(service_name)" \
@@ -326,6 +373,7 @@ function deploy_service () {
     set_webhook
     config_logging
     config_tls
+    config_access_restrictions
 }
 
 function create_service_if_needed () {

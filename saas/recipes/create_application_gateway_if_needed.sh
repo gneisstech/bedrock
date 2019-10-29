@@ -733,6 +733,31 @@ function ssl_cert () {
     true
 }
 
+function service_endpoint_names () {
+    local -r index="${1}"
+    gw_attr "subnet_service_endpoints[${index}]" | jq -r -e '.service_endpoint_names | @tsv'
+}
+
+function subnet_service_endpoint () {
+    local -r index="${1}"
+    # shellcheck disable=SC2046
+    $AZ_TRACE network vnet subnet update \
+        --name "$(gw_attr "subnet_service_endpoints[${index}].subnet_name")" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --vnet-name "$(application_gateway_name)Vnet" \
+        --service-endpoints "$(service_endpoint_names "${index}")"
+}
+
+function subnet_service_endpoints () {
+    if [[ '0' != "$(gw_attr_size 'subnet_service_endpoints')" ]]; then
+        local i
+        for i in $(seq 0 $(( $(gw_attr_size 'subnet_service_endpoints') - 1)) ); do
+            subnet_service_endpoint "${i}"
+        done
+    fi
+    true
+}
+
 #
 # https://docs.microsoft.com/en-us/azure/application-gateway/tutorial-url-redirect-powershell
 #
@@ -741,27 +766,29 @@ function deploy_application_gateway () {
     create_application_gateway
     echo "checkpoint set_waf_config" > /dev/stderr
     set_waf_config
+    echo "checkpoint address_pool" > /dev/stderr
+    address_pools
+    echo "checkpoint set_probe" > /dev/stderr
+    set_probe
+    echo "checkpoint http_settings" > /dev/stderr
+    http_settings
+    echo "checkpoint rewrite_rules" > /dev/stderr
+    rewrite_rules
+    echo "checkpoint set_ssl_policy" > /dev/stderr
+    set_ssl_policy
+    echo "checkpoint url_path_map" > /dev/stderr
+    url_path_maps
+    echo "checkpoint http_listener" > /dev/stderr
+    http_listener
+    echo "checkpoint routing rules" > /dev/stderr
+    request_routing_rules
+    echo "checkpoint ssl_cert" > /dev/stderr
+    ssl_cert
 }
 
 function update_application_gateway_config () {
-    echo "checkpoint address_pool"
-    address_pools
-    echo "checkpoint set_probe"
-    set_probe
-    echo "checkpoint http_settings"
-    http_settings
-    echo "checkpoint rewrite_rules"
-    rewrite_rules
-    echo "checkpoint set_ssl_policy"
-    set_ssl_policy
-    echo "checkpoint url_path_map"
-    url_path_maps
-    echo "checkpoint http_listener"
-    http_listener
-    echo "checkpoint routing rules"
-    request_routing_rules
-    echo "checkpoint ssl_cert"
-    ssl_cert
+    echo "checkpoint service endpoints"
+    subnet_service_endpoints
 
     ####################
     # we are using the following defaults created by "application-gateway create"
