@@ -192,7 +192,7 @@ target:
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
             OAUTH2_PROXY_COOKIE_PATH: '/'
-            OAUTH2_PROXY_COOKIE_REFRESH: '5m'
+            OAUTH2_PROXY_COOKIE_REFRESH: '336h'
             OAUTH2_PROXY_COOKIE_SECRET:
               - '##secure_secret={"vault":"'
               - *kvName
