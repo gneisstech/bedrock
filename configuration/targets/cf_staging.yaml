@@ -53,7 +53,7 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf'
+          host: &dnsHost 'cf-staging'
           fqdn: 'cf-staging.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
