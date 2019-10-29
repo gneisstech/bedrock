@@ -17,7 +17,7 @@ set -o pipefail
 # ---------------------
 
 function dev_site_url () {
-  echo 'https://cf.qa.atrius-iot.com'
+  echo 'https://cf-exp.dev.atrius-iot.com'
   #echo 'http://atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com'
 }
 
@@ -77,7 +77,7 @@ function check_self_healing_app () {
 
 function check_self_healing_api () {
   echo "=== begin checking self_healing_api URL of site"
-  curl_auth "$(dev_site_url)/cf-self-healing-api/api/v1"
+  curl_auth "$(dev_site_url)/cf-self-healing-api/api/v1/get_sites"
   echo "=== begin checking self_healing_api URL of site"
 }
 
