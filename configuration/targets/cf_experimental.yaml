@@ -190,6 +190,7 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            OAUTH2_PROXY_AZURE_TENANT: *environmentTenant
             OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
             OAUTH2_PROXY_CLIENT_SECRET:
               - '##secure_secret={"vault":"'
@@ -200,7 +201,7 @@ target:
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
             OAUTH2_PROXY_COOKIE_PATH: '/'
-            OAUTH2_PROXY_COOKIE_REFRESH: '336h'
+            OAUTH2_PROXY_COOKIE_REFRESH: '1m'
             OAUTH2_PROXY_COOKIE_SECRET:
               - '##secure_secret={"vault":"'
               - *kvName
