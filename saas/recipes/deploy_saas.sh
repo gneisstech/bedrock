@@ -85,6 +85,14 @@ function deploy_application_gateways () {
     done
 }
 
+function apply_service_access_restrictions () {
+    local -r service_group="${1}"
+    local service_name
+    for service_name in $(service_names "${service_group}"); do
+        invoke_layer 'saas' 'apply_service_access_restrictions' "${service_name}" "${service_group}"
+    done
+}
+
 function register_application () {
     local -r service_group="${1}"
     invoke_layer 'saas' 'register_application_if_needed' "${service_group}"
@@ -94,6 +102,8 @@ function deploy_saas () {
     deploy_services 'authn_services'
     deploy_services 'web_services'
     deploy_application_gateways
+    apply_service_access_restrictions 'authn_services'
+    apply_service_access_restrictions 'web_services'
     register_application 'application_registration'
 }
 
