@@ -178,7 +178,6 @@ target:
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          upstreamHost: &postAuthnGateway 'cf-qa-post-authn-ag'
           config:
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -190,6 +189,7 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            OAUTH2_PROXY_AZURE_TENANT: *environmentTenant
             OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
             OAUTH2_PROXY_CLIENT_SECRET:
               - '##secure_secret={"vault":"'
@@ -199,8 +199,15 @@ target:
               - '"}'
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
+            OAUTH2_PROXY_COOKIE_NAME:
+              - 'ConnectedFacilities_AUTHN'
+              - '_'
+              - *dnsHost
+              - '_'
+              - *environmentName
+              - '__utm'
             OAUTH2_PROXY_COOKIE_PATH: '/'
-            OAUTH2_PROXY_COOKIE_REFRESH: '336h'
+            OAUTH2_PROXY_COOKIE_REFRESH: '1h'
             OAUTH2_PROXY_COOKIE_SECRET:
               - '##secure_secret={"vault":"'
               - *kvName
@@ -859,7 +866,7 @@ target:
                   requestHeaderConfigurations: []
                   responseHeaderConfigurations:
                     - headerName: 'Content-Security-Policy'
-                      headerValue: "default-src 'self'"
+                      headerValue: "default-src 'self'; frame-ancestors 'self' login.microsoft.com;"
                 conditions:
                   - ignoreCase: true
                     negate: true

@@ -199,6 +199,13 @@ target:
               - '"}'
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
+            OAUTH2_PROXY_COOKIE_NAME:
+              - 'ConnectedFacilities_AUTHN'
+              - '_'
+              - *dnsHost
+              - '_'
+              - *environmentName
+              - '__utm'
             OAUTH2_PROXY_COOKIE_PATH: '/'
             OAUTH2_PROXY_COOKIE_REFRESH: '1m'
             OAUTH2_PROXY_COOKIE_SECRET:
@@ -900,7 +907,7 @@ target:
                   requestHeaderConfigurations: []
                   responseHeaderConfigurations:
                     - headerName: 'Content-Security-Policy'
-                      headerValue: "default-src 'self'"
+                      headerValue: "default-src 'self'; frame-ancestors 'self' login.microsoft.com;"
                 conditions:
                   - ignoreCase: true
                     negate: true
