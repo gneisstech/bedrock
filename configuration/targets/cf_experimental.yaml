@@ -178,7 +178,6 @@ target:
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          upstreamHost: *postAuthnGatewayFqdn
           config:
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -273,10 +272,15 @@ target:
               description: 'only allow access from downstream WAF'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfWafRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - &wafAgName 'cf-exp-waf-ag'
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
     web_services:
       farm: *webServiceFarm
@@ -338,10 +342,15 @@ target:
               description: 'only allow access from downstream AuthN'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - *postAuthnGateway
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfHealthAdminApi 'cf-exp-admin-api'
           arm_type: 'Microsoft.Web/sites'
@@ -416,10 +425,15 @@ target:
               description: 'only allow access from downstream AuthN'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - *postAuthnGateway
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfHealthApi 'cf-exp-health-api'
           arm_type: 'Microsoft.Web/sites'
@@ -494,10 +508,15 @@ target:
               description: 'only allow access from downstream AuthN'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - *postAuthnGateway
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfHealthIngestApi 'cf-exp-ingest-api'
           arm_type: 'Microsoft.Web/sites'
@@ -572,10 +591,15 @@ target:
               description: 'only allow access from downstream AuthN'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - *postAuthnGateway
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         # Self Healing services
         - name: &cfSelfHealingApp 'cf-exp-self-healing-app'
@@ -634,10 +658,15 @@ target:
               description: 'only allow access from downstream AuthN'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - *postAuthnGateway
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfSelfHealingApi 'cf-exp-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
@@ -713,10 +742,15 @@ target:
               description: 'only allow access from downstream AuthN'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - *postAuthnGateway
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         # Echo debug service
         - name: &cfEchoDebug 'cf-exp-echo-debug-app'
@@ -749,10 +783,15 @@ target:
               description: 'only allow access from downstream AuthN'
               ignore_missing_endpoint: 'true'
               scm_site: 'false'
-              subnet: 'default'
-              vnet_name:
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
                 - *postAuthnGateway
                 - 'Vnet'
+                - '/subnets/default'
           action: 'create'
     application_gateways:
       - name: *wafAgName

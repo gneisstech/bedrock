@@ -60,6 +60,14 @@ target:
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
+        - zone: 'dev.atrius-iot.com'
+          host: &postAuthnGateway 'cf-dev-post-authn-ag'
+          fqdn: &postAuthnGatewayFqdn 'cf-dev-post-authn-ag.dev.atrius-iot.com.'
+          resource_group: *atriusDnsRG
+          subscription: *subscription_dns
+          a_record_ttl: 3600
+          a_record_public_ip: *postAuthnIP
+          action: 'create'
       vnets:
         - name: 'cf-dev-vnet'
           resource_group: *cfNetworksRG
@@ -170,7 +178,6 @@ target:
             actions:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
-          upstreamHost: &postAuthnGateway 'cf-dev-post-authn-ag'
           config:
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -224,12 +231,9 @@ target:
             OAUTH2_PROXY_SILENCE_PING_LOGGING: true
             OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: true
             OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true
-            OAUTH2_PROXY_UPSTREAMS:  # @@ TODO convert to https and private ip on vnet
-              - 'http://'
-              - *postAuthnIP
-              - '.'
-              - *defaultAzureLocation
-              - '.cloudapp.azure.com/'
+            OAUTH2_PROXY_UPSTREAMS:  # @@ TODO private ip on vnet
+              - 'https://'
+              - *postAuthnGatewayFqdn
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITES_PORT: 4180
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
@@ -252,6 +256,30 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: &defaultWebAppLogging
+            application_logging: true
+            detailed_error_messages: true
+            docker_container_logging: 'filesystem'
+            failed_request_tracing: true
+            level: 'warning'
+            web_server_logging: 'filesystem'
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream WAF'
+              action: 'Allow'
+              description: 'only allow access from downstream WAF'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfWafRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - &wafAgName 'cf-dev-waf-ag'
+                - 'Vnet'
+                - '/subnets/default'
           action: 'create'
     web_services:
       farm: *webServiceFarm
@@ -304,6 +332,24 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfHealthAdminApi 'cf-dev-admin-api'
           arm_type: 'Microsoft.Web/sites'
@@ -369,6 +415,24 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfHealthApi 'cf-dev-health-api'
           arm_type: 'Microsoft.Web/sites'
@@ -434,6 +498,24 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfHealthIngestApi 'cf-dev-ingest-api'
           arm_type: 'Microsoft.Web/sites'
@@ -499,6 +581,24 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         # Self Healing services
         - name: &cfSelfHealingApp 'cf-dev-self-healing-app'
@@ -548,6 +648,24 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
           action: 'create'
         - name: &cfSelfHealingApi 'cf-dev-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
@@ -614,9 +732,68 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
+          action: 'create'
+        # Echo debug service
+        - name: &cfEchoDebug 'cf-dev-echo-debug-app'
+          arm_type: 'Microsoft.Web/sites'
+          resource_group: *cfAppSvcRG
+          container:
+            registry: ''
+            name: 'mendhak/http-https-echo'
+            tag: ''
+          config:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
+            DOCKER_REGISTRY_SERVER_USERNAME: ''
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|mendhak/http-https-echo'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: ''
+            DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
           action: 'create'
     application_gateways:
-      - name: 'cf-dev-waf-ag'
+      - name: *wafAgName
         arm_type: 'Microsoft.Network/applicationGateways'
         resource_group: *cfWafRG
         capacity: 2
@@ -624,8 +801,8 @@ target:
         max_capacity: 10
         frontend_port: 443
         http_settings_cookie_based_affinity: 'Disabled'
-        http_settings_port: 80
-        http_settings_protocol: 'Http'
+        http_settings_port: 443
+        http_settings_protocol: 'Https'
         http2: 'Enabled'
         routing_rule_type: 'Basic'
         sku: 'WAF_v2'
@@ -645,7 +822,7 @@ target:
           file_upload_limit: '100'
           firewall_mode: 'Prevention'
           max_request_body_size: '128'
-          request_body_check: true
+          request_body_check: false  # @@ TODO make this true ... implement 128kb limit for ingest TECH DEBT
           rule_set_type: 'OWASP'
           rule_set_version: '3.1'
         tls_policy:
@@ -673,7 +850,7 @@ target:
           minServers: 0
           path: '/'
           pickHostNameFromBackendHttpSettings: true
-          protocol: 'Http'
+          protocol: 'Https'
           unhealthyThreshold: 3
         http_settings:
           name: &cfWafHttpSetting 'cf-default-http-settings'
@@ -683,11 +860,11 @@ target:
           connectionDraining: 0
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
-          port: 80
+          port: 443
           probe:
             name: *wafProbe
           probeEnabled: true
-          protocol: Http
+          protocol: 'Https'
           requestTimeout: 20
           trustedRootCertificates: []
         rewrite_rule_sets:
@@ -803,15 +980,20 @@ target:
               ruleType: 'Basic'
               http_setting: *cfWafHttpSetting
               rewrite_rule_set: *wafRewriteRuleSet  # @@ TODO -- manual at the moment - no way to set this via AZ CLI
+        subnet_service_endpoints:
+          - name: 'upstream authn access'
+            subnet_name: 'default'
+            service_endpoint_names:
+              - 'Microsoft.Web'
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'
         resource_group: *cfAuthNSvcRG
         capacity: 2
-        frontend_port: 80  # @@ fixme
+        frontend_port: 443
         http_settings_cookie_based_affinity: 'Disabled'
-        http_settings_port: 80
-        http_settings_protocol: 'Http'
+        http_settings_port: 443
+        http_settings_protocol: 'Https'
         http2: 'Enabled'
         sku: 'Standard_Medium'
         servers: &serverNames
@@ -821,11 +1003,26 @@ target:
           - *cfHealthIngestApi
           - *cfSelfHealingApp
           - *cfSelfHealingApi
+          - *cfEchoDebug
         address_pools: *serverNames
         private_ip_addresses: []
         public_ip_addresses:
           - *postAuthnIP
         waf_policy: []
+        tls_policy:
+          name: 'cf-strict-tls-policy'
+          cipherSuites:
+            - 'TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384'
+            - 'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+            - 'TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256'
+            - 'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256'
+            - 'TLS_DHE_RSA_WITH_AES_128_GCM_SHA256'
+          minProtocolVersion: 'TLSv1_2'
+          policyType: Custom
+        ssl_certs:
+          - name: 'wildcarddevatrius-iotcom'
+            vault_name: *atriusKVName
+            subscription: *subscription_tls
         probe:
           name: &authnGwAppProbe 'cf-authn-strict-probe'
           arm_type: 'Microsoft.Network/applicationGateways/probes'
@@ -837,7 +1034,7 @@ target:
           minServers: 0
           path: '/'
           pickHostNameFromBackendHttpSettings: true
-          protocol: 'Http'
+          protocol: 'Https'
           unhealthyThreshold: 3
         http_settings:
           name: &postAuthNHttpSettings 'cf-authn-default-http-settings'
@@ -847,11 +1044,11 @@ target:
           connectionDraining: 0
           cookieBasedAffinity: 'Disabled'
           pickHostNameFromBackendAddress: true
-          port: 80
+          port: 443
           probe:
             name: *authnGwAppProbe
           probeEnabled: true
-          protocol: Http
+          protocol: 'Https'
           requestTimeout: 20
           trustedRootCertificates: []
         url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
@@ -916,6 +1113,15 @@ target:
                   - '/cf-self-healing-api/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
+              - name: 'post-authn-cf-echo-debug-app-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfEchoDebug
+                backendHttpSettings: *postAuthNHttpSettings
+                paths:
+                  - '/cf-echo'
+                  - '/cf-echo/*'
+                redirectConfiguration: null
+                rewriteRuleSet: null
         request_routing_rules:
           - name: 'rule1'
             arm_type: 'Microsoft.Network/applicationGateways/requestRoutingRules'
@@ -924,6 +1130,11 @@ target:
               ruleType: 'PathBasedRouting'
               urlPathMap: *postAuthnUrlPathMap
               http_setting: *postAuthNHttpSettings
+        subnet_service_endpoints:
+          - name: 'upstream webapp access'
+            subnet_name: 'default'
+            service_endpoint_names:
+              - 'Microsoft.Web'
         action: 'preserve'
     application_registration:  # @@ TODO manual - insufficient permissions from AZ CLI
       tenant: *appRegistrationTenant
