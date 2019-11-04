@@ -784,12 +784,12 @@ function deploy_application_gateway () {
     request_routing_rules
     echo "checkpoint ssl_cert" > /dev/stderr
     ssl_cert
+    echo "checkpoint service endpoints" > /dev/stderr
+    subnet_service_endpoints
 }
 
 function update_application_gateway_config () {
-    echo "checkpoint service endpoints"
-    subnet_service_endpoints
-
+    true
     ####################
     # we are using the following defaults created by "application-gateway create"
     # auth_cert
