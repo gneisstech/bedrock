@@ -142,10 +142,6 @@
 <             name: 'cfdevauthproxywh'
 ---
 >             name: 'cfqaauthproxywh'
-186c186
-<           upstreamHost: &postAuthnGateway 'cf-dev-post-authn-ag'
----
->           upstreamHost: &postAuthnGateway 'cf-qa-post-authn-ag'
 203c203
 <               - &oauthProxyClientSecretName 'cf-dev-oauth2-proxy-client-secret'
 ---
