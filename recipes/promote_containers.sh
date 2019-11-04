@@ -20,20 +20,29 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
+function acr_logins () {
+    az acr login -n cfdevregistry
+    az acr login -n cfstagingregistry
+    az acr login -n cfqaregistry
+}
+
 function promote_containers () {
     local -r originRepo='cfdevregistry.azurecr.io'
-    local -r targetRepo='cfstagingregistry.azurecr.io'
     local -r containers='cf-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-docker cf-self-healing-app-docker'
+    #local -r containers='cf-self-healing-api-docker cf-self-healing-app-docker'
+    acr_logins
     for image in ${containers}; do
-      local imageWithTag originPath targetPath
-      imageWithTag="${image}:connected-facilities"
-      originPath="${originRepo}/${imageWithTag}"
-      targetPath="${targetRepo}/${imageWithTag}"
-      docker pull "${originPath}"
-      docker tag "${originPath}" "${targetPath}"
-      docker push "${targetPath}"
+        local imageWithTag originPath targetPath targetRepo
+        imageWithTag="${image}:connected-facilities"
+        originPath="${originRepo}/${imageWithTag}"
+        docker pull "${originPath}"
+        for targetRepo in cfstagingregistry cfqaregistry; do
+            local targetPath
+            targetPath="${targetRepo}.azurecr.io/${imageWithTag}"
+            docker tag "${originPath}" "${targetPath}"
+            docker push "${targetPath}"
+        done
     done
 }
 
-set -x
 promote_containers
