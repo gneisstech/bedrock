@@ -228,8 +228,7 @@ function config_access_restriction () {
         --ignore-missing-endpoint "$(svc_attr "access_restrictions[${index}].ignore_missing_endpoint")" \
         $(option_if_present 'ip-address' "access_restrictions[${index}].ip_address") \
         --scm-site "$(svc_attr "access_restrictions[${index}].scm_site")" \
-        $(option_if_present 'subnet' "access_restrictions[${index}].subnet") \
-        $(option_string_if_present 'vnet-name' "access_restrictions[${index}]" 'vnet_name')
+        $(option_string_if_present 'subnet' "access_restrictions[${index}]" 'subnet')
 }
 
 function config_access_restrictions () {
