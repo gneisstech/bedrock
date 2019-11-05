@@ -17,7 +17,7 @@ set -o pipefail
 # ---------------------
 
 function dev_site_url () {
-  echo 'https://cf-exp.dev.atrius-iot.com'
+  echo 'https://cf-staging.dev.atrius-iot.com'
   #echo 'http://atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com'
 }
 
