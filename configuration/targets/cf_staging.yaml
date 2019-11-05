@@ -986,7 +986,7 @@ target:
           minProtocolVersion: 'TLSv1_2'
           policyType: Custom
         ssl_certs:
-          - name: 'wildcardprodatrius-iotcom'
+          - name: 'wildcarddevatrius-iotcom'
             vault_name: *atriusKVName
             subscription: *subscription_tls
         probe:
