@@ -762,6 +762,7 @@ target:
     application_gateways:
       - name: *wafAgName
         arm_type: 'Microsoft.Network/applicationGateways'
+        subscription: *defaultAzureSubscription
         resource_group: *cfWafRG
         capacity: 2
         min_capacity: 2
@@ -955,6 +956,7 @@ target:
         action: 'preserve'
       - name: *postAuthnGateway
         arm_type: 'Microsoft.Network/applicationGateways'
+        subscription: *defaultAzureSubscription
         resource_group: *cfAuthNSvcRG
         capacity: 2
         frontend_port: 443

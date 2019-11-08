@@ -694,12 +694,38 @@ function routing_rule_names () {
     gw_attr 'request_routing_rules' | jq -r -e '.[] | [ .name ] | @tsv'
 }
 
+function rewrite_ruleset_id () {
+    local -r rewrite_ruleset_name="${1}"
+    printf '/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/applicationGateways/%s/rewriteRuleSets/%s' \
+        "$(gw_attr 'subscription')" \
+        "$(application_gateway_resource_group)" \
+        "$(application_gateway_name)" \
+        "${rewrite_ruleset_name}"
+}
+
+function bind_routing_rule_to_rewrite_rule_if_needed () {
+    local -r routing_rule_name="${1}"
+    local -r option_config='properties.rewrite_rule_set'
+    if [[ '0' != "$(routing_rule_attr_size "${routing_rule_name}" "${option_config}")" ]]; then
+        local rewrite_ruleset_name
+        rewrite_ruleset_name="$(routing_rule_attr "${routing_rule_name}" "${option_config}")"
+        # shellcheck disable=SC2046
+        $AZ_TRACE network application-gateway rule update \
+            --gateway-name "$(application_gateway_name)" \
+            --resource-group "$(application_gateway_resource_group)" \
+            --name "${routing_rule_name}" \
+            --set rewriteRuleSet.id="$(rewrite_ruleset_id "${rewrite_ruleset_name}")"
+    fi
+    true
+}
+
 function request_routing_rules () {
     if [[ '0' != "$(gw_attr_size 'request_routing_rules')" ]]; then
         local routing_rule_name
         for routing_rule_name in $(routing_rule_names); do
             echo "checkpoint routing_rule_name: [${routing_rule_name}]"
             create_routing_rule "${routing_rule_name}"
+            bind_routing_rule_to_rewrite_rule_if_needed "${routing_rule_name}"
         done
     fi
     true
