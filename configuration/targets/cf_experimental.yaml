@@ -765,6 +765,47 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
+        # Bytelight site portal
+        - name: &bytelightSitePortal 'cf-exp-bytelight-site-portal-app'
+          arm_type: 'Microsoft.Web/sites'
+          resource_group: *cfAppSvcRG
+          container:
+            registry: ''
+            name: 'library/nginx'
+            tag: 'stable'
+          config:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
+            DOCKER_REGISTRY_SERVER_USERNAME: ''
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|library/nginx:stable'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: ''
+            DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
+          action: 'create'
         # Echo debug service
         - name: &cfEchoDebug 'cf-exp-echo-debug-app'
           arm_type: 'Microsoft.Web/sites'
@@ -1020,6 +1061,7 @@ target:
           - *cfSelfHealingApp
           - *cfSelfHealingApi
           - *cfEchoDebug
+          - *bytelightSitePortal
         address_pools: *serverNames
         private_ip_addresses: []
         public_ip_addresses:
@@ -1136,6 +1178,15 @@ target:
                 paths:
                   - '/cf-echo'
                   - '/cf-echo/*'
+                redirectConfiguration: null
+                rewriteRuleSet: null
+              - name: 'post-authn-bytelight-site-portal-app-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *bytelightSitePortal
+                backendHttpSettings: *postAuthNHttpSettings
+                paths:
+                  - '/bytelight-site-portal'
+                  - '/bytelight-site-portal/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
         request_routing_rules:
