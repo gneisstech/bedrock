@@ -385,6 +385,7 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            RAILS_LOG_TO_STDOUT: 'true'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
@@ -468,6 +469,7 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            RAILS_LOG_TO_STDOUT: 'true'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
@@ -551,6 +553,7 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            RAILS_LOG_TO_STDOUT: 'true'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
