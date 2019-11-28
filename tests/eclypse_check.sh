@@ -15,47 +15,38 @@ set -o pipefail
 
 # Arguments
 # ---------------------
-declare -rx ECLYPSE_HOST='10.131.40.222'
-declare -rx ECLYPSE_USER='admin'
-declare -rx ECLYPSE_PASSWORD='Acuity00'
+declare -r ECLYPSE_CONTEXT="${1}"
 
-function eclypse_rest_url () {
-    printf 'https://%s/api/rest/v1' "${ECLYPSE_HOST}"
+function eclypse_handler () {
+    printf '%s' "${ECLYPSE_CONTEXT}" | jq -r -e '.handler'
 }
 
-function eclypse_user_credentials () {
-    printf '%s:%s' "${ECLYPSE_USER}" "${ECLYPSE_PASSWORD}"
-}
-
-function eclypse_curl () {
-    local -r api_path="${1}"
-    local cmd
-    cmd="$(printf 'curl -sS -k --user "%s" --fail -H "Connection: close" %s%s' "$(eclypse_user_credentials)" "$(eclypse_rest_url)" "${api_path}")"
-    echo evaluating "${cmd}" > /dev/stderr
-    eval "${cmd}"
+function invoke_eclypse_context () {
+    local api_path="${1}"
+    ./$(eclypse_handler) "${ECLYPSE_CONTEXT}" "${api_path}"
 }
 
 function eclypse_firmware () {
     echo "=== begin retrieving eclypse_firmware"
-    eclypse_curl '/protocols/ips-luminaire/firmware' | jq
+    invoke_eclypse_context '/protocols/ips-luminaire/firmware' | jq
     echo "=== end retrieving eclypse_firmware"
 }
 
 function eclypse_atrius_setup () {
     echo "=== begin retrieving eclypse_atrius_setup"
-    eclypse_curl '/system/cloud/providers/atrius' | jq
+    invoke_eclypse_context '/system/cloud/providers/atrius' | jq
     echo "=== end retrieving eclypse_atrius_setup"
 }
 
 function eclypse_backup_targets () {
     echo "=== begin retrieving eclypse_backup_targets"
-    eclypse_curl '/system/backup/targets' | jq
+    invoke_eclypse_context '/system/backup/targets' | jq
     echo "=== end retrieving eclypse_backup_targets"
 }
 
 function eclypse_files () {
     echo "=== begin retrieving eclypse_files"
-    eclypse_curl '/files' | jq
+    invoke_eclypse_context '/files' | jq
     echo "=== end retrieving eclypse_files"
 }
 
