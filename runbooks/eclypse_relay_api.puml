@@ -1,0 +1,108 @@
+@startuml
+autonumber
+
+Actor CF_Health_Python_Collector_Script
+Participant CF_Health_Python_Collector_Relay_Connector #cyan
+Participant Atrius_Passage_API
+Participant Microsoft_APIM
+Participant Microsoft_ServiceFabric
+Participant Relay_API #cyan
+Database Oversize_Request_Bodies #cyan
+Database Oversize_Response_Bodies #cyan
+Participant Azure_IOT_Hub
+Control A1000_IPv4
+Participant Eclypse_API_IOT_Wrapper #cyan
+Participant Eclypse_API_Provider
+
+== existing November 2019 ==
+
+group Existing_November_2019
+    CF_Health_Python_Collector_Script -> A1000_IPv4: Request = Eclypse_API_Request
+    A1000_IPv4 -> Eclypse_API_Provider: Request = Eclypse_API_Request
+    A1000_IPv4 <- Eclypse_API_Provider: Response = Eclypse_API_Response
+    CF_Health_Python_Collector_Script <- A1000_IPv4: Response = Eclypse_API_Response
+end
+
+== Planned Relay API Feb 2020==
+
+group Planned_Relay_API_Feb2020
+    CF_Health_Python_Collector_Script -> CF_Health_Python_Collector_Relay_Connector: Eclypse_API_Request
+    CF_Health_Python_Collector_Relay_Connector -> Atrius_Passage_API: Request = Authorized_Partners?
+    CF_Health_Python_Collector_Relay_Connector <- Atrius_Passage_API: Response = Authorized_Partners_List
+    CF_Health_Python_Collector_Relay_Connector -> Atrius_Passage_API: Request = Authorized_Organizations?
+    CF_Health_Python_Collector_Relay_Connector <- Atrius_Passage_API: Response = Authorized_Organizations_List
+    CF_Health_Python_Collector_Relay_Connector -> Microsoft_APIM: Request = Relay_API(DeviceID, Eclypse_API_Request, Atrius_Headers)
+    Microsoft_APIM -> Microsoft_ServiceFabric: Request = Relay_API(DeviceID, Eclypse_API_Request)
+    Microsoft_ServiceFabric -> Relay_API: Request = Relay_API(DeviceID, Eclypse_API_Request)
+    Relay_API -> Azure_IOT_Hub: Request = IOT_Hub(IotID, Eclypse_API_Request)
+    Azure_IOT_Hub -> A1000_IPv4: Request = Cloud_To_Device(IotID, Eclypse_API_Request)
+    A1000_IPv4 -> Eclypse_API_IOT_Wrapper: Request = Cloud_To_Device(IotID, Eclypse_API_Request)
+    Eclypse_API_IOT_Wrapper -> Eclypse_API_Provider: Request = Eclypse_API_Request
+
+    Eclypse_API_IOT_Wrapper <- Eclypse_API_Provider: Response = Eclypse_API_Response
+    A1000_IPv4 <- Eclypse_API_IOT_Wrapper: Response = Device_to_Cloud(IotID, Eclypse_API_Response)
+    Azure_IOT_Hub <- A1000_IPv4: Response = Device_to_Cloud(IotID, Eclypse_API_Response)
+    Relay_API <- Azure_IOT_Hub: Response = IOT_Hub(IotID, Eclypse_API_Response)
+    Microsoft_ServiceFabric <- Relay_API: Response = Relay_API(DeviceID, Eclypse_API_Response)
+    Microsoft_APIM <- Microsoft_ServiceFabric: Response = Relay_API(DeviceID, Eclypse_API_Response)
+    CF_Health_Python_Collector_Relay_Connector <- Microsoft_APIM: Response = Relay_API(DeviceID, Eclypse_API_Response, Atrius_Headers)
+    CF_Health_Python_Collector_Script <- CF_Health_Python_Collector_Relay_Connector: Eclypse_API_Response
+end
+
+group Planned_Relay_API_Feb2020_oversize_128kb_request_payload
+    CF_Health_Python_Collector_Script -> CF_Health_Python_Collector_Relay_Connector: Eclypse_API_Request
+    CF_Health_Python_Collector_Relay_Connector -> Atrius_Passage_API: Request = Authorized_Partners?
+    CF_Health_Python_Collector_Relay_Connector <- Atrius_Passage_API: Response = Authorized_Partners_List
+    CF_Health_Python_Collector_Relay_Connector -> Atrius_Passage_API: Request = Authorized_Organizations?
+    CF_Health_Python_Collector_Relay_Connector <- Atrius_Passage_API: Response = Authorized_Organizations_List
+    CF_Health_Python_Collector_Relay_Connector -> Microsoft_APIM: Request = Relay_API(DeviceID, Eclypse_API_Request, Atrius_Headers)
+    Microsoft_APIM -> Microsoft_ServiceFabric: Request = Relay_API(DeviceID, Eclypse_API_Request)
+    Microsoft_ServiceFabric -> Relay_API: Request = Relay_API(DeviceID, Eclypse_API_Request)
+    Relay_API -> Oversize_Request_Bodies : Request_Body_contents
+    Relay_API <- Oversize_Request_Bodies : Request_Body_URI_with_SAS_Token
+    Relay_API -> Azure_IOT_Hub: Request = IOT_Hub(IotID, Eclypse_API_Request, Request_Body_URI_with_SAS_Token)
+    Azure_IOT_Hub -> A1000_IPv4: Request = Cloud_To_Device(IotID, Eclypse_API_Request, Request_Body_URI_with_SAS_Token)
+    A1000_IPv4 -> Eclypse_API_IOT_Wrapper: Request = Cloud_To_Device(IotID, Eclypse_API_Request, Request_Body_URI_with_SAS_Token)
+    Eclypse_API_IOT_Wrapper -> Oversize_Request_Bodies : Request_Body_URI_with_SAS_Token
+    Eclypse_API_IOT_Wrapper <- Oversize_Request_Bodies : Request_Body_contents
+    Eclypse_API_IOT_Wrapper -> Eclypse_API_Provider: Request = Eclypse_API_Request
+
+    Eclypse_API_IOT_Wrapper <- Eclypse_API_Provider: Response = Eclypse_API_Response
+    A1000_IPv4 <- Eclypse_API_IOT_Wrapper: Response = Device_to_Cloud(IotID, Eclypse_API_Response)
+    Azure_IOT_Hub <- A1000_IPv4: Response = Device_to_Cloud(IotID, Eclypse_API_Response)
+    Relay_API <- Azure_IOT_Hub: Response = IOT_Hub(IotID, Eclypse_API_Response)
+    Microsoft_ServiceFabric <- Relay_API: Response = Relay_API(DeviceID, Eclypse_API_Response)
+    Microsoft_APIM <- Microsoft_ServiceFabric: Response = Relay_API(DeviceID, Eclypse_API_Response)
+    CF_Health_Python_Collector_Relay_Connector <- Microsoft_APIM: Response = Relay_API(DeviceID, Eclypse_API_Response, Atrius_Headers)
+    CF_Health_Python_Collector_Script <- CF_Health_Python_Collector_Relay_Connector: Eclypse_API_Response
+end
+
+group Planned_Relay_API_Feb2020_oversize_128kb_response_payload
+    CF_Health_Python_Collector_Script -> CF_Health_Python_Collector_Relay_Connector: Eclypse_API_Request
+    CF_Health_Python_Collector_Relay_Connector -> Atrius_Passage_API: Request = Authorized_Partners?
+    CF_Health_Python_Collector_Relay_Connector <- Atrius_Passage_API: Response = Authorized_Partners_List
+    CF_Health_Python_Collector_Relay_Connector -> Atrius_Passage_API: Request = Authorized_Organizations?
+    CF_Health_Python_Collector_Relay_Connector <- Atrius_Passage_API: Response = Authorized_Organizations_List
+    CF_Health_Python_Collector_Relay_Connector -> Microsoft_APIM: Request = Relay_API(DeviceID, Eclypse_API_Request, Atrius_Headers)
+    Microsoft_APIM -> Microsoft_ServiceFabric: Request = Relay_API(DeviceID, Eclypse_API_Request)
+    Microsoft_ServiceFabric -> Relay_API: Request = Relay_API(DeviceID, Eclypse_API_Request)
+    Relay_API -> Azure_IOT_Hub: Request = IOT_Hub(IotID, Eclypse_API_Request)
+    Azure_IOT_Hub -> A1000_IPv4: Request = Cloud_To_Device(IotID, Eclypse_API_Request)
+    A1000_IPv4 -> Eclypse_API_IOT_Wrapper: Request = Cloud_To_Device(IotID, Eclypse_API_Request)
+    Eclypse_API_IOT_Wrapper -> Eclypse_API_Provider: Request = Eclypse_API_Request
+
+    Eclypse_API_IOT_Wrapper <- Eclypse_API_Provider: Response = Eclypse_API_Response
+    Eclypse_API_IOT_Wrapper -> Oversize_Response_Bodies : Response_Body_contents
+    Eclypse_API_IOT_Wrapper <- Oversize_Response_Bodies : Response_Body_URI_with_SAS_Token
+    A1000_IPv4 <- Eclypse_API_IOT_Wrapper: Response = Device_to_Cloud(IotID, Eclypse_API_Response, Response_Body_URI_with_SAS_Token)
+    Azure_IOT_Hub <- A1000_IPv4: Response = Device_to_Cloud(IotID, Eclypse_API_Response, Response_Body_URI_with_SAS_Token)
+    Relay_API <- Azure_IOT_Hub: Response = IOT_Hub(IotID, Eclypse_API_Response, Response_Body_URI_with_SAS_Token)
+    Relay_API -> Oversize_Response_Bodies : Response_Body_URI_with_SAS_Token
+    Relay_API <- Oversize_Response_Bodies : Response_Body_contents
+    Microsoft_ServiceFabric <- Relay_API: Response = Relay_API(DeviceID, Eclypse_API_Response)
+    Microsoft_APIM <- Microsoft_ServiceFabric: Response = Relay_API(DeviceID, Eclypse_API_Response)
+    CF_Health_Python_Collector_Relay_Connector <- Microsoft_APIM: Response = Relay_API(DeviceID, Eclypse_API_Response, Atrius_Headers)
+    CF_Health_Python_Collector_Script <- CF_Health_Python_Collector_Relay_Connector: Eclypse_API_Response
+end
+
+@enduml
