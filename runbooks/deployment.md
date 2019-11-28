@@ -7,6 +7,8 @@
     1) configuration/targets/cf_dev.yaml
     2) configuration/targets/cf_qa.yaml
     3) configuration/targets/cf_staging.yaml
+    4) configuration/targets/cf_prod.yaml
+    3) configuration/targets/cf_experimental.yaml
 3) to create a new environment, copy an existing environment config and change the environment specific settings
     1) as of 2019-10-24, those changes are: (yes, we will work to make it DRYer)
 ```
@@ -248,7 +250,7 @@
             1. navigate to `Resource groups->Kv-CfDev->cf-dev-master-kv - Secrets->cf-dev-oauth2-proxy-client-secret`
             1. click `add a new version`
             1. put the new client secret value into the value field
-        1) put the new app clinet id into the configuration of the AUTHN web app
+        1) put the new app client id into the configuration of the AUTHN web app
             1. navigate to  `Home->Resource groups->Authn-CfDev->cf-dev-auth-proxy - Configuration`
             2. change the configuration option `OAUTH2_PROXY_CLIENT_ID` to have the value of the client id from above
         2) create a new callback URL on the Atrius UI "application registration" (Authorizations)
@@ -259,13 +261,7 @@
             1. @@ TODO automation and placement of this secret in an Ops Keyvault that is shared across subscriptions
     1) due to insufficient privileges on other shared resources (they are in a privileged AD tenant)
         1) add or update DNS zone records to point to the public IP on the WAF
-            
-    2) due to AZ CLI lack of support for newer azure API (bind rewrite rules to routing rules on the AuthN AG)
-        1) navigate in portal to resourcegroup Waf-CF{dev,qa,staging,prod} and open the cf-{env}-waf-ag
-        2) navigate to rewrite rules, "security_headers"
-        3) click the box to associate with "rule1"
-        4) click "Next", click "Update"
-    3) recent breaking changes (not yet automated -- represent tech debt if automated:
+    3) recent breaking changes (not yet automated -- represent tech debt if not automated):
         1) navigate in portal to resourcegroup Waf-CF{dev,qa,staging,prod} and open the cf-{env}-waf-ag
         1) navigate to "Web Application Firewall"
         1) Turn off "inspect request body"
@@ -281,7 +277,7 @@
     5) connect build pipelines to the container registry
         1) @@ TODO
 
-5) wait a minute -- everything should be working  (https://foo.com/cf-app, https://foo.com/cf-self-healing )
+5) wait about 10 minutes -- everything should be working  (https://foo.com/cf-app, https://foo.com/cf-self-healing )
 
 6) miscellanea:
     1) may need to file a ticket to add the WAF public IP to the appropriate DNS zone (post deployment)
