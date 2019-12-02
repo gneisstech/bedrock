@@ -19,7 +19,6 @@ declare -r ECLYPSE_CONTEXT="${1}"
 declare -r API_PATH="${2}"
 
 function passage_host () {
-    # passage.atrius-dev.acuitynext.io
     printf '%s' "${ECLYPSE_CONTEXT}" | jq -r -e '.values.passage_host'
 }
 
@@ -41,7 +40,15 @@ function passage_relay_url () {
 
 function eclypse_curl () {
     local cmd
-    cmd="curl -vv -sS -H 'Authorization: Bearer $(site_token)' -H 'atr-entity-key: $(passage_atr_entity_key)' -H 'Host: passage.atrius-dev.acuitynext.io' --referer 'https://passage.atrius-dev.acuitynext.io/swagger/ui/index' -X GET --header 'Accept: application/json' --header 'Eclypse-Rest-Api: ${API_PATH}' '$(passage_relay_url)'"
+    cmd="curl -vv -sS"
+    cmd+=" --header 'Authorization: Bearer $(site_token)'"
+    cmd+=" --header 'atr-entity-key: $(passage_atr_entity_key)'"
+    cmd+=" --header 'Host: passage.atrius-dev.acuitynext.io'"
+    cmd+=" --referer 'https://passage.atrius-dev.acuitynext.io/swagger/ui/index'"
+    cmd+=" -X GET"
+    cmd+=" --header 'Accept: application/json'"
+    cmd+=" --header 'Eclypse-Rest-Api: ${API_PATH}'"
+    cmd+=" '$(passage_relay_url)'"
     printf "%s" "${cmd}" 2> /dev/null > /dev/stderr
     eval "${cmd}" 2> /dev/null
 }
