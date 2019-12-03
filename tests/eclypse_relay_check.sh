@@ -39,8 +39,8 @@ function eclypse_partner_info () {
     local cmd
     cmd="curl -vv -sS"
     cmd+=" --header 'Authorization: Bearer $(site_token)'"
-    cmd+=" --header 'Host: passage.atrius-dev.acuitynext.io'"
-    cmd+=" --referer 'https://passage.atrius-dev.acuitynext.io/swagger/ui/index'"
+    cmd+=" --header 'Host: ${PASSAGE_HOST}'"
+    cmd+=" --referer 'https://${PASSAGE_HOST}/swagger/ui/index'"
     cmd+=" -X GET"
     cmd+=" --header 'Accept: application/json'"
     cmd+=" '$(passages_base_url)/partners/entities-and-environments'"
@@ -54,7 +54,14 @@ function eclypse_partner_key () {
 
 function get_atrius_organizations () {
     local cmd
-    cmd="curl -vv -sS -H 'Authorization: Bearer $(site_token)' -H 'atr-entity-key: $(eclypse_partner_key)' -H 'Host: passage.atrius-dev.acuitynext.io' --referer 'https://passage.atrius-dev.acuitynext.io/swagger/ui/index' -X GET --header 'Accept: application/json' '$(passages_base_url)/organizations?active=active'"
+    cmd="curl -vv -sS"
+    cmd+=" --header 'Authorization: Bearer $(site_token)'"
+    cmd+=" --header 'atr-entity-key: $(eclypse_partner_key)'"
+    cmd+=" --header 'Host: ${PASSAGE_HOST}'"
+    cmd+=" --referer 'https://${PASSAGE_HOST}/swagger/ui/index'"
+    cmd+=" -X GET"
+    cmd+=" --header 'Accept: application/json'"
+    cmd+=" '$(passages_base_url)/organizations?active=active'"
     printf "%s" "${cmd}" > /dev/null
     eval "${cmd}" 2> /dev/null
 }
