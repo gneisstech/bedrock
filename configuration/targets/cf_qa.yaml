@@ -36,6 +36,8 @@ target:
         action: 'create'
       - name: &cfAuthNSvcRG 'Authn-CfQA'
         action: 'create'
+      - name: &cfIngestSvcRG 'Ingestion-CfQA'
+        action: 'create'
     networking:
       public_ip:
         - name: &wafIP 'cf-qa-waf-pip'
@@ -51,6 +53,13 @@ target:
           arm_type: 'Microsoft.Network/publicIPAddresses'
           sku: 'Basic'
           allocation_method: 'Dynamic'
+          action: 'create'
+        - name: &ingestVMIP 'cf-qa-ingest-vm-pip'
+          resource_group: *cfIngestSvcRG
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.Network/publicIPAddresses'
+          sku: 'Standard'
+          allocation_method: 'Static'
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'qa.atrius-iot.com'
@@ -80,6 +89,16 @@ target:
               cidr: '10.1.0.0/24'
             - name: 'cf-qa-1-subnet'
               cidr: '10.1.1.0/24'
+        - name: &ingestVnet 'cf-qa-ingest-vnet'
+          resource_group: *cfNetworksRG
+          cidr: '10.2.0.0/16'
+          arm_type: 'Microsoft.Network/virtualNetworks'
+          action: 'create'
+          subnets:
+            - name: 'cf-qa-0-subnet'
+              cidr: '10.2.0.0/24'
+            - name: 'cf-qa-1-subnet'
+              cidr: '10.2.1.0/24'
   paas:
     location: *defaultAzureLocation
     keyvaults:
@@ -160,6 +179,35 @@ target:
         sku: 'Standard'
         admin_enabled: true
         action: 'create'
+    virtual_machines:
+      - name: &cfIngestServer 'cfqa-ingest-vm'  # must be <= 15 chars
+        arm_type: 'Microsoft.Compute/virtualMachines'
+        subscription: *defaultAzureSubscription
+        resource_group: *cfIngestSvcRG
+        admin_name: &cfDefaultIngestVmAdminName 'cfqa-ingest-admin'  # must be <= 20 chars
+        admin_password_kv:
+          vault: *kvName
+          resource_group: *cfKeysRG
+          secret_name: &cfDefaultIngestVmSecretName 'admin-pw-for-cf-qa-ingest-vm'
+        license_type: 'Windows_Server'
+        public_ip_address: *ingestVMIP
+        disks:
+          os_disk:
+            os_disk_name: 'cf-ingest-os-disk'
+            os_disk_caching: 'ReadWrite'
+            os_disk_size_gb: 127
+          data_disks:  # these do not auto-format or auto-mount [yet]
+            data_disk_caching: 'ReadWrite'
+            data_disk_sizes_gb:
+              - 1000
+        # boot_diagnostics_storage: "$(server_attr 'boot_diagnostics_storage')"
+        location: *defaultAzureLocation
+        image: 'MicrosoftWindowsServer:WindowsServer:2016-Datacenter:latest'
+        size: 'Standard_DS2_v2'
+        priority: 'Regular'
+        authentication_type: 'password'
+        vnet_name: *ingestVnet
+        action: 'preserve'
   saas:
     authn_services:
       farm: *authServiceFarm
