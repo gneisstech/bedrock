@@ -128,11 +128,23 @@ function deploy_container_registries () {
     done
 }
 
+function virtual_machine_names () {
+    paas_configuration | jq -r -e '[.virtual_machines[] | select(.action == "preserve") | .name ] | @tsv'
+}
+
+function deploy_virtual_machines () {
+    local machine_name
+    for machine_name in $(virtual_machine_names); do
+        invoke_layer 'paas' 'create_virtual_machine_if_needed' "${machine_name}"
+    done
+}
+
 function deploy_paas () {
     deploy_keyvaults
     deploy_databases
     deploy_server_farms
     deploy_container_registries
+    deploy_virtual_machines
 }
 
 deploy_paas

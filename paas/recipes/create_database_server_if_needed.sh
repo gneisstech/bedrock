@@ -93,7 +93,7 @@ function random_key () {
 
 function create_kv_database_server_admin_password () {
     local password
-    password="pass!$(random_key)"
+    password="pass_$(random_key)"
     az keyvault secret set \
         --vault-name "$(server_attr 'admin_password_kv.vault')" \
         --name "$(server_attr 'admin_password_kv.secret_name')" \
