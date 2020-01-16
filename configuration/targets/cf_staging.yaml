@@ -12,8 +12,8 @@ target:
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
-      # application_id: &appRegistrationID '6d566d2d-acfa-4fb0-a56b-c48ccc07cc53'  # Acuity Brands Atrius US UI
-      application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
+      application_id: &appRegistrationID '6d566d2d-acfa-4fb0-a56b-c48ccc07cc53'  # Acuity Brands Atrius US UI
+      # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
   iaas:
     location: *defaultAzureLocation
     resource_groups:
