@@ -1,0 +1,59 @@
+@startuml
+title RFC - Acuity High Level Architecture Map (as built) - Paul Charlton 2020-01
+hide circle
+hide empty members
+
+entity Luminaire
+entity Driver
+entity BLE_Module
+entity BT_Mesh_Network
+entity Distech_Eclypse #cyan
+entity Distech_Eclypse_AT #cyan
+entity BT_Dongle
+entity BT_Edgar
+entity BacNET
+'entity Eclpyse_Wifi #red
+'entity Eclpyse_EtherNet_VLAN #red
+'entity partner_VLAN
+entity border_control_001 #orange
+entity border_control_002 #orange
+entity border_control_003 #orange
+entity border_control_004 #orange
+entity public_Internet
+entity Azure_IOT_Hub
+entity Acuity_SDK
+entity Asset_Tracking_BT_Module
+entity mobile_handset
+entity VLC_channel
+entity Azure_Event_Hub
+entity Connected_Facilities_Cloud_Apps
+entity Acuity_Cloud_Apps
+entity Acuity_AuthX
+
+Luminaire ||--|| Driver
+Luminaire ||--|| VLC_channel
+Driver ||--|| BLE_Module
+BLE_Module }o--|| BT_Mesh_Network
+BT_Mesh_Network ||--|| BT_Dongle
+Distech_Eclypse ||--o{ Distech_Eclypse_AT
+Distech_Eclypse ||--o{ BT_Dongle
+Distech_Eclypse ||--o{ border_control_001
+Distech_Eclypse ||--o{ border_control_002
+border_control_002 ||--o{ BacNET
+Distech_Eclypse_AT ||--o{ BT_Edgar
+border_control_001 }o--|| public_Internet
+public_Internet ||--o{ Azure_IOT_Hub
+VLC_channel }o--o{ Acuity_SDK
+Acuity_SDK ||--|| mobile_handset
+mobile_handset }o--|| public_Internet
+public_Internet ||--o{ Azure_Event_Hub
+BT_Edgar }o--|| Asset_Tracking_BT_Module
+BLE_Module }o--o{ Acuity_SDK
+public_Internet ||--o{ border_control_003
+border_control_003 ||--|| Connected_Facilities_Cloud_Apps
+public_Internet ||--o{ border_control_004
+border_control_004 ||--|| Acuity_Cloud_Apps
+Acuity_Cloud_Apps ||--|| Acuity_AuthX
+Connected_Facilities_Cloud_Apps }o--|| Azure_AuthN
+
+@enduml
