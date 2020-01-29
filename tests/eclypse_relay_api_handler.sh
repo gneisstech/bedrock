@@ -47,7 +47,7 @@ function eclypse_curl () {
     cmd+=" --referer 'https://$(passage_host)/swagger/ui/index'"
     cmd+=" -X GET"
     cmd+=" --header 'Accept: application/json'"
-    cmd+=" --header 'Eclypse-Rest-Api: ${API_PATH}'"
+    cmd+=" --header 'Eclypse-Rest-Api: /api/rest/v1${API_PATH}'"
     cmd+=" '$(passage_relay_url)'"
     printf "%s" "${cmd}" 2> /dev/null > /dev/stderr
     eval "${cmd}" 2> /dev/null

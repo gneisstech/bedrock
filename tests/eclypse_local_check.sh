@@ -16,6 +16,7 @@ set -o pipefail
 # Arguments
 # ---------------------
 declare -r ECLYPSE_HOST='10.131.40.222'
+#declare -r ECLYPSE_HOST='4.30.127.123:33443'
 declare -r ECLYPSE_USER='admin'
 declare -r ECLYPSE_PASSWORD='Acuity00'
 

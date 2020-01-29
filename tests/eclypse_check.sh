@@ -46,7 +46,7 @@ function eclypse_backup_targets () {
 
 function eclypse_files () {
     echo "=== begin retrieving eclypse_files"
-    invoke_eclypse_context '/files' | jq
+    invoke_eclypse_context '/files/www' | jq
     echo "=== end retrieving eclypse_files"
 }
 
