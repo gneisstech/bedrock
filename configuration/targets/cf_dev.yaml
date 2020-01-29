@@ -892,6 +892,13 @@ target:
           request_body_check: false  # @@ TODO make this true ... implement 128kb limit for ingest TECH DEBT
           rule_set_type: 'OWASP'
           rule_set_version: '3.1'
+          exclusions:
+            - matchVariable: 'RequestCookieNames'
+              selector: 'ConnectedFacilities_AUTHN'
+              selectorMatchOperator: 'StartsWith'
+            - matchVariable: 'RequestArgNames'
+              selector: 'code'
+              selectorMatchOperator: 'Equals'
         tls_policy:
           name: 'cf-strict-tls-policy'
           cipherSuites:

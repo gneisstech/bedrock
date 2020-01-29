@@ -164,6 +164,21 @@ function option_if_present () {
     true
 }
 
+function exclusions_list_if_present () {
+    local length
+    length="$(gw_attr_size 'waf_config.exclusions')"
+    if [[ '0' != "${length}" ]]; then
+        local i
+        for i in $(seq 0 $(( length - 1)) ); do
+            local matchVariable selector selectorMatchOperator
+            matchVariable="$(gw_attr "waf_config.exclusions[${i}].matchVariable")"
+            selector="$(gw_attr "waf_config.exclusions[${i}].selector")"
+            selectorMatchOperator="$(gw_attr "waf_config.exclusions[${i}].selectorMatchOperator")"
+            printf -- ' --exclusion "%s %s %s"' "${matchVariable}" "${selectorMatchOperator}" "${selector}"
+        done
+    fi
+}
+
 function get_original_cert_from_shared_vault () {
     # @@ TODO refactor to support multiple TLS certificates
     local ssl_cert_name="${1}"
@@ -273,7 +288,8 @@ function set_waf_config () {
             --max-request-body-size "$(gw_attr 'waf_config.max_request_body_size')" \
             --request-body-check "$(gw_attr 'waf_config.request_body_check')" \
             --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
-            --rule-set-version "$(gw_attr 'waf_config.rule_set_version')"
+            --rule-set-version "$(gw_attr 'waf_config.rule_set_version')" \
+            $(exclusions_list_if_present)
     else
         # shellcheck disable=SC2046,SC2086
         echo bypassing $AZ_TRACE network application-gateway waf-config set \
