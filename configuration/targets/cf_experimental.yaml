@@ -14,6 +14,9 @@ target:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
+    objectsDatabase:
+      admin_name: &cfObjectsDBAdminName 'CF_Reader'
+      secret_name: &cfObjectsDBSecretName 'ALLSPICEDEV-CFReader-SQLUserPassword'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -265,7 +268,7 @@ target:
               - '"}'
               - '##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
-            OAUTH2_PROXY_EXTRA_JWT_ISSUERS:
+            OAUTH2_PROXY_EXTRA_JWT_ISSUERS: &trustedIdProviders
               - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
               - '='
               - 'https://management.core.windows.net/'
@@ -817,6 +820,90 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
+        - name: &cfObjectsApi 'cf-exp-objects-api'
+          arm_type: 'Microsoft.Web/sites'
+          resource_group: *cfAppSvcRG
+          container:
+            registry: *primaryACR
+            name: &objectsAPIContainer 'cf-objects-api-docker'
+            tag: &shAPITag 'connected-facilities'
+          acr_webhook:
+            name: 'cfexpobjectsapiwh'
+            registry: *primaryACR
+            resource_group: *cfAcrRG
+            status: 'enabled'
+            actions:
+              - 'push'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          config:
+            JWT_ISSUERS: *trustedIdProviders
+            DATABASE_URLS: ''  # will be overridden by the connection string
+            AUTHORIZED_USERS:
+              - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
+              - ','
+              - 'ff85ea71-79b8-48a1-b65b-ce0a38b87dbd'
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+            SQLServer:
+              DATABASE_URLS:
+                - 'sqlserver://'
+                - *cfObjectsDBAdminName
+                - ':'
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfObjectsDBSecretName
+                - '"}'
+                - '##'
+                - '@pltdata01sqlsep2ftp3b7r.database.windows.net:1433/allspice-mapmanager01db'
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *objectsAPIContainer
+              - ':'
+              - *shAPITag
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
+          action: 'create'
         # Bytelight site portal
         - name: &bytelightSitePortal 'cf-exp-bytelight-site-portal-app'
           arm_type: 'Microsoft.Web/sites'
@@ -1119,6 +1206,7 @@ target:
           - *cfHealthIngestApi
           - *cfSelfHealingApp
           - *cfSelfHealingApi
+          - *cfObjectsApi
           - *cfEchoDebug
           - *bytelightSitePortal
         address_pools: *serverNames
@@ -1228,6 +1316,15 @@ target:
                 paths:
                   - '/cf-self-healing-api'
                   - '/cf-self-healing-api/*'
+                redirectConfiguration: null
+                rewriteRuleSet: null
+              - name: 'post-authn-cf-objects-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfObjectsApi
+                backendHttpSettings: *postAuthNHttpSettings
+                paths:
+                  - '/cf-objects'
+                  - '/cf-objects/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
               - name: 'post-authn-cf-echo-debug-app-path-rule'
