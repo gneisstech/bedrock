@@ -14,6 +14,9 @@ target:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
+    objectsDatabase:
+      admin_name: &cfObjectsDBAdminName 'CF_Reader'
+      secret_name: &cfObjectsDBSecretName 'ALLSPICEDEV-CFReader-SQLUserPassword'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -265,7 +268,7 @@ target:
               - '"}'
               - '##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
-            OAUTH2_PROXY_EXTRA_JWT_ISSUERS:
+            OAUTH2_PROXY_EXTRA_JWT_ISSUERS: &trustedIdProviders
               - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
               - '='
               - 'https://management.core.windows.net/'
@@ -817,6 +820,139 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
+        - name: &cfAtriusObjectsApi 'cf-dev-atrius-objects-api'
+          arm_type: 'Microsoft.Web/sites'
+          resource_group: *cfAppSvcRG
+          container:
+            registry: *primaryACR
+            name: &atriusObjectsAPIContainer 'cf-atrius-objects-api-docker'
+            tag: &shAPITag 'connected-facilities'
+          acr_webhook:
+            name: 'cfdevatriusobjectsapiwh'
+            registry: *primaryACR
+            resource_group: *cfAcrRG
+            status: 'enabled'
+            actions:
+              - 'push'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          config:
+            JWT_ISSUERS: *trustedIdProviders
+            DATABASE_USER: *cfObjectsDBAdminName
+            DATABASE_URLS: ''  # will be overridden by the connection string
+            AUTHORIZED_USERS:
+              - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
+              - ','
+              - 'ff85ea71-79b8-48a1-b65b-ce0a38b87dbd'
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+            SQLServer:
+              DATABASE_PASSWORD:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfObjectsDBSecretName
+                - '"}'
+                - '##'
+              DATABASE_URLS:
+                - 'sqlserver://'
+                - *cfObjectsDBAdminName
+                - ':'
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfObjectsDBSecretName
+                - '"}'
+                - '##'
+                - '@pltdata01sqlsep2ftp3b7r.database.windows.net:1433/allspice-mapmanager01db'
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *atriusObjectsAPIContainer
+              - ':'
+              - *shAPITag
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
+          action: 'create'
+        # Bytelight site portal
+        - name: &bytelightSitePortal 'cf-dev-bytelight-site-portal-app'
+          arm_type: 'Microsoft.Web/sites'
+          resource_group: *cfAppSvcRG
+          container:
+            registry: ''
+            name: 'library/nginx'
+            tag: 'stable'
+          config:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
+            DOCKER_REGISTRY_SERVER_USERNAME: ''
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME: 'DOCKER|library/nginx:stable'
+            DOCKER_REGISTRY_SERVER_PASSWORD: ''
+            DOCKER_REGISTRY_SERVER_USERNAME: ''
+            DOCKER_REGISTRY_SERVER_URL: 'https://index.docker.io'
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
+          action: 'create'
         # Echo debug service
         - name: &cfEchoDebug 'cf-dev-echo-debug-app'
           arm_type: 'Microsoft.Web/sites'
@@ -883,22 +1019,25 @@ target:
         # the full resource ID path of the pre-existing pip in the other RG
         public_ip_addresses:
           - *wafIP
-        waf_policy: []
-        waf_config:
-          enabled: true
-          file_upload_limit: '100'
-          firewall_mode: 'Prevention'
-          max_request_body_size: '128'
-          request_body_check: false  # @@ TODO make this true ... implement 128kb limit for ingest TECH DEBT
-          rule_set_type: 'OWASP'
-          rule_set_version: '3.1'
-          exclusions:
-            - matchVariable: 'RequestCookieNames'
-              selector: 'ConnectedFacilities_AUTHN'
-              selectorMatchOperator: 'StartsWith'
-            - matchVariable: 'RequestArgNames'
-              selector: 'code'
-              selectorMatchOperator: 'Equals'
+        waf_policy:
+          name: 'cf-waf-policy'
+          location: *defaultAzureLocation
+          waf_config:
+            state: 'Enabled'
+            file_upload_limit_in_mb: '100'
+            mode: 'Prevention'
+            max_request_body_size_in_kb: '128'
+            request_body_check: false  # @@ TODO make this true ... implement 128kb limit for ingest TECH DEBT
+            rule_set_group_name: 'cf-waf-rule-set'
+            rule_set_type: 'OWASP'
+            rule_set_version: '3.1'
+            exclusions:
+              - matchVariable: 'RequestCookieNames'
+                selector: 'ConnectedFacilities_AUTHN'
+                selectorMatchOperator: 'StartsWith'
+              - matchVariable: 'RequestArgNames'
+                selector: 'code'
+                selectorMatchOperator: 'Equals'
         tls_policy:
           name: 'cf-strict-tls-policy'
           cipherSuites:
@@ -1078,12 +1217,14 @@ target:
           - *cfHealthIngestApi
           - *cfSelfHealingApp
           - *cfSelfHealingApi
+          - *cfAtriusObjectsApi
           - *cfEchoDebug
+          - *bytelightSitePortal
         address_pools: *serverNames
         private_ip_addresses: []
         public_ip_addresses:
           - *postAuthnIP
-        waf_policy: []
+        waf_policy:
         tls_policy:
           name: 'cf-strict-tls-policy'
           cipherSuites:
@@ -1188,6 +1329,17 @@ target:
                   - '/cf-self-healing-api/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
+              - name: 'post-authn-cf-atrius-objects-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *cfAtriusObjectsApi
+                backendHttpSettings: *postAuthNHttpSettings
+                paths:
+                  - '/cf-atrius-objects'
+                  - '/cf-atrius-objects/*'
+                  - '/cf-lights-map/distech-eclypse'
+                  - '/cf-lights-map/distech-eclypse/*'
+                redirectConfiguration: null
+                rewriteRuleSet: null
               - name: 'post-authn-cf-echo-debug-app-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
                 backendAddressPool: *cfEchoDebug
@@ -1195,6 +1347,15 @@ target:
                 paths:
                   - '/cf-echo'
                   - '/cf-echo/*'
+                redirectConfiguration: null
+                rewriteRuleSet: null
+              - name: 'post-authn-bytelight-site-portal-app-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *bytelightSitePortal
+                backendHttpSettings: *postAuthNHttpSettings
+                paths:
+                  - '/bytelight-site-portal'
+                  - '/bytelight-site-portal/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
         request_routing_rules:

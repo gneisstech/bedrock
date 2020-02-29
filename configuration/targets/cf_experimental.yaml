@@ -820,12 +820,12 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
-        - name: &cfObjectsApi 'cf-exp-objects-api'
+        - name: &cfAtriusObjectsApi 'cf-exp-atrius-objects-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
             registry: *primaryACR
-            name: &objectsAPIContainer 'cf-objects-api-docker'
+            name: &atriusObjectsAPIContainer 'cf-atrius-objects-api-docker'
             tag: &shAPITag 'connected-facilities'
           acr_webhook:
             name: 'cfexpobjectsapiwh'
@@ -837,6 +837,7 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             JWT_ISSUERS: *trustedIdProviders
+            DATABASE_USER: *cfObjectsDBAdminName
             DATABASE_URLS: ''  # will be overridden by the connection string
             AUTHORIZED_USERS:
               - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
@@ -856,6 +857,13 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             SQLServer:
+              DATABASE_PASSWORD:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfObjectsDBSecretName
+                - '"}'
+                - '##'
               DATABASE_URLS:
                 - 'sqlserver://'
                 - *cfObjectsDBAdminName
@@ -872,7 +880,7 @@ target:
               - 'DOCKER|'
               - *primaryACR
               - '.azurecr.io/'
-              - *objectsAPIContainer
+              - *atriusObjectsAPIContainer
               - ':'
               - *shAPITag
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -1209,7 +1217,7 @@ target:
           - *cfHealthIngestApi
           - *cfSelfHealingApp
           - *cfSelfHealingApi
-          - *cfObjectsApi
+          - *cfAtriusObjectsApi
           - *cfEchoDebug
           - *bytelightSitePortal
         address_pools: *serverNames
@@ -1321,13 +1329,15 @@ target:
                   - '/cf-self-healing-api/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-              - name: 'post-authn-cf-objects-path-rule'
+              - name: 'post-authn-cf-atrius-objects-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
-                backendAddressPool: *cfObjectsApi
+                backendAddressPool: *cfAtriusObjectsApi
                 backendHttpSettings: *postAuthNHttpSettings
                 paths:
-                  - '/cf-objects'
-                  - '/cf-objects/*'
+                  - '/cf-atrius-objects'
+                  - '/cf-atrius-objects/*'
+                  - '/cf-lights-map/distech-eclypse'
+                  - '/cf-lights-map/distech-eclypse/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
               - name: 'post-authn-cf-echo-debug-app-path-rule'

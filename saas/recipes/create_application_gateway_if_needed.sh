@@ -874,8 +874,6 @@ function deploy_application_gateway () {
 }
 
 function update_application_gateway_config () {
-    echo "checkpoint set_waf_config" > /dev/stderr
-    set_waf_config
     echo "checkpoint address_pool" > /dev/stderr
     address_pools
     echo "checkpoint set_probe" > /dev/stderr
