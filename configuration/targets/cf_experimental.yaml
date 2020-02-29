@@ -159,6 +159,62 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
+        - name: &authzSchema 'cf-exp-authz-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'Standard'
+          family: ''
+          service_objective: 'S0'
+          action: 'preserve'
+        - name: &netWorkViewSchema 'cf-exp-network-view-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'Standard'
+          family: ''
+          service_objective: 'S0'
+          action: 'preserve'
+        - name: &elmSchema 'cf-exp-elm-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'Standard'
+          family: ''
+          service_objective: 'S0'
+          action: 'preserve'
+        - name: &adminSchema 'cf-exp-admin-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          tier: 'Standard'
+          family: ''
+          service_objective: 'S0'
+          action: 'preserve'
     server_farms:
       - name: &authServiceFarm 'cf-exp-authservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
