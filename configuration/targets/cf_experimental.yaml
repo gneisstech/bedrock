@@ -1011,22 +1011,25 @@ target:
         # the full resource ID path of the pre-existing pip in the other RG
         public_ip_addresses:
           - *wafIP
-        waf_policy: []
-        waf_config:
-          enabled: true
-          file_upload_limit: '100'
-          firewall_mode: 'Prevention'
-          max_request_body_size: '128'
-          request_body_check: false  # @@ TODO make this true ... implement 128kb limit for ingest TECH DEBT
-          rule_set_type: 'OWASP'
-          rule_set_version: '3.1'
-          exclusions:
-            - matchVariable: 'RequestCookieNames'
-              selector: 'ConnectedFacilities_AUTHN'
-              selectorMatchOperator: 'StartsWith'
-            - matchVariable: 'RequestArgNames'
-              selector: 'code'
-              selectorMatchOperator: 'Equals'
+        waf_policy:
+          name: 'cf-waf-policy'
+          location: *defaultAzureLocation
+          waf_config:
+            state: 'Enabled'
+            file_upload_limit_in_mb: '100'
+            mode: 'Prevention'
+            max_request_body_size_in_kb: '128'
+            request_body_check: false  # @@ TODO make this true ... implement 128kb limit for ingest TECH DEBT
+            rule_set_group_name: 'cf-waf-rule-set'
+            rule_set_type: 'OWASP'
+            rule_set_version: '3.1'
+            exclusions:
+              - matchVariable: 'RequestCookieNames'
+                selector: 'ConnectedFacilities_AUTHN'
+                selectorMatchOperator: 'StartsWith'
+              - matchVariable: 'RequestArgNames'
+                selector: 'code'
+                selectorMatchOperator: 'Equals'
         tls_policy:
           name: 'cf-strict-tls-policy'
           cipherSuites:
@@ -1213,7 +1216,7 @@ target:
         private_ip_addresses: []
         public_ip_addresses:
           - *postAuthnIP
-        waf_policy: []
+        waf_policy:
         tls_policy:
           name: 'cf-strict-tls-policy'
           cipherSuites:

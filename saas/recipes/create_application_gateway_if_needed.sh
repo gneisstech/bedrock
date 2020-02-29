@@ -164,21 +164,6 @@ function option_if_present () {
     true
 }
 
-function exclusions_list_if_present () {
-    local length
-    length="$(gw_attr_size 'waf_config.exclusions')"
-    if [[ '0' != "${length}" ]]; then
-        local i
-        for i in $(seq 0 $(( length - 1)) ); do
-            local matchVariable selector selectorMatchOperator
-            matchVariable="$(gw_attr "waf_config.exclusions[${i}].matchVariable")"
-            selector="$(gw_attr "waf_config.exclusions[${i}].selector")"
-            selectorMatchOperator="$(gw_attr "waf_config.exclusions[${i}].selectorMatchOperator")"
-            printf -- ' --exclusion "%s %s %s"' "${matchVariable}" "${selectorMatchOperator}" "${selector}"
-        done
-    fi
-}
-
 function get_original_cert_from_shared_vault () {
     # @@ TODO refactor to support multiple TLS certificates
     local ssl_cert_name="${1}"
@@ -273,23 +258,102 @@ function create_application_gateway () {
         $(server_list_if_present 'servers' 'servers') \
         $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
-        $(options_list_if_present 'waf-policy' 'waf_policy') \
+        $(option_if_present 'waf-policy' 'waf_policy.name') \
         $(cert_file_options "${password}" 'default_tls_certificate')
 }
 
-function set_waf_config () {
-    if [[ '0' != "$(gw_attr_size 'waf_config')" ]]; then
-        $AZ_TRACE network application-gateway waf-config set \
-            --gateway-name "$(application_gateway_name)" \
+function add_exclusions () {
+    local length
+    length="$(gw_attr_size 'waf_policy.waf_config.exclusions')"
+    if [[ '0' != "${length}" ]]; then
+        local i
+        for i in $(seq 0 $(( length - 1)) ); do
+            local matchVariable selector selectorMatchOperator
+            matchVariable="$(gw_attr "waf_policy.waf_config.exclusions[${i}].matchVariable")"
+            selector="$(gw_attr "waf_policy.waf_config.exclusions[${i}].selector")"
+            selectorMatchOperator="$(gw_attr "waf_policy.waf_config.exclusions[${i}].selectorMatchOperator")"
+            $AZ_TRACE network application-gateway waf-policy managed-rule exclusion add \
+                --resource-group "$(application_gateway_resource_group)" \
+                --policy-name "$(gw_attr 'waf_policy.name')" \
+                --match-variable "${matchVariable}" \
+                --selector "${selector}" \
+                --selector-match-operator "${selectorMatchOperator}"
+        done
+    fi
+
+}
+
+function arm_tenplate_scaffold () {
+cat <<ARM_TEMPLATE
+{
+    "\$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+            "apiVersion": "2019-11-01",
+            "name": "$(gw_attr 'waf_policy.name')",
+            "location" : "$(gw_attr 'waf_policy.location')"
+        }
+    ]
+}
+ARM_TEMPLATE
+}
+
+function show_waf_policy () {
+    $AZ_TRACE network application-gateway waf-policy show \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "$(gw_attr 'waf_policy.name')"
+}
+
+function clean_waf_policy () {
+    jq -r '{policySettings, managedRules}'
+}
+
+function retrieve_waf_policy () {
+    show_waf_policy | clean_waf_policy
+}
+
+function waf_rule_set_policy () {
+cat <<RULE_SETS
+    [
+        {
+            "ruleSetType": "$(gw_attr 'waf_policy.waf_config.rule_set_type')",
+            "ruleSetVersion": "$(gw_attr 'waf_policy.waf_config.rule_set_version')"
+        }
+    ]
+RULE_SETS
+}
+
+function combine_parts_of_waf_policy () {
+    jq --slurp -r '.[1].managedRules.managedRuleSets = .[2] | .[0].resources[0].properties = .[1] | .[0]' <(arm_tenplate_scaffold) <(retrieve_waf_policy) <(waf_rule_set_policy)
+}
+
+function update_owasp_version_in_waf_policy () {
+    printf "%s" "$(combine_parts_of_waf_policy)"
+    $AZ_TRACE group deployment create \
+        --resource-group "$(application_gateway_resource_group)" \
+        --template-file <(combine_parts_of_waf_policy)
+}
+
+function create_or_update_waf_policies () {
+    if [[ '0' != "$(gw_attr_size 'waf_policy.name')" ]]; then
+        $AZ_TRACE network application-gateway waf-policy create \
             --resource-group "$(application_gateway_resource_group)" \
-            --enabled "$(gw_attr 'waf_config.enabled')" \
-            --file-upload-limit "$(gw_attr 'waf_config.file_upload_limit')" \
-            --firewall-mode "$(gw_attr 'waf_config.firewall_mode')" \
-            --max-request-body-size "$(gw_attr 'waf_config.max_request_body_size')" \
-            --request-body-check "$(gw_attr 'waf_config.request_body_check')" \
-            --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
-            --rule-set-version "$(gw_attr 'waf_config.rule_set_version')" \
-            $(exclusions_list_if_present)
+            --name "$(gw_attr 'waf_policy.name')"
+    fi
+    if [[ '0' != "$(gw_attr_size 'waf_policy.waf_config')" ]]; then
+        $AZ_TRACE network application-gateway waf-policy policy-setting update \
+            --resource-group "$(application_gateway_resource_group)" \
+            --policy-name "$(gw_attr 'waf_policy.name')" \
+            --state "$(gw_attr 'waf_policy.waf_config.state')" \
+            --file-upload-limit-in-mb "$(gw_attr 'waf_policy.waf_config.file_upload_limit_in_mb')" \
+            --mode "$(gw_attr 'waf_policy.waf_config.mode')" \
+            --max-request-body-size-in-kb "$(gw_attr 'waf_policy.waf_config.max_request_body_size_in_kb')" \
+            --request-body-check "$(gw_attr 'waf_policy.waf_config.request_body_check')"
+
+        add_exclusions
+        update_owasp_version_in_waf_policy
     else
         # shellcheck disable=SC2046,SC2086
         echo bypassing $AZ_TRACE network application-gateway waf-config set \
@@ -297,6 +361,7 @@ function set_waf_config () {
             --resource-group "$(application_gateway_resource_group)" \
             --enabled false
     fi
+
 }
 
 function address_pool_names () {
@@ -806,6 +871,9 @@ function subnet_service_endpoints () {
 function deploy_application_gateway () {
     echo "checkpoint create_application_gateway" > /dev/stderr
     create_application_gateway
+}
+
+function update_application_gateway_config () {
     echo "checkpoint set_waf_config" > /dev/stderr
     set_waf_config
     echo "checkpoint address_pool" > /dev/stderr
@@ -828,9 +896,6 @@ function deploy_application_gateway () {
     ssl_cert
     echo "checkpoint service endpoints" > /dev/stderr
     subnet_service_endpoints
-}
-
-function update_application_gateway_config () {
     true
     ####################
     # we are using the following defaults created by "application-gateway create"
@@ -839,10 +904,10 @@ function update_application_gateway_config () {
     # front_end_port
     # redirect-config
     # root_cert
-    # waf_policy
 }
 
 function create_application_gateway_if_needed () {
+    create_or_update_waf_policies
     application_gateway_already_exists || deploy_application_gateway
     update_application_gateway_config
     echo "completed application gateway"
