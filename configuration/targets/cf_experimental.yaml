@@ -828,7 +828,7 @@ target:
             name: &atriusObjectsAPIContainer 'cf-atrius-objects-api-docker'
             tag: &shAPITag 'connected-facilities'
           acr_webhook:
-            name: 'cfexpobjectsapiwh'
+            name: 'cfexpatriusobjectsapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
