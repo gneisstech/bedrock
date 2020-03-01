@@ -67,7 +67,7 @@ target:
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
           host: &dnsHost 'cf-exp'
-          fqdn: 'cf-exp.dev.atrius-iot.com.'
+          fqdn: &wafFqdn 'cf-exp.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
@@ -473,15 +473,21 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
-        - name: &cfHealthAdminApi 'cf-exp-admin-api'
+        # AuthZ Web Api service
+        - name: &authzWebApi 'cf-exp-authz-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
+          path: &authzPath '/cf-authz'
+          http_url: &authzApiUrl
+            - 'https://'
+            - *wafFqdn
+            - *authzPath
           container:
             registry: *primaryACR
-            name: &adminApiContainer 'cf-ruby-api-docker'
-            tag: &adminApiTag 'connected-facilities'
+            name: &authzWebApiContainer 'cf-authz-web-api-docker'
+            tag: &authzWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfexpadminapiwh'
+            name: 'cfexpauthzwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -519,15 +525,15 @@ target:
                 - '.database.windows.net:'
                 - 1433
                 - '/'
-                - *healthSchema
+                - *authzSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
               - *primaryACR
               - '.azurecr.io/'
-              - *adminApiContainer
+              - *authzWebApiContainer
               - ':'
-              - *adminApiTag
+              - *authzWebApiTag
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
               - *primaryACR
@@ -557,15 +563,16 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
-        - name: &cfHealthApi 'cf-exp-health-api'
+        # Health Web Api Service
+        - name: &healthWebApi 'cf-exp-health-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
             registry: *primaryACR
-            name: &healthApiContainer 'cf-ruby-api-docker'
-            tag: &healthApiTag 'connected-facilities'
+            name: &healthWebApiContainer 'cf-network-view-web-api-docker'
+            tag: &healthWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfexphealthapiwh'
+            name: 'cfexphealthwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -603,15 +610,15 @@ target:
                 - '.database.windows.net:'
                 - 1433
                 - '/'
-                - *healthSchema
+                - *netWorkViewSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
               - *primaryACR
               - '.azurecr.io/'
-              - *healthApiContainer
+              - *healthWebApiContainer
               - ':'
-              - *healthApiTag
+              - *healthWebApiTag
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
               - *primaryACR
@@ -621,6 +628,7 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            CF_AUTHZ_API_URL: *authzApiUrl
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
           tls: 'true'
@@ -641,15 +649,16 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
-        - name: &cfHealthIngestApi 'cf-exp-ingest-api'
+        # Health Ingest Web Api Service
+        - name: &ingestWebApi 'cf-exp-ingest-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
             registry: *primaryACR
-            name: &healthIngestContainer 'cf-ruby-api-docker'
-            tag: &healthIngestTag 'connected-facilities'
+            name: &ingestWebApiContainer 'cf-network-view-web-api-docker'
+            tag: &ingestWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfexpingestapiwh'
+            name: 'cfexpingestwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -687,15 +696,15 @@ target:
                 - '.database.windows.net:'
                 - 1433
                 - '/'
-                - *healthSchema
+                - *netWorkViewSchema
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
               - *primaryACR
               - '.azurecr.io/'
-              - *healthIngestContainer
+              - *ingestWebApiContainer
               - ':'
-              - *healthIngestTag
+              - *ingestWebApiTag
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
               - *primaryACR
@@ -705,6 +714,179 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            CF_AUTHZ_API_URL: *authzApiUrl
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
+          action: 'create'
+        # Admin Web Api Service
+        - name: &adminWebApi 'cf-exp-admin-web-api'
+          arm_type: 'Microsoft.Web/sites'
+          resource_group: *cfAppSvcRG
+          container:
+            registry: *primaryACR
+            name: &adminWebApiContainer 'cf-admin-web-api-docker'
+            tag: &adminWebApiTag 'connected-facilities'
+          acr_webhook:
+            name: 'cfexpadminwebapiwh'
+            registry: *primaryACR
+            resource_group: *cfAcrRG
+            status: 'enabled'
+            actions:
+              - 'push'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          config:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            RAILS_LOG_TO_STDOUT: 'true'
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+            SQLServer:
+              DATABASE_URL:
+                - 'sqlserver://'
+                - *cfDefaultDBAdminName
+                - ':'
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfDefaultDBSecretName
+                - '"}'
+                - '##'
+                - '@'
+                - *cfDefaultDbServer
+                - '.database.windows.net:'
+                - 1433
+                - '/'
+                - *adminSchema
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *adminWebApiContainer
+              - ':'
+              - *adminWebApiTag
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            CF_AUTHZ_API_URL: *authzApiUrl
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+          logging: *defaultWebAppLogging
+          tls: 'true'
+          access_restrictions:
+            - priority: 1
+              rule_name: 'downstream AuthN'
+              action: 'Allow'
+              description: 'only allow access from downstream AuthN'
+              ignore_missing_endpoint: 'true'
+              scm_site: 'false'
+              subnet:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfAuthNSvcRG
+                - '/providers/Microsoft.Network/virtualNetworks/'
+                - *postAuthnGateway
+                - 'Vnet'
+                - '/subnets/default'
+          action: 'create'
+        # ELM Web Api Service
+        - name: &elmWebApi 'cf-exp-elm-web-api'
+          arm_type: 'Microsoft.Web/sites'
+          resource_group: *cfAppSvcRG
+          container:
+            registry: *primaryACR
+            name: &elmWebApiContainer 'cf-elm-web-api-docker'
+            tag: &elmWebApiTag 'connected-facilities'
+          acr_webhook:
+            name: 'cfexpelmwebapiwh'
+            registry: *primaryACR
+            resource_group: *cfAcrRG
+            status: 'enabled'
+            actions:
+              - 'push'
+            arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
+          config:
+            DOCKER_ENABLE_CI: true
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            RAILS_LOG_TO_STDOUT: 'true'
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
+          connection_strings:
+            SQLServer:
+              DATABASE_URL:
+                - 'sqlserver://'
+                - *cfDefaultDBAdminName
+                - ':'
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfDefaultDBSecretName
+                - '"}'
+                - '##'
+                - '@'
+                - *cfDefaultDbServer
+                - '.database.windows.net:'
+                - 1433
+                - '/'
+                - *elmSchema
+          container_settings:
+            DOCKER_CUSTOM_IMAGE_NAME:
+              - 'DOCKER|'
+              - *primaryACR
+              - '.azurecr.io/'
+              - *elmWebApiContainer
+              - ':'
+              - *elmWebApiTag
+            DOCKER_REGISTRY_SERVER_PASSWORD:
+              - '##acr_registry_key={"registry":"'
+              - *primaryACR
+              - '","resource_group":"'
+              - *cfAcrRG
+              - '"}'
+              - '##'
+            DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
+            CF_AUTHZ_API_URL: *authzApiUrl
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
           tls: 'true'
@@ -876,6 +1058,7 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
+        # Atrius Objects Web API
         - name: &cfAtriusObjectsApi 'cf-exp-atrius-objects-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
@@ -894,7 +1077,8 @@ target:
           config:
             JWT_ISSUERS: *trustedIdProviders
             DATABASE_USER: *cfObjectsDBAdminName
-            DATABASE_URLS: ''  # will be overridden by the connection string
+            DATABASE_URLS:
+              - 'sqlserver://pltdata01sqlsep2ftp3b7r.database.windows.net:1433/allspice-mapmanager01db'
             AUTHORIZED_USERS:
               - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
               - ','
@@ -920,17 +1104,6 @@ target:
                 - *cfObjectsDBSecretName
                 - '"}'
                 - '##'
-              DATABASE_URLS:
-                - 'sqlserver://'
-                - *cfObjectsDBAdminName
-                - ':'
-                - '##secure_secret={"vault":"'
-                - *kvName
-                - '","secret_name":"'
-                - *cfObjectsDBSecretName
-                - '"}'
-                - '##'
-                - '@pltdata01sqlsep2ftp3b7r.database.windows.net:1433/allspice-mapmanager01db'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -1268,9 +1441,11 @@ target:
         sku: 'Standard_Medium'
         servers: &serverNames
           - *cfHealthApp
-          - *cfHealthAdminApi
-          - *cfHealthApi
-          - *cfHealthIngestApi
+          - *authzWebApi
+          - *adminWebApi
+          - *elmWebApi
+          - *healthWebApi
+          - *ingestWebApi
           - *cfSelfHealingApp
           - *cfSelfHealingApi
           - *cfAtriusObjectsApi
@@ -1340,27 +1515,45 @@ target:
                   - '/cf-app/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-              - name: 'post-authn-cf-health-admin-api-path-rule'
+              - name: 'post-authn-authz-web-api-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
-                backendAddressPool: *cfHealthAdminApi
+                backendAddressPool: *authzWebApi
+                backendHttpSettings: *postAuthNHttpSettings
+                paths:
+                  - '/cf-authz'
+                  - '/cf-authz/*'
+                redirectConfiguration: null
+                rewriteRuleSet: null
+              - name: 'post-authn-admin-web-api-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *adminWebApi
                 backendHttpSettings: *postAuthNHttpSettings
                 paths:
                   - '/cf-admin'
                   - '/cf-admin/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-              - name: 'post-authn-cf-health-api-path-rule'
+              - name: 'post-authn-elm-web-api-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
-                backendAddressPool: *cfHealthApi
+                backendAddressPool: *elmWebApi
+                backendHttpSettings: *postAuthNHttpSettings
+                paths:
+                  - '/cf-elm'
+                  - '/cf-elm/*'
+                redirectConfiguration: null
+                rewriteRuleSet: null
+              - name: 'post-authn-health-web-api-path-rule'
+                arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
+                backendAddressPool: *healthWebApi
                 backendHttpSettings: *postAuthNHttpSettings
                 paths:
                   - '/cf-health'
                   - '/cf-health/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
-              - name: 'post-authn-cf-health-ingest-api-path-rule'
+              - name: 'post-authn-ingest-web-api-path-rule'
                 arm_type: 'Microsoft.Network/applicationGateways/urlPathMaps/pathRules'
-                backendAddressPool: *cfHealthIngestApi
+                backendAddressPool: *ingestWebApi
                 backendHttpSettings: *postAuthNHttpSettings
                 paths:
                   - '/cf-ingest'
@@ -1392,8 +1585,8 @@ target:
                 paths:
                   - '/cf-atrius-objects'
                   - '/cf-atrius-objects/*'
-                  - '/cf-lights-map/distech-eclypse'
-                  - '/cf-lights-map/distech-eclypse/*'
+                  - '/cf-lights-map'
+                  - '/cf-lights-map/*'
                 redirectConfiguration: null
                 rewriteRuleSet: null
               - name: 'post-authn-cf-echo-debug-app-path-rule'
