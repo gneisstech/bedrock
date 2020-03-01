@@ -197,7 +197,7 @@ function interpolate_functions () {
 
 function prepare_connection_strings () {
     local type="${1}"
-    svc_strings 'connection_strings' "${type}" | interpolate_functions
+    svc_strings '' "connection_strings.${type}" | interpolate_functions
 }
 
 function connection_string_types () {
