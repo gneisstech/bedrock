@@ -13,10 +13,12 @@ target:
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
+      passage_api_application_id: &passageApiApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
-    objectsDatabase:
-      admin_name: &cfObjectsDBAdminName 'CF_Reader'
-      secret_name: &cfObjectsDBSecretName 'ALLSPICEDEV-CFReader-SQLUserPassword'
+    objectsDatabases:
+      - db_name: &cfObjectsDBName_001 'pltdata01sqlsep2ftp3b7r'
+        reader_name: &cfObjectsDBUser_001 'CF_Reader'
+        secret_name: &cfObjectsDBSecretName_001 'ALLSPICEDEV-CFReader-SQLUserPassword'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -145,7 +147,7 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
-        - name: &healthSchema 'cf-exp-twin01-db'
+        - name: 'cf-exp-twin01-db'  # @@TODO remove
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -298,7 +300,7 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             OAUTH2_PROXY_AZURE_TENANT: *environmentTenant
-            OAUTH2_PROXY_CLIENT_ID: *appRegistrationID
+            OAUTH2_PROXY_CLIENT_ID: *passageApiApplicationID
             OAUTH2_PROXY_CLIENT_SECRET:
               - '##secure_secret={"vault":"'
               - *kvName
@@ -348,6 +350,9 @@ target:
               - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
               - '='
               - 'https://graph.windows.net'
+              - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+              - '='
+              - *passageApiApplicationID
             OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
             OAUTH2_PROXY_PASS_ACCESS_TOKEN: true
             OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: true
@@ -359,6 +364,7 @@ target:
               - '.'
               - *dnsZone
               - '/oauth2/callback'
+            OAUTH2_PROXY_RESOURCE: *passageApiApplicationID
             OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: true
             OAUTH2_PROXY_SILENCE_PING_LOGGING: true
             OAUTH2_PROXY_SKIP_AUTH_REGEX:  # @@ TODO TECHDEBT while SHLv1 does not have a JWT token
@@ -1088,9 +1094,6 @@ target:
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
             JWT_ISSUERS: *trustedIdProviders
-            DATABASE_USER: *cfObjectsDBAdminName
-            DATABASE_URLS:
-              - 'sqlserver://pltdata01sqlsep2ftp3b7r.database.windows.net:1433/allspice-mapmanager01db'
             AUTHORIZED_USERS:
               - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
               - ','
@@ -1108,14 +1111,20 @@ target:
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
-            SQLServer:
-              DATABASE_PASSWORD:
+            Custom:
+              DATABASE_URLS:
+                - 'sqlserver://'
+                - *cfObjectsDBUser_001
+                - ':'
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
-                - *cfObjectsDBSecretName
+                - *cfObjectsDBSecretName_001
                 - '"}'
                 - '##'
+                - '@'
+                - *cfObjectsDBName_001
+                - '.database.windows.net:1433/allspice-mapmanager01db'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
