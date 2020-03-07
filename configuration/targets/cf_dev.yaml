@@ -147,7 +147,7 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
-        - name: 'cf-exp-twin01-db'  # @@TODO remove
+        - name: 'cf-dev-twin01-db'  # @@TODO remove
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
