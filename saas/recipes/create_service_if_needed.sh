@@ -208,11 +208,12 @@ function set_connection_strings () {
     if [[ -n "$(svc_attr 'connection_strings')" ]]; then
         local i
         for i in $(connection_string_types); do
+            # shellcheck disable=SC2046
             $AZ_TRACE webapp config connection-string set \
                 --name "$(service_name)" \
                 --resource-group "$(service_resource_group)" \
                 --connection-string-type "${i}" \
-                --settings "$(prepare_connection_strings "${i}")"
+                --settings $(prepare_connection_strings "${i}")
         done
     fi
 }
