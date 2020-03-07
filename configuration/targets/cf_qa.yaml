@@ -237,7 +237,7 @@ target:
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
         uri: &uriPrimaryACR 'https://cfqaregistry.azurecr.io'
-        sku: 'Standard'
+        sku: 'Premium'
         admin_enabled: true
         action: 'create'
     virtual_machines:
