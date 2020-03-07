@@ -86,24 +86,24 @@ target:
       vnets:
         - name: 'cf-exp-vnet'
           resource_group: *cfNetworksRG
-          cidr: '10.1.0.0/16'
+          cidr: '10.11.0.0/16'
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
             - name: 'cf-exp-0-subnet'
-              cidr: '10.1.0.0/24'
+              cidr: '10.11.0.0/24'
             - name: 'cf-exp-1-subnet'
-              cidr: '10.1.1.0/24'
+              cidr: '10.11.1.0/24'
         - name: &ingestVnet 'cf-exp-ingest-vnet'
           resource_group: *cfNetworksRG
-          cidr: '10.2.0.0/16'
+          cidr: '10.12.0.0/16'
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
-            - name: 'cf-exp-0-subnet'
-              cidr: '10.2.0.0/24'
+            - name: &ingestSubnet 'cf-exp-0-subnet'
+              cidr: '10.12.0.0/24'
             - name: 'cf-exp-1-subnet'
-              cidr: '10.2.1.0/24'
+              cidr: '10.12.1.0/24'
   paas:
     location: *defaultAzureLocation
     keyvaults:
@@ -254,7 +254,7 @@ target:
         public_ip_address: *ingestVMIP
         disks:
           os_disk:
-            os_disk_name: 'cf-ingest-os-disk'
+            os_disk_name: 'cfexp-ingest-os-disk'
             os_disk_caching: 'ReadWrite'
             os_disk_size_gb: 127
           data_disks:  # these do not auto-format or auto-mount [yet]
@@ -268,6 +268,7 @@ target:
         priority: 'Regular'
         authentication_type: 'password'
         vnet_name: *ingestVnet
+        subnet_name: *ingestSubnet
         action: 'preserve'
   saas:
     authn_services:

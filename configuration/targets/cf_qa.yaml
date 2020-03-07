@@ -100,7 +100,7 @@ target:
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
-            - name: 'cf-qa-0-subnet'
+            - name: &ingestSubnet 'cf-qa-0-subnet'
               cidr: '10.2.0.0/24'
             - name: 'cf-qa-1-subnet'
               cidr: '10.2.1.0/24'
@@ -254,7 +254,7 @@ target:
         public_ip_address: *ingestVMIP
         disks:
           os_disk:
-            os_disk_name: 'cf-ingest-os-disk'
+            os_disk_name: 'cfqa-ingest-os-disk'
             os_disk_caching: 'ReadWrite'
             os_disk_size_gb: 127
           data_disks:  # these do not auto-format or auto-mount [yet]
@@ -268,6 +268,7 @@ target:
         priority: 'Regular'
         authentication_type: 'password'
         vnet_name: *ingestVnet
+        subnet_name: *ingestSubnet
         action: 'preserve'
   saas:
     authn_services:
