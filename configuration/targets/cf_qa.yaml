@@ -1115,6 +1115,13 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             Custom:
+              ATRIUS_OBJECTS_API_KEY:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - 'cf-qa-lights-map-api-key'
+                - '"}'
+                - '##'
               DATABASE_URLS:
                 - 'sqlserver://'
                 - *cfObjectsDBUser_001
