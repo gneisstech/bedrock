@@ -846,6 +846,7 @@ target:
         - name: &elmWebApi 'cf-dev-elm-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
+          elm_vault_secret_name: &cfElmSecretName 'cf-elm-web-api-sp-client-secret'
           container:
             registry: *primaryACR
             name: &elmWebApiContainer 'cf-elm-web-api-docker'
@@ -870,6 +871,14 @@ target:
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             RAILS_LOG_TO_STDOUT: 'true'
+            # @@ TODO (1) make into connection string, (2) new SP per environment, (3) auto populate SP ID here and in cf-objects service
+            SERVICE_PRINCIPAL_SECRET:
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *cfElmSecretName
+              - '"}'
+              - '##'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
