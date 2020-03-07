@@ -1,0 +1,77 @@
+@startuml
+title RFC - Atrius High Level Auth Architecture (as built) - Paul Charlton 2020-03-05
+hide circle
+hide empty members
+autonumber
+
+Actor MachineUser
+Actor BrowserUser
+database keyVault
+Participant AzureAuthN
+Participant AzureAPIM
+Participant PassageAPI
+Participant PassageAuthN
+Participant PassageRBAC
+database PassageDB
+database StoredProcedureRBAC
+Participant PassageServices
+Participant ServiceFabricAuthProxy
+Participant ServiceFabricRBAC
+Participant ServiceFabricServices
+
+group AuthN : MachineUser
+MachineUser -> keyVault
+MachineUser <- keyVault : client_secret
+MachineUser -> AzureAuthN : client_id, client_secret
+MachineUser <- AzureAuthN : JWT access token
+MachineUser -> AzureAPIM : JWT access token, atr-entity-key
+end
+
+group AuthN : Flesh and Blood User
+BrowserUser -> AzureAPIM : JWT_Null
+AzureAPIM -> PassageAPI : JWT_Null
+AzureAPIM <- PassageAPI : Redirect to AzureAuthN
+BrowserUser <- AzureAPIM : Redirect to AzureAuthN
+BrowserUser -> AzureAuthN : resource identifier
+BrowserUser <- AzureAuthN : login screen(s)
+BrowserUser -> AzureAuthN : user credentials
+BrowserUser <- AzureAuthN : refresh token
+BrowserUser -> AzureAuthN : refresh token, request access token
+BrowserUser <- AzureAuthN : JWT access token
+BrowserUser -> AzureAPIM : JWT access token, atr-entity-key
+end
+AzureAPIM -> PassageAPI : JWT access token, atr-entity-key
+PassageAPI -> PassageAuthN : JWT access token, atr-entity-key
+activate PassageAuthN
+
+group AuthN identity for Service Principals
+PassageAuthN -> PassageAuthN : if no user label, synthesize user label from globally unique combination of claims
+end
+group "Passage Monolith Services"
+PassageAuthN -> PassageRBAC : if user-label, check RBAC with user-label, atr-entity-key
+PassageRBAC -> PassageDB : user_name_string, atr-entity-key, api_identifier
+PassageDB -> StoredProcedureRBAC : user_name_string, atr-entity-key, api_identifier
+PassageDB <- StoredProcedureRBAC : authorized?
+PassageRBAC <- PassageDB : authorized?
+PassageRBAC -> PassageServices : user_name_string, atr-entity-key, api_identifier, api_parameters
+PassageRBAC <- PassageServices : api result
+PassageAuthN <- PassageRBAC : api result
+end
+
+group "Service Fabric Services"
+PassageAuthN -> ServiceFabricRBAC : if user-label, check RBAC with user-label, atr-entity-key
+ServiceFabricRBAC -> PassageDB : user_name_string, atr-entity-key, api_identifier
+PassageDB -> StoredProcedureRBAC : user_name_string, atr-entity-key, api_identifier
+PassageDB <- StoredProcedureRBAC : authorized?
+ServiceFabricRBAC <- PassageDB : authorized?
+ServiceFabricRBAC -> ServiceFabricServices : user_name_string, atr-entity-key, api_identifier, api_parameters
+ServiceFabricRBAC <- ServiceFabricServices : api result
+PassageAuthN <- ServiceFabricRBAC : api result
+end
+deactivate PassageAuthN
+
+PassageAPI <- PassageAuthN : api result
+AzureAPIM <- PassageAPI : api result
+BrowserUser <- AzureAPIM : api result
+
+@enduml
