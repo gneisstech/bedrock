@@ -351,6 +351,7 @@ target:
               - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
               - '='
               - 'https://graph.windows.net'
+              - ','
               - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
               - '='
               - *passageApiApplicationID
@@ -524,6 +525,7 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            JWT_ISSUERS: *trustedIdProviders
             RAILS_LOG_TO_STDOUT: 'true'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
@@ -1645,7 +1647,7 @@ target:
         action: 'preserve'
     application_registration:  # @@ TODO manual - insufficient permissions from AZ CLI
       tenant: *appRegistrationTenant
-      application_id: *appRegistrationID
+      application_id: *passageApiApplicationID
       variables:
         app_auth_callback_url: *appAuthCallbackURL
       client_secret:
