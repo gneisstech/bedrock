@@ -301,7 +301,7 @@ ARM_TEMPLATE
 }
 
 function show_waf_policy () {
-    $AZ_TRACE network application-gateway waf-policy show \
+    az network application-gateway waf-policy show \
         --resource-group "$(application_gateway_resource_group)" \
         --name "$(gw_attr 'waf_policy.name')"
 }
@@ -311,7 +311,7 @@ function clean_waf_policy () {
 }
 
 function retrieve_waf_policy () {
-    show_waf_policy | clean_waf_policy
+    show_waf_policy | tee /dev/stderr | clean_waf_policy
 }
 
 function waf_rule_set_policy () {
@@ -326,7 +326,10 @@ RULE_SETS
 }
 
 function combine_parts_of_waf_policy () {
-    jq --slurp -r '.[1].managedRules.managedRuleSets = .[2] | .[0].resources[0].properties = .[1] | .[0]' <(arm_tenplate_scaffold) <(retrieve_waf_policy) <(waf_rule_set_policy)
+    jq --slurp -r '.[1].managedRules.managedRuleSets = .[2] | .[0].resources[0].properties = .[1] | .[0]' \
+        <(arm_tenplate_scaffold | tee /dev/stderr) \
+        <(retrieve_waf_policy | tee /dev/stderr) \
+        <(waf_rule_set_policy | tee /dev/stderr)
 }
 
 function update_owasp_version_in_waf_policy () {
@@ -336,22 +339,29 @@ function update_owasp_version_in_waf_policy () {
         --template-file <(combine_parts_of_waf_policy)
 }
 
-function create_or_update_waf_policies () {
+function create_waf_policy_if_needed () {
     if [[ '0' != "$(gw_attr_size 'waf_policy.name')" ]]; then
         $AZ_TRACE network application-gateway waf-policy create \
             --resource-group "$(application_gateway_resource_group)" \
             --name "$(gw_attr 'waf_policy.name')"
     fi
-    if [[ '0' != "$(gw_attr_size 'waf_policy.waf_config')" ]]; then
-        $AZ_TRACE network application-gateway waf-policy policy-setting update \
-            --resource-group "$(application_gateway_resource_group)" \
-            --policy-name "$(gw_attr 'waf_policy.name')" \
-            --state "$(gw_attr 'waf_policy.waf_config.state')" \
-            --file-upload-limit-in-mb "$(gw_attr 'waf_policy.waf_config.file_upload_limit_in_mb')" \
-            --mode "$(gw_attr 'waf_policy.waf_config.mode')" \
-            --max-request-body-size-in-kb "$(gw_attr 'waf_policy.waf_config.max_request_body_size_in_kb')" \
-            --request-body-check "$(gw_attr 'waf_policy.waf_config.request_body_check')"
+}
 
+function update_waf_policy () {
+    $AZ_TRACE network application-gateway waf-policy policy-setting update \
+        --resource-group "$(application_gateway_resource_group)" \
+        --policy-name "$(gw_attr 'waf_policy.name')" \
+        --state "$(gw_attr 'waf_policy.waf_config.state')" \
+        --file-upload-limit-in-mb "$(gw_attr 'waf_policy.waf_config.file_upload_limit_in_mb')" \
+        --mode "$(gw_attr 'waf_policy.waf_config.mode')" \
+        --max-request-body-size-in-kb "$(gw_attr 'waf_policy.waf_config.max_request_body_size_in_kb')" \
+        --request-body-check "$(gw_attr 'waf_policy.waf_config.request_body_check')"
+}
+
+function create_or_update_waf_policies () {
+    create_waf_policy_if_needed
+    if [[ '0' != "$(gw_attr_size 'waf_policy.waf_config')" ]]; then
+        update_waf_policy
         add_exclusions
         update_owasp_version_in_waf_policy
     else
