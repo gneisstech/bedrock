@@ -601,6 +601,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            CF_AUTHZ_API_URL: *authzApiUrl
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
@@ -649,7 +650,6 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            CF_AUTHZ_API_URL: *authzApiUrl
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
           tls: 'true'
@@ -687,6 +687,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            CF_AUTHZ_API_URL: *authzApiUrl
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
@@ -735,7 +736,6 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            CF_AUTHZ_API_URL: *authzApiUrl
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
           tls: 'true'
@@ -773,6 +773,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            CF_AUTHZ_API_URL: *authzApiUrl
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
@@ -821,7 +822,6 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            CF_AUTHZ_API_URL: *authzApiUrl
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
           tls: 'true'
@@ -860,6 +860,13 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            CF_AUTHZ_API_URL: *authzApiUrl
+            CF_OBJECTS_API_URL:
+              - 'https://'
+              - *dnsHost
+              - '.'
+              - *dnsZone
+              - '/cf-atrius-objects'
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
@@ -916,7 +923,6 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
-            CF_AUTHZ_API_URL: *authzApiUrl
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
           logging: *defaultWebAppLogging
           tls: 'true'
