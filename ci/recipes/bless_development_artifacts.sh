@@ -165,9 +165,9 @@ function bless_container () {
     docker tag "${container_path}" "${blessed_path}"
     docker tag "${container_path}" "${deployment_path}"
     printf '%s blessed %s\n' "${container_path}" "${blessed_path}"
-    #docker push "${blessed_path}"
+    docker push "${blessed_path}"
     printf '%s deploy_to %s\n' "${container_path}" "${deployment_path}"
-    #docker push "${deployment_path}"
+    docker push "${deployment_path}"
 }
 
 function bless_deployed_containers () {
@@ -177,10 +177,10 @@ function bless_deployed_containers () {
     acr_login "$(target_repository)"
     for container_path in $(list_deployed_containers); do
         bless_container "${container_path}" "${blessed_release_tag}"
-        #docker inspect "${container_path}"
+        docker inspect "${container_path}"
     done
-    #git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-    #git push origin "${blessed_release_tag}"
+    git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+    git push origin "${blessed_release_tag}"
 }
 
 function pull_deployment_into_local_containers () {
@@ -201,9 +201,5 @@ function bless_development_artifacts () {
         bless_deployed_containers
     fi
 }
-
-set -x
-git status
-export
 
 bless_development_artifacts
