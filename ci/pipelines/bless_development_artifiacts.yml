@@ -22,9 +22,22 @@ steps:
       containerRegistry: cf-qa-acr-service-connection
   - task: ShellScript@2
     inputs:
-      scriptPath: './ci/recipes/bless_development_artifacts.sh'
       #args: '' # Optional
       #disableAutoCwd: false # Optional
       #cwd: '' # Optional
       #failOnStandardError: false
+  - task: AzureCLI@2
     displayName: 'Bless Development artifacts'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/bless_development_artifacts.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
