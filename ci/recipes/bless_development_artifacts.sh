@@ -189,7 +189,8 @@ function is_merge () {
 }
 
 function validate_branch () {
-    [[ "$(current_repo_branch)" == "${required_repo_branch}" ]]
+    [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
+        || [[ "${BUILD_SOURCEBRANCH}" == "refs/heads/${required_repo_branch}" ]]
 }
 
 function bless_development_artifacts () {
