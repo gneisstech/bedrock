@@ -20,12 +20,6 @@ steps:
     inputs:
       command: login
       containerRegistry: cf-qa-acr-service-connection
-  - task: ShellScript@2
-    inputs:
-      #args: '' # Optional
-      #disableAutoCwd: false # Optional
-      #cwd: '' # Optional
-      #failOnStandardError: false
   - task: AzureCLI@2
     displayName: 'Bless Development artifacts'
     inputs:
