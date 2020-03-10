@@ -198,4 +198,5 @@ function bless_development_artifacts () {
     fi
 }
 
+set -x
 bless_development_artifacts
