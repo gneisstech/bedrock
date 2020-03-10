@@ -35,7 +35,10 @@ function branch_tag () {
 
 function acr_login () {
     local -r desired_repo="${1}"
-    az acr login -n "${desired_repo}" 2> /dev/null
+    #
+    # return true even if login fails to allow for login to have been performed prior to this script execution
+    # if there is no login, this script will fail at the first access to the container registry
+    az acr login -n "${desired_repo}" 2> /dev/null || true
 }
 
 function current_repo_branch () {
