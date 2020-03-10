@@ -136,7 +136,7 @@ function deploy_virtual_machine () {
         --priority "$(server_attr 'priority')" \
         --authentication-type  "$(server_attr 'authentication_type')" \
         --vnet-name "$(server_attr 'vnet_name')" \
-        --subnet-name "$(server_attr 'subnet_name')" \
+        --subnet "$(server_attr 'subnet_name')" \
         --data-disk-caching "$(server_attr 'disks.data_disks.data_disk_caching')" \
         --data-disk-sizes-gb "$(data_disk_sizes_gb)" \
 
