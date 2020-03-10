@@ -199,4 +199,5 @@ function bless_development_artifacts () {
 }
 
 set -x
+git status
 bless_development_artifacts
