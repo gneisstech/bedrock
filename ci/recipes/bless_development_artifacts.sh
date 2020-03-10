@@ -200,4 +200,6 @@ function bless_development_artifacts () {
 
 set -x
 git status
+export
+
 bless_development_artifacts
