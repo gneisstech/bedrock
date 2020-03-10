@@ -10,16 +10,16 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: Docker@2
-  displayName: Login to ACR for Dev registry
-  inputs:
-    command: login
-    containerRegistry: cf-dev-acr-service-connection
-- task: Docker@2
-  displayName: Login to ACR for QA registry
-  inputs:
-    command: login
-    containerRegistry: cf-qa-acr-service-connection
+  - task: Docker@2
+    displayName: Login to ACR for Dev registry
+    inputs:
+      command: login
+      containerRegistry: cf-dev-acr-service-connection
+  - task: Docker@2
+    displayName: Login to ACR for QA registry
+    inputs:
+      command: login
+      containerRegistry: cf-qa-acr-service-connection
   - task: ShellScript@2
     inputs:
       scriptPath: './ci/recipes/bless_development_artifacts.sh'
