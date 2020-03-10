@@ -238,7 +238,7 @@ target:
         sku: 'P1V2'
         action: 'create'
     container_registries:
-      - name: &primaryACR 'cfprodingregistry'
+      - name: &primaryACR 'cfprodregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
         uri: &uriPrimaryACR 'https://cfprodregistry.azurecr.io'
