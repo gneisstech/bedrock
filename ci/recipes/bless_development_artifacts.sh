@@ -33,12 +33,15 @@ function branch_tag () {
     git describe
 }
 
+function is_tf_build () {
+    [[ "True" == "${TF_BUILD:-}" ]]
+}
+
 function acr_login () {
     local -r desired_repo="${1}"
-    #
-    # return true even if login fails to allow for login to have been performed prior to this script execution
-    # if there is no login, this script will fail at the first access to the container registry
-    az acr login -n "${desired_repo}" 2> /dev/null || true
+    if ! is_tf_build; then
+        az acr login -n "${desired_repo}" 2> /dev/null
+    fi
 }
 
 function current_repo_branch () {
@@ -170,6 +173,16 @@ function bless_container () {
     docker push "${deployment_path}"
 }
 
+function bless_git_repo () {
+    if is_tf_build; then
+        # configure azure pipeline workspace
+        git config --global user.email "azure_automation@bytelight.com"
+        git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
+    fi
+    git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+    git push origin "${blessed_release_tag}"
+}
+
 function bless_deployed_containers () {
     local container_path
     local -r blessed_release_tag="$(compute_blessed_release_tag)"
@@ -179,8 +192,7 @@ function bless_deployed_containers () {
         bless_container "${container_path}" "${blessed_release_tag}"
         docker inspect "${container_path}"
     done
-    git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-    git push origin "${blessed_release_tag}"
+    bless_git_repo
 }
 
 function pull_deployment_into_local_containers () {
