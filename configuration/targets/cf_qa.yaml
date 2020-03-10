@@ -58,7 +58,7 @@ target:
           resource_group: *cfAuthNSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
-          sku: 'Basic'
+          sku: 'Standard'
           allocation_method: 'Static'
           action: 'create'
         - name: &ingestVMIP 'cf-qa-ingest-vm-pip'
