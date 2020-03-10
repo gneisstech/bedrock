@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: bless_qa_artifacts.sh
+# usage: bless_staging_artifacts.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -16,12 +16,12 @@ set -o pipefail
 # Arguments
 # ---------------------
 
-declare -rx required_repo_branch="${required_repo_branch:-deployment_request/staging}"
-declare -rx ORIGIN_ENVIRONMENT="${ORIGIN_ENVIRONMENT:-qa}"
-declare -rx ORIGIN_SUBSCRIPTION="${ORIGIN_SUBSCRIPTION:-ConnectedFacilities-QA}"
-declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-cfqaregistry}"
-declare -rx ORIGIN_RESOURCE_PREFIX="${ORIGIN_RESOURCE_PREFIX:-cf-qa-}"
-declare -rx TARGET_REPOSITORY="${TARGET_REPOSITORY:-cfstagingregistry}"
+declare -rx required_repo_branch="${required_repo_branch:-deployment_request/prod}"
+declare -rx ORIGIN_ENVIRONMENT="${ORIGIN_ENVIRONMENT:-staging}"
+declare -rx ORIGIN_SUBSCRIPTION="${ORIGIN_SUBSCRIPTION:-ConnectedFacilities-Prod}"
+declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-cfstagingregistry}"
+declare -rx ORIGIN_RESOURCE_PREFIX="${ORIGIN_RESOURCE_PREFIX:-cf-staging-}"
+declare -rx TARGET_REPOSITORY="${TARGET_REPOSITORY:-cfprodregistry}"
 declare -rx RELEASE_PREFIX='r'
 declare -rx DEFAULT_RELEASE='r0.0.0'
 declare -rx BUMP_SEMVER="false"
@@ -30,8 +30,8 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function bless_qa_artifacts () {
+function bless_staging_artifacts () {
     exec "$(repo_root)/ci/recipes/bless_development_artifacts.sh"
 }
 
-bless_qa_artifacts
+bless_staging_artifacts
