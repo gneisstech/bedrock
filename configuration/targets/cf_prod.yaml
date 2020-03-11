@@ -24,6 +24,8 @@ target:
       - db_name: &cfObjectsDBName_002 'pltdata01sqlsbb6ahiz252'
         reader_name: &cfObjectsDBUser_002 'CF_Reader'
         secret_name: &cfObjectsDBSecretName_002 'ATRPROD02US-CFReader-SQLUserPassword'
+    key_names:
+      self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -1046,6 +1048,13 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            API_KEY:
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *cfDefaultSelfHealingApiKeyName
+              - '"}'
+              - '##'
             DATABASE_CONN_STRING: ''  # will be overridden by the connection string
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
