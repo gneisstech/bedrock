@@ -17,6 +17,7 @@ set -o pipefail
 # ---------------------
 declare -r CLEAN_SUBSCRIPTION="${CLEAN_SUBSCRIPTION:-ConnectedFacilities-Dev}"
 declare -r CLEAN_RESOURCE_GROUPS_SUFFIX="${CLEAN_RESOURCE_GROUPS_SUFFIX:--exp-cfdev}"
+declare -r APPROVED="${APPROVED:-false}"
 
 # Arguments
 # ---------------------
@@ -43,7 +44,11 @@ function remove_persistent_resources () {
 }
 
 function clean_resource_ids () {
-    xargs -P 32 az resource delete --ids
+    if [[ "true" == "${APPROVED}" ]]; then
+        xargs -P 32 az resource delete --ids
+    else
+        xargs -n 1 echo "removal candidate: "
+    fi
 }
 
 function clean_subscription_resources () {
