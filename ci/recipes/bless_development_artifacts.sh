@@ -71,7 +71,8 @@ function current_repo_semver () {
 }
 
 function bump_repo_semver () {
-    local current_semver="$(current_repo_semver)"
+    local current_semver
+    current_semver="$(current_repo_semver)"
     if [[ -z "${current_semver:-}" ]]; then
         current_semver="${DEFAULT_RELEASE}"
     fi
