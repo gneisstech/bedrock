@@ -25,6 +25,7 @@ declare -rx TARGET_REPOSITORY="${TARGET_REPOSITORY:-cfqaregistry}"
 declare -rx RELEASE_PREFIX="${RELEASE_PREFIX:-r}"
 declare -rx DEFAULT_RELEASE="${DEFAULT_RELEASE:-r0.0.0}"
 declare -rx BUMP_SEMVER="${BUMP_SEMVER:-true}"
+declare -rx RELEASE_CANDIDATE="${RELEASE_CANDIDATE:-true}"
 
 function repo_root () {
     git rev-parse --show-toplevel
