@@ -1517,7 +1517,7 @@ target:
         http_settings_port: 443
         http_settings_protocol: 'Https'
         http2: 'Enabled'
-        sku: 'Standard_Medium'
+        sku: 'Standard_v2'
         servers: &serverNames
           - *cfHealthApp
           - *authzWebApi
