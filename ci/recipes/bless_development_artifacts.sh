@@ -185,8 +185,10 @@ function bless_git_repo () {
         git config --global user.email "azure_automation@bytelight.com"
         git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
     fi
-    git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-    git push origin "${blessed_release_tag}"
+    if [[ "true" == "${BUMP_SEMVER}" ]]; then
+        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+        git push origin "${blessed_release_tag}"
+    fi
 }
 
 function bless_deployed_containers () {
@@ -211,7 +213,7 @@ function is_merge () {
 
 function validate_branch () {
     [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
-        || [[ "${BUILD_SOURCEBRANCH}" == "refs/heads/${required_repo_branch}" ]]
+        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]]
 }
 
 function bless_development_artifacts () {
