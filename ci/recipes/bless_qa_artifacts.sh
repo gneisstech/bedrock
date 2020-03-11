@@ -25,6 +25,7 @@ declare -rx TARGET_REPOSITORY="${TARGET_REPOSITORY:-cfstagingregistry}"
 declare -rx RELEASE_PREFIX='r'
 declare -rx DEFAULT_RELEASE='r0.0.0'
 declare -rx BUMP_SEMVER="false"
+declare -rx RELEASE_CANDIDATE="false"
 
 function repo_root () {
     git rev-parse --show-toplevel
