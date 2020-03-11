@@ -1,0 +1,40 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- deployment_request/prod
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - checkout: self
+    # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
+    persistCredentials: true
+  - task: Docker@2
+    displayName: Login to ACR for STAGING registry
+    inputs:
+      command: login
+      containerRegistry: cf-staging-acr-service-connection
+  - task: Docker@2
+    displayName: Login to ACR for PROD registry
+    inputs:
+      command: login
+      containerRegistry: cf-prod-acr-service-connection
+  - task: AzureCLI@2
+    displayName: 'Bless STAGING artifacts'
+    inputs:
+      azureSubscription: 'cf-staging-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/bless_staging_artifacts.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE

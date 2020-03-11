@@ -24,6 +24,8 @@ target:
       - db_name: &cfObjectsDBName_002 'pltdata01sqlsbb6ahiz252'
         reader_name: &cfObjectsDBUser_002 'CF_Reader'
         secret_name: &cfObjectsDBSecretName_002 'ATRPROD02US-CFReader-SQLUserPassword'
+    key_names:
+      self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -61,8 +63,8 @@ target:
           resource_group: *cfAuthNSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
-          sku: 'Basic'
-          allocation_method: 'Dynamic'
+          sku: 'Standard'
+          allocation_method: 'Static'
           action: 'create'
         - name: &ingestVMIP 'cf-staging-ingest-vm-pip'
           resource_group: *cfIngestSvcRG
@@ -1046,6 +1048,13 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            API_KEY:
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *cfDefaultSelfHealingApiKeyName
+              - '"}'
+              - '##'
             DATABASE_CONN_STRING: ''  # will be overridden by the connection string
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -1517,7 +1526,7 @@ target:
         http_settings_port: 443
         http_settings_protocol: 'Https'
         http2: 'Enabled'
-        sku: 'Standard_Medium'
+        sku: 'Standard_v2'
         servers: &serverNames
           - *cfHealthApp
           - *authzWebApi
