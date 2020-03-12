@@ -71,24 +71,6 @@ function current_repo_semver () {
     current_repo_version | cut -d '+' -f 1 | cut -d '-' -f 1 | sed -e "$(release_prefix_remove_expr)"
 }
 
-function bump_repo_semver () {
-    local current_semver
-    current_semver="$(current_repo_semver)"
-    if [[ -z "${current_semver:-}" ]]; then
-        current_semver="${DEFAULT_RELEASE}"
-    fi
-    if [[ "true" == "${BUMP_SEMVER}" ]]; then
-        local major minor patch
-        major="$(printf '%s' "${current_semver}" | cut -d "." -f 1)"
-        minor="$(printf '%s' "${current_semver}" | cut -d "." -f 2)"
-        patch="$(printf '%s' "${current_semver}" | cut -d "." -f 3)"
-        (( patch++ ))
-        printf '%s.%s.%s' "${major}" "${minor}" "${patch}"
-    else
-        printf '%s' "${current_semver}"
-    fi
-}
-
 function current_repo_build () {
     # see https://semver.org
     current_repo_version | cut -d '+' -f 2 -s
@@ -97,6 +79,49 @@ function current_repo_build () {
 function current_repo_prerelease () {
     # see https://semver.org
     current_repo_version | cut -d '+' -f 1 | cut -d '-' -f 2 -s
+}
+
+function default_repo_semver () {
+    local current_semver
+    current_semver="$(current_repo_semver)"
+    if [[ -z "${current_semver:-}" ]]; then
+        current_semver="${DEFAULT_RELEASE}"
+    fi
+    printf '%s' "${current_semver}"
+}
+
+function bump_repo_semver () {
+    local current_semver="${1}"
+    if [[ "true" == "${BUMP_SEMVER}" ]]; then
+        local major minor patch
+        major="$(printf '%s' "${current_semver}" | cut -d "." -f 1)"
+        minor="$(printf '%s' "${current_semver}" | cut -d "." -f 2)"
+        patch="$(printf '%s' "${current_semver}" | cut -d "." -f 3)"
+        (( patch++ ))
+        current_semver="${major}.${minor}.${patch}"
+    fi
+    printf '%s' "${current_semver}"
+}
+
+function new_repo_semver () {
+    local current_semver
+    current_semver="$( bump_repo_semver "$(default_repo_semver)" )"
+    if [[ "true" == "${RELEASE_CANDIDATE}" ]]; then
+        current_semver="${current_semver}-RC"
+    else
+        local current_prerelease="$(current_repo_prerelease)"
+        if [[ -n "${current_prerelease:-}" ]]; then
+            current_semver="${current_semver}-${current_prerelease}"
+        fi
+    fi
+    if is_azure_pipeline_build; then
+        current_semver="${current_semver}+${BUILD_REASON}@${BUILD_BUILDNUMBER}"
+    else
+        local current_build="$(current_repo_build)"
+        if [[ -n "${current_build:-}" ]]; then
+            current_semver="${current_semver}+${current_build}"
+        fi
+    fi
 }
 
 function origin_environment () {
@@ -138,17 +163,9 @@ function container_images_from_webapp_config () {
 }
 
 function compute_blessed_release_tag () {
-    local bump_semver build prerelease
-    bump_semver="$(bump_repo_semver)"
-    build="$(current_repo_build)"
-    prerelease="$(current_repo_prerelease)"
-    if [[ -n "${build:-}" ]]; then
-        build="+${build}"
-    fi
-    if [[ -n "${prerelease:-}" ]]; then
-        prerelease="-${prerelease}"
-    fi
-    printf '%s%s%s%s' "$(release_prefix)" "${bump_semver}" "${prerelease:-}" "${build:-}"
+    local new_semver build prerelease
+    new_semver="$(new_repo_semver)"
+    printf '%s%s' "$(release_prefix)" "${new_semver}"
 }
 
 function list_deployed_containers () {
