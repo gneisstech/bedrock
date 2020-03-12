@@ -122,6 +122,7 @@ function new_repo_semver () {
             current_semver="${current_semver}+${current_build}"
         fi
     fi
+    printf '%s' "${current_semver}"
 }
 
 function origin_environment () {
