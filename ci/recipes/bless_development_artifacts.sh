@@ -115,7 +115,8 @@ function new_repo_semver () {
         fi
     fi
     if is_azure_pipeline_build; then
-        current_semver="${current_semver}+${BUILD_REASON}@${BUILD_BUILDNUMBER}"
+        # see ref: https://docs.docker.com/engine/reference/commandline/tag/#extended-description
+        current_semver="${current_semver}+${BUILD_REASON}_${BUILD_BUILDNUMBER}"
     else
         local current_build="$(current_repo_build)"
         if [[ -n "${current_build:-}" ]]; then
