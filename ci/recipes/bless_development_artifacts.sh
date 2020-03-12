@@ -107,21 +107,7 @@ function new_repo_semver () {
     local current_semver
     current_semver="$( bump_repo_semver "$(default_repo_semver)" )"
     if [[ "true" == "${RELEASE_CANDIDATE}" ]]; then
-        current_semver="${current_semver}-RC"
-    else
-        local current_prerelease="$(current_repo_prerelease)"
-        if [[ -n "${current_prerelease:-}" ]]; then
-            current_semver="${current_semver}-${current_prerelease}"
-        fi
-    fi
-    if is_azure_pipeline_build; then
-        # see ref: https://docs.docker.com/engine/reference/commandline/tag/#extended-description
-        current_semver="${current_semver}+${BUILD_REASON}_${BUILD_BUILDNUMBER}"
-    else
-        local current_build="$(current_repo_build)"
-        if [[ -n "${current_build:-}" ]]; then
-            current_semver="${current_semver}+${current_build}"
-        fi
+        current_semver="${current_semver}-${BUILD_REASON}.${BUILD_BUILDNUMBER}.RC"
     fi
     printf '%s' "${current_semver}"
 }
