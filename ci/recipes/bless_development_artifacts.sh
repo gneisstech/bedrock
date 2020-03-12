@@ -35,13 +35,13 @@ function branch_tag () {
     git describe
 }
 
-function is_tf_build () {
+function is_azure_pipeline_build () {
     [[ "True" == "${TF_BUILD:-}" ]]
 }
 
 function acr_login () {
     local -r desired_repo="${1}"
-    if ! is_tf_build; then
+    if ! is_azure_pipeline_build; then
         az acr login -n "${desired_repo}" 2> /dev/null
     fi
 }
@@ -181,7 +181,7 @@ function bless_container () {
 }
 
 function bless_git_repo () {
-    if is_tf_build; then
+    if is_azure_pipeline_build; then
         # configure azure pipeline workspace
         git config --global user.email "azure_automation@bytelight.com"
         git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
