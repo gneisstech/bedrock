@@ -1,0 +1,23 @@
+apiVersion: v2
+name: cf-self-healing-app-docker
+description: Connected Facilities Self Healing front end react application
+keywords:
+  - 'connected-facilities'
+  - 'react-front-end'
+type: application
+home: ''  # The URL of this projects home page (optional)
+sources: []  # A list of URLs to source code for this project (optional)
+maintainers:
+  - name: 'Paul Charlton'
+    email: 'techguru@byiq.com'
+    url: 'https://www.gitlab.com/techguru'
+icon: ''
+deprecated: false
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 'r0.0.18-IndividualCI.20200312.4.RC'
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.1.1
