@@ -1,0 +1,12 @@
+dependencies:
+- name: cf-react-app-docker
+  repository: file://../cf-react-app-docker
+  version: 0.1.2
+- name: cf-self-healing-app-docker
+  repository: file://../cf-self-healing-app-docker
+  version: 0.1.2
+- name: http-https-echo
+  repository: file://../http-https-echo
+  version: 0.1.2
+digest: sha256:b63ec39ebae571d7851b71e3d44b68c0bb1503781f428eaab357e2487b5be165
+generated: "2020-03-13T12:38:52.41179-05:00"

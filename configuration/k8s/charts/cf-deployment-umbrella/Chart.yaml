@@ -1,0 +1,52 @@
+apiVersion: v2
+name: 'cf-deployment-umbrella'
+description: Connected Facilities http echo debug utility
+keywords:
+  - 'connected-facilities'
+  - 'http-echo-debug-front-end'
+type: application
+home: ''  # The URL of this projects home page (optional)
+sources: []  # A list of URLs to source code for this project (optional)
+maintainers:
+  - name: 'Paul Charlton'
+    email: 'techguru@byiq.com'
+    url: 'https://www.gitlab.com/techguru'
+icon: ''
+deprecated: false
+
+dependencies: # A list of the chart requirements (optional)
+  - name: 'cf-react-app-docker'
+    version: 0.1.2
+    repository: 'file://../cf-react-app-docker'
+    condition: 'cf-react-app-docker.enabled'
+    tags:
+      - 'cf-front-end'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-self-healing-app-docker'
+    version: 0.1.2
+    repository: 'file://../cf-self-healing-app-docker'
+    condition: 'cf-self-healing-app-docker.enabled'
+    tags:
+      - 'cf-front-end'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'http-https-echo'
+    version: 0.1.2
+    repository: 'file://../http-https-echo'
+    condition: 'cf-http-https-echo.enabled'
+    tags:
+      - 'cf-dev-debug'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-http-https-echo'
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 'r0.0.18-IndividualCI.20200312.4.RC'
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.1.0
