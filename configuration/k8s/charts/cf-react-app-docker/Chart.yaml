@@ -1,5 +1,5 @@
 apiVersion: v2
-name: cf-react-app-docker
+name: 'cf-react-app-docker'
 description: Connected Facilities front end react application for health, ELM, CLS
 keywords:
   - 'connected-facilities'
@@ -20,4 +20,4 @@ appVersion: 'r0.0.18-IndividualCI.20200312.4.RC'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.1.1
+version: 0.1.2
