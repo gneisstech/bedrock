@@ -16,7 +16,6 @@ config:
   # placeholder values should allow the service to install and minimally respond
   environment:
     CF_AUTHZ_API_URL: 'fixme-placeholder'
-    JWT_ISSUERS: 'placeholder=fixme-comma-separated-key-equals-value-pairs'
   secrets:
     DATABASE_URL: 'fixme-placeholder-database-connection-string'
     SECRET_KEY_BASE: 'fixme-placeholder'
