@@ -27,9 +27,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: '{{ template "cf-self-healing-api-docker.fullname" . }}-env'
+            - secretRef:
+                name: '{{ template "cf-self-healing-api-docker.fullname" . }}-senv'
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 5000
               protocol: TCP
           livenessProbe:
             httpGet:
