@@ -27,9 +27,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: '{{ template "cf-atrius-objects-api-docker.fullname" . }}-env'
+            - secretRef:
+                name: '{{ template "cf-atrius-objects-api-docker.fullname" . }}-senv'
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 3000
               protocol: TCP
           livenessProbe:
             httpGet:

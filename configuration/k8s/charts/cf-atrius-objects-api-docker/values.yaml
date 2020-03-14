@@ -5,12 +5,21 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: 'cfqaregistry.azurecr.io/cf-atrius-objects-api-docker'
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+config:
+  # placeholder values should allow the service to install and minimally respond
+  environment:
+    JWT_ISSUERS: 'placeholder=fixme-comma-separated-key-equals-value-pairs'
+    AUTHORIZED_USERS: 'fixme-there-are-no-authorized-users-in-this-comma-separated-list'
+  secrets:
+    ATRIUS_OBJECTS_API_KEY: 'fixme-placeholder-inbound-api-key'
+    DATABASE_URLS: 'fixme-placeholder-comma-separated-database-connection-strings'
 
 serviceAccount:
   # Specifies whether a service account should be created
