@@ -27,6 +27,11 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: '{{ template "cf-authz-web-api-docker.fullname" . }}-env'
+            - secretRef:
+                name: '{{ template "cf-authz-web-api-docker.fullname" . }}-senv'
           ports:
             - name: http
               containerPort: 80

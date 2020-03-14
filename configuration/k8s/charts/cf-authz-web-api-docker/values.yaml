@@ -5,12 +5,20 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: 'cfqaregistry.azurecr.io/cf-authz-web-api-docker'
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+config:
+  # placeholder values should allow the service to install and minimally respond
+  environment:
+    JWT_ISSUERS: 'placeholder=fixme-comma-separated-key-equals-value-pairs'
+  secrets:
+    DATABASE_URL: 'fixme-placeholder-database-connection-string'
+    SECRET_KEY_BASE: 'fixme-placeholder'
 
 serviceAccount:
   # Specifies whether a service account should be created
