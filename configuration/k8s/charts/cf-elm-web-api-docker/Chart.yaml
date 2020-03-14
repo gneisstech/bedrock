@@ -1,6 +1,6 @@
 apiVersion: v2
 name: 'cf-elm-web-api-docker'
-description: Connected Facilities backend API services for atrius objects and lights map
+description: Connected Facilities backend API services for elm
 keywords:
   - 'connected-facilities'
   - 'cf-elm-web-api-backend'
