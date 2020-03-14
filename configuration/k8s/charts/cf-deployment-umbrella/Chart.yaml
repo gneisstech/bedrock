@@ -122,7 +122,25 @@ dependencies: # A list of the chart requirements (optional)
       - 'cf-ingress'
     enabled: true
     import-values: [] # (optional)
-    alias: cf-inginx-ingress
+    alias: 'cf-inginx-ingress'
+  - name: 'mssql-linux'
+    version: 0.11.1
+    repository: 'https://kubernetes-charts.storage.googleapis.com'
+    condition: 'cf-mssql.enabled'
+    tags:
+      - 'cf-mssql'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-mssql-linux'
+  - name: 'mssql-linux'
+    version: 0.11.1
+    repository: 'https://kubernetes-charts.storage.googleapis.com'
+    condition: 'cf-mssql-atrius.enabled'
+    tags:
+      - 'cf-mssql-atrius'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-mssql-atrius'
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
@@ -130,4 +148,4 @@ appVersion: 'r0.0.18-IndividualCI.20200312.4.RC'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.1.1
+version: 0.1.2
