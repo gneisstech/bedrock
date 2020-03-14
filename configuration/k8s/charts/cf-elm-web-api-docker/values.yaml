@@ -5,12 +5,29 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: 'cfqaregistry.azurecr.io/cf-elm-web-api-docker'
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+config:
+  # placeholder values should allow the service to install and minimally respond
+  environment:
+    PASSAGE_API_URL: 'fixme-placeholder'
+    RELAY_API_URL: 'fixme-placeholder'
+    PASSAGE_PARTNER_ENV: 'fixme-placeholder'
+    PASSAGE_REFERER: 'fixme-placeholder'
+    PASSAGE_HOST: 'fixme-placeholder'
+    CF_AUTHZ_API_URL: 'fixme-placeholder'
+    CF_OBJECTS_API_URL: 'fixme-placeholder'
+    SERVICE_PRINCIPAL_CLIENT_ID: 'fixme-placeholder'
+    SERVICE_PRINCIPAL_TENANT_ID: 'fixme-placeholder'
+  secrets:
+    DATABASE_URL: 'fixme-placeholder-database-connection-string'
+    SECRET_KEY_BASE: 'fixme-placeholder'
+    SERVICE_PRINCIPAL_SECRET: 'fixme-placeholder'
 
 serviceAccount:
   # Specifies whether a service account should be created
