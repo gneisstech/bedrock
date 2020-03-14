@@ -2,4 +2,112 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+cf-http-https-echo:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target' : '/cf-echo/'
+    hosts:
+      - paths:
+          - '/cf-echo(/|$)(.*)'
 
+cf-oauth-proxy-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target' : '/oauth2/'
+    hosts:
+      - paths:
+          - '/oauth2/'
+
+cf-react-app-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target' : '/cf-app/'
+    hosts:
+      - paths:
+          - '/cf-app(/|$)(.*)'
+
+cf-self-healing-app-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target' : '/cf-self-healing/'
+    hosts:
+      - paths:
+          - '/cf-self-healing(/|$)(.*)'
+
+cf-atrius-objects-api-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - paths:
+          - '/cf-atrius-objects/'
+          - '/cf-lights-map/'
+
+cf-self-healing-api-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - paths:
+          - '/cf-self-healing-api/'
+
+cf-authz-web-api-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - paths:
+          - '/cf-authz/'
+
+cf-elm-web-api-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - paths:
+          - '/cf-elm/'
+
+cf-admin-web-api-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - paths:
+          - '/cf-admin/'
+
+cf-ingest-web-api:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - paths:
+          - '/cf-ingest/'
+
+cf-health-web-api:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - paths:
+          - '/cf-health/'
+
+cf-inginx-ingress-controller:
+  enabled: true
+
+cf-inginx-ingress-default-backend:
+  enabled: true
