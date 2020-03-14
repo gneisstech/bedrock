@@ -42,6 +42,87 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: 'cf-http-https-echo'
+  - name: 'cf-admin-web-api-docker'
+    version: 0.1.0
+    repository: 'file://../cf-admin-web-api-docker'
+    condition: 'cf-admin-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-atrius-objects-api-docker'
+    version: 0.1.0
+    repository: 'file://../cf-atrius-objects-api-docker'
+    condition: 'cf-atrius-objects-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-authz-web-api-docker'
+    version: 0.1.0
+    repository: 'file://../cf-authz-web-api-docker'
+    condition: 'cf-authz-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-elm-web-api-docker'
+    version: 0.1.0
+    repository: 'file://../cf-elm-web-api-docker'
+    condition: 'cf-elm-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-network-view-web-api-docker'
+    version: 0.1.0
+    repository: 'file://../cf-network-view-web-api-docker'
+    condition: 'cf-network-view-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-health-web-api'
+  - name: 'cf-network-view-web-api-docker'
+    version: 0.1.0
+    repository: 'file://../cf-network-view-web-api-docker'
+    condition: 'cf-network-view-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-ingest-web-api'
+  - name: 'cf-oauth-proxy-docker'
+    version: 0.1.0
+    repository: 'file://../cf-oauth-proxy-docker'
+    condition: 'cf-oauth-proxy-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-self-healing-api-docker'
+    version: 0.1.0
+    repository: 'file://../cf-self-healing-api-docker'
+    condition: 'cf-self-healing-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'nginx-ingress'
+    version: 1.33.5
+    repository: 'https://kubernetes-charts.storage.googleapis.com'
+    condition: 'cf-nginx-ingress.enabled'
+    tags:
+      - 'cf-ingress'
+    enabled: true
+    import-values: [] # (optional)
+    alias: cf-inginx-ingress
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
