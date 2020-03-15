@@ -111,3 +111,15 @@ cf-inginx-ingress-controller:
 
 cf-inginx-ingress-default-backend:
   enabled: true
+
+cf-mssql-linux:
+  enabled: true
+
+cf-mssql-atrius:
+  enabled: true
+
+cf-sql-server:
+  enabled: true
+
+cf-sql-server-atrius:
+  enabled: true

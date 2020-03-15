@@ -141,6 +141,24 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: 'cf-mssql-atrius'
+  - name: 'cf-sql-server'
+    version: 0.1.0
+    repository: 'file://../cf-sql-server'
+    condition: 'cf-sql-server.enabled'
+    tags:
+      - 'cf-sql-server'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-sql-server'
+  - name: 'cf-sql-server'
+    version: 0.1.0
+    repository: 'file://../cf-sql-server'
+    condition: 'cf-sql-server-atrius.enabled'
+    tags:
+      - 'cf-sql-server'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-sql-server-atrius'
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
