@@ -209,10 +209,6 @@ function bless_deployed_containers () {
     bless_git_repo
 }
 
-function pull_deployment_into_local_containers () {
-    harvest_deployed_containers
-}
-
 function is_merge () {
     git show --summary HEAD | grep -q '^Merge:' 
 }
