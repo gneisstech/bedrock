@@ -44,10 +44,10 @@ function eclypse_curl () {
     cmd+=" --header 'Authorization: Bearer $(site_token)'"
     cmd+=" --header 'atr-entity-key: $(passage_atr_entity_key)'"
     cmd+=" --header 'Host: $(passage_host)'"
-    cmd+=" --referer 'https://$(passage_host)/swagger/ui/index'"
+    cmd+=" --referer 'https://cf.us.atrius-iot.com/'"
     cmd+=" -X GET"
     cmd+=" --header 'Accept: application/json'"
-    cmd+=" --header 'Eclypse-Rest-Api: /api/rest/v1${API_PATH}'"
+    cmd+=" --header 'Remote-query: /api/rest/v1${API_PATH}'"
     cmd+=" '$(passage_relay_url)'"
     printf "%s" "${cmd}" 2> /dev/null > /dev/stderr
     eval "${cmd}" 2> /dev/null
