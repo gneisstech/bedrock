@@ -17,13 +17,17 @@ set -o pipefail
 # ---------------------
 declare -r ECLYPSE_CONTEXT="${1}"
 
+function repo_root () {
+    git rev-parse --show-toplevel
+}
+
 function eclypse_handler () {
     printf '%s' "${ECLYPSE_CONTEXT}" | jq -r -e '.handler'
 }
 
 function invoke_eclypse_context () {
     local api_path="${1}"
-    ./$(eclypse_handler) "${ECLYPSE_CONTEXT}" "${api_path}"
+    $(repo_root)/tests/$(eclypse_handler) "${ECLYPSE_CONTEXT}" "${api_path}"
 }
 
 function eclypse_firmware () {

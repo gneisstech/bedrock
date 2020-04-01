@@ -23,6 +23,10 @@ declare -r PASSAGE_ORGANIZATION="${PASSAGE_ORGANIZATION:-ABL Development System}
 #declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-7D0D6DF9-1C66-5D73-8A9C-8F272A62AA64}"
 declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-D504C5B9-A911-5B36-A41D-19B2FB088EC8}"
 
+function repo_root () {
+    git rev-parse --show-toplevel
+}
+
 function passages_base_url () {
     printf 'https://%s/api/v1' "${PASSAGE_HOST}"
 }
@@ -86,7 +90,7 @@ LOCAL_CONTEXT
 
 
 function eclypse_relay_check () {
-    ./eclypse_check.sh "$(create_local_context)"
+    $(repo_root)/tests/eclypse_check.sh "$(create_local_context)"
 }
 
 eclypse_relay_check
