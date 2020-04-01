@@ -20,8 +20,9 @@ declare -r PASSAGE_API="${PASSAGE_API:-24b765b5-8108-4374-8141-1a65c0fc42ab}"
 declare -r PASSAGE_PARTNER="${PASSAGE_PARTNER:-Lighthouse}"
 declare -r PASSAGE_ENVIRONMENT="${PASSAGE_ENVIRONMENT:-ASP_DEV_US}"
 declare -r PASSAGE_ORGANIZATION="${PASSAGE_ORGANIZATION:-ABL Development System}"
-#declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-7D0D6DF9-1C66-5D73-8A9C-8F272A62AA64}"
-declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-D504C5B9-A911-5B36-A41D-19B2FB088EC8}"
+declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-7D0D6DF9-1C66-5D73-8A9C-8F272A62AA64}"
+#declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-D504C5B9-A911-5B36-A41D-19B2FB088EC8}"
+declare -r PASSAGE_TENANT_ID="${PASSAGE_TENANT_ID:-caadbe96-024e-4f67-82ec-fb28ff53d16d}"
 
 function repo_root () {
     git rev-parse --show-toplevel
@@ -32,7 +33,7 @@ function passages_base_url () {
 }
 
 function site_token () {
-    az account get-access-token --subscription 'Allspice-Dev' --resource "${PASSAGE_API}" 2>/dev/null | jq -r '.accessToken'
+    az account get-access-token --resource "${PASSAGE_API}" --tenant "${PASSAGE_TENANT_ID}" 2>/dev/null | jq -r '.accessToken'
 }
 
 function get_device_id () {
