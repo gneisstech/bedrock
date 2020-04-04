@@ -1155,6 +1155,10 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            ELM_LIGHTS_GROUPS_API_URL:
+              - 'https://'
+              - *wafFqdn
+              - '/cf-elm/api/v1/light-groups/published-light-groups'
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
