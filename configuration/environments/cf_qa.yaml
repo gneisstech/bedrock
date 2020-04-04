@@ -375,6 +375,8 @@ target:
             OAUTH2_PROXY_SILENCE_PING_LOGGING: true
             OAUTH2_PROXY_SKIP_AUTH_REGEX:  # @@ TODO TECHDEBT while SHLv1 does not have a JWT token
               - '^/cf-self-healing-api/api/v1/process'
+              - ','
+              - '^/cf-lights-map/distech-eclypse'
             OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: true
             OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: true
             OAUTH2_PROXY_UPSTREAMS:  # @@ TODO private ip on vnet
