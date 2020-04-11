@@ -37,7 +37,8 @@ function promote_containers () {
         imageWithTag="${image}:connected-facilities"
         originPath="${originRepo}/${imageWithTag}"
         docker pull "${originPath}"
-        for targetRepo in cfqaregistry; do
+        #shellcheck disable=SC2043
+        for targetRepo in cfprodregistry; do
             local targetPath
             targetPath="${targetRepo}.azurecr.io/${imageWithTag}"
             docker tag "${originPath}" "${targetPath}"

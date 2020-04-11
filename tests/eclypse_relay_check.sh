@@ -91,6 +91,7 @@ LOCAL_CONTEXT
 
 
 function eclypse_relay_check () {
+    #shellcheck disable=SC2046
     $(repo_root)/tests/eclypse_check.sh "$(create_local_context)"
 }
 

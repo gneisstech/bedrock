@@ -27,6 +27,7 @@ function eclypse_handler () {
 
 function invoke_eclypse_context () {
     local api_path="${1}"
+    #shellcheck disable=SC2046
     $(repo_root)/tests/$(eclypse_handler) "${ECLYPSE_CONTEXT}" "${api_path}"
 }
 
