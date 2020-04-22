@@ -8,7 +8,8 @@ target:
     tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     service_deployment:
-      tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+      tenant: &acuityDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+      atrius_api_fqdn: &atriusApiFqdn 'api.dev.atrius-iot.io.'
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
       passage_api_fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
       passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
@@ -23,6 +24,8 @@ target:
         secret_name: &cfObjectsDBSecretName_001 'ALLSPICEDEV-CFReader-SQLUserPassword'
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
+      cf_elm_web_api_sp_client_secret: &cfElmWebApiSPClientSecret 'cf-elm-web-api-sp-client-secret'
+      cf_dev_lights_map_api_key: &cfDevLightsMapApiKey 'cf-dev-lights-map-api-key'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -373,7 +376,7 @@ target:
             OAUTH2_PROXY_RESOURCE: *passageApiApplicationID
             OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: true
             OAUTH2_PROXY_SILENCE_PING_LOGGING: true
-            OAUTH2_PROXY_SKIP_AUTH_REGEX:  # @@ TODO TECHDEBT while SHLv1 does not have a JWT token
+            OAUTH2_PROXY_SKIP_AUTH_REGEX:  # @@ TODO TECHDEBT API without a JWT token / ServicePrincipal
               - '^/cf-self-healing-api/api/v1/process'
               - ','
               - '^/cf-lights-map/distech-eclypse'
@@ -521,6 +524,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            AZURE_DB: 'true'
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
@@ -553,6 +557,8 @@ target:
                 - 1433
                 - '/'
                 - *authzSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -607,6 +613,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            AZURE_DB: 'true'
             CF_AUTHZ_API_URL: *authzApiUrl
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -639,6 +646,8 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -693,6 +702,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            AZURE_DB: 'true'
             CF_AUTHZ_API_URL: *authzApiUrl
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -725,6 +735,8 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -779,6 +791,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            AZURE_DB: 'true'
             CF_AUTHZ_API_URL: *authzApiUrl
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -811,6 +824,8 @@ target:
                 - 1433
                 - '/'
                 - *adminSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -866,6 +881,8 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            ATRIUS_API_URL: *atriusApiFqdn
+            AZURE_DB: 'true'
             CF_AUTHZ_API_URL: *authzApiUrl
             CF_OBJECTS_API_URL:
               - 'https://'
@@ -883,32 +900,25 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
-            RAILS_LOG_TO_STDOUT: 'true'
-            # @@ TODO (1) make into connection string, (2) new SP per environment, (3) auto populate SP ID here and in cf-objects service
-            SERVICE_PRINCIPAL_SECRET:
-              - '##secure_secret={"vault":"'
-              - *kvName
-              - '","secret_name":"'
-              - *cfElmSecretName
-              - '"}'
-              - '##'
-            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
-            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
-            # SECRET_KEY_BASE: 'fd54dc7d647688aa71dc5bfeb5cac675728d5c8dc6762ebcf242f1eb7f65b85dbddef5e5330a11ec8401b319f7ae0bcff1bec920d041868777814dd86e9a7bd8'
             PASSAGE_API_URL:
               - 'https://'
               - *passageApiFqdn
               - '/api/v1'
-            RELAY_API_URL:
-              - 'https://'
-              - *passageApiFqdn
-              - '/api/v1/Devices'
             PASSAGE_PARTNER_ENV: *passagePartnerEnv
             PASSAGE_REFERER: 'https://cf.us.atrius-iot.com'
             PASSAGE_HOST:
               - *passageApiFqdn
+            RAILS_LOG_TO_STDOUT: 'true'
+            RELAY_API_URL:
+              - 'https://'
+              - *passageApiFqdn
+              - '/api/v1/Devices'
+            # SECRET_KEY_BASE: 'fd54dc7d647688aa71dc5bfeb5cac675728d5c8dc6762ebcf242f1eb7f65b85dbddef5e5330a11ec8401b319f7ae0bcff1bec920d041868777814dd86e9a7bd8'
             SERVICE_PRINCIPAL_CLIENT_ID: '453111ae-5c35-4369-9807-2aff96da2def'
-            SERVICE_PRINCIPAL_TENANT_ID: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'
+            SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+            SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
+            WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
+            WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             SQLServer:
               DATABASE_URL:
@@ -927,6 +937,17 @@ target:
                 - 1433
                 - '/'
                 - *elmSchema
+                - '?'
+                - 'azure=true'
+            Custom:
+              # @@ TODO (1) new SP per environment, (2) auto populate SP ID here and in cf-objects service
+              SERVICE_PRINCIPAL_SECRET:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfElmSecretName
+                - '"}'
+                - '##'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -1047,7 +1068,6 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            JWT_ISSUERS: *trustedIdProviders
             API_KEY:
               - '##secure_secret={"vault":"'
               - *kvName
@@ -1066,14 +1086,19 @@ target:
               - '##'
             DOCKER_REGISTRY_SERVER_URL: *uriPrimaryACR
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
+            JWT_ISSUERS: *trustedIdProviders
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             SQLServer:
               DATABASE_CONN_STRING:
-                - 'DRIVER={FreeTDS};SERVER='
+                - 'DRIVER={FreeTDS}'
+                - ';'
+                - 'SERVER='
                 - *cfDefaultDbServer
-                - '.database.windows.net;DATABASE='
+                - '.database.windows.net'
+                - ';'
+                - 'DATABASE='
                 - *selfHealingSchema
                 - ';UID='
                 - *cfDefaultDBAdminName
@@ -1140,7 +1165,6 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            JWT_ISSUERS: *trustedIdProviders
             AUTHORIZED_USERS:
               - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
               - ','
@@ -1159,15 +1183,19 @@ target:
               - 'https://'
               - *wafFqdn
               - '/cf-elm/api/v1/light-groups/published-light-groups'
+            JWT_ISSUERS: *trustedIdProviders
+            SERVICE_PRINCIPAL_CLIENT_ID: '453111ae-5c35-4369-9807-2aff96da2def'
+            SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+            SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             Custom:
-              ATRIUS_OBJECTS_API_KEY:
+              CF_DISTECH_LIGHTSMAP_API_KEY:
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
-                - 'cf-dev-lights-map-api-key'
+                - *cfDevLightsMapApiKey
                 - '"}'
                 - '##'
               DATABASE_URLS:
@@ -1183,6 +1211,13 @@ target:
                 - '@'
                 - *cfObjectsDBName_001
                 - '.database.windows.net:1433/allspice-mapmanager01db'
+              SERVICE_PRINCIPAL_SECRET:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfElmWebApiSPClientSecret
+                - '"}'
+                - '##'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
