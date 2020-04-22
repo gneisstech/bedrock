@@ -553,6 +553,8 @@ target:
                 - 1433
                 - '/'
                 - *authzSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -639,6 +641,8 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -725,6 +729,8 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -811,6 +817,8 @@ target:
                 - 1433
                 - '/'
                 - *adminSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -927,6 +935,8 @@ target:
                 - 1433
                 - '/'
                 - *elmSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -1159,11 +1169,14 @@ target:
               - 'https://'
               - *wafFqdn
               - '/cf-elm/api/v1/light-groups/published-light-groups'
+            SERVICE_PRINCIPAL_CLIENT_ID: '453111ae-5c35-4369-9807-2aff96da2def'
+            SERVICE_PRINCIPAL_TENANT_ID: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'
+            SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
             WEBSITES_ENABLE_APP_SERVICE_STORAGE: false
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             Custom:
-              ATRIUS_OBJECTS_API_KEY:
+              CF_DISTECH_LIGHTSMAP_API_KEY:
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
@@ -1183,6 +1196,13 @@ target:
                 - '@'
                 - *cfObjectsDBName_001
                 - '.database.windows.net:1433/allspice-mapmanager01db'
+              SERVICE_PRINCIPAL_SECRET:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfElmSecretName
+                - '"}'
+                - '##'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'

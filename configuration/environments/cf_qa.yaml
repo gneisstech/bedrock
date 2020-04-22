@@ -553,6 +553,8 @@ target:
                 - 1433
                 - '/'
                 - *authzSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -639,6 +641,8 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -725,6 +729,8 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -811,6 +817,8 @@ target:
                 - 1433
                 - '/'
                 - *adminSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -927,6 +935,8 @@ target:
                 - 1433
                 - '/'
                 - *elmSchema
+                - '?'
+                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -1163,7 +1173,7 @@ target:
             WEBSITE_HTTPLOGGING_RETENTION_DAYS: 7
           connection_strings:
             Custom:
-              ATRIUS_OBJECTS_API_KEY:
+              CF_DISTECH_LIGHTSMAP_API_KEY:
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
