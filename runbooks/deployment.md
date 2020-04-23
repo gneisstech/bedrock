@@ -4,11 +4,11 @@
 
 1) each environment is described by a yaml file containing configuration parameters
 2) currently, we have:
-    1) configuration/targets/cf_dev.yaml
-    2) configuration/targets/cf_qa.yaml
-    3) configuration/targets/cf_staging.yaml
-    4) configuration/targets/cf_prod.yaml
-    3) configuration/targets/cf_experimental.yaml
+    1) configuration/environments/cf_dev.yaml
+    2) configuration/environments/cf_qa.yaml
+    3) configuration/environments/cf_staging.yaml
+    4) configuration/environments/cf_prod.yaml
+    3) configuration/environments/cf_experimental.yaml
 3) to create a new environment, copy an existing environment config and change the environment specific settings
     1) as of 2019-10-24, those changes are: (yes, we will work to make it DRYer)
 ```
@@ -226,12 +226,12 @@
     ```
 2) dry run the desired configuration and fix any errors or warnings
     ```
-    TARGET_CONFIG=configuration/targets/cf_qa.yaml ./recipes/deploy_environment.sh 2>&1 | tee output_log.txt
+    TARGET_CONFIG=configuration/environments/cf_qa.yaml ./recipes/deploy_environment.sh 2>&1 | tee output_log.txt
     ```
    
 3) deploy the desired configuration - it should run through completion if you have sufficient privileges to deploy
     ```
-    TARGET_CONFIG=configuration/targets/cf_qa.yaml AZ_TRACE=az ./recipes/deploy_environment.sh 2>&1 | tee deploy_log.txt
+    TARGET_CONFIG=configuration/environments/cf_qa.yaml AZ_TRACE=az ./recipes/deploy_environment.sh 2>&1 | tee deploy_log.txt
     ```
 4) manual steps to complete the deployment
     1) due to insufficient privileges on other shared resources (they are in a privileged AD tenant)
@@ -268,7 +268,7 @@
         1) save the change
     3) load any related seed data into the databases
         ```
-        TARGET_CONFIG=./configuration/targets/cf_dev.yaml AZ_TRACE=az ./paas/recipes/import_database.sh cf-dev-twin01-db cfexp2bytelightsa db-snaps atg-cf-exp2-twin01-db-2019-10-24-14-15.bacpac
+        TARGET_CONFIG=./configuration/environments/cf_dev.yaml AZ_TRACE=az ./paas/recipes/import_database.sh cf-dev-twin01-db cfexp2bytelightsa db-snaps atg-cf-exp2-twin01-db-2019-10-24-14-15.bacpac
         ```
     4) seed the containers into the container registry
         1) revise origin and target Azure Registry container names in the file `./recipes/promote_containers.sh`
