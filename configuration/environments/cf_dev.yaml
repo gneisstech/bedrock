@@ -25,7 +25,7 @@ target:
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
       cf_elm_web_api_sp_client_secret: &cfElmWebApiSPClientSecret 'cf-elm-web-api-sp-client-secret'
-      cf_dev_lights_map_api_key: &cfDevLightsMapApiKey 'cf-dev-lights-map-api-key'
+      cf_lights_map_api_key: &cfLightsMapApiKey 'cf-dev-lights-map-api-key'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -141,20 +141,6 @@ target:
           action: 'preserve'
       instances:
         - name: &selfHealingSchema 'cf-dev-self-healing'
-          arm_type: 'Microsoft.Sql/servers/databases'
-          resource_group: *cfDbRG
-          server: *cfDefaultDbServer
-          license_type: 'LicenseIncluded'
-          max_size: '250GB'
-          zone_redundant: false
-          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
-          collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
-          action: 'preserve'
-        - name: 'cf-dev-twin01-db'  # @@TODO remove
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -557,8 +543,6 @@ target:
                 - 1433
                 - '/'
                 - *authzSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -646,8 +630,6 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -735,8 +717,6 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -824,8 +804,6 @@ target:
                 - 1433
                 - '/'
                 - *adminSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -937,8 +915,6 @@ target:
                 - 1433
                 - '/'
                 - *elmSchema
-                - '?'
-                - 'azure=true'
             Custom:
               # @@ TODO (1) new SP per environment, (2) auto populate SP ID here and in cf-objects service
               SERVICE_PRINCIPAL_SECRET:
@@ -1195,7 +1171,7 @@ target:
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
-                - *cfDevLightsMapApiKey
+                - *cfLightsMapApiKey
                 - '"}'
                 - '##'
               DATABASE_URLS:
