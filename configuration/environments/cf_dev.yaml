@@ -149,10 +149,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &authzSchema 'cf-dev-authz-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -163,10 +163,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &netWorkViewSchema 'cf-dev-network-view-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -177,10 +177,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &elmSchema 'cf-dev-elm-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -191,10 +191,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &adminSchema 'cf-dev-admin-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -205,10 +205,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
     server_farms:
       - name: &authServiceFarm 'cf-dev-authservice-asp'
