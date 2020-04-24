@@ -2,25 +2,28 @@
 target:
   metadata:
     product_portfolio_name: &productName 'connected-facilities'
-    environment_name: &environmentName 'Dev'
+    environment_name: &environmentName 'Prod'
     default_azure_location: &defaultAzureLocation 'eastus'
-    default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
+    default_azure_subscription: &defaultAzureSubscription 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
     tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     service_deployment:
       tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
-      passage_api_fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
-      passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
+      passage_api_fqdn: &passageApiFqdn 'passage.atrius-us.acuitynext.io.'
+      passage_partner_environment: &passagePartnerEnv 'ASP_PROD_US'
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
-      application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
-      passage_api_application_id: &passageApiApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
+      application_id: &appRegistrationID '6d566d2d-acfa-4fb0-a56b-c48ccc07cc53'  # Acuity Brands Atrius US UI
+      passage_api_application_id: &passageApiApplicationID 'd9253624-7e87-426c-8132-75858e1dcf0b'  # Acuity Brands Atrius US Passage API
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
     objectsDatabases:
-      - db_name: &cfObjectsDBName_001 'pltdata01sqlsep2ftp3b7r'
+      - db_name: &cfObjectsDBName_001 'pltdata01sqls5vysxyq75v'
         reader_name: &cfObjectsDBUser_001 'CF_Reader'
-        secret_name: &cfObjectsDBSecretName_001 'ALLSPICEDEV-CFReader-SQLUserPassword'
+        secret_name: &cfObjectsDBSecretName_001 'ATRDEMO01US-CFReader-SQLUserPassword'
+      - db_name: &cfObjectsDBName_002 'pltdata01sqlsbb6ahiz252'
+        reader_name: &cfObjectsDBUser_002 'CF_Reader'
+        secret_name: &cfObjectsDBSecretName_002 'ATRPROD02US-CFReader-SQLUserPassword'
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
   iaas:
@@ -30,40 +33,40 @@ target:
       # pre-existing Atrius resource groups with shared configuration state
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
-      # CF Dev resource groups
-      - name: &cfWafRG 'Waf-CfDev'
+      # CF Prod resource groups
+      - name: &cfWafRG 'Waf-prod-CfProd'
         action: 'create'
-      - name: &cfDbRG 'Data-CfDev'
+      - name: &cfDbRG 'Data-prod-CfProd'
         action: 'create'
-      - name: &cfKeysRG 'Kv-CfDev'
+      - name: &cfKeysRG 'Kv-prod-CfProd'
         action: 'create'
-      - name: &cfAcrRG 'Acr-CfDev'
+      - name: &cfAcrRG 'Acr-prod-CfProd'
         action: 'create'
-      - name: &cfNetworksRG 'Vnet-CfDev'
+      - name: &cfNetworksRG 'Vnet-prod-CfProd'
         action: 'create'
-      - name: &cfAppSvcRG 'Web-CfDev'
+      - name: &cfAppSvcRG 'Web-prod-CfProd'
         action: 'create'
-      - name: &cfAuthNSvcRG 'Authn-CfDev'
+      - name: &cfAuthNSvcRG 'Authn-prod-CfProd'
         action: 'create'
-      - name: &cfIngestSvcRG 'Ingestion-CfDev'
+      - name: &cfIngestSvcRG 'Ingestion-prod-CfProd'
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP 'cf-dev-waf-pip'
+        - name: &wafIP 'cf-prod-waf-pip'
           resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
           sku: 'Standard'
           allocation_method: 'Static'
           action: 'create'
-        - name: &postAuthnIP 'cf-dev-post-auth-pip'
+        - name: &postAuthnIP 'cf-prod-post-auth-pip'
           resource_group: *cfAuthNSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
           sku: 'Standard'
           allocation_method: 'Static'
           action: 'create'
-        - name: &ingestVMIP 'cf-dev-ingest-vm-pip'
+        - name: &ingestVMIP 'cf-prod-ingest-vm-pip'
           resource_group: *cfIngestSvcRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
@@ -72,41 +75,41 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf'
-          fqdn: &wafFqdn 'cf.dev.atrius-iot.com.'
+          host: &dnsHost 'cf-prod'
+          fqdn: &wafFqdn 'cf-prod.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
           action: 'create'
         - zone: 'dev.atrius-iot.com'
-          host: &postAuthnGateway 'cf-dev-post-authn-ag'
-          fqdn: &postAuthnGatewayFqdn 'cf-dev-post-authn-ag.dev.atrius-iot.com.'
+          host: &postAuthnGateway 'cf-prod-post-authn-ag'
+          fqdn: &postAuthnGatewayFqdn 'cf-prod-post-authn-ag.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
           a_record_public_ip: *postAuthnIP
           action: 'create'
       vnets:
-        - name: 'cf-dev-vnet'
+        - name: 'cf-prod-vnet'
           resource_group: *cfNetworksRG
           cidr: '10.1.0.0/16'
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
-            - name: 'cf-dev-0-subnet'
+            - name: 'cf-prod-0-subnet'
               cidr: '10.1.0.0/24'
-            - name: 'cf-dev-1-subnet'
+            - name: 'cf-prod-1-subnet'
               cidr: '10.1.1.0/24'
-        - name: &ingestVnet 'cf-dev-ingest-vnet'
+        - name: &ingestVnet 'cf-prod-ingest-vnet'
           resource_group: *cfNetworksRG
           cidr: '10.2.0.0/16'
           arm_type: 'Microsoft.Network/virtualNetworks'
           action: 'create'
           subnets:
-            - name: &ingestSubnet 'cf-dev-0-subnet'
+            - name: &ingestSubnet 'cf-prod-0-subnet'
               cidr: '10.2.0.0/24'
-            - name: 'cf-dev-1-subnet'
+            - name: 'cf-prod-1-subnet'
               cidr: '10.2.1.0/24'
   paas:
     location: *defaultAzureLocation
@@ -114,22 +117,22 @@ target:
       # pre-existing Atrius key vault with shared configuration state such as TLS certificate
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
-      # CF Dev Key Vault
-      - name: &kvName 'cf-dev-master-kv'
+      # CF Prod Key Vault
+      - name: &kvName 'cf-prod-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'cf-dev-sqls'
+        - name: &cfDefaultDbServer 'cf-prod-sqls'
           arm_type: 'Microsoft.Sql/servers'
           subscription: *defaultAzureSubscription
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'cf-dev-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName 'cf-prod-sqls-admin-user'
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
-            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-dev-sqls'
+            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-prod-sqls'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
@@ -137,7 +140,7 @@ target:
             end_ip_address: '0.0.0.0'
           action: 'preserve'
       instances:
-        - name: &selfHealingSchema 'cf-dev-self-healing'
+        - name: &selfHealingSchema 'cf-prod-self-healing'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -151,7 +154,7 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
-        - name: 'cf-dev-twin01-db'  # @@TODO remove
+        - name: 'cf-prod-twin01-db'  # @@TODO remove
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -165,7 +168,7 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
-        - name: &authzSchema 'cf-dev-authz-db'
+        - name: &authzSchema 'cf-prod-authz-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -179,7 +182,7 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
-        - name: &netWorkViewSchema 'cf-dev-network-view-db'
+        - name: &netWorkViewSchema 'cf-prod-network-view-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -193,7 +196,7 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
-        - name: &elmSchema 'cf-dev-elm-db'
+        - name: &elmSchema 'cf-prod-elm-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -207,7 +210,7 @@ target:
           family: ''
           service_objective: 'S0'
           action: 'preserve'
-        - name: &adminSchema 'cf-dev-admin-db'
+        - name: &adminSchema 'cf-prod-admin-db'
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
@@ -222,14 +225,14 @@ target:
           service_objective: 'S0'
           action: 'preserve'
     server_farms:
-      - name: &authServiceFarm 'cf-dev-authservice-asp'
+      - name: &authServiceFarm 'cf-prod-authservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAuthNSvcRG
         is_linux: true
         number_of_workers: 1
         sku: 'P1V2'
         action: 'create'
-      - name: &webServiceFarm 'cf-dev-webservice-asp'
+      - name: &webServiceFarm 'cf-prod-webservice-asp'
         arm_type: 'Microsoft.Web/serverFarms'
         resource_group: *cfAppSvcRG
         is_linux: true
@@ -237,28 +240,28 @@ target:
         sku: 'P1V2'
         action: 'create'
     container_registries:
-      - name: &primaryACR 'cfdevregistry'
+      - name: &primaryACR 'cfprodregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://cfdevregistry.azurecr.io'
+        uri: &uriPrimaryACR 'https://cfprodregistry.azurecr.io'
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
     virtual_machines:
-      - name: &cfIngestServer 'cfdev-ingest-vm'  # must be <= 15 chars
+      - name: &cfIngestServer 'prod-ingest-vm'  # must be <= 15 chars
         arm_type: 'Microsoft.Compute/virtualMachines'
         subscription: *defaultAzureSubscription
         resource_group: *cfIngestSvcRG
-        admin_name: &cfDefaultIngestVmAdminName 'cfdev-ingest-admin'  # must be <= 20 chars
+        admin_name: &cfDefaultIngestVmAdminName 'prod-ingest-admin'  # must be <= 20 chars
         admin_password_kv:
           vault: *kvName
           resource_group: *cfKeysRG
-          secret_name: &cfDefaultIngestVmSecretName 'admin-pw-for-cf-dev-ingest-vm'
+          secret_name: &cfDefaultIngestVmSecretName 'admin-pw-for-cf-prod-ingest-vm'
         license_type: 'Windows_Server'
         public_ip_address: *ingestVMIP
         disks:
           os_disk:
-            os_disk_name: 'cfdev-ingest-os-disk'
+            os_disk_name: 'cfprod-ingest-os-disk'
             os_disk_caching: 'ReadWrite'
             os_disk_size_gb: 127
           data_disks:  # these do not auto-format or auto-mount [yet]
@@ -278,7 +281,7 @@ target:
     authn_services:
       farm: *authServiceFarm
       services:
-        - name: &cfAuthnService 'cf-dev-auth-proxy'
+        - name: &cfAuthnService 'cf-prod-auth-proxy'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAuthNSvcRG
           container:
@@ -286,7 +289,7 @@ target:
             name: &authnContainer 'cf-oauth-proxy-docker'
             tag: &authnTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevauthproxywh'
+            name: 'cfprodauthproxywh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -310,7 +313,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - &oauthProxyClientSecretName 'cf-dev-oauth2-proxy-client-secret'
+              - &oauthProxyClientSecretName 'cf-prod-oauth2-proxy-client-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
@@ -327,7 +330,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - 'cf-dev-oauth2-proxy-cookie-secret'
+              - 'cf-prod-oauth2-proxy-cookie-secret'
               - '"}'
               - '##'
             OAUTH2_PROXY_EMAIL_DOMAINS: '*'
@@ -423,7 +426,7 @@ target:
                 - '/resourceGroups/'
                 - *cfWafRG
                 - '/providers/Microsoft.Network/virtualNetworks/'
-                - &wafAgName 'cf-dev-waf-ag'
+                - &wafAgName 'cf-prod-waf-ag'
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
@@ -431,7 +434,7 @@ target:
       farm: *webServiceFarm
       services:
         # Health services
-        - name: &cfHealthApp 'cf-dev-app'
+        - name: &cfHealthApp 'cf-prod-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -439,7 +442,7 @@ target:
             name: &healthAppContainer 'cf-react-app-docker'
             tag: &healthAppTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevappwh'
+            name: 'cfprodappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -498,7 +501,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # AuthZ Web Api service
-        - name: &authzWebApi 'cf-dev-authz-web-api'
+        - name: &authzWebApi 'cf-prod-authz-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           path: &authzPath '/cf-authz'
@@ -511,7 +514,7 @@ target:
             name: &authzWebApiContainer 'cf-authz-web-api-docker'
             tag: &authzWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevauthzwebapiwh'
+            name: 'cfprodauthzwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -589,7 +592,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # Health Web Api Service
-        - name: &healthWebApi 'cf-dev-health-web-api'
+        - name: &healthWebApi 'cf-prod-health-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -597,7 +600,7 @@ target:
             name: &healthWebApiContainer 'cf-network-view-web-api-docker'
             tag: &healthWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevhealthwebapiwh'
+            name: 'cfprodhealthwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -675,7 +678,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # Health Ingest Web Api Service
-        - name: &ingestWebApi 'cf-dev-ingest-web-api'
+        - name: &ingestWebApi 'cf-prod-ingest-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -683,7 +686,7 @@ target:
             name: &ingestWebApiContainer 'cf-network-view-web-api-docker'
             tag: &ingestWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevingestwebapiwh'
+            name: 'cfprodingestwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -761,7 +764,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # Admin Web Api Service
-        - name: &adminWebApi 'cf-dev-admin-web-api'
+        - name: &adminWebApi 'cf-prod-admin-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -769,7 +772,7 @@ target:
             name: &adminWebApiContainer 'cf-admin-web-api-docker'
             tag: &adminWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevadminwebapiwh'
+            name: 'cfprodadminwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -847,7 +850,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # ELM Web Api Service
-        - name: &elmWebApi 'cf-dev-elm-web-api'
+        - name: &elmWebApi 'cf-prod-elm-web-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           elm_vault_secret_name: &cfElmSecretName 'cf-elm-web-api-sp-client-secret'
@@ -856,7 +859,7 @@ target:
             name: &elmWebApiContainer 'cf-elm-web-api-docker'
             tag: &elmWebApiTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevelmwebapiwh'
+            name: 'cfprodelmwebapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -963,7 +966,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # Self Healing services
-        - name: &cfSelfHealingApp 'cf-dev-self-healing-app'
+        - name: &cfSelfHealingApp 'cf-prod-self-healing-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -971,7 +974,7 @@ target:
             name: &shAPPContainer 'cf-self-healing-app-docker'
             tag: &shAPPTag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevselfhealingappwh'
+            name: 'cfprodselfhealingappwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -1029,7 +1032,7 @@ target:
                 - 'Vnet'
                 - '/subnets/default'
           action: 'create'
-        - name: &cfSelfHealingApi 'cf-dev-self-healing-api'
+        - name: &cfSelfHealingApi 'cf-prod-self-healing-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -1037,7 +1040,7 @@ target:
             name: &shAPIContainer 'cf-self-healing-api-docker'
             tag: &shAPITag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevselfhealingapiwh'
+            name: 'cfprodselfhealingapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -1045,6 +1048,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            JWT_ISSUERS: *trustedIdProviders
             API_KEY:
               - '##secure_secret={"vault":"'
               - *kvName
@@ -1121,7 +1125,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # Atrius Objects Web API
-        - name: &cfAtriusObjectsApi 'cf-dev-atrius-objects-api'
+        - name: &cfAtriusObjectsApi 'cf-prod-atrius-objects-api'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -1129,7 +1133,7 @@ target:
             name: &atriusObjectsAPIContainer 'cf-atrius-objects-api-docker'
             tag: &shAPITag 'connected-facilities'
           acr_webhook:
-            name: 'cfdevatriusobjectsapiwh'
+            name: 'cfprodatriusobjectsapiwh'
             registry: *primaryACR
             resource_group: *cfAcrRG
             status: 'enabled'
@@ -1160,7 +1164,7 @@ target:
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
-                - 'cf-dev-lights-map-api-key'
+                - 'cf-prod-lights-map-api-key'
                 - '"}'
                 - '##'
               DATABASE_URLS:
@@ -1175,6 +1179,19 @@ target:
                 - '##'
                 - '@'
                 - *cfObjectsDBName_001
+                - '.database.windows.net:1433/allspice-mapmanager01db'
+                - ','
+                - 'sqlserver://'
+                - *cfObjectsDBUser_002
+                - ':'
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfObjectsDBSecretName_002
+                - '"}'
+                - '##'
+                - '@'
+                - *cfObjectsDBName_002
                 - '.database.windows.net:1433/allspice-mapmanager01db'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
@@ -1214,7 +1231,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # Bytelight site portal
-        - name: &bytelightSitePortal 'cf-dev-bytelight-site-portal-app'
+        - name: &bytelightSitePortal 'cf-prod-bytelight-site-portal-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -1255,7 +1272,7 @@ target:
                 - '/subnets/default'
           action: 'create'
         # Echo debug service
-        - name: &cfEchoDebug 'cf-dev-echo-debug-app'
+        - name: &cfEchoDebug 'cf-prod-echo-debug-app'
           arm_type: 'Microsoft.Web/sites'
           resource_group: *cfAppSvcRG
           container:
@@ -1571,7 +1588,7 @@ target:
           requestTimeout: 20
           trustedRootCertificates: []
         url_path_maps:  # basic strategy is one address pool per server type, and one server type per address pool
-          - name: &postAuthnUrlPathMap 'cf-dev-post-authn-path-map-001'
+          - name: &postAuthnUrlPathMap 'cf-prod-post-authn-path-map-001'
             arm_type: Microsoft.Network/applicationGateways/urlPathMaps
             defaultBackendAddressPool: *cfHealthApp
             defaultBackendHttpSettings: *postAuthNHttpSettings
@@ -1701,4 +1718,4 @@ target:
       client_secret:
         vault: *kvName
         secret_name: *oauthProxyClientSecretName
-        description: 'cf-dev-auth'  # unfortunately limited to 15 characters by AZ CLI
+        description: 'cf-prod-auth'  # unfortunately limited to 15 characters by AZ CLI

@@ -1045,6 +1045,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            JWT_ISSUERS: *trustedIdProviders
             API_KEY:
               - '##secure_secret={"vault":"'
               - *kvName
