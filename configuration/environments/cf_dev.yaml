@@ -25,7 +25,7 @@ target:
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
       cf_elm_web_api_sp_client_secret: &cfElmWebApiSPClientSecret 'cf-elm-web-api-sp-client-secret'
-      cf_dev_lights_map_api_key: &cfDevLightsMapApiKey 'cf-dev-lights-map-api-key'
+      cf_lights_map_api_key: &cfLightsMapApiKey 'cf-dev-lights-map-api-key'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -149,24 +149,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
-          action: 'preserve'
-        - name: 'cf-dev-twin01-db'  # @@TODO remove
-          arm_type: 'Microsoft.Sql/servers/databases'
-          resource_group: *cfDbRG
-          server: *cfDefaultDbServer
-          license_type: 'LicenseIncluded'
-          max_size: '250GB'
-          zone_redundant: false
-          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
-          collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &authzSchema 'cf-dev-authz-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -177,10 +163,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &netWorkViewSchema 'cf-dev-network-view-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -191,10 +177,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &elmSchema 'cf-dev-elm-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -205,10 +191,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &adminSchema 'cf-dev-admin-db'
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -219,10 +205,10 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 2
-          tier: 'Standard'
-          family: ''
-          service_objective: 'S0'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
           action: 'preserve'
     server_farms:
       - name: &authServiceFarm 'cf-dev-authservice-asp'
@@ -524,6 +510,10 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
+            AUTHORIZED_USERS: &authorizedUsers
+              - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
+              - ','
+              - 'ff85ea71-79b8-48a1-b65b-ce0a38b87dbd'
             AZURE_DB: 'true'
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
@@ -557,8 +547,6 @@ target:
                 - 1433
                 - '/'
                 - *authzSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -646,8 +634,6 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -735,8 +721,6 @@ target:
                 - 1433
                 - '/'
                 - *netWorkViewSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -824,8 +808,6 @@ target:
                 - 1433
                 - '/'
                 - *adminSchema
-                - '?'
-                - 'azure=true'
           container_settings:
             DOCKER_CUSTOM_IMAGE_NAME:
               - 'DOCKER|'
@@ -937,8 +919,6 @@ target:
                 - 1433
                 - '/'
                 - *elmSchema
-                - '?'
-                - 'azure=true'
             Custom:
               # @@ TODO (1) new SP per environment, (2) auto populate SP ID here and in cf-objects service
               SERVICE_PRINCIPAL_SECRET:
@@ -1165,10 +1145,7 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            AUTHORIZED_USERS:
-              - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
-              - ','
-              - 'ff85ea71-79b8-48a1-b65b-ce0a38b87dbd'
+            AUTHORIZED_USERS: *authorizedUsers
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
               - '##acr_registry_key={"registry":"'
@@ -1195,7 +1172,7 @@ target:
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
-                - *cfDevLightsMapApiKey
+                - *cfLightsMapApiKey
                 - '"}'
                 - '##'
               DATABASE_URLS:
