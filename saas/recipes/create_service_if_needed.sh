@@ -320,6 +320,9 @@ function deploy_service () {
         --resource-group "$(service_resource_group)" \
         --plan "$(service_plan)" \
         --deployment-container-image-name "$(service_container_path)"
+}
+
+function configure_service () {
     set_connection_strings
     set_container_settings
     enable_container_continuous_deployment
@@ -331,6 +334,7 @@ function deploy_service () {
 
 function create_service_if_needed () {
     service_already_exists || deploy_service
+    configure_service
 }
 
 create_service_if_needed
