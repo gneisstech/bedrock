@@ -223,7 +223,16 @@ function create_kubernetes_cluster () {
 function create_kubernetes_cluster_credentials () {
     $AZ_TRACE aks get-credentials \
         --name "$(kubernetes_cluster_name)" \
-        --resource-group "$(kubernetes_cluster_resource_group)"
+        --resource-group "$(kubernetes_cluster_resource_group)" \
+        --overwrite-existing
+}
+
+function create_kubernetes_cluster_admin_credentials () {
+    $AZ_TRACE aks get-credentials \
+        --name "$(kubernetes_cluster_name)" \
+        --resource-group "$(kubernetes_cluster_resource_group)" \
+        --overwrite-existing \
+        --admin
 }
 
 function kubernetes_dashboard_admin_service_account () {
@@ -261,12 +270,12 @@ function create_kubernetes_dashboard_admin_service_account () {
 function deploy_kubernetes_cluster () {
     create_kubernetes_cluster
     create_kubernetes_cluster_credentials
+    create_kubernetes_cluster_admin_credentials
     create_kubernetes_dashboard_admin_service_account
 }
 
 function create_kubernetes_cluster_if_needed () {
     if ! kubernetes_cluster_already_exists; then
-    set -x
         deploy_kubernetes_cluster
     fi
 }
