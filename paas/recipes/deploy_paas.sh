@@ -150,6 +150,17 @@ function deploy_virtual_machines () {
     done
 }
 
+function kubernetes_cluster_names () {
+    paas_configuration | jq -r -e '[.k8s.clusters[] | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_kubernetes_clusters () {
+    local cluster_name
+    for cluster_name in $(kubernetes_cluster_names); do
+        invoke_layer 'paas' 'create_kubernetes_cluster_if_needed' "${cluster_name}"
+    done
+}
+
 function deploy_paas () {
     deploy_keyvaults
     deploy_service_principals
@@ -157,6 +168,7 @@ function deploy_paas () {
     deploy_server_farms
     deploy_container_registries
     deploy_virtual_machines
+    deploy_kubernetes_clusters
 }
 
 deploy_paas
