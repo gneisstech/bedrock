@@ -71,6 +71,92 @@ function k8s_attr () {
     paas_configuration | jq -r -e ".k8s.clusters[] | select(.name == \"$(kubernetes_cluster_name)\") | .${attr}"
 }
 
+function k8s_string () {
+    local -r attr="${1}"
+    local -r key="${2}"
+    k8s_attr "${attr}" | jq -r -e ".${key} | if type==\"array\" then join(\"\") else . end"
+}
+
+function get_vault_secret () {
+    local -r vault="${1}"
+    local -r secret_name="${2}"
+    az keyvault secret show \
+        --vault-name "${vault}" \
+        --name "${secret_name}" \
+        2> /dev/null \
+    | jq -r '.value'
+}
+
+function set_vault_secret () {
+    local -r vault="${1}"
+    local -r secret_name="${2}"
+    local -r secret="${3}"
+    az keyvault secret set \
+        --vault-name "${vault}" \
+        --name "${secret_name}" \
+        --description 'secure secret from deployment automation' \
+        --value "${secret}" \
+        2> /dev/null
+}
+
+function random_key () {
+    hexdump -n 16 -e '"%02X"' /dev/urandom
+}
+
+function process_secure_secret () {
+    local -r theString="${1}"
+    local vault secret_name theMessage secret
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    vault="$(jq -r '.vault' <<< "${theMessage}")"
+    secret_name="$(jq -r '.secret_name' <<< "${theMessage}")"
+    secret="$(get_vault_secret "${vault}" "${secret_name}")"
+    if [[ -z "${secret}" ]]; then
+        set_vault_secret "${vault}" "${secret_name}" "$(random_key)" > /dev/null
+        secret="$(get_vault_secret "${vault}" "${secret_name}")"
+    fi
+    if [[ -z "${secret}" ]]; then
+        secret="FAKE_SECRET"
+    fi
+    echo "${secret}"
+}
+
+function dispatch_functions () {
+    declare -a myarray
+    (( i=0 ))
+    while IFS=$'\n' read -r line_data; do
+        local array_entry="${line_data}"
+        if (( i % 2 == 1 )); then
+            case "$line_data" in
+                acr_registry_key*)
+                    array_entry="$(process_acr_registry_key "${line_data}")"
+                    ;;
+                secure_secret*)
+                    array_entry="$(process_secure_secret "${line_data}")"
+                    ;;
+                *)
+                   array_entry="UNDEFINED_FUNCTION [${line_data}]"
+                   ;;
+            esac
+        fi
+        myarray[i]="${array_entry}"
+        ((++i))
+    done
+
+    (( i=0 ))
+    while (( ${#myarray[@]} > i )); do
+        printf '%s' "${myarray[i++]}"
+    done
+}
+
+function interpolate_functions () {
+    awk '{gsub(/##/,"\n"); print}' | dispatch_functions
+}
+
+function prepare_k8s_string () {
+    local attr="${1}"
+    k8s_string "${attr}" '' | interpolate_functions
+}
+
 function option_if_true () {
     local -r option_config="${1}"
     local -r option_key="${2}"
@@ -101,10 +187,9 @@ function create_kubernetes_cluster () {
         --name "$(kubernetes_cluster_name)" \
         --resource-group "$(kubernetes_cluster_resource_group)" \
         --location "$(k8s_attr 'location')" \
-        --aad-tenant-id "$(k8s_attr 'aad_tenant_id')" \
         --admin-username "$(k8s_attr 'admin_username')" \
         --attach-acr "$(k8s_attr 'attach_acr')" \
-        --client-secret "$(k8s_attr 'client_secret')" \
+        --client-secret "$(prepare_k8s_string 'client_secret')" \
         $(option_if_true 'enable-cluster-autoscaler' 'enable_cluster_autoscaler') \
         $(option_if_true 'enable-managed-identity' 'enable_managed_identity') \
         $(option_if_true 'enable-private-cluster' 'enable_private_cluster') \
@@ -122,28 +207,17 @@ function create_kubernetes_cluster () {
         --nodepool-labels $(k8s_attr 'nodepool_labels') \
         --nodepool-name "$(k8s_attr 'nodepool_name')" \
         --nodepool-tags $(k8s_attr 'nodepool_tags') \
-        --service-principal "$(k8s_attr 'service_principal')" \
+        --service-principal "$(prepare_k8s_string 'service_principal')" \
         --ssh-key-value "$(k8s_attr 'ssh_key_value')" \
         --tags $(k8s_attr 'tags') \
         --vm-set-type "$(k8s_attr 'vm_set_type')" \
         --zones $(k8s_attr 'zones')
 
 #        --api-server-authorized-ip-ranges "$(k8s_attr 'api_server_authorized_ip_ranges')"
+#        --aad-tenant-id "$(k8s_attr 'aad_tenant_id')"
 #        --aad-client-app-id "$(k8s_attr 'aad_client_app_id')"
 #        --aad-server-app-id "$(k8s_attr 'aad_server_app_id')"
 #        --aad-server-app-secret "$(k8s_attr 'aad_server_app_secret')"
-}
-
-function create_kubernetes_service_principal () {
-    #shellcheck disable=SC2046
-    $AZ_TRACE ad sp create-for-rbac \
-        --role 'Contributor' \
-        --output 'json' \
-        --scopes "/subscriptions/$(k8s_attr 'subscription')/resourceGroups/$(kubernetes_cluster_resource_group)"
-}
-
-function create_kubernetes_service_principal_if_needed () {
-    create_kubernetes_service_principal
 }
 
 function create_kubernetes_cluster_credentials () {
@@ -185,7 +259,6 @@ function create_kubernetes_dashboard_admin_service_account () {
 }
 
 function deploy_kubernetes_cluster () {
-    create_kubernetes_service_principal_if_needed
     create_kubernetes_cluster
     create_kubernetes_cluster_credentials
     create_kubernetes_dashboard_admin_service_account

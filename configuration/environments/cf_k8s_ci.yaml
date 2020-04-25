@@ -153,10 +153,10 @@ target:
         - name: &adminSchema 'cf-ci-admin-db'
           <<: *dbTemplate
     container_registries:
-      - name: &primaryACR 'cfdevregistry'
+      - name: &primaryACR 'cfciregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://cfdevregistry.azurecr.io'
+        uri: &uriPrimaryACR 'https://cfciregistry.azurecr.io'
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
@@ -172,7 +172,14 @@ target:
           admin_username: 'cf-admin-user'
           # api_server_authorized_ip_ranges: '0.0.0.0/32'
           attach_acr: *primaryACR
-          client_secret: '8e303b1e-1715-4633-aefd-34b78c56bb83'
+          client_secret:
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *spK8S
+            - '-secret'
+            - '"}'
+            - '##'
           enable_cluster_autoscaler: 'true'
           enable_managed_identity: 'false'
           enable_private_cluster: 'false'
@@ -190,7 +197,14 @@ target:
           nodepool_labels: &labels 'cf-env=ci cf-role=ci'
           nodepool_name: 'cfnodepool'
           nodepool_tags: *labels
-          service_principal: '7f4dedee-c3a2-47ac-a005-4bf1958d8f32'
+          service_principal:
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *spK8S
+            - '-app-id'
+            - '"}'
+            - '##'
           ssh_key_value: '~/.ssh/id_cf_ci_k8s.pub'
           tags: *labels
           vm_set_type: 'VirtualMachineScaleSets'
