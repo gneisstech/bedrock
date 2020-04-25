@@ -15,7 +15,9 @@ fullnameOverride: ""
 config:
   # placeholder values should allow the service to install and minimally respond
   environment:
+    AZURE_DB: 'true'
     CF_AUTHZ_API_URL: 'fixme-placeholder'
+    RAILS_LOG_TO_STDOUT: 'true'
   secrets:
     DATABASE_URL: 'fixme-placeholder-database-connection-string'
     SECRET_KEY_BASE: 'fixme-placeholder'

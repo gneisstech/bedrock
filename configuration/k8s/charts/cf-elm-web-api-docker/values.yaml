@@ -15,15 +15,20 @@ fullnameOverride: ""
 config:
   # placeholder values should allow the service to install and minimally respond
   environment:
+    ATRIUS_API_URL: 'fixme-placeholder'
+    AZURE_DB: 'true'
+    CF_AUTHZ_API_URL: 'fixme-placeholder'
+    CF_OBJECTS_API_URL: 'fixme-placeholder'
     PASSAGE_API_URL: 'fixme-placeholder'
-    RELAY_API_URL: 'fixme-placeholder'
     PASSAGE_PARTNER_ENV: 'fixme-placeholder'
     PASSAGE_REFERER: 'fixme-placeholder'
     PASSAGE_HOST: 'fixme-placeholder'
-    CF_AUTHZ_API_URL: 'fixme-placeholder'
-    CF_OBJECTS_API_URL: 'fixme-placeholder'
+    RAILS_LOG_TO_STDOUT: 'true'
+    RELAY_API_URL: 'fixme-placeholder'
     SERVICE_PRINCIPAL_CLIENT_ID: 'fixme-placeholder'
     SERVICE_PRINCIPAL_TENANT_ID: 'fixme-placeholder'
+    SERVICE_PRINCIPAL_RESOURCE: 'fixme-placeholder'
+
   secrets:
     DATABASE_URL: 'fixme-placeholder-database-connection-string'
     SECRET_KEY_BASE: 'fixme-placeholder'

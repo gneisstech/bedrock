@@ -15,7 +15,10 @@ fullnameOverride: ""
 config:
   # placeholder values should allow the service to install and minimally respond
   environment:
+    AUTHORIZED_USERS: 'fixme-placeholder-authorized-users'
+    AZURE_DB: 'true'
     JWT_ISSUERS: 'placeholder=fixme-comma-separated-key-equals-value-pairs'
+    RAILS_LOG_TO_STDOUT: 'true'
   secrets:
     DATABASE_URL: 'fixme-placeholder-database-connection-string'
     SECRET_KEY_BASE: 'fixme-placeholder'
