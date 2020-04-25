@@ -79,6 +79,17 @@ function deploy_keyvaults () {
 #    seed_secrets
 }
 
+function service_principal_names () {
+    paas_configuration | jq -r -e '[.service_principals[] | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_service_principals () {
+    local service_principal_name
+    for service_principal_name in $(service_principal_names); do
+        invoke_layer 'paas' 'create_service_principal_if_needed' "${service_principal_name}"
+    done
+}
+
 function database_server_names () {
     paas_configuration | jq -r -e '[.databases.servers[] | select(.action == "preserve") | .name ] | @tsv'
 }
@@ -141,6 +152,7 @@ function deploy_virtual_machines () {
 
 function deploy_paas () {
     deploy_keyvaults
+    deploy_service_principals
     deploy_databases
     deploy_server_farms
     deploy_container_registries
