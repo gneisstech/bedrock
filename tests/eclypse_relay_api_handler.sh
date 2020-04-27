@@ -50,7 +50,7 @@ function eclypse_curl () {
     cmd+=" --header 'Remote-query: /api/rest/v1${API_PATH}'"
     cmd+=" '$(passage_relay_url)'"
     printf "%s" "${cmd}" 2> /dev/null > /dev/stderr
-    eval "${cmd}" 2> /dev/null
+    eval "${cmd}" 2> /dev/stderr
 }
 
 function eclypse_local_host_handler () {

@@ -16,8 +16,7 @@ config:
   # placeholder values should allow the service to install and minimally respond
   environment:
     AUTHORIZED_USERS: 'fixme-there-are-no-authorized-users-in-this-comma-separated-list'
-    ELM_LIGHTS_GROUPS_API_URL:
-      - '/cf-elm/api/v1/light-groups/published-light-groups'
+    ELM_LIGHTS_GROUPS_API_URL: '/cf-elm/api/v1/light-groups/published-light-groups'
     JWT_ISSUERS: 'placeholder=fixme-comma-separated-key-equals-value-pairs'
     SERVICE_PRINCIPAL_CLIENT_ID: 'fixme-placeholder-elm-service-principal-client-id'
     SERVICE_PRINCIPAL_TENANT_ID: 'fixme-placeholder-elm-service-principal-tenant-id'

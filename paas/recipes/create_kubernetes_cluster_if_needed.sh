@@ -165,6 +165,7 @@ function option_if_true () {
     fi
     true
 }
+
 function kubernetes_cluster_resource_group () {
     k8s_attr 'resource_group'
 }

@@ -2,12 +2,105 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+default-values:
+  rails:
+    env: &railsEnv
+      RAILS_ENV: 'production'
+      RAILS_LOG_TO_STDOUT: 'true'
+  passage:
+    api:
+      application_id: &passageApiApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Dev Passage API
+      fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
+      url: &passageApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1'
+      relayUrl: &relayApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1/Devices'
+      host: &passageHost 'passage.atrius-dev.acuitynext.io'
+    partner:
+      env: &passagePartnerEnv 'DEV'
+  jwt:
+    issuers: &trustedIdProviders "\
+      https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+      =\
+      https://management.core.windows.net/\
+      ,\
+      https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
+      =\
+      https://management.core.windows.net/\
+      ,\
+      https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
+      =\
+      https://management.core.windows.net/\
+      ,\
+      https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+      =\
+      https://graph.windows.net\
+      ,\
+      https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
+      =\
+      https://graph.windows.net\
+      ,\
+      https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
+      =\
+      https://graph.windows.net\
+      ,\
+      https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+      =\
+      24b765b5-8108-4374-8141-1a65c0fc42ab"
+  atrius_objects:
+    api_key: &atriusObjectsApiKey 'fixme-dummy-developer-key'
+    authorized_users: &atriusObjectsAuthorizedUsers "\
+      36bc7f6b-2161-415c-a00e-4332b59aaa99\
+      ,\
+      ff85ea71-79b8-48a1-b65b-ce0a38b87dbd"
+    api_url:
+      objects: &objectsApiUrl 'http://cf-atrius-objects-api-docker/cf-atrius-objects'
+      lights_map: &lightsMapApiUrl 'http://cf-atrius-objects-api-docker/cf-lights-map'
+  db:
+    password:
+      atrius: &dbPasswordAtrius 'too2Simple'
+      linux: &dbPasswordLinux 'too2Simple'
+    url:
+      admin: &dbUrlAdmin 'sqlserver:/sa:too2Simple@cf-mssql-linux:1433/cf-dev-admin-db?azure='
+      atrius: &dbUrlAtrius 'sqlserver://sa:too2Simple@cf-mssql-atrius:1433/allspice-mapmanager01db?encrypt=disable'
+      authz: &dbUrlAuthZ 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-authz-db?azure='
+      elm: &dbUrlElm 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-elm-db?azure='
+      network_view: &dbUrlNetworkView 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-network-view-db?azure='
+      self_healing: &dbUrlSelfHealing "\
+        DRIVER={FreeTDS};\
+        SERVER=cf-mssql-linux;\
+        DATABASE=cf-dev-self-healing;\
+        UID=sa;\
+        PWD=too2Simple;\
+        PORT=1433"
+  secret_key_base:
+    admin: &secretKeyBaseAdmin 'fixme-secret1'
+    authz: &secretKeyBaseAuthZ 'fixme-secret2'
+    elm: &secretKeyBaseElm 'fixme-secret3'
+    network_view: &secretKeyBaseNetworkView 'fixme-secret4'
+  authz:
+    api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
+  elm:
+    passage:
+      api_url:
+        passage: *passageApiUrl
+        relay: *relayApiUrl
+      partner_env: *passagePartnerEnv
+      referer: &passageReferer 'https://cf.us.atrius-iot.com'
+      host: *passageHost
+    service_principal:
+      client_id: &servicePrincipalClientId ''
+      tenant_id: &servicePrincipalTenantId ''
+      secret: &servicePrincipalSecret ''
+  self_healing:
+    api_key: &selfHealingApiKey 'fixme-dummy-developer-key'
+    api_url:
+      prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
+
 cf-http-https-echo:
   enabled: true
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target' : '/cf-echo/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-echo/'
     hosts:
       - paths:
           - '/cf-echo(/|$)(.*)'
@@ -17,7 +110,7 @@ cf-oauth-proxy-docker:
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target' : '/oauth2/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/oauth2/'
     hosts:
       - paths:
           - '/oauth2/'
@@ -27,7 +120,7 @@ cf-react-app-docker:
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target' : '/cf-app/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-app/'
     hosts:
       - paths:
           - '/cf-app(/|$)(.*)'
@@ -37,7 +130,7 @@ cf-self-healing-app-docker:
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target' : '/cf-self-healing/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing/'
     hosts:
       - paths:
           - '/cf-self-healing(/|$)(.*)'
@@ -51,6 +144,13 @@ cf-atrius-objects-api-docker:
       - paths:
           - '/cf-atrius-objects/'
           - '/cf-lights-map/'
+  config:
+    environment:
+      JWT_ISSUERS: *trustedIdProviders
+      AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+    secrets:
+      CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+      DATABASE_URLS: *dbUrlAtrius
 
 cf-self-healing-api-docker:
   enabled: true
@@ -60,6 +160,13 @@ cf-self-healing-api-docker:
     hosts:
       - paths:
           - '/cf-self-healing-api/'
+  config:
+    environment:
+      JWT_ISSUERS: *trustedIdProviders
+      URL_PREFIX: *urlPrefixSelfHealing
+    secrets:
+      DATABASE_CONN_STRING: *dbUrlSelfHealing
+      API_KEY: *selfHealingApiKey
 
 cf-authz-web-api-docker:
   enabled: true
@@ -69,6 +176,13 @@ cf-authz-web-api-docker:
     hosts:
       - paths:
           - '/cf-authz/'
+  config:
+    environment:
+      <<: *railsEnv
+      JWT_ISSUERS: *trustedIdProviders
+    secrets:
+      DATABASE_URL: *dbUrlAuthZ
+      SECRET_KEY_BASE: *secretKeyBaseAuthZ
 
 cf-elm-web-api-docker:
   enabled: true
@@ -78,6 +192,22 @@ cf-elm-web-api-docker:
     hosts:
       - paths:
           - '/cf-elm/'
+  config:
+    environment:
+      <<: *railsEnv
+      PASSAGE_API_URL: *passageApiUrl
+      RELAY_API_URL: *relayApiUrl
+      PASSAGE_PARTNER_ENV: *passagePartnerEnv
+      PASSAGE_REFERER: *passageReferer
+      PASSAGE_HOST: *passageHost
+      CF_AUTHZ_API_URL: *authzApiUrl
+      CF_OBJECTS_API_URL: *objectsApiUrl
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+    secrets:
+      DATABASE_URL: *dbUrlElm
+      SECRET_KEY_BASE: *secretKeyBaseElm
+      SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
 cf-admin-web-api-docker:
   enabled: true
@@ -87,6 +217,13 @@ cf-admin-web-api-docker:
     hosts:
       - paths:
           - '/cf-admin/'
+  config:
+    environment:
+      <<: *railsEnv
+      CF_AUTHZ_API_URL: *authzApiUrl
+    secrets:
+      DATABASE_URL: *dbUrlAdmin
+      SECRET_KEY_BASE: *secretKeyBaseAdmin
 
 cf-ingest-web-api:
   enabled: true
@@ -96,6 +233,13 @@ cf-ingest-web-api:
     hosts:
       - paths:
           - '/cf-ingest/'
+  config: &configNetworkView
+    environment:
+      <<: *railsEnv
+      CF_AUTHZ_API_URL: *authzApiUrl
+    secrets:
+      DATABASE_URL: *dbUrlNetworkView
+      SECRET_KEY_BASE: *secretKeyBaseNetworkView
 
 cf-health-web-api:
   enabled: true
@@ -105,6 +249,8 @@ cf-health-web-api:
     hosts:
       - paths:
           - '/cf-health/'
+  config:
+    <<: *configNetworkView
 
 cf-inginx-ingress-controller:
   enabled: true
@@ -114,12 +260,18 @@ cf-inginx-ingress-default-backend:
 
 cf-mssql-linux:
   enabled: true
+  sapassword: *dbPasswordLinux
+  fullnameOverride: 'cf-mssql-linux'
 
 cf-mssql-atrius:
   enabled: true
+  sapassword: *dbPasswordAtrius
+  fullnameOverride: 'cf-mssql-atrius'
 
 cf-sql-server:
   enabled: true
+  fullnameOverride: 'cf-sql-server'
 
 cf-sql-server-atrius:
   enabled: true
+  fullnameOverride: 'cf-sql-server-atrius'
