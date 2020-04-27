@@ -1,0 +1,42 @@
+@startuml
+autonumber
+
+Actor ELM_User
+Participant ELM_Web_UI #cyan
+Participant ELM_API_Service #cyan
+Database ELM_Database #cyan
+Participant Passage_Eclypse_Relay_API #gray
+Control A1000_IPv4
+Participant Microsoft_IOT_Hub
+Participant Atrius_Dispatch
+Participant Atrius_Lights_Map_Service
+Database BlobStore
+Participant CF_LightsMap_Service #cyan
+Database Atrius_Read_only_Database #cyan
+Participant ELM_LightGroups_API_Service #cyan
+
+ELM_User -> ELM_Web_UI : Draw_Groups
+ELM_Web_UI -> ELM_API_Service : Group Boundaries, Colors
+ELM_API_Service <-> ELM_Database : Group Meta data
+ELM_API_Service -> Passage_Eclypse_Relay_API : Notify new groups
+Passage_Eclypse_Relay_API -> A1000_IPv4 : Notify new groups
+Passage_Eclypse_Relay_API <- A1000_IPv4 : Acknowledge new groups
+ELM_API_Service <- Passage_Eclypse_Relay_API : Acknowledge new groups
+ELM_Web_UI <- ELM_API_Service : Acknowledge new groups
+
+A1000_IPv4 -> Microsoft_IOT_Hub : D2C, request new LightsMap\n(Floorspace ID)
+Microsoft_IOT_Hub -> Atrius_Dispatch : request new LightsMap\n(Floorspace ID)
+Atrius_Dispatch -> Atrius_Lights_Map_Service : request new LightsMap\n(Floorspace ID)
+Atrius_Lights_Map_Service -> CF_LightsMap_Service : request new LightsMap:\n+Floorspace ID\n+FeatureGate\n+ApiKey\n+CF_LIGHTSMAP_URL
+CF_LightsMap_Service <-> Atrius_Read_only_Database : request metadata:\n+floorspace\n+lightgroups
+CF_LightsMap_Service -> ELM_LightGroups_API_Service : request metadata:\n+lightgroups
+CF_LightsMap_Service <- ELM_LightGroups_API_Service : response:\n#lightgroups
+Atrius_Lights_Map_Service <- CF_LightsMap_Service : response:\n#lightsmap
+Atrius_Lights_Map_Service -> BlobStore : lightsmap
+Atrius_Lights_Map_Service <- BlobStore : URL
+Microsoft_IOT_Hub <- Atrius_Lights_Map_Service : Blob URL + SAS token
+A1000_IPv4 <- Microsoft_IOT_Hub : Blob URL + SAS token
+A1000_IPv4 -> BlobStore : Blob URL + SAS token
+A1000_IPv4 <- BlobStore : LightsMap
+
+@enduml
