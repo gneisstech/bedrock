@@ -896,8 +896,8 @@ function update_application_gateway_config () {
     set_ssl_policy
     echo "checkpoint url_path_map" > /dev/stderr
     url_path_maps
-    echo "checkpoint http_listener" > /dev/stderr
-    http_listener
+#    echo "checkpoint http_listener" > /dev/stderr
+#    http_listener
     echo "checkpoint routing rules" > /dev/stderr
     request_routing_rules
     echo "checkpoint ssl_cert" > /dev/stderr
