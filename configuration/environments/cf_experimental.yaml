@@ -9,10 +9,9 @@ target:
     dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     service_deployment:
       tenant: &acuityDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
-      atrius_api_fqdn: &atriusApiFqdn 'api.dev.atrius-iot.io.'
+      atrius_api_host: &atriusApiHost 'api.dev.atrius-iot.io'
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
-      passage_api_fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
-      passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
+      passage_api_host: &passageApiHost 'passage.atrius-dev.acuitynext.io'
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
@@ -863,7 +862,10 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            ATRIUS_API_URL: *atriusApiFqdn
+            ATRIUS_API_URL:
+              - 'https://'
+              - *atriusApiHost
+              - '/api/v1'
             AZURE_DB: 'true'
             CF_AUTHZ_API_URL: *authzApiUrl
             CF_OBJECTS_API_URL:
@@ -884,16 +886,15 @@ target:
             DOCKER_REGISTRY_SERVER_USERNAME: *primaryACR
             PASSAGE_API_URL:
               - 'https://'
-              - *passageApiFqdn
+              - *passageApiHost
               - '/api/v1'
-            PASSAGE_PARTNER_ENV: *passagePartnerEnv
             PASSAGE_REFERER: 'https://cf.us.atrius-iot.com'
             PASSAGE_HOST:
-              - *passageApiFqdn
+              - *passageApiHost
             RAILS_LOG_TO_STDOUT: 'true'
             RELAY_API_URL:
               - 'https://'
-              - *passageApiFqdn
+              - *passageApiHost
               - '/api/v1/Devices'
             # SECRET_KEY_BASE: 'fd54dc7d647688aa71dc5bfeb5cac675728d5c8dc6762ebcf242f1eb7f65b85dbddef5e5330a11ec8401b319f7ae0bcff1bec920d041868777814dd86e9a7bd8'
             SERVICE_PRINCIPAL_CLIENT_ID: '453111ae-5c35-4369-9807-2aff96da2def'
