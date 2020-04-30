@@ -12,7 +12,6 @@ target:
       atrius_api_host: &atriusApiHost 'api.dev.atrius-iot.io'
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
       passage_api_host: &passageApiHost 'passage.atrius-dev.acuitynext.io'
-      passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
@@ -889,7 +888,6 @@ target:
               - 'https://'
               - *passageApiHost
               - '/api/v1'
-            PASSAGE_PARTNER_ENV: *passagePartnerEnv
             PASSAGE_REFERER: 'https://cf.us.atrius-iot.com'
             PASSAGE_HOST:
               - *passageApiHost
