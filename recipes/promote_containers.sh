@@ -24,20 +24,23 @@ function acr_logins () {
     az acr login -n cfdevregistry
     az acr login -n cfstagingregistry
     az acr login -n cfqaregistry
+    az acr login -n cfprodregistry
 }
 
 function promote_containers () {
-    local -r originRepo='cfdevregistry.azurecr.io'
+    local -r originRepo='cfqaregistry.azurecr.io'
     #local -r containers='cf-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-docker cf-self-healing-app-docker'
-    #local -r containers='cf-self-healing-api-docker cf-self-healing-app-docker'
-    local -r containers='cf-admin-web-api-docker cf-atrius-objects-api-docker cf-authz-web-api-docker cf-elm-web-api-docker cf-network-view-web-api-docker cf-oauth-proxy-docker cf-react-app-docker'
+    local -r containers='cf-self-healing-api-docker cf-self-healing-app-docker'
+    #local -r containers='cf-admin-web-api-docker cf-atrius-objects-api-docker cf-authz-web-api-docker cf-elm-web-api-docker cf-network-view-web-api-docker cf-oauth-proxy-docker cf-react-app-docker'
+    #local -r containers='cf-oauth-proxy-docker'
     acr_logins
     for image in ${containers}; do
         local imageWithTag originPath targetPath targetRepo
         imageWithTag="${image}:connected-facilities"
         originPath="${originRepo}/${imageWithTag}"
         docker pull "${originPath}"
-        for targetRepo in cfqaregistry; do
+        #shellcheck disable=SC2043
+        for targetRepo in cfprodregistry; do
             local targetPath
             targetPath="${targetRepo}.azurecr.io/${imageWithTag}"
             docker tag "${originPath}" "${targetPath}"

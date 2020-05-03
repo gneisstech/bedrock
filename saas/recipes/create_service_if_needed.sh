@@ -81,7 +81,6 @@ function svc_attr_size () {
     saas_configuration | jq -r -e ".${SERVICE_GROUP}.services[] | select(.name == \"$(service_name)\") | .${attr} | length // 0"
 }
 
-
 function svc_string () {
     local -r attr="${1}"
     local -r key="${2}"

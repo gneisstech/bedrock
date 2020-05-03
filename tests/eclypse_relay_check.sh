@@ -21,14 +21,29 @@ declare -r PASSAGE_PARTNER="${PASSAGE_PARTNER:-Lighthouse}"
 declare -r PASSAGE_ENVIRONMENT="${PASSAGE_ENVIRONMENT:-ASP_DEV_US}"
 declare -r PASSAGE_ORGANIZATION="${PASSAGE_ORGANIZATION:-ABL Development System}"
 #declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-7D0D6DF9-1C66-5D73-8A9C-8F272A62AA64}"
-declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-D504C5B9-A911-5B36-A41D-19B2FB088EC8}"
+#declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-D504C5B9-A911-5B36-A41D-19B2FB088EC8}"
+declare -r ECLYPSE_ID="${ECLYPSE_ID:-ECYS1000-7B59C007-3C99-51FD-ACA2-CE27E7B7DF6C}"
+declare -r PASSAGE_TENANT_ID="${PASSAGE_TENANT_ID:-caadbe96-024e-4f67-82ec-fb28ff53d16d}"
+
+function repo_root () {
+    git rev-parse --show-toplevel
+}
 
 function passages_base_url () {
     printf 'https://%s/api/v1' "${PASSAGE_HOST}"
 }
 
+function site_login () {
+    az login \
+        --service-principal \
+        --password '[yPR7EsMtY]i[ci2.fGdaGOSdGyAD6W7' \
+        --username '453111ae-5c35-4369-9807-2aff96da2def' \
+        --tenant "${PASSAGE_TENANT_ID}" \
+        --allow-no-subscriptions
+}
+
 function site_token () {
-    az account get-access-token --subscription 'Allspice-Dev' --resource "${PASSAGE_API}" 2>/dev/null | jq -r '.accessToken'
+    az account get-access-token --resource "${PASSAGE_API}" --tenant "${PASSAGE_TENANT_ID}" 2>/dev/null | jq -r '.accessToken'
 }
 
 function get_device_id () {
@@ -40,7 +55,7 @@ function eclypse_partner_info () {
     cmd="curl -vv -sS"
     cmd+=" --header 'Authorization: Bearer $(site_token)'"
     cmd+=" --header 'Host: ${PASSAGE_HOST}'"
-    cmd+=" --referer 'https://${PASSAGE_HOST}/swagger/ui/index'"
+    cmd+=" --referer 'https://cf.us.atrius-iot.com/'"
     cmd+=" -X GET"
     cmd+=" --header 'Accept: application/json'"
     cmd+=" '$(passages_base_url)/partners/entities-and-environments'"
@@ -58,7 +73,7 @@ function get_atrius_organizations () {
     cmd+=" --header 'Authorization: Bearer $(site_token)'"
     cmd+=" --header 'atr-entity-key: $(eclypse_partner_key)'"
     cmd+=" --header 'Host: ${PASSAGE_HOST}'"
-    cmd+=" --referer 'https://${PASSAGE_HOST}/swagger/ui/index'"
+    cmd+=" --referer 'https://cf.us.atrius-iot.com/'"
     cmd+=" -X GET"
     cmd+=" --header 'Accept: application/json'"
     cmd+=" '$(passages_base_url)/organizations?active=active'"
@@ -86,7 +101,8 @@ LOCAL_CONTEXT
 
 
 function eclypse_relay_check () {
-    ./eclypse_check.sh "$(create_local_context)"
+    #shellcheck disable=SC2046
+    $(repo_root)/tests/eclypse_check.sh "$(create_local_context)"
 }
 
 eclypse_relay_check
