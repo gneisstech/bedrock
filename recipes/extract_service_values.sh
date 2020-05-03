@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: pre_process_strings.sh target_environment_config.yaml
+# usage: extract_service_values.sh target_environment_config.yaml
 
 #
 # Maintainer: techguru@byiq.com
@@ -36,6 +36,9 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+
+# Arguments
+# ---------------------
 declare -rx TARGET_CONFIG
 
 # Arguments
@@ -53,8 +56,11 @@ function read_configuration () {
     yq read --tojson "$(target_config)"
 }
 
-function pre_process_strings () {
-    read_configuration | "$(repo_root)/recipes/join_string_arrays.sh" | "$(repo_root)/recipes/interpolate_strings.sh"
+function extract_service_values () {
+    read_configuration \
+        | jq -r -e '.target.saas.helm.service_values' \
+        | "$(repo_root)/recipes/join_string_arrays.sh" \
+        | "$(repo_root)/recipes/interpolate_strings.sh"
 }
 
-pre_process_strings
+extract_service_values

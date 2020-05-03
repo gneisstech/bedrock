@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: join_string_arrays.sh target_environment_config.yaml
+# usage: join_string_arrays.sh
 
 #
 # Maintainer: techguru@byiq.com
