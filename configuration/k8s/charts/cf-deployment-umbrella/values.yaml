@@ -101,6 +101,11 @@ cf-http-https-echo:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-echo/'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-echo(/|$)(.*)'
@@ -136,7 +141,7 @@ cf-oauth-proxy-docker:
       OAUTH2_PROXY_SKIP_AUTH_REGEX: 'fixme-oauth-skip-auth-regex'
       OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: 'true'
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: 'true'
-      OAUTH2_PROXY_UPSTREAMS: 'fixme-oauth-proxy-upstreams'
+      OAUTH2_PROXY_UPSTREAMS: ''  # deliberately empty
     secrets:
       OAUTH2_PROXY_CLIENT_SECRET: 'fixme-oauth-proxy-client-secret'
       OAUTH2_PROXY_COOKIE_SECRET: 'fixme-oauth-proxy-cookie-secret'
@@ -147,6 +152,11 @@ cf-react-app-docker:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-app/'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-app(/|$)(.*)'
@@ -157,6 +167,11 @@ cf-self-healing-app-docker:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing/'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-self-healing(/|$)(.*)'
@@ -165,7 +180,12 @@ cf-atrius-objects-api-docker:
   enabled: true
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-atrius-objects/'
@@ -182,7 +202,12 @@ cf-self-healing-api-docker:
   enabled: true
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-self-healing-api/'
@@ -198,7 +223,12 @@ cf-authz-web-api-docker:
   enabled: true
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-authz/'
@@ -214,7 +244,12 @@ cf-elm-web-api-docker:
   enabled: true
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-elm/'
@@ -239,7 +274,12 @@ cf-admin-web-api-docker:
   enabled: true
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-admin/'
@@ -255,7 +295,12 @@ cf-ingest-web-api:
   enabled: true
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-ingest/'
@@ -271,7 +316,12 @@ cf-health-web-api:
   enabled: true
   ingress:
     enabled: true
-    annotations: {}
+    annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-health/'
