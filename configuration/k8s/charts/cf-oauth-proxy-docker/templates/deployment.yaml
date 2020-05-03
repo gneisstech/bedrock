@@ -27,9 +27,14 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: '{{ template "cf-oauth-proxy-docker.fullname" . }}-env'
+            - secretRef:
+                name: '{{ template "cf-oauth-proxy-docker.fullname" . }}-senv'
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.config.container.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
