@@ -1,0 +1,14 @@
+{{- if .Values.config.environment }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ template "cf-self-healing-api-docker.name" . }}
+    chart: {{ template "cf-self-healing-api-docker.chart" . }}
+    component: "{{ template "cf-self-healing-api-docker.name" . }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "cf-self-healing-api-docker.fullname" . }}-env
+data:
+{{ tpl (toYaml .Values.config.environment) . | indent 2 }}
+{{- end }}

@@ -151,7 +151,7 @@ function container_images_from_webapp_config () {
 }
 
 function compute_blessed_release_tag () {
-    local new_semver build prerelease
+    local new_semver
     new_semver="$(new_repo_semver)"
     printf '%s%s' "$(release_prefix)" "${new_semver}"
 }
@@ -207,10 +207,6 @@ function bless_deployed_containers () {
         docker inspect "${container_path}"
     done
     bless_git_repo
-}
-
-function pull_deployment_into_local_containers () {
-    harvest_deployed_containers
 }
 
 function is_merge () {
