@@ -524,6 +524,7 @@ target:
           config:
             environment:
               << : *railsEnv
+              AUTHORIZED_USERS: ''
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               JWT_ISSUERS: *trustedIdProviders
