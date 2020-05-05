@@ -24,7 +24,7 @@ config:
   secrets:
     CF_DISTECH_LIGHTSMAP_API_KEY: 'fixme-placeholder-inbound-api-key'
     DATABASE_URLS: 'fixme-placeholder-comma-separated-database-connection-strings'
-    SERVICE_PRINCIPAL_SECRET: 'fixme-placeholder-elm-service-principal-secret'
+    CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: 'fixme-placeholder-elm-service-principal-secret'
 
 serviceAccount:
   # Specifies whether a service account should be created

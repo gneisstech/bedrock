@@ -511,7 +511,7 @@ target:
             secrets:
               CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
               DATABASE_URLS: *dbUrlAtrius
-              SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
           config:
             environment:
@@ -550,7 +550,6 @@ target:
             secrets:
               DATABASE_URL: *dbUrlElm
               SECRET_KEY_BASE: *secretKeyBaseElm
-              SERVICE_PRINCIPAL_SECRET: *elmSpSecret
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-admin-web-api-docker:
           config:
@@ -616,3 +615,8 @@ target:
             secrets:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
+        cf-waf-ingress-default-backend:
+          enabled: true
+        cf-waf-ingress:
+          enabled: true
+

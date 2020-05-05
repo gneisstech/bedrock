@@ -32,7 +32,7 @@ config:
   secrets:
     DATABASE_URL: 'fixme-placeholder-database-connection-string'
     SECRET_KEY_BASE: 'fixme-placeholder'
-    SERVICE_PRINCIPAL_SECRET: 'fixme-placeholder'
+    CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: 'fixme-placeholder'
 
 serviceAccount:
   # Specifies whether a service account should be created

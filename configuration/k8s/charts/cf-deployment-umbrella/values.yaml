@@ -184,7 +184,7 @@ cf-self-healing-app-docker:
           - '/cf-self-healing(/|$)(.*)'
 
 cf-atrius-objects-api-docker:
-  fullnameOverride: 'cf-atrius-objects-docker'
+  fullnameOverride: 'cf-atrius-objects-api-docker'
   enabled: true
   ingress:
     enabled: true
@@ -283,7 +283,7 @@ cf-elm-web-api-docker:
     secrets:
       DATABASE_URL: *dbUrlElm
       SECRET_KEY_BASE: *secretKeyBaseElm
-      SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
+      CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
 cf-admin-web-api-docker:
   fullnameOverride: 'cf-admin-web-api-docker'
@@ -349,31 +349,31 @@ cf-health-web-api:
   config:
     <<: *configNetworkView
 
-cf-inginx-ingress-controller:
-  enabled: true
-
-cf-inginx-ingress-default-backend:
-  enabled: true
-
 cf-mssql-linux:
+  fullnameOverride: 'cf-mssql-linux'
   enabled: true
   sapassword: *dbPasswordLinux
-  fullnameOverride: 'cf-mssql-linux'
 
 cf-mssql-atrius:
+  fullnameOverride: 'cf-mssql-atrius'
   enabled: true
   sapassword: *dbPasswordAtrius
-  fullnameOverride: 'cf-mssql-atrius'
 
 cf-sql-server:
-  enabled: true
   fullnameOverride: 'cf-sql-server'
+  enabled: true
 
 cf-sql-server-atrius:
-  enabled: true
   fullnameOverride: 'cf-sql-server-atrius'
+  enabled: true
+
+cf-waf-ingress-default-backend:
+  fullnameOverride: 'cf-waf-ingress-default-backend'
+  enabled: true
 
 cf-waf-ingress:
+  fullnameOverride: 'cf-waf-ingress'
+  enabled: true
   controller:
     # config:
     addHeaders:

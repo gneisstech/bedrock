@@ -52,7 +52,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-atrius-objects-api-docker'
-    version: '0.1.5-developer'
+    version: '0.1.6-developer'
     repository: 'file://../cf-atrius-objects-api-docker'
     condition: 'cf-atrius-objects-api-docker.enabled'
     tags:
@@ -70,7 +70,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-elm-web-api-docker'
-    version: '0.1.3-developer'
+    version: '0.1.4-developer'
     repository: 'file://../cf-elm-web-api-docker'
     condition: 'cf-elm-web-api-docker.enabled'
     tags:
@@ -166,4 +166,4 @@ appVersion: 'r0.0.20-IndividualCI.20200428.3.RC'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.1.11-developer
+version: 0.1.13-developer
