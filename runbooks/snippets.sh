@@ -31,6 +31,8 @@ https://github.com/helm/charts/tree/master/stable/metrics-server
 kubectl delete clusterrole cf-waf-ingress
 kubectl delete clusterrolebinding cf-waf-ingress
 
+# attach azure container registry to cluster
+az aks update -n myAKSCluster -g myResourceGroup --attach-acr <acrName>
 
 environments:
 clean-local
