@@ -15,6 +15,8 @@ helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(
 
 docker build . -t cfqaregistry.azurecr.io/cf-objects-api-docker:r0.0.20-IndividualCI.20200428.3.RC
 
+helm install datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
+
 #dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 kubectl proxy

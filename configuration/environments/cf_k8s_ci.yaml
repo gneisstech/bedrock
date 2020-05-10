@@ -212,6 +212,67 @@ target:
           zones: '1 2 3'
           subscription: *defaultAzureSubscription
           action: 'create'
+        secrets:
+          names:
+            - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
+          values:
+            datadog_api_key: &datadogApiKey
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *dataDogApiKeySecretName
+              - '"}'
+              - '##'
+      datadog:
+        agents:
+          rbac:
+            create: true
+          containers:
+            agent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            systemProbe:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            traceAgent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            processAgent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+        clusterChecksRunner:
+          env:
+            - name: 'DD_KUBELET_TLS_VERIFY'
+              value: 'false'
+          rbac:
+            create: true
+        datadog:
+          apiKey: *datadogApiKey
+          clusterAgent:
+            enabled: true
+            clusterAgent:
+              metricsProvider:
+                enabled: true
+          clusterChecks:
+            enabled: true
+          kubeStateMetricsEnabled: true
+          logs:
+            enabled: true
+            containerCollectAll: true
+            containerCollectUsingFiles: false
+          env:
+            - name: 'DD_KUBELET_TLS_VERIFY'
+              value: 'false'
+        clusterAgent:
+          rbac:
+            create: true
+        kube-state-metrics:
+          rbac:
+            create: true
   saas:
     helm:
       default-values:
