@@ -84,6 +84,11 @@ target:
           - *defaultAzureSubscription
           - '/resourceGroups/'
           - *cfK8sRG
+          - ' ' 
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfWafRG
         action: 'create'
       # for private calls to Atrius Objects Service
       - name: &spAtriusObjects 'cf-ci-atrius-objects-sp'
@@ -212,17 +217,17 @@ target:
           zones: '1 2 3'
           subscription: *defaultAzureSubscription
           action: 'create'
-        secrets:
-          names:
-            - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
-          values:
-            datadog_api_key: &datadogApiKey
-              - '##secure_secret={"vault":"'
-              - *kvName
-              - '","secret_name":"'
-              - *dataDogApiKeySecretName
-              - '"}'
-              - '##'
+      secrets:
+        names:
+          - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
+        values:
+          datadog_api_key: &datadogApiKey
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *dataDogApiKeySecretName
+            - '"}'
+            - '##'
       datadog:
         agents:
           rbac:
@@ -680,4 +685,7 @@ target:
           enabled: true
         cf-waf-ingress:
           enabled: true
-
+          controller:
+            service:
+              loadBalancerIP: '52.188.33.250'
+              externalTrafficPolicy: 'Local'
