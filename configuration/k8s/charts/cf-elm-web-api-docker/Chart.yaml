@@ -1,0 +1,23 @@
+apiVersion: v2
+name: 'cf-elm-web-api-docker'
+description: Connected Facilities backend API services for elm
+keywords:
+  - 'connected-facilities'
+  - 'cf-elm-web-api-backend'
+type: application
+home: ''  # The URL of this projects home page (optional)
+sources: []  # A list of URLs to source code for this project (optional)
+maintainers:
+  - name: 'Paul Charlton'
+    email: 'techguru@byiq.com'
+    url: 'https://www.gitlab.com/techguru'
+icon: ''
+deprecated: false
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 'r0.0.20-IndividualCI.20200428.3.RC'
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.1.3-developer

@@ -1,0 +1,14 @@
+{{- if .Values.config.environment }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ template "cf-atrius-objects-api-docker.name" . }}
+    chart: {{ template "cf-atrius-objects-api-docker.chart" . }}
+    component: "{{ template "cf-atrius-objects-api-docker.name" . }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "cf-atrius-objects-api-docker.fullname" . }}-env
+data:
+{{ tpl (toYaml .Values.config.environment) . | indent 2 }}
+{{- end }}

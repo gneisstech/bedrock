@@ -40,7 +40,7 @@ function get_resource_ids_for_groups () {
 }
 
 function remove_persistent_resources () {
-    egrep -vi 'Microsoft.KeyVault|Microsoft.Sql|publicIPAddresses|Microsoft.Storage|\/ingestion|\/Acr-'
+    grep -E -vi 'Microsoft.KeyVault|Microsoft.Sql|publicIPAddresses|Microsoft.Storage|\/ingestion|\/Acr-'
 }
 
 function clean_resource_ids () {
