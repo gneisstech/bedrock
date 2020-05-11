@@ -1,0 +1,1 @@
+1. Service endpoint for external MSSQL server

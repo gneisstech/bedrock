@@ -95,8 +95,16 @@ function deploy_dns_a_records () {
     done
 }
 
+function vnet_count () {
+    iaas_configuration | jq -r -e '.networking.vnets // null | length'
+}
+
 function vnet_names () {
-    iaas_configuration | jq -r -e '[.networking.vnets[] | select(.action == "create") | .name ] | @tsv'
+    if [[ "0" != "$(vnet_count)" ]]; then
+        iaas_configuration | jq -r -e '[.networking.vnets[] | select(.action == "create") | .name ] | @tsv'
+    else
+        printf ''
+    fi
 }
 
 function deploy_vnets () {

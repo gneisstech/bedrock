@@ -81,7 +81,6 @@ function svc_attr_size () {
     saas_configuration | jq -r -e ".${SERVICE_GROUP}.services[] | select(.name == \"$(service_name)\") | .${attr} | length // 0"
 }
 
-
 function svc_string () {
     local -r attr="${1}"
     local -r key="${2}"
@@ -320,6 +319,9 @@ function deploy_service () {
         --resource-group "$(service_resource_group)" \
         --plan "$(service_plan)" \
         --deployment-container-image-name "$(service_container_path)"
+}
+
+function configure_service () {
     set_connection_strings
     set_container_settings
     enable_container_continuous_deployment
@@ -331,6 +333,7 @@ function deploy_service () {
 
 function create_service_if_needed () {
     service_already_exists || deploy_service
+    configure_service
 }
 
 create_service_if_needed
