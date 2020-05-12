@@ -98,11 +98,12 @@ function kubernetes_cluster_already_exists () {
 }
 
 function az_create_service_principal () {
+    # shellcheck disable=SC2046
     az ad sp create-for-rbac \
         --name "http://$(sp_name)" \
         --role "$(service_principal_attr 'role')" \
         --output 'json' \
-        --scopes "$(service_principal_string_attr    '' 'scopes')" \
+        --scopes $(service_principal_string_attr    '' 'scopes') \
     | tee /dev/stderr
 }
 
