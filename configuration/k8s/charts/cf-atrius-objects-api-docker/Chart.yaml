@@ -22,4 +22,4 @@ appVersion: 'r0.0.22-Manual.20200504.2.RC'
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 #version: 0.1.1
-version: 0.1.7-developer
+version: 0.1.8-developer
