@@ -198,6 +198,28 @@ cf-atrius-objects-api-docker:
     hosts:
       - paths:
           - '/(cf-atrius-objects)(/|$)(.*)'
+  config:
+    environment:
+      JWT_ISSUERS: *trustedIdProviders
+      AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+    secrets:
+      CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+      DATABASE_URLS: *dbUrlAtrius
+
+cf-lights-map-api-docker:
+  fullnameOverride: 'cf-lights-map-api-docker'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/$1/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
           - '/(cf-lights-map)(/|$)(.*)'
   config:
     environment:

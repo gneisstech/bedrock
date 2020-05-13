@@ -60,6 +60,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: 'cf-atrius-objects-api-docker'
+    version: '0.1.7-developer'
+    repository: 'file://../cf-atrius-objects-api-docker'
+    condition: 'cf-lights-map-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-lights-map-api-docker'
   - name: 'cf-authz-web-api-docker'
     version: '0.1.4-developer'
     repository: 'file://../cf-authz-web-api-docker'
@@ -81,7 +90,7 @@ dependencies: # A list of the chart requirements (optional)
   - name: 'cf-network-view-web-api-docker'
     version: '0.1.4-developer'
     repository: 'file://../cf-network-view-web-api-docker'
-    condition: 'cf-network-view-web-api-docker.enabled'
+    condition: 'cf-health-web-api.enabled'
     tags:
       - 'cf-backend-api'
     enabled: true
@@ -90,7 +99,7 @@ dependencies: # A list of the chart requirements (optional)
   - name: 'cf-network-view-web-api-docker'
     version: '0.1.4-developer'
     repository: 'file://../cf-network-view-web-api-docker'
-    condition: 'cf-network-view-web-api-docker.enabled'
+    condition: 'cf-ingest-web-api.enabled'
     tags:
       - 'cf-backend-api'
     enabled: true
@@ -166,4 +175,4 @@ appVersion: 'r0.0.22-Manual.20200504.2.RC'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.1.14-developer
+version: 0.1.15-developer

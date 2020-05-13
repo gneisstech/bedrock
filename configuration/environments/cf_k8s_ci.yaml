@@ -578,6 +578,23 @@ target:
               CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
               DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
+        cf-lights-map-api-docker:
+          config:
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              ELM_LIGHTS_GROUPS_API_URL:
+                - 'https://'
+                - *wafFqdn
+                - *urlPrefixElm
+                - '/light-groups/published-light-groups'
+              SERVICE_PRINCIPAL_CLIENT_ID: *atriusObjectsSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
+            secrets:
+              CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+              DATABASE_URLS: *dbUrlAtrius
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
           config:
             environment:
