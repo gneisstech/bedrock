@@ -1,0 +1,69 @@
+@startuml
+autonumber
+
+Actor Asset_Tags_1_0
+Actor Asset_Tags_2_0
+Actor Mobile_SDK
+Participant BLE
+Participant Mesh_Network
+Participant BT_Dongle
+Participant Edgar
+Participant 900MHz_Dongle_NECYD
+Participant ECY1000AT
+Participant ECY1000
+Participant Azure_IOT_Hub
+Participant Azure_IOT_RoutingSource
+Participant Azure_IOT_Default_EH
+Participant Azure_IOT_Custom_Router
+Participant Azure_IOT_Custom_Endpoints
+Participant Atrius_Event_Hub_0
+Participant Atrius_Event_Hub_1
+Participant Atrius_Event_Hub_Mobile_SDK
+Participant Atrius_Service_Bus
+Database Atrius_Avro
+Participant CF_Real_Time_Asset_Telemetry
+
+
+== existing May 2020 ==
+
+group Existing_May_2020
+  group Asset_Tracking_1_0
+    Asset_Tags_1_0 -> BLE : Beaconing_Tag_Id
+    BLE -> Edgar : Rssi+BLE_ID+Beaconing_Tag_Id
+    Edgar -> Edgar : Rssi+BLE_ID+Beaconing_Tag_Id+Edgar_ID
+    Edgar -> Edgar : Hold and dedupe 1 second
+    Edgar -> 900MHz_Dongle_NECYD : Rssi+BLE_ID+Beaconing_Tag_Id+Edgar_ID
+    900MHz_Dongle_NECYD -> ECY1000AT : Rssi+BLE_ID+Beaconing_Tag_Id+Edgar_ID
+    ECY1000AT -> ECY1000AT : Hold and dedupe 3 seconds
+    ECY1000AT -> ECY1000AT : Triangulation => X,Y, timestamp, Beaconing_Tag_Id
+    ECY1000AT -> ECY1000 : Triangulation => X,Y, timestamp, Beaconing_Tag_Id
+    ECY1000 -> Azure_IOT_Hub : BasicTelemetry ( Triangulation => X,Y, timestamp, Beaconing_Tag_Id )
+    Azure_IOT_Hub -> Azure_IOT_RoutingSource : Slot 0 - BasicTelemetry (CG: $default, diagnosticappiothub, ingestion-ast-sa, jrf02troubleshooting, sfc1ingestion, sfc1kdingestion)
+    Azure_IOT_RoutingSource -> Atrius_Event_Hub_0 : BasicTelemetry
+    Azure_IOT_RoutingSource -> Atrius_Avro : BasicTelemetry
+  end
+  group Asset_Tracking_2_0
+    BLE -> Asset_Tags_2_0 : AcuityMsg Beacons
+    Edgar -> Asset_Tags_2_0 : AcuityMsg Beacons
+    Asset_Tags_2_0 -> Edgar : 3 strongest Acuity Beacon ID + signal weight + AT_Tag_ID
+    Edgar -> 900MHz_Dongle_NECYD : 3 strongest Acuity Beacon ID + signal weight + AT_Tag_ID
+    900MHz_Dongle_NECYD -> ECY1000AT : Rssi+BLE_ID+Edgar_ID+AT_Tag_ID
+    ECY1000AT -> ECY1000AT : Hold and dedupe NN seconds
+    ECY1000AT -> ECY1000AT : Triangulation => X,Y, timestamp, AT_Tag_ID
+    ECY1000AT -> ECY1000 : Triangulation => X,Y, timestamp, AT_Tag_ID
+    ECY1000 -> Azure_IOT_Hub : BasicTelemetry ( Triangulation => X,Y, timestamp, AT_Tag_ID )
+    Azure_IOT_Hub -> Azure_IOT_RoutingSource : Default - Telemetry2_0 (CF: $default, diagnosticappiothub, ingestion-ast-sa, jrf02troubleshooting, sfc1ingestion, sfc1kdingestion)
+    Azure_IOT_RoutingSource -> Azure_IOT_Custom_Router : DeviceJobLifecycleEvents
+    Azure_IOT_RoutingSource -> Azure_IOT_Custom_Router : DeviceLifecycleEvents
+    Azure_IOT_RoutingSource -> Azure_IOT_Custom_Router : TwinChangeEvents
+    Azure_IOT_RoutingSource -> Azure_IOT_Custom_Router : DeviceMessages (incl. Telemetry2_0)
+    Azure_IOT_Custom_Router -> CF_Event_Hub : Telemetry2_0
+    CF_Event_Hub -> CF_Real_Time_Asset_Telemetry : Telemetry2_0
+  end
+
+  group mobile_posititioning_telemetry
+    Mobile_SDK -> Atrius_Event_Hub_Mobile_SDK : BasicTelemetry
+  end
+end
+
+@enduml
