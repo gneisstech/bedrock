@@ -70,7 +70,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-lights-map-api-docker'
   - name: 'cf-authz-web-api-docker'
-    version: '0.1.5-developer'
+    version: '0.1.7-developer'
     repository: 'file://../cf-authz-web-api-docker'
     condition: 'cf-authz-web-api-docker.enabled'
     tags:
@@ -175,4 +175,4 @@ appVersion: 'r0.0.22-Manual.20200504.2.RC'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.1.16-developer
+version: 0.1.18-developer
