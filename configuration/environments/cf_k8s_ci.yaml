@@ -84,7 +84,7 @@ target:
           - *defaultAzureSubscription
           - '/resourceGroups/'
           - *cfK8sRG
-          - ' ' 
+          - ' '
           - '/subscriptions/'
           - *defaultAzureSubscription
           - '/resourceGroups/'
@@ -149,15 +149,15 @@ target:
         action: 'preserve'
       instances:
         - name: &selfHealingSchema 'cf-ci-self-healing'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &authzSchema 'cf-dev-authz-db'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &netWorkViewSchema 'cf-dev-network-view-db'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &elmSchema 'cf-dev-elm-db'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &adminSchema 'cf-dev-admin-db'
-          << : *dbTemplate
+          <<: *dbTemplate
     container_registries:
       - name: &primaryACR 'cfciregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
@@ -606,7 +606,7 @@ target:
         cf-authz-web-api-docker:
           config:
             environment:
-              << : *railsEnv
+              <<: *railsEnv
               AUTHORIZED_USERS: ''
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
@@ -617,7 +617,7 @@ target:
         cf-elm-web-api-docker:
           config:
             environment:
-              << : *railsEnv
+              <<: *railsEnv
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               PASSAGE_API_URL: *passageApiUrl
@@ -637,7 +637,7 @@ target:
         cf-admin-web-api-docker:
           config:
             environment:
-              << : *railsEnv
+              <<: *railsEnv
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
@@ -647,7 +647,7 @@ target:
         cf-ingest-web-api:
           config: &configNetworkView
             environment:
-              << : *railsEnv
+              <<: *railsEnv
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl

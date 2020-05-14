@@ -58,3 +58,9 @@ manage helm chart version - semver in Chart.yaml
 manage docker container version tags
 manage local helm umbrella
 
+
+###
+az acr helm repo add -n cfdevregistry
+
+az acr helm push -n MyRegistry mychart-0.3.2.tgz --force
+
