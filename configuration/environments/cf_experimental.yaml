@@ -509,10 +509,6 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            AUTHORIZED_USERS: &authorizedUsers
-              - '36bc7f6b-2161-415c-a00e-4332b59aaa99'
-              - ','
-              - 'ff85ea71-79b8-48a1-b65b-ce0a38b87dbd'
             AZURE_DB: 'true'
             DOCKER_ENABLE_CI: true
             DOCKER_REGISTRY_SERVER_PASSWORD:
