@@ -21,8 +21,8 @@ spec:
       serviceAccountName: {{ include "cf-admin-web-api-docker.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      containers:
-        - name: {{ .Chart.Name }}
+      initContainers:
+        - name: '{{ .Chart.Name }}-wait-for-db-schema'
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
@@ -39,6 +39,28 @@ spec:
                 name: '{{ template "cf-admin-web-api-docker.fullname" . }}-env'
             - secretRef:
                 name: '{{ template "cf-admin-web-api-docker.fullname" . }}-senv'
+          command:
+            - '/assets/run_ruby_wait_for_current_schema.sh'
+      containers:
+        - name: '{{ .Chart.Name }}'
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: STATSD_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: STATSD_PORT
+              value: "8125"
+          envFrom:
+            - configMapRef:
+                name: '{{ template "cf-admin-web-api-docker.fullname" . }}-env'
+            - secretRef:
+                name: '{{ template "cf-admin-web-api-docker.fullname" . }}-senv'
+          command:
+            - '/assets/run_ruby_app.sh'
           ports:
             - name: http
               containerPort: 80

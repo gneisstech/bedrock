@@ -43,7 +43,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-http-https-echo'
   - name: 'cf-admin-web-api-docker'
-    version: '0.1.5-developer'
+    version: '0.1.6-developer'
     repository: 'file://../cf-admin-web-api-docker'
     condition: 'cf-admin-web-api-docker.enabled'
     tags:
@@ -79,7 +79,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-elm-web-api-docker'
-    version: '0.1.6-developer'
+    version: '0.1.7-developer'
     repository: 'file://../cf-elm-web-api-docker'
     condition: 'cf-elm-web-api-docker.enabled'
     tags:
@@ -88,7 +88,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-network-view-web-api-docker'
-    version: '0.1.5-developer'
+    version: '0.1.6-developer'
     repository: 'file://../cf-network-view-web-api-docker'
     condition: 'cf-health-web-api.enabled'
     tags:
@@ -97,7 +97,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-health-web-api'
   - name: 'cf-network-view-web-api-docker'
-    version: '0.1.5-developer'
+    version: '0.1.6-developer'
     repository: 'file://../cf-network-view-web-api-docker'
     condition: 'cf-ingest-web-api.enabled'
     tags:
@@ -175,4 +175,4 @@ appVersion: 'r0.0.22-Manual.20200504.2.RC'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 0.1.18-developer
+version: 0.1.19-developer
