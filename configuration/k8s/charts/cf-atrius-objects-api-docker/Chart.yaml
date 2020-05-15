@@ -17,9 +17,9 @@ deprecated: false
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r0.0.22-Manual.20200504.2.RC'
+appVersion: 'r0.0.26-IndividualCI.20200514.3.RC'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 #version: 0.1.1
-version: 0.1.8-developer
+version: 0.1.9-developer
