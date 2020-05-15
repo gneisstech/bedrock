@@ -257,13 +257,19 @@ target:
             create: true
         datadog:
           apiKey: *datadogApiKey
+          leaderElection: true
+          collectEvents: true
           clusterAgent:
             enabled: true
             clusterAgent:
               metricsProvider:
                 enabled: true
           clusterChecks:
-            enabled: true
+            enabled: false
+          dogstatsd:
+            port: 8125
+            useHostPort: true
+            nonLocalTraffic: true
           kubeStateMetricsEnabled: true
           logs:
             enabled: true
@@ -278,6 +284,8 @@ target:
         kube-state-metrics:
           rbac:
             create: true
+          collectors:
+            verticalpodautoscalers: null
   saas:
     helm:
       default-values:
