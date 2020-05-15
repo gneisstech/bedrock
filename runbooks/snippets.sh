@@ -7,7 +7,7 @@ rm Chart.lock
 helm dependency build .
 
 TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh
-
+TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
 
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
@@ -36,6 +36,8 @@ kubectl delete clusterrolebinding cf-waf-ingress
 
 # attach azure container registry to cluster
 az aks update -n myAKSCluster -g myResourceGroup --attach-acr <acrName>
+az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/781c62dc-1612-43e6-a0ca-a8138888691f/resourceGroups/Acr-CfQA/providers/Microsoft.ContainerRegistry/registries/cfqaregistry
+
 
 environments:
 clean-local
@@ -64,3 +66,4 @@ az acr helm repo add -n cfdevregistry
 
 az acr helm push -n MyRegistry mychart-0.3.2.tgz --force
 
+The command is `kubectl --namespace datadog exec datadog-bplwr -it datadog-cluster-agent -- flare 342217` and this case ID is 342217.

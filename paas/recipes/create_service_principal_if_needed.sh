@@ -94,7 +94,6 @@ function kubernetes_cluster_already_exists () {
         --name "$(kubernetes_cluster_name)" \
         --resource-group "$(kubernetes_cluster_resource_group)" \
         > /dev/stderr 2>&1
-    false
 }
 
 function az_create_service_principal () {
@@ -114,7 +113,7 @@ function get_vault_secret () {
         --vault-name "${vault}" \
         --name "${secret_name}" \
         2> /dev/null \
-    | jq -r '.value'
+    | tee /dev/stderr | jq -r '.value'
 }
 
 function set_vault_secret () {

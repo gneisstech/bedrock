@@ -86,10 +86,12 @@ function svc_strings () {
 function get_vault_secret () {
     local -r vault="${1}"
     local -r secret_name="${2}"
-    az keyvault secret show \
-        --vault-name "${vault}" \
-        --name "${secret_name}" \
-    | jq -r '.value'
+    if [[ -n "${vault}${secret_name}" ]]; then
+        az keyvault secret show \
+            --vault-name "${vault}" \
+            --name "${secret_name}" \
+        | jq -r '.value'
+    fi
 }
 
 function get_current_subscription () {
@@ -134,9 +136,15 @@ function update_target_application () {
     local -r previous_subscription="${1}"
     local secret
     secret="$(get_vault_secret "$(svc_attr 'client_secret.vault')" "$(svc_attr 'client_secret.secret_name')" )"
-    az account set --subscription "$(svc_attr 'tenant')"
-    add_reply_url_to_application_if_needed
-    add_client_secret_to_application "${secret}"
+    if [[ -n "${secret}" ]]; then
+        local tenant
+        tenant="$(svc_attr 'tenant')"
+        if [[ -n "${tenant}" ]]; then
+            az account set --subscription "$(svc_attr 'tenant')"
+            add_reply_url_to_application_if_needed
+            add_client_secret_to_application "${secret}"
+        fi
+    fi
     az account set --subscription "${previous_subscription}"
 }
 
