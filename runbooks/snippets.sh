@@ -35,7 +35,6 @@ kubectl delete clusterrole cf-waf-ingress
 kubectl delete clusterrolebinding cf-waf-ingress
 
 # attach azure container registry to cluster
-az aks update -n myAKSCluster -g myResourceGroup --attach-acr <acrName>
 az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/781c62dc-1612-43e6-a0ca-a8138888691f/resourceGroups/Acr-CfQA/providers/Microsoft.ContainerRegistry/registries/cfqaregistry
 
 

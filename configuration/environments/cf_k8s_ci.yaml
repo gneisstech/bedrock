@@ -339,7 +339,7 @@ target:
             - &secretKeyBaseElmSecretName 'cf-ci-elm-api-secret-key-base'
             - &secretKeyBaseNetworkViewSecretName 'cf-ci-network-view-api-secret-key-base'
             - &selfHealingApiKeyName 'cf-ci-self-healing-api-key'
-            - &oauth2ProxyClientSeccretName 'cf-ci-oauth2-proxy-client-secret'
+            - &oauth2ProxyClientSecretName 'cf-ci-oauth2-proxy-client-secret'
             - &oauth2ProxyCookieSecretName 'cf-ci-oauth2-proxy-cookie-secret'
           values:
             atrius_objects_api_key: &atriusObjectsApiKey
@@ -388,7 +388,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - *oauth2ProxyClientSeccretName
+              - *oauth2ProxyClientSecretName
               - '"}'
               - '##'
             oauth2_proxy_cookie_secret: &oauth2ProxyCookieSecret
@@ -712,5 +712,17 @@ target:
           enabled: true
           controller:
             service:
-              loadBalancerIP: '52.188.33.250'
-              externalTrafficPolicy: 'Local'
+              enableHttp: false
+              loadBalancerIP:
+                - '##ip_address={"ip_resource_id":"'
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfWafRG
+                - '/providers/Microsoft.Network/publicIPAddresses/'
+                - *wafIP
+                - '"}'
+                - '##'
+              annotations:
+                'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
+

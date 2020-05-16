@@ -98,7 +98,20 @@ function process_secure_secret () {
     if [[ -z "${secret}" ]]; then
         secret="FAKE_SECRET"
     fi
-    echo "${secret}"
+    printf '%s' "${secret}"
+}
+
+function process_ip_address () {
+    local -r theString="${1}"
+    local theMessage ip_resource_id ip_resource public_ip
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    ip_resource_id="$(jq -r '.ip_resource_id' <<< "${theMessage}")"
+    ip_resource="$(az resource show --ids "${ip_resource_id}" -o json)"
+    public_ip="$(jq -r '.properties.ipAddress' <<< "${ip_resource}")"
+    if [[ -z "${public_ip}" ]]; then
+        public_ip='FAKE_IP'
+    fi
+    printf '%s' "${public_ip}"
 }
 
 function dispatch_functions () {
@@ -114,6 +127,9 @@ function dispatch_functions () {
                     ;;
                 secure_secret*)
                     array_entry="$(process_secure_secret "${line_data}")"
+                    ;;
+                ip_address*)
+                    array_entry="$(process_ip_address "${line_data}")"
                     ;;
                 *)
                    array_entry="UNDEFINED_FUNCTION [${line_data}]"
