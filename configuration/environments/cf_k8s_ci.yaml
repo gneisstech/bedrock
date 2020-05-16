@@ -24,6 +24,7 @@ target:
         secret_name: &cfObjectsDbSecretName_001 'ALLSPICEDEV-CFReader-SQLUserPassword'
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
+    k8s_namespace: &cfNamespace 'cfk8s'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -34,7 +35,7 @@ target:
       # CF Ci resource groups
       - name: &cfWafRG 'Waf-CfCi'
         action: 'create'
-      - name: &cfDbRG 'Data-CfCi'
+      - name: &cfDbRG 'Data-CfDev'
         action: 'create'
       - name: &cfKeysRG 'Kv-CfCi'
         action: 'create'
@@ -341,6 +342,7 @@ target:
             - &selfHealingApiKeyName 'cf-ci-self-healing-api-key'
             - &oauth2ProxyClientSecretName 'cf-ci-oauth2-proxy-client-secret'
             - &oauth2ProxyCookieSecretName 'cf-ci-oauth2-proxy-cookie-secret'
+            - &wafTLSSecret 'waf-tls-secret'
           values:
             atrius_objects_api_key: &atriusObjectsApiKey
               - '##secure_secret={"vault":"'
@@ -398,6 +400,37 @@ target:
               - *oauth2ProxyCookieSecretName
               - '"}'
               - '##'
+          seed-values:
+            - source:
+                secret_name: 'cf-dev-self-healing-api-key'
+                vault_name: &persistentKVName 'cf-dev-master-kv'
+                subscription: *defaultAzureSubscription
+              dest: *selfHealingApiKeyName
+            - source:
+                secret_name: 'cf-dev-oauth2-proxy-client-secret'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *oauth2ProxyClientSecretName
+            - source:
+                secret_name: 'cf-dev-lights-map-api-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *atriusObjectsApiKeySecretName
+            - source:
+                secret_name: 'datadogclient'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *dataDogApiKeySecretName
+            - source:
+                secret_name: 'admin-pw-for-cf-dev-sqls'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *cfDefaultDBSecretName
+            - source:
+                secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *cfObjectsDbSecretName_001
         service_principals:
           atrius_objects:
             sp_name: &atriusObjectsSpName 'cf-ci-atrius-objects-sp'
@@ -418,7 +451,7 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name: &elmSpName 'cf-ci-atrius-objects-sp'
+            sp_name: &elmSpName 'cf-elm-web-sp'
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
@@ -569,6 +602,21 @@ target:
           api_url:
             prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
       service_values:
+        tls_secrets:
+          - result:
+              - '##tls_secret={'
+              - '"k8s_tls_secret_name":"'
+              - *wafTLSSecret
+              - '","k8s_namespace":"'
+              - *cfNamespace
+              - '","from_vault":"'
+              - *atriusKVName
+              - '","from_secret_name":"'
+              - 'wildcarddevatrius-iotcom'
+              - '","from_subscription":"'
+              - *subscription_tls
+              - '"}'
+              - '##'
         cf-atrius-objects-api-docker:
           config:
             environment:
@@ -711,6 +759,32 @@ target:
         cf-waf-ingress:
           enabled: true
           controller:
+            config:
+              ssl-ciphers:
+                - 'ECDHE-ECDSA-AES128-GCM-SHA256'
+                - ':'
+                - 'ECDHE-RSA-AES128-GCM-SHA256'
+                - ':'
+                - 'ECDHE-ECDSA-AES256-GCM-SHA384'
+                - ':'
+                - 'ECDHE-RSA-AES256-GCM-SHA384'
+                - ':'
+                - 'ECDHE-ECDSA-CHACHA20-POLY1305'
+                - ':'
+                - 'ECDHE-RSA-CHACHA20-POLY1305'
+                - ':'
+                - 'DHE-RSA-AES128-GCM-SHA256'
+                - ':'
+                - 'DHE-RSA-AES256-GCM-SHA384'
+              ssl-protocols:
+                - 'TLSv1.2'
+                - ' '
+                - 'TLSv1.3'
+            extraArgs:
+              'default-ssl-certificate':
+                - *cfNamespace
+                - '/'
+                - *wafTLSSecret
             service:
               enableHttp: false
               loadBalancerIP:

@@ -114,6 +114,116 @@ function process_ip_address () {
     printf '%s' "${public_ip}"
 }
 
+function get_original_cert_from_shared_vault () {
+    local -r subscription="${1}"
+    local -r vault_name="${2}"
+    local -r secret_name="${3}"
+    az keyvault secret show \
+        --subscription "${subscription})" \
+        --vault-name "${vault_name}" \
+        --name "${secret_name}" \
+        2> /dev/null \
+    | jq -r '.value'
+}
+
+function pkcs12_to_pem () {
+    base64 --decode | openssl pkcs12 -nodes -in /dev/stdin -passin 'pass:'
+}
+
+function fail_empty_set () {
+    grep -q '^'
+}
+
+function has_intermediate_pem () {
+    local -r pem="${1}"
+    local -r entrust_certificate_name='Subject:.*CN=Entrust Certification Authority - L1K'
+    echo "${pem}" | openssl x509 -noout -text | grep "${entrust_certificate_name}" | fail_empty_set
+}
+
+function get_issuer_intermediate_cert_url () {
+    openssl x509 -noout -text | grep 'CA Issuers - URI:' | sed -e 's|.*URI:||'
+}
+
+function get_intermediate_pem () {
+    local -r url="${1}"
+    curl -sS "${url}" | openssl x509 -inform der -in /dev/stdin -out /dev/stdout
+}
+
+function add_intermediate_certificate () {
+    local pem issuer_intermediate_cert_url intermediate_pem
+    pem="$(cat /dev/stdin)"
+    echo "${pem}"
+    if ! has_intermediate_pem "${pem}"; then
+        issuer_intermediate_cert_url="$(echo "${pem}" | get_issuer_intermediate_cert_url)"
+        intermediate_pem="$(get_intermediate_pem "${issuer_intermediate_cert_url}" )"
+        echo "${intermediate_pem}"
+    fi
+}
+
+function pem_secret () {
+    local -r subscription="${1}"
+    local -r vault_name="${2}"
+    local -r secret_name="${3}"
+    get_original_cert_from_shared_vault "${from_subscription}" "${from_vault}" "${from_secret_name}" \
+        | pkcs12_to_pem \
+        | add_intermediate_certificate
+}
+
+function awk_pem_filter () {
+    local -r section_id="${1}"
+cat <<AWK_TEMPLATE
+    BEGIN {echo=0}
+    /BEGIN ${section_id}/ { echo=1 }
+    echo==1 {print \$0}
+    /END ${section_id}/ { echo=0; }
+AWK_TEMPLATE
+}
+
+function pem_cert () {
+    local -r pem_key_cert="${1}"
+    awk "$(awk_pem_filter 'CERTIFICATE')" <<< "${pem_key_cert}"
+}
+
+function pem_key () {
+    local -r pem_key_cert="${1}"
+    awk "$(awk_pem_filter 'PRIVATE KEY')" <<< "${pem_key_cert}"
+}
+
+function create_k8s_tls_secret () {
+    local -r k8s_namespace="${1}"
+    local -r k8s_tls_secret_name="${2}"
+    local -r pem_key_cert="${3}"
+    printf 'k8s_tls_secret_name=%s\n###\npem_certificate=\n%s\n###\npem_key=\n%s\n' \
+        "${k8s_tls_secret_name}" \
+        "$(pem_cert "${pem_key_cert}")" \
+        "$(pem_key "${pem_key_cert}")" \
+        > /dev/stderr
+    awk_pem_filter 'xxx' > /dev/stderr
+    kubectl create secret tls \
+        --namespace "${k8s_namespace}" \
+        "${k8s_tls_secret_name}" \
+        --cert=<(pem_cert "${pem_key_cert}") \
+        --key=<(pem_key "${pem_key_cert}") > /dev/stderr
+}
+
+function process_tls_secret () {
+    local -r theString="${1}"
+    local theMessage
+    local k8s_tls_secret_name k8s_namespace from_vault from_secret_name from_subscription
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    k8s_tls_secret_name="$(jq -r '.k8s_tls_secret_name' <<< "${theMessage}")"
+    k8s_namespace="$(jq -r '.k8s_namespace' <<< "${theMessage}")"
+    from_vault="$(jq -r '.from_vault' <<< "${theMessage}")"
+    from_secret_name="$(jq -r '.from_secret_name' <<< "${theMessage}")"
+    from_subscription="$(jq -r '.from_subscription' <<< "${theMessage}")"
+    pem_key_cert="$(pem_secret "${from_subscription}" "${from_vault}" "${from_secret_name}")"
+    result="$(printf 'FIXME_INVALID_TLS_CERTIFICATE [%s]' "${from_secret_name}")"
+    if create_k8s_tls_secret "${k8s_namespace}" "${k8s_tls_secret_name}" "${pem_key_cert}"; then
+        result="processed_tls_secret"
+    fi
+    printf '%s' "${result}"
+}
+
 function dispatch_functions () {
     declare -a myarray
     (( i=0 ))
@@ -130,6 +240,9 @@ function dispatch_functions () {
                     ;;
                 ip_address*)
                     array_entry="$(process_ip_address "${line_data}")"
+                    ;;
+                tls_secret*)
+                    array_entry="$(process_tls_secret "${line_data}")"
                     ;;
                 *)
                    array_entry="UNDEFINED_FUNCTION [${line_data}]"
