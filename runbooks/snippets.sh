@@ -10,8 +10,10 @@ TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_serv
 TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
 
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-
 helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
 docker build . -t cfqaregistry.azurecr.io/cf-objects-api-docker:r0.0.20-IndividualCI.20200428.3.RC
 
@@ -33,10 +35,11 @@ https://github.com/helm/charts/tree/master/stable/metrics-server
 # clean before install
 kubectl delete clusterrole cf-waf-ingress
 kubectl delete clusterrolebinding cf-waf-ingress
+kubectl --namespace cfk8s delete secret waf-tls-secret
 
 # attach azure container registry to cluster
 az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/781c62dc-1612-43e6-a0ca-a8138888691f/resourceGroups/Acr-CfQA/providers/Microsoft.ContainerRegistry/registries/cfqaregistry
-
+az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 
 environments:
 clean-local
