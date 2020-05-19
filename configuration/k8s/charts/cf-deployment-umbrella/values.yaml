@@ -396,7 +396,11 @@ cf-waf-ingress-default-backend:
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
   enabled: true
+  rbac:
+    scope: true
   controller:
+    scope:
+      enabled: true
     # config:
     addHeaders:
       'Strict-Transport-Security': 'max-age=31536000'

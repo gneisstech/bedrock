@@ -16,8 +16,8 @@ deprecated: false
 
 dependencies: # A list of the chart requirements (optional)
   - name: 'cf-react-app-docker'
-    version: '0.1.6-developer'
-    repository: 'file://../cf-react-app-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-react-app-docker.enabled'
     tags:
       - 'cf-front-end'
@@ -25,17 +25,17 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-self-healing-app-docker'
-    version: '0.1.6-developer'
-    repository: 'file://../cf-self-healing-app-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-self-healing-app-docker.enabled'
     tags:
       - 'cf-front-end'
     enabled: true
     import-values: [] # (optional)
     alias: null
-  - name: 'http-https-echo'
-    version: '0.1.6-developer'
-    repository: 'file://../http-https-echo'
+  - name: 'cf-http-https-echo'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-http-https-echo.enabled'
     tags:
       - 'cf-dev-debug'
@@ -43,8 +43,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-http-https-echo'
   - name: 'cf-admin-web-api-docker'
-    version: '0.1.7-developer'
-    repository: 'file://../cf-admin-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-admin-web-api-docker.enabled'
     tags:
       - 'cf-backend-api'
@@ -52,8 +52,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-atrius-objects-api-docker'
-    version: '0.1.9-developer'
-    repository: 'file://../cf-atrius-objects-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-atrius-objects-api-docker.enabled'
     tags:
       - 'cf-backend-api'
@@ -61,8 +61,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-atrius-objects-api-docker'
-    version: '0.1.9-developer'
-    repository: 'file://../cf-atrius-objects-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-lights-map-api-docker.enabled'
     tags:
       - 'cf-backend-api'
@@ -70,8 +70,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-lights-map-api-docker'
   - name: 'cf-authz-web-api-docker'
-    version: '0.1.8-developer'
-    repository: 'file://../cf-authz-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-authz-web-api-docker.enabled'
     tags:
       - 'cf-backend-api'
@@ -79,8 +79,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-elm-web-api-docker'
-    version: '0.1.8-developer'
-    repository: 'file://../cf-elm-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-elm-web-api-docker.enabled'
     tags:
       - 'cf-backend-api'
@@ -88,8 +88,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-network-view-web-api-docker'
-    version: '0.1.7-developer'
-    repository: 'file://../cf-network-view-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-health-web-api.enabled'
     tags:
       - 'cf-backend-api'
@@ -97,8 +97,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-health-web-api'
   - name: 'cf-network-view-web-api-docker'
-    version: '0.1.7-developer'
-    repository: 'file://../cf-network-view-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-ingest-web-api.enabled'
     tags:
       - 'cf-backend-api'
@@ -106,8 +106,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-ingest-web-api'
   - name: 'cf-oauth-proxy-docker'
-    version: '0.1.7-developer'
-    repository: 'file://../cf-oauth-proxy-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-oauth-proxy-docker.enabled'
     tags:
       - 'cf-oauth-authn-service'
@@ -115,8 +115,8 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-self-healing-api-docker'
-    version: '0.1.8-developer'
-    repository: 'file://../cf-self-healing-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
     condition: 'cf-self-healing-api-docker.enabled'
     tags:
       - 'cf-backend-api'
