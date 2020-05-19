@@ -506,7 +506,6 @@ target:
                 - *cfDefaultDbServer
                 - '.database.windows.net'
           url:
-            # :pass!BEA8F629A736734E9E6449FB7C34793CF9354EFC91E492E66479C@cf-dev-sqls
             admin: &dbUrlAdmin
               - 'sqlserver://'
               - *cfDefaultDBAdminName
@@ -573,7 +572,8 @@ target:
               - *cfDefaultDbServer
               - '.database.windows.net'
               - ';'
-              - 'DATABASE=cf-dev-self-healing;'
+              - 'DATABASE='
+              - *selfHealingSchema
               - 'UID='
               - *cfDefaultDBAdminName
               - ';'
