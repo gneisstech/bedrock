@@ -189,16 +189,21 @@ function pem_key () {
     awk "$(awk_pem_filter 'PRIVATE KEY')" <<< "${pem_key_cert}"
 }
 
-function create_k8s_tls_secret () {
+function dump_pem_certificate () {
     local -r k8s_namespace="${1}"
     local -r k8s_tls_secret_name="${2}"
     local -r pem_key_cert="${3}"
     printf 'k8s_tls_secret_name=%s\n###\npem_certificate=\n%s\n###\npem_key=\n%s\n' \
         "${k8s_tls_secret_name}" \
         "$(pem_cert "${pem_key_cert}")" \
-        "$(pem_key "${pem_key_cert}")" \
-        > /dev/stderr
-    awk_pem_filter 'xxx' > /dev/stderr
+        "$(pem_key "${pem_key_cert}")"
+}
+
+function create_k8s_tls_secret () {
+    local -r k8s_namespace="${1}"
+    local -r k8s_tls_secret_name="${2}"
+    local -r pem_key_cert="${3}"
+    # dump_pem_certificate "${k8s_namespace}" "${k8s_tls_secret_name}" "${pem_key_cert}" > /dev/stderr
     kubectl create secret tls \
         --namespace "${k8s_namespace}" \
         "${k8s_tls_secret_name}" \
