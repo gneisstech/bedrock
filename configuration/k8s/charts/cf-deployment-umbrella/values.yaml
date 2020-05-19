@@ -96,29 +96,32 @@ default-values:
       prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
 
 cf-http-https-echo:
+  fullnameOverride: 'cf-http-https-echo'
   enabled: true
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-echo/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-echo/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+        more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
     hosts:
       - paths:
           - '/cf-echo(/|$)(.*)'
 
 cf-oauth-proxy-docker:
+  fullnameOverride: 'cf-oauth-proxy-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target': '/oauth2/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/oauth2/$2'
     hosts:
       - paths:
-          - '/oauth2/'
+          - '/oauth2(/|$)(.*)'
   config:
     environment:
       OAUTH2_PROXY_AZURE_TENANT: 'common'
@@ -147,40 +150,46 @@ cf-oauth-proxy-docker:
       OAUTH2_PROXY_COOKIE_SECRET: 'fixme-oauth-proxy-cookie-secret'
 
 cf-react-app-docker:
+  fullnameOverride: 'cf-react-app-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-app/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-app/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': >
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+        more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
     hosts:
       - paths:
           - '/cf-app(/|$)(.*)'
 
 cf-self-healing-app-docker:
+  fullnameOverride: 'cf-self-healing-app-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing/'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': >
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+        more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
     hosts:
       - paths:
           - '/cf-self-healing(/|$)(.*)'
 
 cf-atrius-objects-api-docker:
+  fullnameOverride: 'cf-atrius-objects-api-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/$1/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': >
@@ -188,8 +197,30 @@ cf-atrius-objects-api-docker:
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-atrius-objects/'
-          - '/cf-lights-map/'
+          - '/(cf-atrius-objects)(/|$)(.*)'
+  config:
+    environment:
+      JWT_ISSUERS: *trustedIdProviders
+      AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+    secrets:
+      CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+      DATABASE_URLS: *dbUrlAtrius
+
+cf-lights-map-api-docker:
+  fullnameOverride: 'cf-lights-map-api-docker'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/$1/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': >
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
+          - '/(cf-lights-map)(/|$)(.*)'
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
@@ -199,18 +230,20 @@ cf-atrius-objects-api-docker:
       DATABASE_URLS: *dbUrlAtrius
 
 cf-self-healing-api-docker:
+  fullnameOverride: 'cf-self-healing-api-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-self-healing-api/'
+          - '/cf-self-healing-api(/|$)(.*)'
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
@@ -220,18 +253,20 @@ cf-self-healing-api-docker:
       API_KEY: *selfHealingApiKey
 
 cf-authz-web-api-docker:
+  fullnameOverride: 'cf-authz-web-api-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-authz/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-authz/'
+          - '/cf-authz(/|$)(.*)'
   config:
     environment:
       <<: *railsEnv
@@ -241,18 +276,20 @@ cf-authz-web-api-docker:
       SECRET_KEY_BASE: *secretKeyBaseAuthZ
 
 cf-elm-web-api-docker:
+  fullnameOverride: 'cf-elm-web-api-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-elm/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-elm/'
+          - '/cf-elm(/|$)(.*)'
   config:
     environment:
       <<: *railsEnv
@@ -268,21 +305,23 @@ cf-elm-web-api-docker:
     secrets:
       DATABASE_URL: *dbUrlElm
       SECRET_KEY_BASE: *secretKeyBaseElm
-      SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
+      CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
 cf-admin-web-api-docker:
+  fullnameOverride: 'cf-admin-web-api-docker'
   enabled: true
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-admin/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-admin/'
+          - '/cf-admin(/|$)(.*)'
   config:
     environment:
       <<: *railsEnv
@@ -292,18 +331,20 @@ cf-admin-web-api-docker:
       SECRET_KEY_BASE: *secretKeyBaseAdmin
 
 cf-ingest-web-api:
+  fullnameOverride: 'cf-ingest-web-api'
   enabled: true
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-ingest/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-ingest/'
+          - '/cf-ingest(/|$)(.*)'
   config: &configNetworkView
     environment:
       <<: *railsEnv
@@ -313,41 +354,93 @@ cf-ingest-web-api:
       SECRET_KEY_BASE: *secretKeyBaseNetworkView
 
 cf-health-web-api:
+  fullnameOverride: 'cf-health-web-api'
   enabled: true
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-health/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-health/'
+          - '/cf-health(/|$)(.*)'
   config:
     <<: *configNetworkView
 
-cf-inginx-ingress-controller:
-  enabled: true
-
-cf-inginx-ingress-default-backend:
-  enabled: true
-
 cf-mssql-linux:
+  fullnameOverride: 'cf-mssql-linux'
   enabled: true
   sapassword: *dbPasswordLinux
-  fullnameOverride: 'cf-mssql-linux'
 
 cf-mssql-atrius:
+  fullnameOverride: 'cf-mssql-atrius'
   enabled: true
   sapassword: *dbPasswordAtrius
-  fullnameOverride: 'cf-mssql-atrius'
 
 cf-sql-server:
-  enabled: true
   fullnameOverride: 'cf-sql-server'
+  enabled: true
 
 cf-sql-server-atrius:
-  enabled: true
   fullnameOverride: 'cf-sql-server-atrius'
+  enabled: true
+
+cf-waf-ingress-default-backend:
+  fullnameOverride: 'cf-waf-ingress-default-backend'
+  enabled: true
+
+cf-waf-ingress:
+  fullnameOverride: 'cf-waf-ingress'
+  enabled: true
+  rbac:
+    scope: true
+  controller:
+    scope:
+      enabled: true
+    # config:
+    addHeaders:
+      'Strict-Transport-Security': 'max-age=31536000'
+      'Referrer-Policy': 'strict-origin-when-cross-origin'
+      'X-Frame-Options': 'sameorigin'
+      'Content-Security-Policy': "default-src 'self'; frame-ancestors 'self' login.microsoft.com;"
+      'Feature-Policy': >-
+        accelerometer 'none';
+        ambient-light-sensor 'none';
+        autoplay 'none';
+        battery 'none';
+        camera 'none';
+        display-capture 'none';
+        document-domain 'none';
+        encrypted-media 'none';
+        execution-while-not-rendered 'none';
+        execution-while-out-of-viewport 'none';
+        fullscreen 'none';
+        geolocation 'none';
+        gyroscope 'none';
+        layout-animations 'none';
+        legacy-image-formats 'none';
+        magnetometer 'none';
+        microphone 'none';
+        midi 'none';
+        oversized-images 'none';
+        payment 'none';
+        picture-in-picture 'none';
+        speaker 'none';
+        sync-xhr 'none';
+        unoptimized-images 'none';
+        unsized-media 'none';
+        usb 'none';
+        vibrate 'none';
+        vr 'none';
+        wake-lock 'none';
+        webauthn 'none';
+        vr 'none';
+        xr-spatial-tracking 'none';
+        xr 'none';
+      'X-Content-Type-Options': 'nosniff'
+      'Server': ''  # TODO: delete server header from upstream
+      'Access-Control-Allow-Origin': 'https://login.microsoftonline.com'

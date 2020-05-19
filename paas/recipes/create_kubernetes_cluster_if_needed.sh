@@ -179,7 +179,6 @@ function kubernetes_cluster_already_exists () {
         --name "$(kubernetes_cluster_name)" \
         --resource-group "$(kubernetes_cluster_resource_group)" \
         > /dev/stderr 2>&1
-    false
 }
 
 function create_kubernetes_cluster () {

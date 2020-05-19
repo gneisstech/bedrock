@@ -24,6 +24,7 @@ target:
         secret_name: &cfObjectsDbSecretName_001 'ALLSPICEDEV-CFReader-SQLUserPassword'
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
+    k8s_namespace: &cfNamespace 'cfk8s'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -34,7 +35,7 @@ target:
       # CF Ci resource groups
       - name: &cfWafRG 'Waf-CfCi'
         action: 'create'
-      - name: &cfDbRG 'Data-CfCi'
+      - name: &cfDbRG 'Data-CfDev'
         action: 'create'
       - name: &cfKeysRG 'Kv-CfCi'
         action: 'create'
@@ -84,6 +85,11 @@ target:
           - *defaultAzureSubscription
           - '/resourceGroups/'
           - *cfK8sRG
+          - ' '
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfWafRG
         action: 'create'
       # for private calls to Atrius Objects Service
       - name: &spAtriusObjects 'cf-ci-atrius-objects-sp'
@@ -144,15 +150,15 @@ target:
         action: 'preserve'
       instances:
         - name: &selfHealingSchema 'cf-ci-self-healing'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &authzSchema 'cf-dev-authz-db'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &netWorkViewSchema 'cf-dev-network-view-db'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &elmSchema 'cf-dev-elm-db'
-          << : *dbTemplate
+          <<: *dbTemplate
         - name: &adminSchema 'cf-dev-admin-db'
-          << : *dbTemplate
+          <<: *dbTemplate
     container_registries:
       - name: &primaryACR 'cfciregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
@@ -212,6 +218,75 @@ target:
           zones: '1 2 3'
           subscription: *defaultAzureSubscription
           action: 'create'
+      secrets:
+        names:
+          - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
+        values:
+          datadog_api_key: &datadogApiKey
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *dataDogApiKeySecretName
+            - '"}'
+            - '##'
+      datadog:
+        agents:
+          rbac:
+            create: true
+          containers:
+            agent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            systemProbe:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            traceAgent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            processAgent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+        clusterChecksRunner:
+          env:
+            - name: 'DD_KUBELET_TLS_VERIFY'
+              value: 'false'
+          rbac:
+            create: true
+        datadog:
+          apiKey: *datadogApiKey
+          leaderElection: true
+          collectEvents: true
+          clusterAgent:
+            enabled: true
+            clusterAgent:
+              metricsProvider:
+                enabled: true
+          clusterChecks:
+            enabled: false
+          dogstatsd:
+            port: 8125
+            useHostPort: true
+            nonLocalTraffic: true
+          kubeStateMetricsEnabled: true
+          logs:
+            enabled: true
+            containerCollectAll: true
+            containerCollectUsingFiles: false
+          env:
+            - name: 'DD_KUBELET_TLS_VERIFY'
+              value: 'false'
+        clusterAgent:
+          rbac:
+            create: true
+        kube-state-metrics:
+          rbac:
+            create: true
+          collectors:
+            verticalpodautoscalers: null
   saas:
     helm:
       default-values:
@@ -265,8 +340,9 @@ target:
             - &secretKeyBaseElmSecretName 'cf-ci-elm-api-secret-key-base'
             - &secretKeyBaseNetworkViewSecretName 'cf-ci-network-view-api-secret-key-base'
             - &selfHealingApiKeyName 'cf-ci-self-healing-api-key'
-            - &oauth2ProxyClientSeccretName 'cf-ci-oauth2-proxy-client-secret'
+            - &oauth2ProxyClientSecretName 'cf-ci-oauth2-proxy-client-secret'
             - &oauth2ProxyCookieSecretName 'cf-ci-oauth2-proxy-cookie-secret'
+            - &wafTLSSecret 'waf-tls-secret'
           values:
             atrius_objects_api_key: &atriusObjectsApiKey
               - '##secure_secret={"vault":"'
@@ -314,7 +390,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - *oauth2ProxyClientSeccretName
+              - *oauth2ProxyClientSecretName
               - '"}'
               - '##'
             oauth2_proxy_cookie_secret: &oauth2ProxyCookieSecret
@@ -324,6 +400,37 @@ target:
               - *oauth2ProxyCookieSecretName
               - '"}'
               - '##'
+          seed-values:
+            - source:
+                secret_name: 'cf-dev-self-healing-api-key'
+                vault_name: &persistentKVName 'cf-dev-master-kv'
+                subscription: *defaultAzureSubscription
+              dest: *selfHealingApiKeyName
+            - source:
+                secret_name: 'cf-dev-oauth2-proxy-client-secret'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *oauth2ProxyClientSecretName
+            - source:
+                secret_name: 'cf-dev-lights-map-api-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *atriusObjectsApiKeySecretName
+            - source:
+                secret_name: 'datadogclient'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *dataDogApiKeySecretName
+            - source:
+                secret_name: 'admin-pw-for-cf-dev-sqls'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *cfDefaultDBSecretName
+            - source:
+                secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *cfObjectsDbSecretName_001
         service_principals:
           atrius_objects:
             sp_name: &atriusObjectsSpName 'cf-ci-atrius-objects-sp'
@@ -344,7 +451,7 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name: &elmSpName 'cf-ci-atrius-objects-sp'
+            sp_name: &elmSpName 'cf-elm-web-sp'
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
@@ -399,7 +506,6 @@ target:
                 - *cfDefaultDbServer
                 - '.database.windows.net'
           url:
-            # :pass!BEA8F629A736734E9E6449FB7C34793CF9354EFC91E492E66479C@cf-dev-sqls
             admin: &dbUrlAdmin
               - 'sqlserver://'
               - *cfDefaultDBAdminName
@@ -466,7 +572,8 @@ target:
               - *cfDefaultDbServer
               - '.database.windows.net'
               - ';'
-              - 'DATABASE=cf-dev-self-healing;'
+              - 'DATABASE='
+              - *selfHealingSchema
               - 'UID='
               - *cfDefaultDBAdminName
               - ';'
@@ -495,6 +602,21 @@ target:
           api_url:
             prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
       service_values:
+        tls_secrets:
+          - result:
+              - '##tls_secret={'
+              - '"k8s_tls_secret_name":"'
+              - *wafTLSSecret
+              - '","k8s_namespace":"'
+              - *cfNamespace
+              - '","from_vault":"'
+              - *atriusKVName
+              - '","from_secret_name":"'
+              - 'wildcarddevatrius-iotcom'
+              - '","from_subscription":"'
+              - *subscription_tls
+              - '"}'
+              - '##'
         cf-atrius-objects-api-docker:
           config:
             environment:
@@ -511,7 +633,24 @@ target:
             secrets:
               CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
               DATABASE_URLS: *dbUrlAtrius
-              SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
+        cf-lights-map-api-docker:
+          config:
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              ELM_LIGHTS_GROUPS_API_URL:
+                - 'https://'
+                - *wafFqdn
+                - *urlPrefixElm
+                - '/light-groups/published-light-groups'
+              SERVICE_PRINCIPAL_CLIENT_ID: *atriusObjectsSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
+            secrets:
+              CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+              DATABASE_URLS: *dbUrlAtrius
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
           config:
             environment:
@@ -523,7 +662,8 @@ target:
         cf-authz-web-api-docker:
           config:
             environment:
-              << : *railsEnv
+              <<: *railsEnv
+              AUTHORIZED_USERS: ''
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               JWT_ISSUERS: *trustedIdProviders
@@ -533,7 +673,7 @@ target:
         cf-elm-web-api-docker:
           config:
             environment:
-              << : *railsEnv
+              <<: *railsEnv
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               PASSAGE_API_URL: *passageApiUrl
@@ -549,12 +689,11 @@ target:
             secrets:
               DATABASE_URL: *dbUrlElm
               SECRET_KEY_BASE: *secretKeyBaseElm
-              SERVICE_PRINCIPAL_SECRET: *elmSpSecret
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-admin-web-api-docker:
           config:
             environment:
-              << : *railsEnv
+              <<: *railsEnv
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
@@ -564,7 +703,7 @@ target:
         cf-ingest-web-api:
           config: &configNetworkView
             environment:
-              << : *railsEnv
+              <<: *railsEnv
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
@@ -604,7 +743,12 @@ target:
               OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
               OAUTH2_PROXY_PING_PATH: '/'
               OAUTH2_PROXY_PROVIDER: 'azure'
-              OAUTH2_PROXY_REDIRECT_URL: 'https://localhost/oauth2/callback'
+              OAUTH2_PROXY_REDIRECT_URL:
+                - 'https://'
+                - *dnsHost
+                - '.'
+                - *dnsZone
+                - '/oauth2/callback'
               OAUTH2_PROXY_RESOURCE: *passageApiApplicationID
               OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: 'true'
               OAUTH2_PROXY_SET_XAUTHREQUEST: 'true'
@@ -615,3 +759,50 @@ target:
             secrets:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
+        cf-waf-ingress-default-backend:
+          enabled: true
+        cf-waf-ingress:
+          enabled: true
+          controller:
+            config:
+              ssl-ciphers:
+                - 'ECDHE-ECDSA-AES128-GCM-SHA256'
+                - ':'
+                - 'ECDHE-RSA-AES128-GCM-SHA256'
+                - ':'
+                - 'ECDHE-ECDSA-AES256-GCM-SHA384'
+                - ':'
+                - 'ECDHE-RSA-AES256-GCM-SHA384'
+                - ':'
+                - 'ECDHE-ECDSA-CHACHA20-POLY1305'
+                - ':'
+                - 'ECDHE-RSA-CHACHA20-POLY1305'
+                - ':'
+                - 'DHE-RSA-AES128-GCM-SHA256'
+                - ':'
+                - 'DHE-RSA-AES256-GCM-SHA384'
+              ssl-protocols:
+                - 'TLSv1.2'
+                - ' '
+                - 'TLSv1.3'
+            extraArgs:
+              'default-ssl-certificate':
+                - *cfNamespace
+                - '/'
+                - *wafTLSSecret
+            service:
+              enableHttp: false
+              loadBalancerIP:
+                - '##ip_address={"ip_resource_id":"'
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfWafRG
+                - '/providers/Microsoft.Network/publicIPAddresses/'
+                - *wafIP
+                - '"}'
+                - '##'
+              annotations:
+                'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
+                # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
+
