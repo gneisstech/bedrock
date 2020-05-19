@@ -8,17 +8,21 @@ helm dependency build .
 
 TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh
 TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
+TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
 
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
-helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
 docker build . -t cfqaregistry.azurecr.io/cf-objects-api-docker:r0.0.20-IndividualCI.20200428.3.RC
 
 helm install datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
 helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
+
+helm install datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
+helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
 
 #dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
