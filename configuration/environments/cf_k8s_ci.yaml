@@ -745,7 +745,9 @@ target:
               OAUTH2_PROXY_PROVIDER: 'azure'
               OAUTH2_PROXY_REDIRECT_URL:
                 - 'https://'
-                - *wafFqdn
+                - *dnsHost
+                - '.'
+                - *dnsZone
                 - '/oauth2/callback'
               OAUTH2_PROXY_RESOURCE: *passageApiApplicationID
               OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: 'true'
