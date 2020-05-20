@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger:
-- deployment_request/staging
+- deployment_request/prod
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -19,10 +19,10 @@ steps:
       command: login
       containerRegistry: cf-qa-acr-service-connection
   - task: Docker@2
-    displayName: Login to ACR for STAGING registry
+    displayName: Login to ACR for PROD registry
     inputs:
       command: login
-      containerRegistry: cf-staging-acr-service-connection
+      containerRegistry: cf-prod-acr-service-connection
   - task: AzureCLI@2
     displayName: 'Bless QA artifacts'
     inputs:
