@@ -267,6 +267,9 @@ cf-self-healing-api-docker:
 cf-authz-web-api-docker:
   fullnameOverride: 'cf-authz-web-api-docker'
   enabled: true
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
   ingress:
     enabled: true
     annotations:
@@ -290,6 +293,9 @@ cf-authz-web-api-docker:
 cf-elm-web-api-docker:
   fullnameOverride: 'cf-elm-web-api-docker'
   enabled: true
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
   ingress:
     enabled: true
     annotations:
@@ -322,6 +328,9 @@ cf-elm-web-api-docker:
 cf-admin-web-api-docker:
   fullnameOverride: 'cf-admin-web-api-docker'
   enabled: true
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
   ingress:
     enabled: true
     annotations:
@@ -345,6 +354,9 @@ cf-admin-web-api-docker:
 cf-ingest-web-api:
   fullnameOverride: 'cf-ingest-web-api'
   enabled: true
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
   ingress:
     enabled: true
     annotations:
@@ -368,6 +380,9 @@ cf-ingest-web-api:
 cf-health-web-api:
   fullnameOverride: 'cf-health-web-api'
   enabled: true
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
   ingress:
     enabled: true
     annotations:
