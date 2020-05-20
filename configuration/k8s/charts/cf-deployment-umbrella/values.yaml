@@ -79,6 +79,7 @@ default-values:
   authz:
     api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
   elm:
+    api_url: &elmApiUrl '/cf-elm/api/v1/light-groups/published-light-groups'
     passage:
       api_url:
         passage: *passageApiUrl
@@ -89,6 +90,7 @@ default-values:
     service_principal:
       client_id: &servicePrincipalClientId ''
       tenant_id: &servicePrincipalTenantId ''
+      resource: &servicePrincipalResource ''
       secret: &servicePrincipalSecret ''
   self_healing:
     api_key: &selfHealingApiKey 'fixme-dummy-developer-key'
@@ -189,7 +191,7 @@ cf-atrius-objects-api-docker:
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target': '/$1/$2'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-atrius-objects/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': >
@@ -197,14 +199,19 @@ cf-atrius-objects-api-docker:
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/(cf-atrius-objects)(/|$)(.*)'
+          - '/cf-atrius-objects(/|$)(.*)'
   config:
     environment:
-      JWT_ISSUERS: *trustedIdProviders
       AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+      ELM_LIGHTS_GROUPS_API_URL: *elmApiUrl
+      JWT_ISSUERS: *trustedIdProviders
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
     secrets:
-      CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
-      DATABASE_URLS: *dbUrlAtrius
+      CUSTOMCONNSTR_CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+      CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
+      CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
 cf-lights-map-api-docker:
   fullnameOverride: 'cf-lights-map-api-docker'
@@ -212,7 +219,7 @@ cf-lights-map-api-docker:
   ingress:
     enabled: true
     annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target': '/$1/$2'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-lights-map/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': >
@@ -220,14 +227,19 @@ cf-lights-map-api-docker:
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/(cf-lights-map)(/|$)(.*)'
+          - '/cf-lights-map(/|$)(.*)'
   config:
     environment:
-      JWT_ISSUERS: *trustedIdProviders
       AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+      ELM_LIGHTS_GROUPS_API_URL: *elmApiUrl
+      JWT_ISSUERS: *trustedIdProviders
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
     secrets:
-      CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
-      DATABASE_URLS: *dbUrlAtrius
+      CUSTOMCONNSTR_CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+      CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
+      CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
 cf-self-healing-api-docker:
   fullnameOverride: 'cf-self-healing-api-docker'
