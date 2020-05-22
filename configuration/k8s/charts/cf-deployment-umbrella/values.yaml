@@ -267,9 +267,14 @@ cf-self-healing-api-docker:
 cf-authz-web-api-docker:
   fullnameOverride: 'cf-authz-web-api-docker'
   enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
   migration_annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
   ingress:
     enabled: true
     annotations:
@@ -293,9 +298,14 @@ cf-authz-web-api-docker:
 cf-elm-web-api-docker:
   fullnameOverride: 'cf-elm-web-api-docker'
   enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
   migration_annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
   ingress:
     enabled: true
     annotations:
@@ -328,9 +338,14 @@ cf-elm-web-api-docker:
 cf-admin-web-api-docker:
   fullnameOverride: 'cf-admin-web-api-docker'
   enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
   migration_annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
   ingress:
     enabled: true
     annotations:
@@ -354,9 +369,14 @@ cf-admin-web-api-docker:
 cf-ingest-web-api:
   fullnameOverride: 'cf-ingest-web-api'
   enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
   migration_annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
   ingress:
     enabled: true
     annotations:
@@ -380,9 +400,14 @@ cf-ingest-web-api:
 cf-health-web-api:
   fullnameOverride: 'cf-health-web-api'
   enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
   migration_annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
   ingress:
     enabled: true
     annotations:

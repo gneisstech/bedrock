@@ -45,7 +45,7 @@ target:
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP 'cf-ci-waf-pip'
+        - name: &wafIP 'cf-ci-waf-k8s-pip'
           resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
@@ -221,12 +221,20 @@ target:
       secrets:
         names:
           - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
+          - &neuvectorLicenseKeyName 'cf-ci-neuvector-license-key'
         values:
           datadog_api_key: &datadogApiKey
             - '##secure_secret={"vault":"'
             - *kvName
             - '","secret_name":"'
             - *dataDogApiKeySecretName
+            - '"}'
+            - '##'
+          neuvector_license_key: &neuvectorLicenseKey
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *neuvectorLicenseKeyName
             - '"}'
             - '##'
       datadog:
@@ -664,6 +672,14 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
           config:
             environment:
               <<: *railsEnv
@@ -675,6 +691,14 @@ target:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
         cf-elm-web-api-docker:
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
           config:
             environment:
               <<: *railsEnv
@@ -697,6 +721,14 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-admin-web-api-docker:
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
           config:
             environment:
               <<: *railsEnv
@@ -706,8 +738,16 @@ target:
             secrets:
               DATABASE_URL: *dbUrlAdmin
               SECRET_KEY_BASE: *secretKeyBaseAdmin
-        cf-ingest-web-api:
-          config: &configNetworkView
+        cf-ingest-web-api: &configNetworkView
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
             environment:
               <<: *railsEnv
               RAILS_ENV: 'production'
@@ -716,8 +756,7 @@ target:
             secrets:
               DATABASE_URL: *dbUrlNetworkView
               SECRET_KEY_BASE: *secretKeyBaseNetworkView
-        cf-health-web-api:
-          config: *configNetworkView
+        cf-health-web-api: *configNetworkView
         cf-mssql-linux:
           enabled: false
         cf-mssql-atrius:
@@ -771,6 +810,9 @@ target:
           enabled: true
           controller:
             config:
+              enable-modsecurity: true
+              modsecurity-snippet: ''
+              enable-owasp-modsecurity-cr: true
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
