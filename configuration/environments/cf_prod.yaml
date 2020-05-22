@@ -861,10 +861,6 @@ target:
               - 'push'
             arm_type: 'Microsoft.ContainerRegistry/registries/webhooks'
           config:
-            ATRIUS_API_URL:
-              - 'https://'
-              - *atriusApiHost
-              - '/api/v1'
             AZURE_DB: 'true'
             CF_AUTHZ_API_URL: *authzApiUrl
             CF_OBJECTS_API_URL:

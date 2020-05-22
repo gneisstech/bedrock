@@ -11,7 +11,6 @@ target:
       tenant: &acuityDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
       passage_api_fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
-      passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
@@ -671,6 +670,9 @@ target:
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               JWT_ISSUERS: *trustedIdProviders
+              PASSAGE_API_URL: *passageApiUrl
+              PASSAGE_REFERER: *passageReferer
+              PASSAGE_HOST: *passageHost
             secrets:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
@@ -678,12 +680,10 @@ target:
           config:
             environment:
               <<: *railsEnv
-              ATRIUS_API_URL: *atriusApiUrl
               AZURE_DB: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
               CF_OBJECTS_API_URL: *objectsApiUrl
               PASSAGE_API_URL: *passageApiUrl
-              PASSAGE_PARTNER_ENV: *passagePartnerEnv
               PASSAGE_REFERER: *passageReferer
               PASSAGE_HOST: *passageHost
               RAILS_ENV: 'production'
