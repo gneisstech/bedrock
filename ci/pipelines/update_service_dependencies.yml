@@ -1,0 +1,86 @@
+#
+# trigger this pipeline when any service dependency is updated
+#
+
+resources:
+  pipelines:
+    - pipeline: 'cf_admin_web_api'
+      source: 'cf_admin_web_api'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_atrius_objects'
+      source: 'cf_atrius_objects'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_authz_web_api'
+      source: 'cf_authz_web_api'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_elm_web_api'
+      source: 'cf_elm_web_api'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_http_https_echo'
+      source: 'cf_http_https_echo'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_network_view_web_api'
+      source: 'cf_network_view_web_api'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_oauth2_proxy'
+      source: 'cf_oauth2_proxy'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_react_app'
+      source: 'cf_react_app'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_self_healing_lights'
+      source: 'cf_self_healing_lights'
+      trigger:
+        branches:
+          - master-bytelight
+    - pipeline: 'cf_self_healing_react_app'
+      source: 'cf_self_healing_react_app'
+      trigger:
+        branches:
+          - master-bytelight
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - checkout: self
+    # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
+    persistCredentials: true
+  - task: Docker@2
+    condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: Login to ACR for Dev registry
+    inputs:
+      command: login
+      containerRegistry: cf-dev-acr-service-connection
+    condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+  - task: AzureCLI@2
+    displayName: 'Update Service Dependencies'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/update_service_dependencies.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
