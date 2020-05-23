@@ -93,7 +93,7 @@ function random_key () {
 
 function create_kv_database_server_admin_password () {
     local password
-    password="pass!$(random_key)"
+    password="pass_$(random_key)"
     az keyvault secret set \
         --vault-name "$(server_attr 'admin_password_kv.vault')" \
         --name "$(server_attr 'admin_password_kv.secret_name')" \
@@ -121,6 +121,15 @@ function database_server_already_exists () {
         > /dev/null 2>&1
 }
 
+function add_default_firewall_rule () {
+    $AZ_TRACE sql server firewall-rule create \
+        --server "$(database_server_name)" \
+        --resource-group "$(database_server_resource_group)" \
+        --name "$(server_attr 'default_firewall_rule.name')" \
+        --start-ip-address "$(server_attr 'default_firewall_rule.start_ip_address')" \
+        --end-ip-address  "$(server_attr 'default_firewall_rule.end_ip_address')"
+}
+
 function deploy_database_server () {
     $AZ_TRACE sql server create \
         --name "$(database_server_name)" \
@@ -128,6 +137,7 @@ function deploy_database_server () {
         --assign-identity \
         --admin-user "$(database_server_admin_name)" \
         --admin-password "$(database_server_admin_password)"
+    add_default_firewall_rule
 }
 
 function create_database_server_if_needed () {

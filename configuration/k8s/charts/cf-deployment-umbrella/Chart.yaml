@@ -1,0 +1,178 @@
+apiVersion: v2
+name: 'cf-deployment-umbrella'
+description: 'CF: Umbrella for all CF services'
+keywords:
+  - 'connected-facilities'
+  - 'umbrella'
+type: application
+home: ''  # The URL of this projects home page (optional)
+sources: []  # A list of URLs to source code for this project (optional)
+maintainers:
+  - name: 'Paul Charlton'
+    email: 'techguru@byiq.com'
+    url: 'https://www.gitlab.com/techguru'
+icon: ''
+deprecated: false
+
+dependencies: # A list of the chart requirements (optional)
+  - name: 'cf-react-app-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-react-app-docker.enabled'
+    tags:
+      - 'cf-front-end'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-self-healing-app-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-self-healing-app-docker.enabled'
+    tags:
+      - 'cf-front-end'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-http-https-echo'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-http-https-echo.enabled'
+    tags:
+      - 'cf-dev-debug'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-http-https-echo'
+  - name: 'cf-admin-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-admin-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-atrius-objects-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-atrius-objects-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-atrius-objects-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-lights-map-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-lights-map-api-docker'
+  - name: 'cf-authz-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-authz-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-elm-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-elm-web-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-network-view-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-health-web-api.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-health-web-api'
+  - name: 'cf-network-view-web-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-ingest-web-api.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-ingest-web-api'
+  - name: 'cf-oauth-proxy-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-oauth-proxy-docker.enabled'
+    tags:
+      - 'cf-oauth-authn-service'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-self-healing-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-self-healing-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'nginx-ingress'
+    version: '1.33.5'
+    repository: 'https://kubernetes-charts.storage.googleapis.com'
+    condition: 'cf-waf-ingress.enabled'
+    tags:
+      - 'cf-waf-ingress'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-waf-ingress'
+  - name: 'mssql-linux'
+    version: '0.11.1'
+    repository: 'https://kubernetes-charts.storage.googleapis.com'
+    condition: 'cf-mssql-linux.enabled'
+    tags:
+      - 'cf-mssql'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-mssql-linux'
+  - name: 'mssql-linux'
+    version: '0.11.1'
+    repository: 'https://kubernetes-charts.storage.googleapis.com'
+    condition: 'cf-mssql-atrius.enabled'
+    tags:
+      - 'cf-mssql-atrius'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-mssql-atrius'
+  - name: 'cf-sql-server'
+    version: '^1.0.0-0'
+    repository: 'file://../cf-sql-server'
+    condition: 'cf-sql-server.enabled'
+    tags:
+      - 'cf-sql-server'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-sql-server'
+  - name: 'cf-sql-server'
+    version: '^1.0.0-0'
+    repository: 'file://../cf-sql-server'
+    condition: 'cf-sql-server-atrius.enabled'
+    tags:
+      - 'cf-sql-server'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-sql-server-atrius'
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 'r1.0.8-dev'
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 1.0.8-dev

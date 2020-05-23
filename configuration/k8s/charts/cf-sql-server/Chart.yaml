@@ -1,0 +1,23 @@
+apiVersion: v2
+name: 'cf-sql-server'
+description: Connected Facilities endpoint for external SQL server
+keywords:
+  - 'connected-facilities'
+  - 'cf-sql-server-mssql-endpoint'
+type: application
+home: ''  # The URL of this projects home page (optional)
+sources: []  # A list of URLs to source code for this project (optional)
+maintainers:
+  - name: 'Paul Charlton'
+    email: 'techguru@byiq.com'
+    url: 'https://www.gitlab.com/techguru'
+icon: ''
+deprecated: false
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 'r1.0.0-dev'
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 1.0.0-dev

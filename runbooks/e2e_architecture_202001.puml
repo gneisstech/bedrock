@@ -1,0 +1,56 @@
+@startuml
+title RFC - Acuity Architecture Map (as built) - Paul Charlton 2020-01
+hide circle
+hide empty members
+
+entity Luminaire
+entity Driver
+entity BLE_Module
+entity BT_Mesh_Network
+entity Distech_Eclypse #red
+entity Distech_Eclypse_AT #red
+entity BT_Dongle #red
+entity BT_Edgar
+entity Eclpyse_Wifi #red
+entity Eclpyse_EtherNet_VLAN #red
+entity partner_VLAN
+entity public_Internet
+entity Azure_IOT_Hub
+entity Acuity_SDK
+entity Asset_Tracking_BT_Module
+entity mobile_handset
+entity VLC_channel
+entity Azure_Event_Hub
+
+Luminaire ||--|| Driver
+Luminaire ||--|| VLC_channel
+Driver ||--|| BLE_Module
+BLE_Module }o--|| BT_Mesh_Network
+BT_Mesh_Network ||--|| BT_Dongle
+Distech_Eclypse ||--o{ Distech_Eclypse_AT
+Distech_Eclypse ||--o{ BT_Dongle
+Distech_Eclypse ||--o{ Eclpyse_EtherNet_VLAN
+Distech_Eclypse ||--o{ Eclpyse_Wifi
+Distech_Eclypse_AT ||--o{ BT_Edgar
+Eclpyse_Wifi }o--|| Eclpyse_DNS
+Eclpyse_EtherNet_VLAN }o--|| Eclpyse_DNS
+Eclpyse_Wifi }o--|| partner_VLAN
+Eclpyse_EtherNet_VLAN }o--|| partner_VLAN
+partner_VLAN }o--|| public_Internet
+public_Internet ||--o{ Azure_IOT_Hub
+VLC_channel }o--o{ Acuity_SDK
+Acuity_SDK ||--|| mobile_handset
+mobile_handset }o--|| public_Internet
+public_Internet ||--o{ Azure_Event_Hub
+BT_Edgar }o--|| Asset_Tracking_BT_Module
+BLE_Module }o--o{ Acuity_SDK
+
+note top of Driver : \n\
+Luminaire driver. Assembler
+
+note top of Distech_Eclypse : \n\
+http_80 : jetty->java->android->linux->arm (http basic auth) \n\
+https_443 : jetty->java->android->linux->arm (http basic auth) \n\
+bacnet
+
+@enduml

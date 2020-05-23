@@ -1,0 +1,856 @@
+---
+target:
+  metadata:
+    product_portfolio_name: &productName 'connected-facilities'
+    environment_name: &environmentName 'Ci'
+    default_azure_location: &defaultAzureLocation 'eastus'
+    default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
+    tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    service_deployment:
+      tenant: &acuityDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+      authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
+      passage_api_fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
+      passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
+    app_registration:
+      tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
+      application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
+      passage_api_application_id: &passageApiApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
+      # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
+    atriusObjectsDatabases:
+      - db_host_name: &cfObjectsDbHostName_001 'pltdata01sqlsep2ftp3b7r'
+        db_name: &cfObjectsDbName_001 'allspice-mapmanager01db'
+        reader_name: &cfObjectsDbUser_001 'CF_Reader'
+        secret_name: &cfObjectsDbSecretName_001 'ALLSPICEDEV-CFReader-SQLUserPassword'
+    key_names:
+      self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
+    k8s_namespace: &cfNamespace 'cfk8s'
+  iaas:
+    location: *defaultAzureLocation
+    resource_groups:
+      # for naming conventions, see: https://docs.acuitynext.net/wiki/azure-naming-conventions/
+      # pre-existing Atrius resource groups with shared configuration state
+      - name: &atriusDnsRG 'atriusops-allspicedev'
+        action: 'read'
+      # CF Ci resource groups
+      - name: &cfWafRG 'Waf-CfCi'
+        action: 'create'
+      - name: &cfDbRG 'Data-CfDev'
+        action: 'create'
+      - name: &cfKeysRG 'Kv-CfCi'
+        action: 'create'
+      - name: &cfAcrRG 'Acr-CfCi'
+        action: 'create'
+      - name: &cfK8sRG 'K8S-CfCi'
+        action: 'create'
+    networking:
+      public_ip:
+        - name: &wafIP 'cf-ci-waf-k8s-pip'
+          resource_group: *cfWafRG
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.Network/publicIPAddresses'
+          sku: 'Standard'
+          allocation_method: 'Static'
+          action: 'create'
+      dns_a_records:
+        - zone: &dnsZone 'dev.atrius-iot.com'
+          host: &dnsHost 'cf-ci'
+          fqdn: &wafFqdn 'cf-ci.dev.atrius-iot.com.'
+          resource_group: *atriusDnsRG
+          subscription: *subscription_dns
+          a_record_ttl: 3600
+          a_record_public_ip: *wafIP
+          action: 'create'
+  paas:
+    location: *defaultAzureLocation
+    keyvaults:
+      # pre-existing Atrius key vault with shared configuration state such as TLS certificate
+      - name: &atriusKVName 'atrius01kvbxkbdsepg6'
+        action: 'read'
+      # CF Ci Key Vault
+      - name: &kvName 'cf-ci-master-kv'
+        resource_group: *cfKeysRG
+        arm_type: 'Microsoft.KeyVault/vaults'
+        action: 'create'
+    service_principals:
+      # for K8S to call Azure APIs
+      - name: &spK8S 'cf-ci-k8s-sp'
+        key_vault:
+          vault: *kvName
+          resource_group: *cfKeysRG
+          secret_name: *spK8S
+        role: 'Contributor'
+        scopes:
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfK8sRG
+          - ' '
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfWafRG
+        action: 'create'
+      # for private calls to Atrius Objects Service
+      - name: &spAtriusObjects 'cf-ci-atrius-objects-sp'
+        key_vault:
+          vault: *kvName
+          resource_group: *cfKeysRG
+          secret_name: *spAtriusObjects
+        role: 'Contributor'
+        scopes:
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfK8sRG
+        action: 'create'
+      # for calls to Passage API from ELM
+      - name: &spElmAtrius 'cf-ci-elm-atrius-sp'
+        key_vault:
+          vault: *kvName
+          resource_group: *cfKeysRG
+          secret_name: *spElmAtrius
+        role: 'Contributor'
+        scopes:
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfK8sRG
+        action: 'create'
+    databases:
+      servers:
+        - name: &cfDefaultDbServer 'cf-dev-sqls'
+          arm_type: 'Microsoft.Sql/servers'
+          subscription: *defaultAzureSubscription
+          resource_group: *cfDbRG
+          admin_name: &cfDefaultDBAdminName 'cf-dev-sqls-admin-user'
+          admin_password_kv:
+            vault: *kvName
+            resource_group: *cfKeysRG
+            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-ci-sqls'
+          default_firewall_rule:
+            name: 'AllowAllWindowsAzureIps'
+            arm_type: 'Microsoft.Sql/servers/firewallRules'
+            start_ip_address: '0.0.0.0'
+            end_ip_address: '0.0.0.0'
+          action: 'preserve'
+      db_template: &dbTemplate
+        arm_type: 'Microsoft.Sql/servers/databases'
+        resource_group: *cfDbRG
+        server: *cfDefaultDbServer
+        license_type: 'LicenseIncluded'
+        max_size: '250GB'
+        zone_redundant: false
+        catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+        collation: 'SQL_Latin1_General_CP1_CI_AS'
+        capacity: 14
+        tier: 'GeneralPurpose'
+        family: 'Gen5'
+        service_objective: 'GP_S_Gen5'
+        action: 'preserve'
+      instances:
+        - name: &selfHealingSchema 'cf-ci-self-healing'
+          <<: *dbTemplate
+        - name: &authzSchema 'cf-dev-authz-db'
+          <<: *dbTemplate
+        - name: &netWorkViewSchema 'cf-dev-network-view-db'
+          <<: *dbTemplate
+        - name: &elmSchema 'cf-dev-elm-db'
+          <<: *dbTemplate
+        - name: &adminSchema 'cf-dev-admin-db'
+          <<: *dbTemplate
+    container_registries:
+      - name: &primaryACR 'cfciregistry'
+        arm_type: 'Microsoft.ContainerRegistry/registries'
+        resource_group: *cfAcrRG
+        uri: &uriPrimaryACR 'https://cfciregistry.azurecr.io'
+        sku: 'Premium'
+        admin_enabled: true
+        action: 'create'
+    k8s:
+      clusters:
+        - name: 'cf-ci-k8s-001'
+          resource_group: *cfK8sRG
+          location: *defaultAzureLocation
+          # aad_client_app_id:
+          # aad_server_app_id:
+          # aad_server_app_secret:
+          aad_tenant_id: *environmentTenant
+          admin_username: 'cf-admin-user'
+          # api_server_authorized_ip_ranges: '0.0.0.0/32'
+          attach_acr: *primaryACR
+          client_secret:
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *spK8S
+            - '-secret'
+            - '"}'
+            - '##'
+          enable_cluster_autoscaler: 'true'
+          enable_managed_identity: 'false'
+          enable_private_cluster: 'false'
+          generate_ssh_keys: 'true'
+          kubernetes_version: '1.16.7'
+          load_balancer_sku: 'standard'
+          max_count: 100
+          max_pods: 30
+          min_count: 3
+          network_plugin: 'azure'
+          network_policy: 'calico'
+          node_count: 3
+          node_osdisk_size: '60'
+          node_vm_size: 'Standard_DS2_v2'
+          nodepool_labels: &labels 'cf-env=ci cf-role=ci'
+          nodepool_name: 'cfnodepool'
+          nodepool_tags: *labels
+          service_principal:
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *spK8S
+            - '-app-id'
+            - '"}'
+            - '##'
+          ssh_key_value: '~/.ssh/id_cf_ci_k8s.pub'
+          tags: *labels
+          vm_set_type: 'VirtualMachineScaleSets'
+          zones: '1 2 3'
+          subscription: *defaultAzureSubscription
+          action: 'create'
+      secrets:
+        names:
+          - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
+          - &neuvectorLicenseKeyName 'cf-ci-neuvector-license-key'
+        values:
+          datadog_api_key: &datadogApiKey
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *dataDogApiKeySecretName
+            - '"}'
+            - '##'
+          neuvector_license_key: &neuvectorLicenseKey
+            - '##secure_secret={"vault":"'
+            - *kvName
+            - '","secret_name":"'
+            - *neuvectorLicenseKeyName
+            - '"}'
+            - '##'
+      datadog:
+        agents:
+          rbac:
+            create: true
+          containers:
+            agent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            systemProbe:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            traceAgent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+            processAgent:
+              env:
+                - name: 'DD_KUBELET_TLS_VERIFY'
+                  value: 'false'
+        clusterChecksRunner:
+          env:
+            - name: 'DD_KUBELET_TLS_VERIFY'
+              value: 'false'
+          rbac:
+            create: true
+        datadog:
+          apiKey: *datadogApiKey
+          leaderElection: true
+          collectEvents: true
+          clusterAgent:
+            enabled: true
+            clusterAgent:
+              metricsProvider:
+                enabled: true
+          clusterChecks:
+            enabled: false
+          dogstatsd:
+            port: 8125
+            useHostPort: true
+            nonLocalTraffic: true
+          kubeStateMetricsEnabled: true
+          logs:
+            enabled: true
+            containerCollectAll: true
+            containerCollectUsingFiles: false
+          env:
+            - name: 'DD_KUBELET_TLS_VERIFY'
+              value: 'false'
+        clusterAgent:
+          rbac:
+            create: true
+        kube-state-metrics:
+          rbac:
+            create: true
+          collectors:
+            verticalpodautoscalers: null
+  saas:
+    helm:
+      default-values:
+        rails:
+          env: &railsEnv
+            RAILS_ENV: 'production'
+            RAILS_LOG_TO_STDOUT: 'true'
+        atrius:
+          api:
+            url: &atriusApiUrl 'https://api.dev.atrius-iot.io/api/v1'
+        passage:
+          api:
+            application_id: *passageApiApplicationID
+            fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
+            url: &passageApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1'
+            relayUrl: &relayApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1/Devices'
+            host: &passageHost 'passage.atrius-dev.acuitynext.io'
+          partner:
+            env: &passagePartnerEnv 'DEV'
+        jwt:
+          issuers: &trustedIdProviders "\
+            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+            =\
+            https://management.core.windows.net/\
+            ,\
+            https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
+            =\
+            https://management.core.windows.net/\
+            ,\
+            https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
+            =\
+            https://management.core.windows.net/\
+            ,\
+            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+            =\
+            https://graph.windows.net\
+            ,\
+            https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
+            =\
+            https://graph.windows.net\
+            ,\
+            https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
+            =\
+            https://graph.windows.net\
+            ,\
+            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+            =\
+            24b765b5-8108-4374-8141-1a65c0fc42ab"
+        secrets:
+          names:
+            - &atriusObjectsApiKeySecretName 'cf-ci-atrius-objects-api-key'
+            - &secretKeyBaseAdminSecretName 'cf-ci-admin-api-secret-key-base'
+            - &secretKeyBaseAuthZSecretName 'cf-ci-authz-api-secret-key-base'
+            - &secretKeyBaseElmSecretName 'cf-ci-elm-api-secret-key-base'
+            - &secretKeyBaseNetworkViewSecretName 'cf-ci-network-view-api-secret-key-base'
+            - &selfHealingApiKeyName 'cf-ci-self-healing-api-key'
+            - &oauth2ProxyClientSecretName 'cf-ci-oauth2-proxy-client-secret'
+            - &oauth2ProxyCookieSecretName 'cf-ci-oauth2-proxy-cookie-secret'
+            - &wafTLSSecret 'waf-tls-secret'
+          values:
+            atrius_objects_api_key: &atriusObjectsApiKey
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *atriusObjectsApiKeySecretName
+              - '"}'
+              - '##'
+            admin: &secretKeyBaseAdmin
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *secretKeyBaseAdminSecretName
+              - '"}'
+              - '##'
+            authz: &secretKeyBaseAuthZ
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *secretKeyBaseAuthZSecretName
+              - '"}'
+              - '##'
+            elm: &secretKeyBaseElm
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *secretKeyBaseElmSecretName
+              - '"}'
+              - '##'
+            network_view: &secretKeyBaseNetworkView
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *secretKeyBaseNetworkViewSecretName
+              - '"}'
+              - '##'
+            self_healing: &selfHealingApiKey
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *selfHealingApiKeyName
+              - '"}'
+              - '##'
+            oauth2_proxy_client_secret: &oauth2ProxyClientSecret
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *oauth2ProxyClientSecretName
+              - '"}'
+              - '##'
+            oauth2_proxy_cookie_secret: &oauth2ProxyCookieSecret
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *oauth2ProxyCookieSecretName
+              - '"}'
+              - '##'
+          seed-values:
+            - source:
+                secret_name: 'cf-dev-self-healing-api-key'
+                vault_name: &persistentKVName 'cf-dev-master-kv'
+                subscription: *defaultAzureSubscription
+              dest: *selfHealingApiKeyName
+            - source:
+                secret_name: 'cf-dev-oauth2-proxy-client-secret'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *oauth2ProxyClientSecretName
+            - source:
+                secret_name: 'cf-dev-lights-map-api-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *atriusObjectsApiKeySecretName
+            - source:
+                secret_name: 'datadogclient'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *dataDogApiKeySecretName
+            - source:
+                secret_name: 'admin-pw-for-cf-dev-sqls'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *cfDefaultDBSecretName
+            - source:
+                secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *cfObjectsDbSecretName_001
+        service_principals:
+          atrius_objects:
+            sp_name: &atriusObjectsSpName 'cf-ci-atrius-objects-sp'
+            sp_app_id: &atriusObjectsSpAppId
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *atriusObjectsSpName
+              - '-app-id'
+              - '"}'
+              - '##'
+            sp_secret: &atriusObjectsSpSecret
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *atriusObjectsSpName
+              - '-secret'
+              - '"}'
+              - '##'
+          elm:
+            sp_name: &elmSpName 'cf-elm-web-sp'
+            sp_app_id: &elmSpAppId
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *elmSpName
+              - '-app-id'
+              - '"}'
+              - '##'
+            sp_secret: &elmSpSecret
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *elmSpName
+              - '-secret'
+              - '"}'
+              - '##'
+        atrius_objects:
+          api_key: *atriusObjectsApiKey
+          authorized_users: &atriusObjectsAuthorizedUsers "\
+            36bc7f6b-2161-415c-a00e-4332b59aaa99\
+            ,\
+            ff85ea71-79b8-48a1-b65b-ce0a38b87dbd"
+          api_url:
+            objects: &objectsApiUrl 'http://cf-atrius-objects-api-docker/cf-atrius-objects'
+            lights_map: &lightsMapApiUrl 'http://cf-atrius-objects-api-docker/cf-lights-map'
+        db:
+          users:
+            atrius:
+              name: *cfObjectsDbUser_001
+              secret_name: *cfObjectsDbSecretName_001
+              password: &dbAtriusPassword
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfObjectsDbSecretName_001
+                - '"}'
+                - '##'
+              db_host: &atriusObjectsDbHost
+                - *cfObjectsDbHostName_001
+                - '.database.windows.net'
+            linux:
+              name: *cfDefaultDBAdminName
+              secret_name: *cfDefaultDBSecretName
+              password: &dbLinuxPassword
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *cfDefaultDBSecretName
+                - '"}'
+                - '##'
+              db_host: &cfDefaultDBHost
+                - *cfDefaultDbServer
+                - '.database.windows.net'
+          url:
+            admin: &dbUrlAdmin
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *adminSchema
+            atrius: &dbUrlAtrius
+              - 'sqlserver://'
+              - *cfObjectsDbUser_001
+              - ':'
+              - *dbAtriusPassword
+              - '@'
+              - *cfObjectsDbHostName_001
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *cfObjectsDbName_001
+            authz: &dbUrlAuthZ
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *authzSchema
+            elm: &dbUrlElm
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *elmSchema
+            network_view: &dbUrlNetworkView
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *netWorkViewSchema
+            self_healing: &dbUrlSelfHealing
+              - 'DRIVER={FreeTDS};'
+              - 'SERVER='
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ';'
+              - 'DATABASE='
+              - *selfHealingSchema
+              - ';'
+              - 'UID='
+              - *cfDefaultDBAdminName
+              - ';'
+              - 'PWD='
+              - *dbLinuxPassword
+              - ';'
+              - 'PORT=1433'
+        authz:
+          api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
+        elm:
+          api_url:
+            prefix: &urlPrefixElm '/cf-elm/api/v1'
+          passage:
+            api_url:
+              passage: *passageApiUrl
+              relay: *relayApiUrl
+            partner_env: *passagePartnerEnv
+            referer: &passageReferer 'https://cf.us.atrius-iot.com'
+            host: *passageHost
+          service_principal:
+            client_id: *elmSpAppId
+            tenant_id: *acuityDefaultTenant
+            secret: *elmSpSecret
+        self_healing:
+          api_key: *selfHealingApiKey
+          api_url:
+            prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
+      service_values:
+        tls_secrets:
+          - result:
+              - '##tls_secret={'
+              - '"k8s_tls_secret_name":"'
+              - *wafTLSSecret
+              - '","k8s_namespace":"'
+              - *cfNamespace
+              - '","from_vault":"'
+              - *atriusKVName
+              - '","from_secret_name":"'
+              - 'wildcarddevatrius-iotcom'
+              - '","from_subscription":"'
+              - *subscription_tls
+              - '"}'
+              - '##'
+        cf-atrius-objects-api-docker:
+          config:
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              ELM_LIGHTS_GROUPS_API_URL:
+                - 'https://'
+                - *wafFqdn
+                - *urlPrefixElm
+                - '/light-groups/published-light-groups'
+              SERVICE_PRINCIPAL_CLIENT_ID: *atriusObjectsSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
+            secrets:
+              CUSTOMCONNSTR_CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+              CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
+        cf-lights-map-api-docker:
+          config:
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              ELM_LIGHTS_GROUPS_API_URL:
+                - 'https://'
+                - *wafFqdn
+                - *urlPrefixElm
+                - '/light-groups/published-light-groups'
+              SERVICE_PRINCIPAL_CLIENT_ID: *atriusObjectsSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
+            secrets:
+              CUSTOMCONNSTR_CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+              CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
+        cf-self-healing-api-docker:
+          config:
+            environment:
+              JWT_ISSUERS: *trustedIdProviders
+              URL_PREFIX: *urlPrefixSelfHealing
+            secrets:
+              DATABASE_CONN_STRING: *dbUrlSelfHealing
+              API_KEY: *selfHealingApiKey
+        cf-authz-web-api-docker:
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
+            environment:
+              <<: *railsEnv
+              AUTHORIZED_USERS: ''
+              RAILS_ENV: 'production'
+              RAILS_LOG_TO_STDOUT: 'true'
+              JWT_ISSUERS: *trustedIdProviders
+            secrets:
+              DATABASE_URL: *dbUrlAuthZ
+              SECRET_KEY_BASE: *secretKeyBaseAuthZ
+        cf-elm-web-api-docker:
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
+            environment:
+              <<: *railsEnv
+              ATRIUS_API_URL: *atriusApiUrl
+              AZURE_DB: 'true'
+              CF_AUTHZ_API_URL: *authzApiUrl
+              CF_OBJECTS_API_URL: *objectsApiUrl
+              PASSAGE_API_URL: *passageApiUrl
+              PASSAGE_PARTNER_ENV: *passagePartnerEnv
+              PASSAGE_REFERER: *passageReferer
+              PASSAGE_HOST: *passageHost
+              RAILS_ENV: 'production'
+              RAILS_LOG_TO_STDOUT: 'true'
+              RELAY_API_URL: *relayApiUrl
+              SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
+            secrets:
+              DATABASE_URL: *dbUrlElm
+              SECRET_KEY_BASE: *secretKeyBaseElm
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+        cf-admin-web-api-docker:
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
+            environment:
+              <<: *railsEnv
+              RAILS_ENV: 'production'
+              RAILS_LOG_TO_STDOUT: 'true'
+              CF_AUTHZ_API_URL: *authzApiUrl
+            secrets:
+              DATABASE_URL: *dbUrlAdmin
+              SECRET_KEY_BASE: *secretKeyBaseAdmin
+        cf-ingest-web-api: &configNetworkView
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
+            environment:
+              <<: *railsEnv
+              RAILS_ENV: 'production'
+              RAILS_LOG_TO_STDOUT: 'true'
+              CF_AUTHZ_API_URL: *authzApiUrl
+            secrets:
+              DATABASE_URL: *dbUrlNetworkView
+              SECRET_KEY_BASE: *secretKeyBaseNetworkView
+        cf-health-web-api: *configNetworkView
+        cf-mssql-linux:
+          enabled: false
+        cf-mssql-atrius:
+          enabled: false
+        cf-sql-server:
+          enabled: false
+        cf-sql-server-atrius:
+          enabled: false
+          service:
+            type: ExternalName
+            externalName: *atriusObjectsDbHost
+            port: 1443
+            targetPort: 1443
+            protocol: 'TCP'
+            portName: 'mssql'
+        cf-oauth-proxy-docker:
+          config:
+            environment:
+              OAUTH2_PROXY_AZURE_TENANT: 'common'
+              OAUTH2_PROXY_CLIENT_ID: *passageApiApplicationID
+              OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
+              OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev__utm'
+              OAUTH2_PROXY_COOKIE_PATH: '/'
+              OAUTH2_PROXY_COOKIE_REFRESH: '1h'
+              OAUTH2_PROXY_EMAIL_DOMAINS: '*'
+              OAUTH2_PROXY_EXTRA_JWT_ISSUERS: *trustedIdProviders
+              OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
+              OAUTH2_PROXY_PASS_ACCESS_TOKEN: 'true'
+              OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
+              OAUTH2_PROXY_PING_PATH: '/'
+              OAUTH2_PROXY_PROVIDER: 'azure'
+              OAUTH2_PROXY_REDIRECT_URL:
+                - 'https://'
+                - *dnsHost
+                - '.'
+                - *dnsZone
+                - '/oauth2/callback'
+              OAUTH2_PROXY_RESOURCE: *passageApiApplicationID
+              OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: 'true'
+              OAUTH2_PROXY_SET_XAUTHREQUEST: 'true'
+              OAUTH2_PROXY_SILENCE_PING_LOGGING: 'true'
+              OAUTH2_PROXY_SKIP_AUTH_REGEX: '^/cf-self-healing-api/api/v1/process,^/cf-lights-map/distech-eclypse'
+              OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: 'true'
+              OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: 'true'
+            secrets:
+              OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
+              OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
+        cf-waf-ingress-default-backend:
+          enabled: true
+        cf-waf-ingress:
+          enabled: true
+          controller:
+            config:
+              enable-modsecurity: 'true'
+              modsecurity-snippet: ''
+              enable-owasp-modsecurity-cr: 'true'
+              proxy-buffer-size: '8k'
+              ssl-ciphers:
+                - 'ECDHE-ECDSA-AES128-GCM-SHA256'
+                - ':'
+                - 'ECDHE-RSA-AES128-GCM-SHA256'
+                - ':'
+                - 'ECDHE-ECDSA-AES256-GCM-SHA384'
+                - ':'
+                - 'ECDHE-RSA-AES256-GCM-SHA384'
+                - ':'
+                - 'ECDHE-ECDSA-CHACHA20-POLY1305'
+                - ':'
+                - 'ECDHE-RSA-CHACHA20-POLY1305'
+                - ':'
+                - 'DHE-RSA-AES128-GCM-SHA256'
+                - ':'
+                - 'DHE-RSA-AES256-GCM-SHA384'
+              ssl-protocols:
+                - 'TLSv1.2'
+                - ' '
+                - 'TLSv1.3'
+            extraArgs:
+              'default-ssl-certificate':
+                - *cfNamespace
+                - '/'
+                - *wafTLSSecret
+            service:
+              enableHttp: false
+              loadBalancerIP:
+                - '##ip_address={"ip_resource_id":"'
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *cfWafRG
+                - '/providers/Microsoft.Network/publicIPAddresses/'
+                - *wafIP
+                - '"}'
+                - '##'
+              annotations:
+                'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
+                # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'

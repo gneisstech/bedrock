@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# usage: deploy_environment.sh target_environment_config.yaml
+# usage: extract_service_values.sh target_environment_config.yaml
 
 #
 # Maintainer: techguru@byiq.com
 #
-# Copyright (c) 2017-2019,  Cloud Scaling -- All Rights Reserved
+# Copyright (c) 2017-2020,  Cloud Scaling -- All Rights Reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,10 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+
+# Arguments
+# ---------------------
 declare -rx TARGET_CONFIG
-declare -x AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -46,51 +48,19 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function invoke_layer () {
-  local -r layer="${1}"
-  local -r target_recipe="${2}"
-  shift 2
-  "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
-}
-
-function init_trace () {
-    if [[ -z "${AZ_TRACE}" ]]; then
-        export AZ_TRACE="echo az"
-    fi
-}
-
 function target_config () {
     echo "$(repo_root)/${TARGET_CONFIG}"
 }
 
-function target_subscription () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.default_azure_subscription'
+function read_configuration () {
+    yq read --tojson "$(target_config)"
 }
 
-function set_subscription () {
-    local -r desired_subscription="${1}"
-    az account set --subscription "${desired_subscription}"
+function extract_service_values () {
+    read_configuration \
+        | jq -r -e '.target.saas.helm.service_values' \
+        | "$(repo_root)/recipes/join_string_arrays.sh" \
+        | "$(repo_root)/recipes/interpolate_strings.sh"
 }
 
-function set_target_subscription () {
-    set_subscription "$(target_subscription)"
-}
-
-function current_azure_subscription () {
-    az account show -o json | jq -r -e '.id'
-}
-
-function deploy_environment () {
-    local saved_subscription
-    date
-    saved_subscription="$(current_azure_subscription)"
-    set_target_subscription
-    init_trace
-    invoke_layer 'iaas' 'deploy_iaas'
-    invoke_layer 'paas' 'deploy_paas'
-    invoke_layer 'saas' 'deploy_saas'
-    set_subscription "${saved_subscription}"
-    date
-}
-
-deploy_environment
+extract_service_values

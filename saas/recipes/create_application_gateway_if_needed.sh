@@ -165,9 +165,12 @@ function option_if_present () {
 }
 
 function get_original_cert_from_shared_vault () {
-    $AZ_TRACE keyvault secret show \
-        --vault-name "$(gw_attr 'tls_certificate.origin.vault_name')" \
-        --name "$(gw_attr 'tls_certificate.origin.tls_secret_name')" \
+    # @@ TODO refactor to support multiple TLS certificates
+    local ssl_cert_name="${1}"
+    az keyvault secret show \
+        --subscription "$(gw_attr 'ssl_certs[0].subscription')" \
+        --vault-name "$(gw_attr 'ssl_certs[0].vault_name')" \
+        --name "$(gw_attr 'ssl_certs[0].name')" \
         2> /dev/null \
     | jq -r '.value'
 }
@@ -218,17 +221,20 @@ function sign_as_pfx () {
 
 function pfx_certificate () {
     local password="${1}"
+    local ssl_cert_name="${2}"
     local pem
-    pem=$(get_original_cert_from_shared_vault | pkcs12_to_pem | add_intermediate_certificate)
+    pem=$(get_original_cert_from_shared_vault "${ssl_cert_name}" | pkcs12_to_pem | add_intermediate_certificate)
     sign_as_pfx "${pem}" "${password}"
 }
 
 function cert_file_options () {
+    local password="${1}"
+    local ssl_cert_name="${2}"
     local length
-    length="$(gw_attr_size 'tls_certificate')"
+    length="$(gw_attr_size 'ssl_certs')"
     if [[ '0' != "${length}" ]]; then
-        echo "--cert-file <( pfx_certificate \"\${password}\")"
-        echo "--cert-password \"\${password}\""
+        echo "--cert-file <( pfx_certificate \"${password}\" \"${ssl_cert_name}\")"
+        echo "--cert-password \"${password}\""
     fi
 }
 
@@ -252,28 +258,120 @@ function create_application_gateway () {
         $(server_list_if_present 'servers' 'servers') \
         $(options_list_if_present 'private-ip-address' 'private_ip_addresses') \
         $(options_list_if_present 'public-ip-address' 'public_ip_addresses') \
-        $(options_list_if_present 'waf-policy' 'waf_policy') \
-        $(cert_file_options)
+        $(option_if_present 'waf-policy' 'waf_policy.name') \
+        $(cert_file_options "${password}" 'default_tls_certificate')
 }
 
-function set_waf_config () {
-    if [[ '0' != "$(gw_attr_size 'waf_config')" ]]; then
-        $AZ_TRACE network application-gateway waf-config set \
-            --gateway-name "$(application_gateway_name)" \
+function add_exclusions () {
+    local length
+    length="$(gw_attr_size 'waf_policy.waf_config.exclusions')"
+    if [[ '0' != "${length}" ]]; then
+        local i
+        for i in $(seq 0 $(( length - 1)) ); do
+            local matchVariable selector selectorMatchOperator
+            matchVariable="$(gw_attr "waf_policy.waf_config.exclusions[${i}].matchVariable")"
+            selector="$(gw_attr "waf_policy.waf_config.exclusions[${i}].selector")"
+            selectorMatchOperator="$(gw_attr "waf_policy.waf_config.exclusions[${i}].selectorMatchOperator")"
+            $AZ_TRACE network application-gateway waf-policy managed-rule exclusion add \
+                --resource-group "$(application_gateway_resource_group)" \
+                --policy-name "$(gw_attr 'waf_policy.name')" \
+                --match-variable "${matchVariable}" \
+                --selector "${selector}" \
+                --selector-match-operator "${selectorMatchOperator}"
+        done
+    fi
+
+}
+
+function arm_tenplate_scaffold () {
+cat <<ARM_TEMPLATE
+{
+    "\$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies",
+            "apiVersion": "2019-11-01",
+            "name": "$(gw_attr 'waf_policy.name')",
+            "location" : "$(gw_attr 'waf_policy.location')"
+        }
+    ]
+}
+ARM_TEMPLATE
+}
+
+function show_waf_policy () {
+    az network application-gateway waf-policy show \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "$(gw_attr 'waf_policy.name')"
+}
+
+function clean_waf_policy () {
+    jq -r '{policySettings, managedRules}'
+}
+
+function retrieve_waf_policy () {
+    show_waf_policy | tee /dev/stderr | clean_waf_policy
+}
+
+function waf_rule_set_policy () {
+cat <<RULE_SETS
+    [
+        {
+            "ruleSetType": "$(gw_attr 'waf_policy.waf_config.rule_set_type')",
+            "ruleSetVersion": "$(gw_attr 'waf_policy.waf_config.rule_set_version')"
+        }
+    ]
+RULE_SETS
+}
+
+function combine_parts_of_waf_policy () {
+    jq --slurp -r '.[1].managedRules.managedRuleSets = .[2] | .[0].resources[0].properties = .[1] | .[0]' \
+        <(arm_tenplate_scaffold | tee /dev/stderr) \
+        <(retrieve_waf_policy | tee /dev/stderr) \
+        <(waf_rule_set_policy | tee /dev/stderr)
+}
+
+function update_owasp_version_in_waf_policy () {
+    printf "%s" "$(combine_parts_of_waf_policy)"
+    $AZ_TRACE group deployment create \
+        --resource-group "$(application_gateway_resource_group)" \
+        --template-file <(combine_parts_of_waf_policy)
+}
+
+function create_waf_policy_if_needed () {
+    if [[ '0' != "$(gw_attr_size 'waf_policy.name')" ]]; then
+        $AZ_TRACE network application-gateway waf-policy create \
             --resource-group "$(application_gateway_resource_group)" \
-            --enabled "$(gw_attr 'waf_config.enabled')" \
-            --file-upload-limit "$(gw_attr 'waf_config.file_upload_limit')" \
-            --firewall-mode "$(gw_attr 'waf_config.firewall_mode')" \
-            --max-request-body-size "$(gw_attr 'waf_config.max_request_body_size')" \
-            --request-body-check "$(gw_attr 'waf_config.request_body_check')" \
-            --rule-set-type "$(gw_attr 'waf_config.rule_set_type')" \
-            --rule-set-version "$(gw_attr 'waf_config.rule_set_version')"
+            --name "$(gw_attr 'waf_policy.name')"
+    fi
+}
+
+function update_waf_policy () {
+    $AZ_TRACE network application-gateway waf-policy policy-setting update \
+        --resource-group "$(application_gateway_resource_group)" \
+        --policy-name "$(gw_attr 'waf_policy.name')" \
+        --state "$(gw_attr 'waf_policy.waf_config.state')" \
+        --file-upload-limit-in-mb "$(gw_attr 'waf_policy.waf_config.file_upload_limit_in_mb')" \
+        --mode "$(gw_attr 'waf_policy.waf_config.mode')" \
+        --max-request-body-size-in-kb "$(gw_attr 'waf_policy.waf_config.max_request_body_size_in_kb')" \
+        --request-body-check "$(gw_attr 'waf_policy.waf_config.request_body_check')"
+}
+
+function create_or_update_waf_policies () {
+    create_waf_policy_if_needed
+    if [[ '0' != "$(gw_attr_size 'waf_policy.waf_config')" ]]; then
+        update_waf_policy
+        add_exclusions
+        update_owasp_version_in_waf_policy
     else
+        # shellcheck disable=SC2046,SC2086
         echo bypassing $AZ_TRACE network application-gateway waf-config set \
             --gateway-name "$(application_gateway_name)" \
             --resource-group "$(application_gateway_resource_group)" \
             --enabled false
     fi
+
 }
 
 function address_pool_names () {
@@ -326,7 +424,7 @@ function http_settings () {
             --cookie-based-affinity "$(gw_attr 'http_settings.cookieBasedAffinity')" \
             --enable-probe "$(gw_attr 'http_settings.probeEnabled')" \
             --host-name-from-backend-pool "$(gw_attr 'http_settings.pickHostNameFromBackendAddress')" \
-            --path "$(gw_attr 'http_settings.path')" \
+            $(option_if_present 'path' 'http_settings.path') \
             --probe "$(gw_attr 'http_settings.probe.name')" \
             --protocol "$(gw_attr 'http_settings.protocol')" \
             $(trusted_root_certificates_option) \
@@ -676,15 +774,40 @@ function create_routing_rule () {
         --gateway-name "$(application_gateway_name)" \
         --resource-group "$(application_gateway_resource_group)" \
         --name "${routing_rule_name}" \
-        $(routing_rule_option_if_present  "${routing_rule_name}" 'http-setting' 'properties.http_setting') \
-        $(routing_rule_option_if_present  "${routing_rule_name}" 'http-listener' 'properties.http_listener') \
+        $(routing_rule_option_if_present "${routing_rule_name}" 'http-setting' 'properties.http_setting') \
+        $(routing_rule_option_if_present "${routing_rule_name}" 'http-listener' 'properties.http_listener') \
         --address-pool "$(routing_rule_attr "${routing_rule_name}" 'properties.address_pool' )-pool"  \
         --rule-type "$(routing_rule_attr "${routing_rule_name}" 'properties.ruleType' )"  \
-        --url-path-map "$(routing_rule_attr "${routing_rule_name}" 'properties.urlPathMap' )"
+        $(routing_rule_option_if_present "${routing_rule_name}" 'url-path-map' 'properties.urlPathMap')
 }
 
 function routing_rule_names () {
     gw_attr 'request_routing_rules' | jq -r -e '.[] | [ .name ] | @tsv'
+}
+
+function rewrite_ruleset_id () {
+    local -r rewrite_ruleset_name="${1}"
+    printf '/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/applicationGateways/%s/rewriteRuleSets/%s' \
+        "$(gw_attr 'subscription')" \
+        "$(application_gateway_resource_group)" \
+        "$(application_gateway_name)" \
+        "${rewrite_ruleset_name}"
+}
+
+function bind_routing_rule_to_rewrite_rule_if_needed () {
+    local -r routing_rule_name="${1}"
+    local -r option_config='properties.rewrite_rule_set'
+    if [[ '0' != "$(routing_rule_attr_size "${routing_rule_name}" "${option_config}")" ]]; then
+        local rewrite_ruleset_name
+        rewrite_ruleset_name="$(routing_rule_attr "${routing_rule_name}" "${option_config}")"
+        # shellcheck disable=SC2046
+        $AZ_TRACE network application-gateway rule update \
+            --gateway-name "$(application_gateway_name)" \
+            --resource-group "$(application_gateway_resource_group)" \
+            --name "${routing_rule_name}" \
+            --set rewriteRuleSet.id="$(rewrite_ruleset_id "${rewrite_ruleset_name}")"
+    fi
+    true
 }
 
 function request_routing_rules () {
@@ -693,6 +816,60 @@ function request_routing_rules () {
         for routing_rule_name in $(routing_rule_names); do
             echo "checkpoint routing_rule_name: [${routing_rule_name}]"
             create_routing_rule "${routing_rule_name}"
+            bind_routing_rule_to_rewrite_rule_if_needed "${routing_rule_name}"
+        done
+    fi
+    true
+}
+
+function create_ssl_cert () {
+    local -r ssl_cert_name="${1}"
+    local password
+    password="$(random_key)"
+
+    # shellcheck disable=SC2046,SC2086
+    eval $AZ_TRACE network application-gateway ssl-cert create \
+        --gateway-name "$(application_gateway_name)" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --name "${ssl_cert_name}" \
+        $(cert_file_options "${password}" "${ssl_cert_name}")
+}
+
+function ssl_cert_names () {
+    gw_attr 'ssl_certs' | jq -r -e '.[] | [ .name ] | @tsv'
+}
+
+function ssl_cert () {
+    if [[ '0' != "$(gw_attr_size 'ssl_certs')" ]]; then
+        local ssl_cert_name
+        for ssl_cert_name in $(ssl_cert_names); do
+            echo "checkpoint ssl_cert: [${ssl_cert_name}]"
+            create_ssl_cert "${ssl_cert_name}"
+        done
+    fi
+    true
+}
+
+function service_endpoint_names () {
+    local -r index="${1}"
+    gw_attr "subnet_service_endpoints[${index}]" | jq -r -e '.service_endpoint_names | @tsv'
+}
+
+function subnet_service_endpoint () {
+    local -r index="${1}"
+    # shellcheck disable=SC2046
+    $AZ_TRACE network vnet subnet update \
+        --name "$(gw_attr "subnet_service_endpoints[${index}].subnet_name")" \
+        --resource-group "$(application_gateway_resource_group)" \
+        --vnet-name "$(application_gateway_name)Vnet" \
+        --service-endpoints "$(service_endpoint_names "${index}")"
+}
+
+function subnet_service_endpoints () {
+    if [[ '0' != "$(gw_attr_size 'subnet_service_endpoints')" ]]; then
+        local i
+        for i in $(seq 0 $(( $(gw_attr_size 'subnet_service_endpoints') - 1)) ); do
+            subnet_service_endpoint "${i}"
         done
     fi
     true
@@ -704,28 +881,30 @@ function request_routing_rules () {
 function deploy_application_gateway () {
     echo "checkpoint create_application_gateway" > /dev/stderr
     create_application_gateway
-    echo "checkpoint set_waf_config" > /dev/stderr
-    set_waf_config
 }
 
 function update_application_gateway_config () {
-    echo "checkpoint address_pool"
+    echo "checkpoint address_pool" > /dev/stderr
     address_pools
-    echo "checkpoint set_probe"
+    echo "checkpoint set_probe" > /dev/stderr
     set_probe
-    echo "checkpoint http_settings"
+    echo "checkpoint http_settings" > /dev/stderr
     http_settings
-    echo "checkpoint rewrite_rules"
+    echo "checkpoint rewrite_rules" > /dev/stderr
     rewrite_rules
-    echo "checkpoint set_ssl_policy"
+    echo "checkpoint set_ssl_policy" > /dev/stderr
     set_ssl_policy
-    echo "checkpoint url_path_map"
+    echo "checkpoint url_path_map" > /dev/stderr
     url_path_maps
-    echo "checkpoint http_listener"
-    http_listener
-    echo "checkpoint routing rules"
+#    echo "checkpoint http_listener" > /dev/stderr
+#    http_listener
+    echo "checkpoint routing rules" > /dev/stderr
     request_routing_rules
-
+    echo "checkpoint ssl_cert" > /dev/stderr
+    ssl_cert
+    echo "checkpoint service endpoints" > /dev/stderr
+    subnet_service_endpoints
+    true
     ####################
     # we are using the following defaults created by "application-gateway create"
     # auth_cert
@@ -733,13 +912,13 @@ function update_application_gateway_config () {
     # front_end_port
     # redirect-config
     # root_cert
-    # ssl_cert
-    # waf_policy
 }
 
 function create_application_gateway_if_needed () {
+    create_or_update_waf_policies
     application_gateway_already_exists || deploy_application_gateway
     update_application_gateway_config
+    echo "completed application gateway"
 }
 
 create_application_gateway_if_needed

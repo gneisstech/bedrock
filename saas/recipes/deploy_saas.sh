@@ -63,7 +63,7 @@ function saas_configuration () {
 
 function service_names () {
     local -r service_group="${1}"
-    saas_configuration | jq -r -e "[.${service_group}.services[] | select(.action == \"create\") | .name ] | @tsv"
+    saas_configuration | jq -r -e "[.${service_group}.services[]? | select(.action == \"create\") | .name ] | @tsv // null"
 }
 
 function deploy_services () {
@@ -75,13 +75,21 @@ function deploy_services () {
 }
 
 function application_gateway_names () {
-    saas_configuration | jq -r -e '[.application_gateways[] | select(.action == "preserve") | .name ] | @tsv'
+    saas_configuration | jq -r -e '[.application_gateways[]? | select(.action == "preserve") | .name ] | @tsv // null'
 }
 
 function deploy_application_gateways () {
     local gateway_name
     for gateway_name in $(application_gateway_names); do
         invoke_layer 'saas' 'create_application_gateway_if_needed' "${gateway_name}"
+    done
+}
+
+function apply_service_access_restrictions () {
+    local -r service_group="${1}"
+    local service_name
+    for service_name in $(service_names "${service_group}"); do
+        invoke_layer 'saas' 'apply_service_access_restrictions' "${service_name}" "${service_group}"
     done
 }
 
@@ -94,6 +102,8 @@ function deploy_saas () {
     deploy_services 'authn_services'
     deploy_services 'web_services'
     deploy_application_gateways
+    apply_service_access_restrictions 'authn_services'
+    apply_service_access_restrictions 'web_services'
     register_application 'application_registration'
 }
 

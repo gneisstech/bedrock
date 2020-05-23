@@ -17,7 +17,7 @@ set -o pipefail
 # ---------------------
 
 function dev_site_url () {
-  echo 'https://cf.dev.atrius-iot.com'
+  echo 'https://cf-staging.dev.atrius-iot.com'
   #echo 'http://atgcfexp-post-auth-pip.southcentralus.cloudapp.azure.com'
 }
 
@@ -27,7 +27,7 @@ function site_token () {
 
 function curl_auth () {
   local -r theURL="${1}"
-  curl -sS -H "Authorization: Bearer $(site_token)" "${theURL}" --fail -w "%{http_code}: " -o /dev/null 2>/dev/null || echo "Unauthorized"
+    curl -sS -H "Authorization: Bearer $(site_token)" "${theURL}" --fail -w "%{http_code}: " -o /dev/null 2>/dev/null || echo "Unauthorized"
 }
 
 function check_main () {
@@ -77,7 +77,7 @@ function check_self_healing_app () {
 
 function check_self_healing_api () {
   echo "=== begin checking self_healing_api URL of site"
-  curl_auth "$(dev_site_url)/cf-self-healing-api"
+  curl_auth "$(dev_site_url)/cf-self-healing-api/api/v1/get_sites"
   echo "=== begin checking self_healing_api URL of site"
 }
 

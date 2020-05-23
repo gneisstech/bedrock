@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# usage: deploy_environment.sh target_environment_config.yaml
+# usage: create_dashboard_credentials.sh
 
 #
 # Maintainer: techguru@byiq.com
 #
-# Copyright (c) 2017-2019,  Cloud Scaling -- All Rights Reserved
+# Copyright (c) 2017-2020,  Cloud Scaling -- All Rights Reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,6 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx TARGET_CONFIG
-declare -x AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -47,50 +45,65 @@ function repo_root () {
 }
 
 function invoke_layer () {
-  local -r layer="${1}"
-  local -r target_recipe="${2}"
-  shift 2
-  "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
-}
-
-function init_trace () {
-    if [[ -z "${AZ_TRACE}" ]]; then
-        export AZ_TRACE="echo az"
-    fi
+    local -r layer="${1}"
+    local -r target_recipe="${2}"
+    shift 2
+    "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
 }
 
 function target_config () {
     echo "$(repo_root)/${TARGET_CONFIG}"
 }
 
-function target_subscription () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.default_azure_subscription'
+function paas_configuration () {
+    yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
-function set_subscription () {
-    local -r desired_subscription="${1}"
-    az account set --subscription "${desired_subscription}"
+function k8s_attr () {
+    local -r attr="${1}"
+    paas_configuration | jq -r -e ".k8s.clusters[] | select(.name == \"$(kubernetes_cluster_name)\") | .${attr}"
 }
 
-function set_target_subscription () {
-    set_subscription "$(target_subscription)"
+function k8s_string () {
+    local -r attr="${1}"
+    local -r key="${2}"
+    k8s_attr "${attr}" | jq -r -e ".${key} | if type==\"array\" then join(\"\") else . end"
 }
 
-function current_azure_subscription () {
-    az account show -o json | jq -r -e '.id'
+function kubernetes_dashboard_admin_service_account () {
+    cat <<DASHBOARD_ADMIN_SERVICE_ACCOUNT_TEMPLATE
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kube-system
+DASHBOARD_ADMIN_SERVICE_ACCOUNT_TEMPLATE
 }
 
-function deploy_environment () {
-    local saved_subscription
-    date
-    saved_subscription="$(current_azure_subscription)"
-    set_target_subscription
-    init_trace
-    invoke_layer 'iaas' 'deploy_iaas'
-    invoke_layer 'paas' 'deploy_paas'
-    invoke_layer 'saas' 'deploy_saas'
-    set_subscription "${saved_subscription}"
-    date
+function kubernetes_dashboard_admin_cluster_role () {
+    cat <<DASHBOARD_ADMIN_CLUSTER_ROLE_TEMPLATE
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kube-system
+DASHBOARD_ADMIN_CLUSTER_ROLE_TEMPLATE
 }
 
-deploy_environment
+function create_kubernetes_dashboard_admin_service_account () {
+    kubectl apply -f <(kubernetes_dashboard_admin_service_account)
+    kubectl apply -f <(kubernetes_dashboard_admin_cluster_role)
+}
+
+function create_dashboard_credentials () {
+    create_kubernetes_dashboard_admin_service_account
+}
+
+create_dashboard_credentials

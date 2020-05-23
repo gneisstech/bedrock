@@ -84,7 +84,8 @@ function create_public_ip () {
         --name "$(public_ip_name)" \
         --resource-group "$(ip_attr 'resource_group')" \
         --sku "$(ip_attr 'sku')" \
-        --allocation-method "$(ip_attr 'allocation_method')"
+        --allocation-method "$(ip_attr 'allocation_method')" \
+        --dns-name "$(public_ip_name)"
 }
 
 function create_public_ip_if_needed () {
