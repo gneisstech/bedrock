@@ -1,0 +1,73 @@
+---
+deployments:
+  - name: 'CF_Development'
+    k8s:
+      namespace: 'cfk8s'
+      context: 'cf-dev-k8s-001-admin'
+      dashboard:
+        port: 8001
+    environment:
+      config: './configuration/environments/cf_k8s_dev.yaml'
+    helm:
+      umbrella:
+        registry: 'cfdevregistry'
+        name: 'cf-deployment-umbrella'
+        version: '^1.0.0-0'
+        values_file: ''
+  - name: 'CF_CI'
+    k8s:
+      namespace: 'cfk8s'
+      context: 'cf-ci-k8s-001-admin'
+      dashboard:
+        port: 8002
+    environment:
+      config: './configuration/environments/cf_k8s_ci.yaml'
+    helm:
+      umbrella:
+        registry: 'cfdevregistry'
+        name: 'cf-deployment-umbrella'
+        version: '^1.0.0-0'
+        values_file: ''
+  - name: 'CF_QA'
+    k8s:
+      namespace: 'cfk8s'
+      context: 'cf-qa-k8s-001-admin'
+      dashboard:
+        port: 8003
+    environment:
+      config: './configuration/environments/cf_k8s_qa.yaml'
+    helm:
+      umbrella:
+        registry: 'cfdevregistry'  # to be cfqaregistry
+        name: 'cf-deployment-umbrella'
+        version: '^1.0.0-0'
+        values_file: ''
+  - name: 'CF_Prod'
+    k8s:
+      namespace: 'cfk8s'
+      context: 'cf-prod-k8s-001-admin'
+      dashboard:
+        port: 8004
+    environment:
+      config: './configuration/environments/cf_k8s_prod.yaml'
+    helm:
+      umbrella:
+        registry: 'cfdevregistry'  # to be cfprodregistry
+        name: 'cf-deployment-umbrella'
+        version: '^1.0.0'
+        values_file: ''
+  - name: 'CF_Local'
+    k8s:
+      namespace: 'cfk8s'
+      context: 'docker-desktop'
+      dashboard:
+        port: 8005
+    environment:
+      config: './configuration/environments/cf_k8s_local.yaml'
+    helm:
+      umbrella:
+        registry: 'cfdevregistry'
+        name: 'cf-deployment-umbrella'
+        version: '^1.0.0'
+        values_file: ''
+---
