@@ -8,8 +8,7 @@ resources:
       project: 'ByteLight'
       source: 'cf_admin_web_api'
       branch: 'master-bytelight'
-      tags:
-        - 'r*'
+      tags: [ 'r*' ]
     - pipeline: 'cf/services/cf_atrius_objects'
       project: 'ByteLight'
       source: 'cf_atrius_objects'
