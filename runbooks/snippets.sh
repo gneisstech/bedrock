@@ -3,7 +3,7 @@
 kubectl --namespace kube-system get secret admin-user-token-x6lkp -o json | jq  '.data.token | @base64d'
 
 cd configuration/k8s/charts/cf-deployment-umbrella/
-rm Chart.lock
+rm -f Chart.lock *.tgz
 helm dependency build .
 
 TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh
@@ -23,6 +23,9 @@ helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --val
 
 helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
 docker build . -t cfqaregistry.azurecr.io/cf-objects-api-docker:r0.0.20-IndividualCI.20200428.3.RC
 
@@ -60,6 +63,7 @@ az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/781c62dc-
 az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 
 az aks update -n cf-qa-k8s-001 -g k8s-cfqa --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
+az aks update -n cf-prod-k8s-001 -g k8s-cfprod --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 
 environments:
 clean-local
@@ -112,6 +116,7 @@ helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --val
 
 ==============================
 kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .metadata.name'
+kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .data.token | @base64d'
 
 ==============================
 kubectl --context cf-dev-k8s-001-admin --namespace cfk8s get pods -o json |jq -r '.items[].metadata.name' | grep -E 'admin|authz|health|elm' | xargs -n 1 -I {} kubectl --context cf-dev-k8s-001-admin --namespace cfk8s exec {} rake routes > rails_routes.txt
