@@ -72,8 +72,8 @@ steps:
     inputs:
       command: login
       containerRegistry: cf-dev-acr-service-connection
-    condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
   - task: AzureCLI@2
+    condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Update Service Dependencies'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
