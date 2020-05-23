@@ -8,7 +8,7 @@ resources:
       source: 'cf_admin_web_api'
       project: 'ByteLight'
       trigger: true
-    - pipeline: 'cf_atrius_objects'
+    - pipeline: 'cf/services/cf_atrius_objects'
       source: 'cf_atrius_objects'
       project: 'ByteLight'
       trigger: true
