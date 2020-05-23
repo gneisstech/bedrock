@@ -6,13 +6,13 @@ resources:
   pipelines:
     - pipeline: 'cf_admin_web_api'
       source: 'cf_admin_web_api'
-      project: ''cf_admin_web_api'
+      project: 'cf_admin_web_api'
       trigger:
         branches:
           - master-bytelight
     - pipeline: 'cf_atrius_objects'
       source: 'cf_atrius_objects'
-      project: ''cf_atrius_objects'
+      project: 'cf_atrius_objects'
       trigger:
         branches:
           - master-bytelight
