@@ -98,7 +98,7 @@ function process_secure_secret () {
     if [[ -z "${secret}" ]]; then
         secret="FAKE_SECRET"
     fi
-    printf '%s' "${secret}"
+    printf '%s' "${secret}" | sed -e 's|\\|\\\\|g'
 }
 
 function process_ip_address () {
@@ -119,7 +119,7 @@ function get_original_cert_from_shared_vault () {
     local -r vault_name="${2}"
     local -r secret_name="${3}"
     az keyvault secret show \
-        --subscription "${subscription})" \
+        --subscription "${subscription}" \
         --vault-name "${vault_name}" \
         --name "${secret_name}" \
         2> /dev/null \
