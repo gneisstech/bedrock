@@ -74,12 +74,12 @@ steps:
       containerRegistry: cf-dev-acr-service-connection
   - task: AzureCLI@2
     condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
-    displayName: 'Update Service Dependencies'
+    displayName: 'Update Umbrella Chart semver'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: './ci/recipes/update_service_dependencies.sh'
+      scriptPath: './ci/recipes/update_umbrella_chart.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference

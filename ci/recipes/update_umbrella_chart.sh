@@ -48,4 +48,4 @@ function update_umbrella_chart () {
     fi
 }
 
-update_service_dependencies.sh
+update_umbrella_chart
