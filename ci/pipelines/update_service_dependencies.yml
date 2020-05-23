@@ -8,72 +8,62 @@ resources:
       project: 'ByteLight'
       source: 'cf_admin_web_api'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf/services/cf_atrius_objects'
       project: 'ByteLight'
       source: 'cf_atrius_objects'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_authz_web_api'
       project: 'ByteLight'
       source: 'cf_authz_web_api'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_elm_web_api'
       project: 'ByteLight'
       source: 'cf_elm_web_api'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_http_https_echo'
       project: 'ByteLight'
       source: 'cf_http_https_echo'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_network_view_web_api'
       project: 'ByteLight'
       source: 'cf_network_view_web_api'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_oauth2_proxy'
       project: 'ByteLight'
       source: 'cf_oauth2_proxy'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_react_app'
       project: 'ByteLight'
       source: 'cf_react_app'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_self_healing_lights'
       project: 'ByteLight'
       source: 'cf_self_healing_lights'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
     - pipeline: 'cf_self_healing_react_app'
       project: 'ByteLight'
       source: 'cf_self_healing_react_app'
       branch: 'master-bytelight'
-      trigger:
-        tags:
-          - 'r*'
+      tags:
+        - 'r*'
 
 pool:
   vmImage: 'ubuntu-latest'
