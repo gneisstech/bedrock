@@ -10,6 +10,7 @@ TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_serv
 TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
 TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
 TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
+TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml AZ_TRACE=az ./recipes/deploy_environment.sh
 
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
@@ -34,6 +35,8 @@ helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/env
 helm install datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
 helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
 
+helm install datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
+helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
 
 #dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
@@ -109,3 +112,7 @@ helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --val
 
 ==============================
 kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .metadata.name'
+
+==============================
+kubectl --context cf-dev-k8s-001-admin --namespace cfk8s get pods -o json |jq -r '.items[].metadata.name' | grep -E 'admin|authz|health|elm' | xargs -n 1 -I {} kubectl --context cf-dev-k8s-001-admin --namespace cfk8s exec {} rake routes > rails_routes.txt
+
