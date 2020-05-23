@@ -39,6 +39,7 @@ function current_repo_branch () {
 }
 
 function validate_branch () {
+    git status
     printf 'branches: required [%s], current [%s], build_sourcebranch [%s]\n' \
         "${required_repo_branch}" \
         "$(current_repo_branch)" \
