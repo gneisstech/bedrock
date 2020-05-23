@@ -13,10 +13,11 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx BUILD_SOURCEBRANCH
+declare -rx BUILD_SOURCEBRANCHNAME
+declare -rx TF_BUILD
 
 # Arguments
 # ---------------------
-
 declare -rx ORIGIN_ENVIRONMENT="${ORIGIN_ENVIRONMENT:-dev}"
 declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-cfdevregistry}"
 declare -rx RELEASE_PREFIX="${RELEASE_PREFIX:-r}"
@@ -30,12 +31,22 @@ function repo_root () {
 }
 
 function update_umbrella_semver () {
-    printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH}"
+    printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH:-}"
     env
 }
 
+function is_azure_pipeline_build () {
+    [[ "True" == "${TF_BUILD:-}" ]]
+}
+
 function current_repo_branch () {
-    git status -b  | grep "^On branch" | sed -e 's/.* //'
+    local branch
+    if is_azure_pipeline_build; then
+        branch="${BUILD_SOURCEBRANCHNAME:-}"
+    else
+        branch="$(git rev-parse --abbrev-ref HEAD)"
+    fi
+    printf "%s" "${branch}"
 }
 
 function validate_branch () {
@@ -43,7 +54,7 @@ function validate_branch () {
     printf 'branches: required [%s], current [%s], build_sourcebranch [%s]\n' \
         "${required_repo_branch}" \
         "$(current_repo_branch)" \
-        "${BUILD_SOURCEBRANCH}"
+        "${BUILD_SOURCEBRANCH:-}"
 ##    [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
 ##        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]]
 }
