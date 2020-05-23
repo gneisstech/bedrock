@@ -51,12 +51,12 @@ function validate_branch () {
         "${required_repo_branch}" \
         "$(current_repo_branch)" \
         "${BUILD_SOURCEBRANCH:-}"
-##    [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
-##        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]]
+    [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
+        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]]
 }
 
 function services_changed_semver () {
-    printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH:-}"
+    printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH:-}\n"
     env
     true
 }

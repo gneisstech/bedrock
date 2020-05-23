@@ -30,11 +30,6 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function update_umbrella_semver () {
-    printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH:-}"
-    env
-}
-
 function is_azure_pipeline_build () {
     [[ "True" == "${TF_BUILD:-}" ]]
 }
@@ -55,8 +50,13 @@ function validate_branch () {
         "${required_repo_branch}" \
         "$(current_repo_branch)" \
         "${BUILD_SOURCEBRANCH:-}"
-##    [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
-##        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]]
+    [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
+        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]]
+}
+
+function update_umbrella_semver () {
+    printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH:-}\n"
+    env
 }
 
 function update_umbrella_chart () {
