@@ -57,12 +57,12 @@ resources:
   containers:
     - container: 'cf_atrius_objects'
       type: 'ACR'
-      azureSubscription: 'ConnectedFacilities-Dev'
+      azureSubscription: 'cf-dev-acr-service-connection'
       resourceGroup: 'Acr-CfDev'
       registry: 'cfdevregistry'
       repository: 'cf_atrius_objects'
       trigger:
-        branches:
+        tags:
           include:
             - 'refs/tags/r*'
           exclude:
