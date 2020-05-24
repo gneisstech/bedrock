@@ -102,7 +102,7 @@ function get_helm_services_json () {
 }
 
 function get_helm_services () {
-    tee /dev/stdderr | jq -r '.[].name' | sed -e 's|.*/||' -e 's|"$||' | sort -u
+    tee /dev/stderr | jq -r '.[].name' | sed -e 's|.*/||' -e 's|"$||' | sort -u
 }
 
 function services_changed_semver () {
