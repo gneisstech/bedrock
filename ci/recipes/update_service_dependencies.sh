@@ -73,7 +73,10 @@ function install_yq_if_needed () {
 #
 
 function get_upstream_services () {
-    env | grep 'PIPELINENAME' | sed -e 's|.*=||' | sort -u
+    env \
+        | grep PIPELINENAME \
+        | sed -e 's|_PIPELINENAME.*||' -e 's|.*_||' \
+        | tr '[:upper:]' '[:lower:]'
 }
 
 function chart_dir () {

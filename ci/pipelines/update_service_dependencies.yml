@@ -52,13 +52,13 @@ resources:
       branches:
         include:
         - 'master-bytelight'
-  - pipeline: 'cf_http_https_echo'
+  - pipeline: 'cf-http-https-echo'
     source: 'cf_http_https_echo'
     trigger:
       branches:
         include:
         - 'master-bytelight'
-  - pipeline: 'cf-network-view-web_api-docker'
+  - pipeline: 'cf-network-view-web-api-docker'
     source: 'cf_network_view_web_api'
     trigger:
       branches:
@@ -82,7 +82,7 @@ resources:
       branches:
         include:
         - 'master-bytelight'
-  - pipeline: 'cf-self-healing-react_app-docker'
+  - pipeline: 'cf-self-healing-react-app-docker'
     source: 'cf_self_healing_react_app'
     trigger:
       branches:
