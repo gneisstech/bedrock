@@ -5,65 +5,64 @@
 resources:
   pipelines:
     - pipeline: 'cf_admin_web_api'
-      source: 'cf_admin_web_api'
       project: 'ByteLight'
+      source: '/cf/services/cf_admin_web_api'
+      branch: 'master-bytelight'
       trigger:
         branches:
-          - master-bytelight
-    - pipeline: 'cf_atrius_objects'
-      source: 'cf_atrius_objects'
+          include:
+            - 'refs/tags/r*'
+    - pipeline: 'cf/services/cf_atrius_objects'
       project: 'ByteLight'
+      source: '/cf/services/cf_atrius_objects'
+      branch: 'master-bytelight'
       trigger:
         branches:
-          - master-bytelight
+          include:
+            - 'refs/tags/r*'
     - pipeline: 'cf_authz_web_api'
-      source: 'cf_authz_web_api'
       project: 'ByteLight'
-      trigger:
-        branches:
-          - master-bytelight
+      source: '/cf/services/cf_authz_web_api'
+      branch: 'master-bytelight'
     - pipeline: 'cf_elm_web_api'
-      source: 'cf_elm_web_api'
       project: 'ByteLight'
-      trigger:
-        branches:
-          - master-bytelight
+      source: '/cf/services/cf_elm_web_api'
+      branch: 'master-bytelight'
     - pipeline: 'cf_http_https_echo'
-      source: 'cf_http_https_echo'
       project: 'ByteLight'
-      trigger:
-        branches:
-          - master-bytelight
+      source: '/cf/services/cf_http_https_echo'
+      branch: 'master-bytelight'
     - pipeline: 'cf_network_view_web_api'
-      source: 'cf_network_view_web_api'
       project: 'ByteLight'
-      trigger:
-        branches:
-          - master-bytelight
+      source: '/cf/services/cf_network_view_web_api'
+      branch: 'master-bytelight'
     - pipeline: 'cf_oauth2_proxy'
-      source: 'cf_oauth2_proxy'
       project: 'ByteLight'
-      trigger:
-        branches:
-          - master-bytelight
+      source: '/cf/services/cf_oauth2_proxy'
+      branch: 'master-bytelight'
     - pipeline: 'cf_react_app'
-      source: 'cf_react_app'
       project: 'ByteLight'
-      trigger:
-        branches:
-          - master-bytelight
+      source: '/cf/services/cf_react_app'
+      branch: 'master-bytelight'
     - pipeline: 'cf_self_healing_lights'
-      source: 'cf_self_healing_lights'
       project: 'ByteLight'
-      trigger:
-        branches:
-          - master-bytelight
+      source: '/cf/services/cf_self_healing_lights'
+      branch: 'master-bytelight'
     - pipeline: 'cf_self_healing_react_app'
-      source: 'cf_self_healing_react_app'
       project: 'ByteLight'
+      source: '/cf/services/cf_self_healing_react_app'
+      branch: 'master-bytelight'
+  containers:
+    - container: 'cf_atrius_objects'
+      type: 'ACR'
+      azureSubscription: 'ConnectedFacilities-Dev'
+      resourceGroup: 'Acr-CfDEv'
+      registry: 'cfdevregistry'
+      repository: 'cf_atrius_objects'
       trigger:
-        branches:
-          - master-bytelight
+        tags:
+          include: [ 'r*' ]
+          exclude: [ 'r0*' ]
 
 pool:
   vmImage: 'ubuntu-latest'
