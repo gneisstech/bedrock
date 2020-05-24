@@ -58,9 +58,9 @@ function trace_environment () {
 
 function install_yq_if_needed () {
     if ! command -v yq; then
-        sudo add-apt-repository ppa:rmescandon/yq > /dev/null
-        sudo apt update > /dev/null
-        sudo apt install yq -y > /dev/null
+        sudo add-apt-repository ppa:rmescandon/yq > 2>&1 /dev/null
+        sudo apt update > 2>&1 /dev/null
+        sudo apt install yq -y > 2>&1 /dev/null
     fi
 }
 
@@ -106,6 +106,7 @@ function get_helm_services () {
 }
 
 function services_changed_semver () {
+set -x
     local upstream_services chart_services locked_chart_services helm_services_json helm_services
     upstream_services="$(get_upstream_services)"
     chart_services="$(get_chart_services)"
