@@ -6,6 +6,8 @@ trigger:
   - master-bytelight
   - azure-pipelines
 
+pr: none
+
 pool:
   vmImage: 'ubuntu-latest'
 

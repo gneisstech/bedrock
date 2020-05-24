@@ -13,6 +13,7 @@ resources:
         branches:
           include:
           - master-bytelight
+          - refs/tags/r*
     - pipeline: 'cf_admin_web_api'
       project: 'ByteLight'
       source: '/cf/services/cf_admin_web_api'
