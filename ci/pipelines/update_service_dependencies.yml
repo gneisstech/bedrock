@@ -10,6 +10,7 @@ resources:
     - pipeline: 'cf_atrius_objects'
       source: 'cf_atrius_objects'
       trigger:
+        enable: true
         branches:
           include:
           - master-bytelight
@@ -27,6 +28,7 @@ resources:
       source: 'cf\services\cf_atrius_objects'
       branch: 'master-bytelight'
       trigger:
+        enable: true
         branches:
           include:
             - 'refs/tags/r*'
