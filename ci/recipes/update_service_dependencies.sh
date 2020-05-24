@@ -96,13 +96,13 @@ function get_locked_chart_services () {
 }
 
 function get_helm_services_json () {
-    az acr helm repo add -n cfdevregistry
+    az acr helm repo add -n "${ORIGIN_REPOSITORY}"
     helm repo update
     helm search repo "${ORIGIN_REPOSITORY}" --devel -o json
 }
 
 function get_helm_services () {
-    jq '.[].name' | sed -e 's|.*/||' -e 's|"$||' | sort -u
+    tee /dev/stdderr | jq -r '.[].name' | sed -e 's|.*/||' -e 's|"$||' | sort -u
 }
 
 function services_changed_semver () {
