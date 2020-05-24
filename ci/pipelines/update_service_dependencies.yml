@@ -58,13 +58,15 @@ resources:
     - container: 'cf_atrius_objects'
       type: 'ACR'
       azureSubscription: 'ConnectedFacilities-Dev'
-      resourceGroup: 'Acr-CfDEv'
+      resourceGroup: 'Acr-CfDev'
       registry: 'cfdevregistry'
       repository: 'cf_atrius_objects'
       trigger:
-        tags:
-          include: [ 'r*' ]
-          exclude: [ 'r0*' ]
+        branches:
+          include:
+            - 'refs/tags/r*'
+          exclude:
+            - 'regs/tags/r0*'
 
 pool:
   vmImage: 'ubuntu-latest'
