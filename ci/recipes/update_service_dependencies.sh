@@ -110,7 +110,6 @@ function get_helm_services () {
 }
 
 function services_changed_semver () {
-set -x
     local upstream_services chart_services locked_chart_services helm_services_json helm_services
     upstream_services="$(get_upstream_services)"
     chart_services="$(get_chart_services)"
