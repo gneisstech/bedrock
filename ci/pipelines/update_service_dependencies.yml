@@ -14,7 +14,7 @@ resources:
             - 'refs/tags/r*'
     - pipeline: 'cf/services/cf_atrius_objects'
       project: 'ByteLight'
-      source: '/cf/services/cf_atrius_objects'
+      source: 'cf_atrius_objects'
       branch: 'master-bytelight'
       trigger:
         branches:
