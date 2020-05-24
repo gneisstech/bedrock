@@ -76,7 +76,8 @@ function get_upstream_services () {
     env \
         | grep PIPELINENAME \
         | sed -e 's|_PIPELINENAME.*||' -e 's|.*_||' \
-        | tr '[:upper:]' '[:lower:]'
+        | tr '[:upper:]' '[:lower:]' \
+        | sort -u
 }
 
 function chart_dir () {
