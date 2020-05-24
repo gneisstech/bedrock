@@ -64,13 +64,56 @@ function trace_environment () {
 # chart.lock semver exists, but no artifacts for service => remove lock, rebuild umbrella [breaking change]
 #
 
+function get_upstream_services () {
+    env | grep 'PIPELINENAME' | sed -e 's|.*=||' | sort -u
+}
+
+function chart_dir () {
+    printf '%s/configuration/k8s/charts/cf-deployment-umbrella/' "$(repo_root)"
+}
+
+function filter_upstream_cf_services () {
+    jq -r -e \
+        --arg repository "${ORIGIN_REPOSITORY}" \
+        '.dependencies[] | select(.repository|test(".*\($repository).*")) | .name' \
+      | sort -u
+}
+
+function get_chart_services () {
+    yq r --tojson "$(chart_dir)/Chart.yaml" | filter_upstream_cf_services || true
+}
+
+function get_locked_chart_services () {
+    yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_cf_services || true
+}
+
+function get_helm_services_json () {
+    az acr helm repo add -n cfdevregistry
+    helm repo update
+    helm search repo "${ORIGIN_REPOSITORY}" --devel -o json
+}
+
+function get_helm_services () {
+    jq '.[].name' | sed -e 's|.*/||' -e 's|"$||' | sort -u
+}
+
 function services_changed_semver () {
-    true
+    local upstream_services chart_services locked_chart_services helm_services_json helm_services
+    upstream_services="$(get_upstream_services)"
+    chart_services="$(get_chart_services)"
+    locked_chart_services="$(get_locked_chart_services)"
+    helm_services_json="$(get_helm_services_json)"
+    helm_services="$(get_helm_services <<< "${helm_services_json}")"
+    printf 'upstream [%s]\n\n' "${upstream_services}"
+    printf 'chart [%s]\n\n' "${chart_services}"
+    printf 'locked chart [%s]\n\n' "${locked_chart_services}"
+    printf 'helm [%s]\n\n' "${helm_services}"
 }
 
 function update_service_dependencies () {
     trace_environment
     if services_changed_semver; then
+        # shellcheck disable=2046
         $(repo_root)/ci/recipes/update_umbrella_chart.sh
     fi
 }

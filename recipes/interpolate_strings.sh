@@ -235,6 +235,8 @@ function dispatch_functions () {
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
         if (( i % 2 == 1 )); then
+            # shellcheck disable=2001
+            # -- can be ${line_data//\\\"/}" @@ TODO
             line_data="$( sed -e 's|\\"|"|g' <<< "${line_data}" )"
             case "$line_data" in
                 acr_registry_key*)
