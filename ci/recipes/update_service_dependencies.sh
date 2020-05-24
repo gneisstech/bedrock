@@ -56,6 +56,14 @@ function trace_environment () {
     env
 }
 
+function install_yq_if_needed () {
+    if ! command -v yq; then
+        sudo add-apt-repository ppa:rmescandon/yq > /dev/null
+        sudo apt update > /dev/null
+        sudo apt install yq -y > /dev/null
+    fi
+}
+
 #
 # there are four basic cases to consider:
 # chart.lock semver matches latest service semver => no change
@@ -112,6 +120,7 @@ function services_changed_semver () {
 
 function update_service_dependencies () {
     trace_environment
+    install_yq_if_needed
     if services_changed_semver; then
         # shellcheck disable=2046
         $(repo_root)/ci/recipes/update_umbrella_chart.sh
