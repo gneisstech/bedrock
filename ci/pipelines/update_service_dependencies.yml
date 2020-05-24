@@ -13,9 +13,6 @@ resources:
         branches:
           include:
           - master-bytelight
-
-foobar:
-  exit:
     - pipeline: 'cf_admin_web_api'
       project: 'ByteLight'
       source: '/cf/services/cf_admin_web_api'
