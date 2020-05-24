@@ -9,7 +9,7 @@ resources:
       source: '/cf/services/cf_admin_web_api'
       branch: 'master-bytelight'
       trigger:
-        branch:
+        branches:
           include:
             - 'refs/tags/r*'
     - pipeline: 'cf/services/cf_atrius_objects'
@@ -17,7 +17,7 @@ resources:
       source: '/cf/services/cf_atrius_objects'
       branch: 'master-bytelight'
       trigger:
-        branch:
+        branches:
           include:
             - 'refs/tags/r*'
     - pipeline: 'cf_authz_web_api'
