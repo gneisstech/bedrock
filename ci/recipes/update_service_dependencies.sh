@@ -95,14 +95,18 @@ function get_locked_chart_services () {
     yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_cf_services || true
 }
 
-function get_helm_services_json () {
+function update_helm_repo () {
     az acr helm repo add -n "${ORIGIN_REPOSITORY}"
     helm repo update
+    helm version
+}
+
+function get_helm_services_json () {
     helm search repo "${ORIGIN_REPOSITORY}" --devel -o json
 }
 
 function get_helm_services () {
-    tee /dev/stderr | jq -r '.[].name' | sed -e 's|.*/||' -e 's|"$||' | sort -u
+    jq -r '.[].name' | sed -e 's|.*/||' -e 's|"$||' | sort -u
 }
 
 function services_changed_semver () {
@@ -122,6 +126,7 @@ set -x
 function update_service_dependencies () {
     trace_environment
     install_yq_if_needed
+    update_helm_repo
     if services_changed_semver; then
         # shellcheck disable=2046
         $(repo_root)/ci/recipes/update_umbrella_chart.sh
