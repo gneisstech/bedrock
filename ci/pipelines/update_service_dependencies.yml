@@ -2,13 +2,20 @@
 # trigger this pipeline when any service dependency is updated
 #
 
+trigger: none
+pr: none
+
 resources:
   pipelines:
     - pipeline: 'cf_atrius_objects'
       source: 'cf_atrius_objects'
       trigger:
         branches:
+          include:
           - master-bytelight
+
+foobar:
+  exit:
     - pipeline: 'cf_admin_web_api'
       project: 'ByteLight'
       source: '/cf/services/cf_admin_web_api'
