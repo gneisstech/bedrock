@@ -52,13 +52,14 @@ function validate_branch () {
         "$(current_repo_branch)" \
         "${BUILD_SOURCEBRANCH:-}"
     [[ "$(current_repo_branch)" == "${required_repo_branch}" ]] \
-        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]]
+        || [[ "${BUILD_SOURCEBRANCH:-}" == "refs/heads/${required_repo_branch}" ]] \
+        || printf 'not on required branch\n'
+    env
+    true
 }
 
 function services_changed_semver () {
     printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH:-}\n"
-    env
-    true
 }
 
 function update_service_dependencies () {
