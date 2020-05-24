@@ -19,7 +19,7 @@ resources:
             - 'refs/tags/r*'
             - 'master-bytelight'
     - pipeline: 'xx-cf_atrius_objects'
-      source: 'xx-cf\services\cf_atrius_objects'
+      source: 'cf\services\cf_atrius_objects'
       branch: 'master-bytelight'
       trigger:
         branches:
