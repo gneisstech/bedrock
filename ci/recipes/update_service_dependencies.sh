@@ -58,9 +58,9 @@ function trace_environment () {
 
 function install_yq_if_needed () {
     if ! command -v yq; then
-        sudo add-apt-repository ppa:rmescandon/yq > 2>&1 /dev/null
-        sudo apt update > 2>&1 /dev/null
-        sudo apt install yq -y > 2>&1 /dev/null
+        sudo add-apt-repository ppa:rmescandon/yq > /dev/null 2>&1
+        sudo apt update > /dev/null 2>&1
+        sudo apt install yq -y > /dev/null 2>&1
     fi
 }
 
