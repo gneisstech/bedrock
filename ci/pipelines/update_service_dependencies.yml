@@ -4,6 +4,11 @@
 
 resources:
   pipelines:
+    - pipeline: 'cf_atrius_objects'
+      source: 'cf_atrius_objects'
+      trigger:
+        branches:
+          - master-bytelight
     - pipeline: 'cf_admin_web_api'
       project: 'ByteLight'
       source: '/cf/services/cf_admin_web_api'
@@ -13,8 +18,8 @@ resources:
           include:
             - 'refs/tags/r*'
             - 'master-bytelight'
-    - pipeline: 'cf_atrius_objects'
-      source: 'cf\services\cf_atrius_objects'
+    - pipeline: 'xx-cf_atrius_objects'
+      source: 'xx-cf\services\cf_atrius_objects'
       branch: 'master-bytelight'
       trigger:
         branches:
