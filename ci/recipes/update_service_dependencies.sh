@@ -89,6 +89,19 @@ function get_locked_chart_services () {
     yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_cf_services || true
 }
 
+function filter_upstream_cf_service_semver () {
+    local -r sub_chart="${1}"
+    jq -r -e \
+        --arg sub_chart "${sub_chart}" \
+        '.dependencies[] | select(.name == "\($sub_chart)" ) | .version' \
+      | sort -u
+}
+
+function locked_sub_chart_semver () {
+    local -r sub_chart="${1}"
+    yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_cf_service_semver "${sub_chart}" || true
+}
+
 function update_helm_repo () {
     az acr helm repo add -n "${ORIGIN_REPOSITORY}"
     helm repo update
@@ -110,32 +123,132 @@ function services_are_subset () {
     ! (diff <(printf '%s' "${lhs}") <(printf '%s' "${rhs}") | grep '^<')
 }
 
-function semver_breaking_change () {
-    printf 'BREAKING CHANGE DETECTED\n'
-    true
+function internal_semver_file () {
+    printf '%s/semver.txt' "$(repo_root)"
 }
 
+function internal_semver_file_json () {
+    yq r "$(internal_semver_file)" --tojson
+}
+
+function internal_repo_semver () {
+    jq -r '.semver' <(internal_semver_file_json)
+}
+
+function update_internal_repo_semver () {
+    local -r requested_semver="${1}"
+    local -r temp_file="$(mktemp)"
+    internal_semver_file_json \
+        | jq -r --arg new_semver "${requested_semver}" '.semver = $new_semver' \
+        | yq r - > "${temp_file}"
+    cp "${temp_file}" "$(internal_semver_file)"
+    rm -f "${temp_file}"
+    git add "$(internal_semver_file)"
+}
+
+function extract_semver_major () {
+    cut -d '.' -f 1
+}
+
+function extract_semver_minor () {
+    cut -d '.' -f 2
+}
+
+function semver_breaking_change () {
+    local current_semver="$(internal_repo_semver)"
+    printf 'BREAKING CHANGE DETECTED from semver[%s]\n' "${current_semver}"
+    local major
+    major="$(extract_semver_major <<< "${current_semver}")"
+    (( major++ ))
+    update_internal_repo_semver "${major}.0.0"
+    printf '   to new semver[%s]\n' "${current_semver}"
+}
+ 
 function semver_new_feature () {
-    printf 'NEW FEATURE DETECTED\n'
-    true
+    printf 'NEW FEATURE DETECTED from semver[%s]\n' "${current_semver}"
+    local current_semver="$(internal_repo_semver)"
+    local major minor
+    major="$(extract_semver_major <<< "${current_semver}")"
+    minor="$(extract_semver_minor <<< "${current_semver}")"
+    (( minor++ ))
+    update_internal_repo_semver "${major}.${minor}.0"
+    printf '   to new semver[%s]\n' "${current_semver}"
+}
+
+function get_helm_repo_semver() {
+    local -r helm_services_json="${1}"
+    local -r sub_chart="${2}"
+
+    jq -r -e \
+        --arg sub_chart "${sub_chart}" \
+        '.[] | select(.name == ".*\($sub_chart)$" ) | .version' \
+      <<< "${helm_services_json}"
+}
+
+function test_breaking_changes () {
+    local -r locked_semver="${1}"
+    local -r helm_repo_semver="${2}"
+    printf '  testing breaking change: [%s] vs [%s]\n' "${locked_semver}" "${helm_repo_semver}"
+    false  # @@ TODO
+}
+
+function change_dependency_semver_regex () {
+    local -r sub_chart="${1}"
+    local -r new_regex="${2}"
+    printf '  applying semver regex [%s] to sub chart [%s]\n' "${new_regex}" "${sub_chart}"
+    # @@ TODO
+}
+
+function apply_breaking_change () {
+    local -r sub_chart="${1}"
+    local -r helm_semver="${2}"
+    # update chart.yaml to have new semver regex for specified service chart
+    local major new_regex
+    major="$(extract_semver_major <<< "${helm_semver}")"
+    new_regex="^${major}.0.0-0"
+    change_dependency_semver_regex "${sub_chart}" "${new_regex}"
 }
 
 function has_breaking_changes () {
     local -r locked_chart_set="${1}"
-    local sub_chart
+    local sub_chart breaking_changes
+    local helm_services_json
+    breaking_changes=0
+    helm_services_json="$(get_helm_services_json)"
     for sub_chart in ${locked_chart_set}; do
         printf 'examining chart [%s] for semver breaking changes\n' "${sub_chart}"
+        local sub_chart_semver="$(locked_sub_chart_semver "${sub_chart}")"
+        local helm_repo_semver="$(get_helm_repo_semver "${helm_services_json}" "${sub_chart}")"
+        if test_breaking_changes "${sub_chart_semver}" "${helm_repo_semver}" ; then
+            apply_breaking_change "${sub_chart}" "${helm_repo_semver}"
+            breaking_changes=1
+        fi
     done
+    [[ breaking_changes .eq 0 ]]
+}
+
+function test_new_features () {
+    local -r locked_semver="${1}"
+    local -r helm_repo_semver="${2}"
+    printf '  testing new feature: [%s] vs [%s]\n' "${locked_semver}" "${helm_repo_semver}"
     false
 }
 
 function has_new_features () {
     local -r locked_chart_set="${1}"
-    local sub_chart
+    local sub_chart new_features
+    local helm_services_json
+    new_features=0
+    helm_services_json="$(get_helm_services_json)"
     for sub_chart in ${locked_chart_set}; do
         printf 'examining chart [%s] for semver new features\n' "${sub_chart}"
+        local sub_chart_semver="$(locked_sub_chart_semver "${sub_chart}")"
+        local helm_repo_semver="$(get_helm_repo_semver "${helm_services_json}" "${sub_chart}")"
+        if test_new_features "${sub_chart_semver}" "${helm_repo_semver}" ; then
+            new_features=1
+        fi
     done
-    false
+    [[ new_features .eq 0 ]]
 }
 
 function update_semver () {
