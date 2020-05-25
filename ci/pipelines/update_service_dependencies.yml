@@ -64,7 +64,7 @@ resources:
       branches:
         include:
         - 'master-bytelight'
-  - pipeline: 'cf-oauth2-proxy-docker'
+  - pipeline: 'cf-oauth-proxy-docker'
     source: 'cf_oauth2_proxy'
     trigger:
       branches:
@@ -76,13 +76,13 @@ resources:
       branches:
         include:
         - 'master-bytelight'
-  - pipeline: 'cf-self-healing-lights-docker'
+  - pipeline: 'cf-self-healing-api-docker'
     source: 'cf_self_healing_lights'
     trigger:
       branches:
         include:
         - 'master-bytelight'
-  - pipeline: 'cf-self-healing-react-app-docker'
+  - pipeline: 'cf-self-healing-app-docker'
     source: 'cf_self_healing_react_app'
     trigger:
       branches:
