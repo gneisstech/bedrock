@@ -365,7 +365,6 @@ function update_service_dependencies () {
     if check_services_config; then
         # shellcheck disable=2046
         $(repo_root)/ci/recipes/update_umbrella_chart.sh
-        false
     else
         false
     fi
