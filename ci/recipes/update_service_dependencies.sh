@@ -121,10 +121,14 @@ function semver_new_feature () {
 }
 
 function has_breaking_changes () {
+    local -r old_set="${1}"
+    local -r new_set="${2}"
     false
 }
 
 function has_new_features () {
+    local -r old_set="${1}"
+    local -r new_set="${2}"
     false
 }
 
@@ -178,7 +182,7 @@ function check_services_config () {
         printf 'ERROR: misconfigured repository: upstream does not match update_service_dependencies.yml\n'
     elif [[ "${upstream_services}" != "${chart_services}" ]]; then
         printf 'ERROR: misconfigured repository: upstream does not match Chart.yaml\n'
-    elif services_are_subset "${chart_services}" "${helm_services}"; then
+    elif ! services_are_subset "${chart_services}" "${helm_services}"; then
         # if chart_services contains any service not in the helm_services, then ERROR
         printf 'ERROR: Chart.yaml refers to unpublished services\n'
     else
