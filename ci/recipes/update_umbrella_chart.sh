@@ -18,7 +18,7 @@ declare -rx RELEASE_PREFIX="${RELEASE_PREFIX:-r}"
 declare -rx DEFAULT_SEMVER="${DEFAULT_SEMVER:-0.0.0}"
 declare -rx BUMP_SEMVER="${BUMP_SEMVER:-true}"
 declare -rx BUILD_REPOSITORY_LOCALPATH="${BUILD_REPOSITORY_LOCALPATH:-.}"
-declare -rx IMAGENAME="${IMAGENAME:-cf-deployment}"
+declare -rx IMAGENAME="${IMAGENAME:-cf-deployment-umbrella}"
 declare -rx TAG="${TAG:-connected-facilities}"
 
 # Arguments
@@ -251,7 +251,7 @@ function update_helm_chart () {
     local -r blessed_release_tag="${1}"
     printf 'update_helm_chart %s\n' "${blessed_release_tag}"
     local chartDir
-    chartDir="$(repo_root)/helm/${IMAGENAME}"
+    chartDir="$(repo_root)/configuration/k8s/charts/${IMAGENAME}"
     update_chart_yaml "${chartDir}" "${blessed_release_tag}"
     build_and_push_helm_chart "${chartDir}" "${blessed_release_tag}"
 }
