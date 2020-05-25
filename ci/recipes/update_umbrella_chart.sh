@@ -250,10 +250,10 @@ function build_and_push_helm_chart () {
     git add "${chartDir}/Chart.lock" || true
     helm package "${chartDir}"
     if az acr helm push -n "$(origin_repository)" "${chartPackage}" 2> /dev/null; then
-        result = 0
+        result=0
     else
         printf 'Race condition resolved in favor of earlier job\n'
-        result = 1
+        result=1
     fi
     rm -f "${chartPackage}"
     (( result == 0 ))
