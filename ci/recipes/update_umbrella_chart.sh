@@ -278,5 +278,4 @@ function update_umbrella_chart () {
     popd
 }
 
-set -x
 update_umbrella_chart
