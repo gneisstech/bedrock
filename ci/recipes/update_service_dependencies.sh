@@ -46,24 +46,6 @@ function current_repo_branch () {
     printf "%s" "${branch}"
 }
 
-function trace_environment () {
-    printf 'triggered build from [%s]' "${BUILD_SOURCEBRANCH:-}\n"
-    git status
-    printf 'branches: current [%s], build_sourcebranch [%s], git branch [%s]\n' \
-        "$(current_repo_branch)" \
-        "${BUILD_SOURCEBRANCH:-}" \
-        "$(git_repo_branch)"
-    env
-}
-
-function install_yq_if_needed () {
-    if ! command -v yq; then
-        sudo add-apt-repository ppa:rmescandon/yq > /dev/null 2>&1
-        sudo apt update > /dev/null 2>&1
-        sudo apt install yq -y > /dev/null 2>&1
-    fi
-}
-
 #
 # there are four basic cases to consider:
 # chart.lock semver matches latest service semver => no change
@@ -127,8 +109,6 @@ function services_changed_semver () {
 }
 
 function update_service_dependencies () {
-    trace_environment
-    install_yq_if_needed
     update_helm_repo
     if services_changed_semver; then
         # shellcheck disable=2046
