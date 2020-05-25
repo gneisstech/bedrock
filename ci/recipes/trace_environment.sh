@@ -48,7 +48,13 @@ function trace_environment () {
         "$(current_repo_branch)" \
         "${BUILD_SOURCEBRANCH:-}" \
         "$(git_repo_branch)"
+    set -o xtrace
+    helm version
+    az version
+    yq --version
+    jq --version
     env
+    set +o xtrace
 }
 
 trace_environment

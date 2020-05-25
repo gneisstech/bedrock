@@ -122,15 +122,19 @@ function semver_new_feature () {
 
 function has_breaking_changes () {
     local -r locked_chart_set="${1}"
-    local -r helm_repo_set="${2}"
-    [[ "${locked_chart_set}" == "${helm_repo_set}" ]]
+    local sub_chart
+    for sub_chart in ${locked_chart_set}; do
+        printf 'examining chart [%s] for semver breaking changes\n' "${subchart}"
+    done
     false
 }
 
 function has_new_features () {
     local -r locked_chart_set="${1}"
-    local -r helm_repo_set="${2}"
-    [[ "${locked_chart_set}" == "${helm_repo_set}" ]]
+    local sub_chart
+    for sub_chart in ${locked_chart_set}; do
+        printf 'examining chart [%s] for semver new features\n' "${subchart}"
+    done
     false
 }
 
@@ -146,12 +150,12 @@ function update_semver () {
     fi
 
     if services_are_subset "${locked_chart_services}" "${helm_services}"; then
-        if has_breaking_changes "${locked_chart_services}" "${helm_services}"; then
+        if has_breaking_changes "${locked_chart_services}"; then
             # if any service has a breaking change, then overall breaking change
             semver_breaking_change
             return
         fi
-        if has_new_features "${locked_chart_services}" "${helm_services}"; then
+        if has_new_features "${locked_chart_services}"; then
             # if any service has a new feature, then overall new feature
             semver_new_feature
             return
