@@ -44,7 +44,7 @@ function repo_root () {
 }
 
 function sast_shellcheck () {
-    find "$(repo_root)" -name "*.sh" -print0 | xargs -0 -n 1 shellcheck --check-sourced
+    find "$(repo_root)" -name "*.sh" -print0 | xargs -0 -n 1 shellcheck
 }
 
 sast_shellcheck
