@@ -124,7 +124,7 @@ function has_breaking_changes () {
     local -r locked_chart_set="${1}"
     local sub_chart
     for sub_chart in ${locked_chart_set}; do
-        printf 'examining chart [%s] for semver breaking changes\n' "${subchart}"
+        printf 'examining chart [%s] for semver breaking changes\n' "${sub_chart}"
     done
     false
 }
@@ -133,7 +133,7 @@ function has_new_features () {
     local -r locked_chart_set="${1}"
     local sub_chart
     for sub_chart in ${locked_chart_set}; do
-        printf 'examining chart [%s] for semver new features\n' "${subchart}"
+        printf 'examining chart [%s] for semver new features\n' "${sub_chart}"
     done
     false
 }
