@@ -110,14 +110,48 @@ function services_are_subset () {
     ! (diff <(printf '%s' "${lhs}") <(printf '%s' "${rhs}") | grep '^<')
 }
 
+function internal_semver_file () {
+    printf '%s/semver.txt' "$(repo_root)"
+}
+
+function internal_semver_file_json () {
+    yq r "$(internal_semver_file)" --tojson
+}
+
+function internal_repo_semver () {
+    jq -r '.semver' <(internal_semver_file_json)
+}
+
+function update_internal_repo_semver () {
+    local -r requested_semver="${1}"
+    local -r temp_file="$(mktemp)"
+    internal_semver_file_json \
+        | jq -r --arg new_semver "${requested_semver}" '.semver = $new_semver' \
+        | yq r - > "${temp_file}"
+    cp "${temp_file}" "$(internal_semver_file)"
+    rm -f "${temp_file}"
+    git add "$(internal_semver_file)"
+}
+
 function semver_breaking_change () {
-    printf 'BREAKING CHANGE DETECTED\n'
-    true
+    local current_semver="$(internal_repo_semver)"
+    printf 'BREAKING CHANGE DETECTED from semver[%s]\n' "${current_semver}"
+    local major
+    major="$(extract_semver_major <<< "${current_semver}")"
+    (( major++ ))
+    update_internal_repo_semver "${major}.0.0"
+    printf '   to new semver[%s]\n' "${current_semver}"
 }
 
 function semver_new_feature () {
-    printf 'NEW FEATURE DETECTED\n'
-    true
+    printf 'NEW FEATURE DETECTED from semver[%s]\n' "${current_semver}"
+    local current_semver="$(internal_repo_semver)"
+    local major minor
+    major="$(extract_semver_major <<< "${current_semver}")"
+    minor="$(extract_semver_minor <<< "${current_semver}")"
+    (( minor++ ))
+    update_internal_repo_semver "${major}.${minor}.0"
+    printf '   to new semver[%s]\n' "${current_semver}"
 }
 
 function has_breaking_changes () {
