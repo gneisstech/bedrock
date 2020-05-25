@@ -272,6 +272,7 @@ function update_helm_git () {
 function update_umbrella_chart () {
     pushd "${BUILD_REPOSITORY_LOCALPATH}"
     pwd
+        internal_semver_file_json
         update_helm_repo
         update_helm_git
     popd
