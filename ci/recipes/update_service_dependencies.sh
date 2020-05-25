@@ -123,14 +123,14 @@ function semver_new_feature () {
 function has_breaking_changes () {
     local -r locked_chart_set="${1}"
     local -r helm_repo_set="${2}"
-    [[ "${locked_chart_set} == ${helm_repo_set}" ]]
+    [[ "${locked_chart_set}" == "${helm_repo_set}" ]]
     false
 }
 
 function has_new_features () {
     local -r locked_chart_set="${1}"
     local -r helm_repo_set="${2}"
-    [[ "${locked_chart_set} == ${helm_repo_set}" ]]
+    [[ "${locked_chart_set}" == "${helm_repo_set}" ]]
     false
 }
 
