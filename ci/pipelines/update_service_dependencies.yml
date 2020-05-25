@@ -104,12 +104,12 @@ steps:
       containerRegistry: cf-dev-acr-service-connection
   - task: AzureCLI@2
     condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
-    displayName: 'Trace Environment'
+    displayName: 'Install tools if needed'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: './ci/recipes/trace_environment.sh'
+      scriptPath: './ci/recipes/install_tools_if_needed.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
@@ -120,12 +120,12 @@ steps:
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
     condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
-    displayName: 'Install tools if needed'
+    displayName: 'Trace Environment'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: './ci/recipes/install_tools_if_needed.sh'
+      scriptPath: './ci/recipes/trace_environment.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
