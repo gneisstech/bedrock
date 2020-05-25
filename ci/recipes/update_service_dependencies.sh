@@ -162,43 +162,79 @@ function semver_breaking_change () {
     major="$(extract_semver_major <<< "${current_semver}")"
     (( major++ ))
     update_internal_repo_semver "${major}.0.0"
-    printf '   to new semver[%s]\n' "${current_semver}"
+    printf '   to new semver[%s]\n' "$(internal_repo_semver)"
 }
  
 function semver_new_feature () {
-    printf 'NEW FEATURE DETECTED from semver[%s]\n' "${current_semver}"
     local current_semver
     current_semver="$(internal_repo_semver)"
+    printf 'NEW FEATURE DETECTED from semver[%s]\n' "${current_semver}"
     local major minor
     major="$(extract_semver_major <<< "${current_semver}")"
     minor="$(extract_semver_minor <<< "${current_semver}")"
     (( minor++ ))
     update_internal_repo_semver "${major}.${minor}.0"
-    printf '   to new semver[%s]\n' "${current_semver}"
+    printf '   to new semver[%s]\n' "$(internal_repo_semver)"
 }
 
 function get_helm_repo_semver() {
     local -r helm_services_json="${1}"
     local -r sub_chart="${2}"
-
     jq -r -e \
         --arg sub_chart "${sub_chart}" \
-        '.[] | select(.name == ".*\($sub_chart)$" ) | .version' \
+        '.[] | select(.name|test(".*\($sub_chart)$") ) | .version' \
       <<< "${helm_services_json}"
 }
 
 function test_breaking_changes () {
     local -r locked_semver="${1}"
     local -r helm_repo_semver="${2}"
-    printf '  testing breaking change: [%s] vs [%s]\n' "${locked_semver}" "${helm_repo_semver}"
-    false  # @@ TODO
+    printf '  testing for breaking change from [%s] to [%s]\n' "${locked_semver}" "${helm_repo_semver}"
+    local locked_major helm_major
+    locked_major="$(extract_semver_major <<< "${locked_semver}")"
+    helm_major="$(extract_semver_major <<< "${helm_repo_semver}")"
+    if (( locked_major >> helm_major )); then
+        printf 'Fatal regression detected in helm repository\n'
+        exit 1
+    fi
+    (( locked_major < helm_major ))
+}
+
+function awk_update_dependency_semver_regex () {
+    local -r sub_chart="${1}"
+    local -r new_regex="${2}"
+cat <<EOF
+BEGIN {
+    replacing=0
+}
+
+/name: '${sub_chart}/ { replacing = 1 }
+
+replacing && /version:/ {
+    version_line=\$0
+    gsub(/'.*/,"", version_line)
+    print version_line "'${new_regex}'"
+    replacing = 0
+    next
+}
+
+{ print }
+
+EOF
 }
 
 function change_dependency_semver_regex () {
     local -r sub_chart="${1}"
     local -r new_regex="${2}"
     printf '  applying semver regex [%s] to sub chart [%s]\n' "${new_regex}" "${sub_chart}"
-    # @@ TODO
+    local -r chart_file="$(chart_dir)/Chart.yaml"
+    local -r temp_file="$(mktemp)"
+    awk -f <(awk_update_dependency_semver_regex "${sub_chart}" "${new_regex}") \
+        "${chart_file}" \
+        > "${temp_file}"
+    cp -f "${temp_file}" "${chart_file}"
+    rm -f "${temp_file}"
+    git add "${chart_file}"
 }
 
 function apply_breaking_change () {
@@ -227,14 +263,23 @@ function has_breaking_changes () {
             breaking_changes=1
         fi
     done
-    [[ "${breaking_changes}" == "0" ]]
+    (( breaking_changes == 1 ))
 }
 
 function test_new_features () {
     local -r locked_semver="${1}"
     local -r helm_repo_semver="${2}"
-    printf '  testing new feature: [%s] vs [%s]\n' "${locked_semver}" "${helm_repo_semver}"
-    false
+    printf '  testing for new feature from [%s] to [%s]\n' "${locked_semver}" "${helm_repo_semver}"
+    local locked_major locked_minor helm_major helm_minor
+    locked_major="$(extract_semver_major <<< "${locked_semver}")"
+    locked_minor="$(extract_semver_minor <<< "${locked_semver}")"
+    helm_major="$(extract_semver_major <<< "${helm_repo_semver}")"
+    helm_minor="$(extract_semver_minor <<< "${helm_repo_semver}")"
+    if (( locked_major >> helm_major )); then
+        printf 'Fatal regression detected in helm repository\n'
+        exit 1
+    fi
+    (( locked_major == helm_major )) && (( locked_minor << helm_minor ))
 }
 
 function has_new_features () {
@@ -252,7 +297,7 @@ function has_new_features () {
             new_features=1
         fi
     done
-    [[ "${new_features}" == "0" ]]
+    (( new_features == 1 ))
 }
 
 function update_semver () {
@@ -303,7 +348,7 @@ function check_services_config () {
     printf 'helm [%s]\n\n' "${helm_services}"
     if [[ "${pipeline_services}" != "${chart_services}" ]] ; then
         printf 'ERROR: misconfigured repository: upstream does not match update_service_dependencies.yml\n'
-    elif [[ "${upstream_services}" != "${chart_services}" ]]; then
+    elif ! [[ "${upstream_services}" != "${chart_services}" ]]; then
         printf 'ERROR: misconfigured repository: upstream does not match Chart.yaml\n'
     elif ! services_are_subset "${chart_services}" "${helm_services}"; then
         # if chart_services contains any service not in the helm_services, then ERROR
@@ -320,6 +365,7 @@ function update_service_dependencies () {
     if check_services_config; then
         # shellcheck disable=2046
         $(repo_root)/ci/recipes/update_umbrella_chart.sh
+        false
     else
         false
     fi
