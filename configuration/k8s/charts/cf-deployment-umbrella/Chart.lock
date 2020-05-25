@@ -51,4 +51,4 @@ dependencies:
   repository: file://../cf-sql-server
   version: 1.0.0-dev
 digest: sha256:caa97403a13eb989277112a98a7545a446aabd0871d938acdb334bd10ed5d8fb
-generated: "2020-05-25T23:04:50.646870222Z"
+generated: "2020-05-25T23:12:45.420494932Z"
