@@ -63,7 +63,7 @@ function get_upstream_services () {
 }
 
 function pipeline_as_json () {
-    yq -r --tojson "$(repo_root)/ci/pipelines/update_service_dependencies.yml"
+    yq r --tojson "$(repo_root)/ci/pipelines/update_service_dependencies.yml"
 }
 
 function get_pipeline_services () {
@@ -193,6 +193,8 @@ function update_service_dependencies () {
     if check_services_config; then
         # shellcheck disable=2046
         $(repo_root)/ci/recipes/update_umbrella_chart.sh
+    else
+        false
     fi
 }
 
