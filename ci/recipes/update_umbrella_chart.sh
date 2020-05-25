@@ -39,6 +39,12 @@ function acr_login () {
     fi
 }
 
+function update_helm_repo () {
+    az acr helm repo add -n "${ORIGIN_REPOSITORY}"
+    helm repo update
+    helm version
+}
+
 function current_repo_branch () {
     git status -b  | grep "^On branch" | sed -e 's/.* //'
 }
@@ -266,6 +272,7 @@ function update_helm_git () {
 function update_umbrella_chart () {
     pushd "${BUILD_REPOSITORY_LOCALPATH}"
     pwd
+        update_helm_repo
         update_helm_git
     popd
 }
