@@ -171,8 +171,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r1.0.21-dev'
+appVersion: 'r1.0.22-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 1.0.21-dev
+version: 1.0.22-dev
