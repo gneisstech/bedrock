@@ -155,7 +155,8 @@ function extract_semver_minor () {
 }
 
 function semver_breaking_change () {
-    local current_semver="$(internal_repo_semver)"
+    local current_semver
+    current_semver="$(internal_repo_semver)"
     printf 'BREAKING CHANGE DETECTED from semver[%s]\n' "${current_semver}"
     local major
     major="$(extract_semver_major <<< "${current_semver}")"
@@ -166,7 +167,8 @@ function semver_breaking_change () {
  
 function semver_new_feature () {
     printf 'NEW FEATURE DETECTED from semver[%s]\n' "${current_semver}"
-    local current_semver="$(internal_repo_semver)"
+    local current_semver
+    current_semver="$(internal_repo_semver)"
     local major minor
     major="$(extract_semver_major <<< "${current_semver}")"
     minor="$(extract_semver_minor <<< "${current_semver}")"
@@ -217,14 +219,15 @@ function has_breaking_changes () {
     helm_services_json="$(get_helm_services_json)"
     for sub_chart in ${locked_chart_set}; do
         printf 'examining chart [%s] for semver breaking changes\n' "${sub_chart}"
-        local sub_chart_semver="$(locked_sub_chart_semver "${sub_chart}")"
-        local helm_repo_semver="$(get_helm_repo_semver "${helm_services_json}" "${sub_chart}")"
+        local sub_chart_semver helm_repo_semver
+        sub_chart_semver="$(locked_sub_chart_semver "${sub_chart}")"
+        helm_repo_semver="$(get_helm_repo_semver "${helm_services_json}" "${sub_chart}")"
         if test_breaking_changes "${sub_chart_semver}" "${helm_repo_semver}" ; then
             apply_breaking_change "${sub_chart}" "${helm_repo_semver}"
             breaking_changes=1
         fi
     done
-    [[ breaking_changes .eq 0 ]]
+    [[ "${breaking_changes}" == "0" ]]
 }
 
 function test_new_features () {
@@ -242,13 +245,14 @@ function has_new_features () {
     helm_services_json="$(get_helm_services_json)"
     for sub_chart in ${locked_chart_set}; do
         printf 'examining chart [%s] for semver new features\n' "${sub_chart}"
-        local sub_chart_semver="$(locked_sub_chart_semver "${sub_chart}")"
-        local helm_repo_semver="$(get_helm_repo_semver "${helm_services_json}" "${sub_chart}")"
+        local sub_chart_semver helm_repo_semver
+        sub_chart_semver="$(locked_sub_chart_semver "${sub_chart}")"
+        helm_repo_semver="$(get_helm_repo_semver "${helm_services_json}" "${sub_chart}")"
         if test_new_features "${sub_chart_semver}" "${helm_repo_semver}" ; then
             new_features=1
         fi
     done
-    [[ new_features .eq 0 ]]
+    [[ "${new_features}" == "0" ]]
 }
 
 function update_semver () {
