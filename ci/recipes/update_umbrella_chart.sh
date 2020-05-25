@@ -203,8 +203,8 @@ function update_internal_repo_semver () {
     git add "$(internal_semver_file)"
     if pending_git_files; then
         printf 'pushing git tag update [%s]\n' "$(cat "$(internal_semver_file)")"
-        #git commit -m "automated update of semver on git commit" || true
-        #git push origin HEAD:"$(current_branch)"
+        git commit -m "automated update of semver on git commit" || true
+        git push origin HEAD:"$(current_branch)"
     fi
 }
 
@@ -213,8 +213,8 @@ function update_git_tag () {
     if [[ "true" == "${BUMP_SEMVER}" ]]; then
         printf 'pushing git commits: \n'
         git status
-        #git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-        #git push origin "${blessed_release_tag}"
+        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+        git push origin "${blessed_release_tag}"
     fi
 }
 
@@ -249,7 +249,7 @@ function build_and_push_helm_chart () {
     helm dependency build "${chartDir}"
     git add "${chartDir}/Chart.lock" || true
     helm package "${chartDir}"
-    #az acr helm push -n "$(origin_repository)" "${chartPackage}"
+    az acr helm push -n "$(origin_repository)" "${chartPackage}"
     rm -f "${chartPackage}"
 }
 
