@@ -279,7 +279,7 @@ function test_new_features () {
         printf 'Fatal regression detected in helm repository\n'
         exit 1
     fi
-    (( locked_major == helm_major )) && (( locked_minor << helm_minor ))
+    (( locked_major == helm_major )) && (( locked_minor < helm_minor ))
 }
 
 function has_new_features () {
@@ -294,10 +294,11 @@ function has_new_features () {
         sub_chart_semver="$(locked_sub_chart_semver "${sub_chart}")"
         helm_repo_semver="$(get_helm_repo_semver "${helm_services_json}" "${sub_chart}")"
         if test_new_features "${sub_chart_semver}" "${helm_repo_semver}" ; then
-            new_features=1
+            (( new_features++ ))
         fi
     done
-    (( new_features == 1 ))
+    printf 'Found [%s] subcharts with new features\n' "${new_features}"
+    (( new_features > 0 ))
 }
 
 function update_semver () {
