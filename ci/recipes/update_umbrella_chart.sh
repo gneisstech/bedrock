@@ -243,14 +243,20 @@ function update_chart_yaml () {
 function build_and_push_helm_chart () {
     local -r chartDir="${1}"
     local -r blessed_release_tag="${2}"
-    local chartPackage
+    local chartPackage result
     chartPackage="${IMAGENAME}-$(remove_release_prefix <<< "${blessed_release_tag}").tgz"
     rm -f "${chartDir}/Chart.lock"
     helm dependency build "${chartDir}"
     git add "${chartDir}/Chart.lock" || true
     helm package "${chartDir}"
-    az acr helm push -n "$(origin_repository)" "${chartPackage}"
+    if az acr helm push -n "$(origin_repository)" "${chartPackage}" 2> /dev/null; then
+        result = 0
+    else
+        printf 'Race condition resolved in favor of earlier job\n'
+        result = 1
+    fi
     rm -f "${chartPackage}"
+    (( result == 0 ))
 }
 
 function update_helm_chart () {
