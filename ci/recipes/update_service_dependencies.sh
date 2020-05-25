@@ -348,7 +348,7 @@ function check_services_config () {
     printf 'helm [%s]\n\n' "${helm_services}"
     if [[ "${pipeline_services}" != "${chart_services}" ]] ; then
         printf 'ERROR: misconfigured repository: upstream does not match update_service_dependencies.yml\n'
-    elif ! [[ "${upstream_services}" != "${chart_services}" ]]; then
+    elif [[ "${upstream_services}" != "${chart_services}" ]]; then
         printf 'ERROR: misconfigured repository: upstream does not match Chart.yaml\n'
     elif ! services_are_subset "${chart_services}" "${helm_services}"; then
         # if chart_services contains any service not in the helm_services, then ERROR
