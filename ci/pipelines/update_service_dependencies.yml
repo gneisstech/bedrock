@@ -104,7 +104,7 @@ steps:
       containerRegistry: cf-dev-acr-service-connection
   - task: AzureCLI@2
     condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
-    displayName: 'Update Service Dependencies'
+    displayName: 'Trace Environment'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
@@ -120,7 +120,7 @@ steps:
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
     condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
-    displayName: 'Update Service Dependencies'
+    displayName: 'Install tools if needed'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
@@ -136,7 +136,7 @@ steps:
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
     condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
-    displayName: 'Update Service Dependencies'
+    displayName: 'Static Analysis'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
