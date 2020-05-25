@@ -121,21 +121,23 @@ function semver_new_feature () {
 }
 
 function has_breaking_changes () {
-    local -r old_set="${1}"
-    local -r new_set="${2}"
+    local -r locked_chart_set="${1}"
+    local -r helm_repo_set="${2}"
+    [[ "${locked_chart_set} == ${helm_repo_set}" ]]
     false
 }
 
 function has_new_features () {
-    local -r old_set="${1}"
-    local -r new_set="${2}"
+    local -r locked_chart_set="${1}"
+    local -r helm_repo_set="${2}"
+    [[ "${locked_chart_set} == ${helm_repo_set}" ]]
     false
 }
 
 function update_semver () {
     local locked_chart_services="${1}"
-    local chart_services="${2}"
-    local helm_services="${3}"
+    local helm_services="${2}"
+    local chart_services="${3}"
 
     if ! services_are_subset "${locked_chart_services}" "${chart_services}"; then
         # if locked_chart_services contains any service not in the chart, then breaking change
@@ -186,7 +188,7 @@ function check_services_config () {
         # if chart_services contains any service not in the helm_services, then ERROR
         printf 'ERROR: Chart.yaml refers to unpublished services\n'
     else
-        update_semver "${locked_chart_services}" "${chart_services}" "${helm_services}"
+        update_semver "${locked_chart_services}" "${helm_services}" "${chart_services}"
         return
     fi
     false
