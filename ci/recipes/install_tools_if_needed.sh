@@ -19,8 +19,20 @@ set -o pipefail
 function install_yq_if_needed () {
     if ! command -v yq; then
         sudo add-apt-repository ppa:rmescandon/yq
-        sudo apt update
+        sudo apt update -y
         sudo apt install yq -y
+    fi
+}
+
+function install_yq_if_needed () {
+    if ! command -v jq; then
+        local -r required_minimum='jq-1.6'
+        local test_version
+        test_version="$(sort <(echo "${required_minimum}") <(jq -V) -u | head -1)"
+        if (( test_version != required_version )); then
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+        fi
     fi
 }
 
@@ -38,6 +50,7 @@ function install_yamllint_if_needed () {
 
 function install_tools_if_needed () {
     install_yq_if_needed
+    install_jq_if_needed
     install_shellcheck_if_needed
     install_yamllint_if_needed
 }
