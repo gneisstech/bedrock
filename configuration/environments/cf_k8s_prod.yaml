@@ -651,7 +651,7 @@ target:
               - '","k8s_namespace":"'
               - *cfNamespace
               - '","from_vault":"'
-              - *atriusKVName
+              - *kvName
               - '","from_secret_name":"'
               - 'wildcarddevatrius-iotcom'
               - '","from_subscription":"'

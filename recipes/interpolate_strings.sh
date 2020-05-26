@@ -97,6 +97,7 @@ function process_secure_secret () {
     fi
     if [[ -z "${secret}" ]]; then
         secret="FAKE_SECRET"
+        exit 2  # no vault access
     fi
     printf '%s' "${secret}" | sed -e 's|\\|\\\\|g'
 }
@@ -225,6 +226,8 @@ function process_tls_secret () {
     result="$(printf 'FIXME_INVALID_TLS_CERTIFICATE [%s]' "${from_secret_name}")"
     if create_k8s_tls_secret "${k8s_namespace}" "${k8s_tls_secret_name}" "${pem_key_cert}"; then
         result="processed_tls_secret"
+    else
+        exit 3 ## no vault access
     fi
     printf '%s' "${result}"
 }

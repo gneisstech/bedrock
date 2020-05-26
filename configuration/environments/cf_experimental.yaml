@@ -1367,7 +1367,7 @@ target:
           policyType: Custom
         ssl_certs:
           - name: 'wildcarddevatrius-iotcom'
-            vault_name: *atriusKVName
+            vault_name: *kvName
             subscription: *subscription_tls
         probe:
           name: &wafProbe 'cf-strict-probe'
@@ -1556,7 +1556,7 @@ target:
           policyType: Custom
         ssl_certs:
           - name: 'wildcarddevatrius-iotcom'
-            vault_name: *atriusKVName
+            vault_name: *kvName
             subscription: *subscription_tls
         probe:
           name: &authnGwAppProbe 'cf-authn-strict-probe'
