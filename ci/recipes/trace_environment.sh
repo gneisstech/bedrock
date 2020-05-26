@@ -51,6 +51,7 @@ function trace_environment () {
     set -o xtrace
     helm version
     az version
+    az account show
     yq --version
     jq --version
     env

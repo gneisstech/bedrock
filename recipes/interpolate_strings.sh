@@ -97,7 +97,10 @@ function process_secure_secret () {
     fi
     if [[ -z "${secret}" ]]; then
         secret="FAKE_SECRET"
-        exit 2  # no vault access
+        set -o xtrace
+        ## fatal -- abort everyone
+        kill SIGKILL $$
+        set +o xtrace
     fi
     printf '%s' "${secret}" | sed -e 's|\\|\\\\|g'
 }
@@ -115,7 +118,7 @@ function process_ip_address () {
     printf '%s' "${public_ip}"
 }
 
-function get_original_cert_from_shared_vault () {
+function get_secret_from_shared_vault () {
     local -r subscription="${1}"
     local -r vault_name="${2}"
     local -r secret_name="${3}"
@@ -123,8 +126,17 @@ function get_original_cert_from_shared_vault () {
         --subscription "${subscription}" \
         --vault-name "${vault_name}" \
         --name "${secret_name}" \
-        2> /dev/null \
-    | jq -r '.value'
+        2> /dev/null
+    if (( $? != 0 )); then
+        kill SIGINT $$
+    fi
+}
+
+function get_original_cert_from_shared_vault () {
+    local -r subscription="${1}"
+    local -r vault_name="${2}"
+    local -r secret_name="${3}"
+    get_secret_from_shared_vault "${subscription}" "${vault_name}" "${secret_name}" | jq -r '.value'
 }
 
 function pkcs12_to_pem () {
@@ -212,6 +224,12 @@ function create_k8s_tls_secret () {
         --key=<(pem_key "${pem_key_cert}") > /dev/stderr
 }
 
+function k8s_secret_exists () {
+    local -r namespace="${1}"
+    local -r secret_name="${2}"
+    kubectl --namespace "${namespace}" get secret "${secret_name}" > /dev/null
+}
+
 function process_tls_secret () {
     local -r theString="${1}"
     local theMessage
@@ -226,14 +244,15 @@ function process_tls_secret () {
     result="$(printf 'FIXME_INVALID_TLS_CERTIFICATE [%s]' "${from_secret_name}")"
     if create_k8s_tls_secret "${k8s_namespace}" "${k8s_tls_secret_name}" "${pem_key_cert}"; then
         result="processed_tls_secret"
-    else
-        exit 3 ## no vault access
+    elif k8s_secret_exists "${k8s_namespace}" "${k8s_tls_secret_name}"; then
+        result="did_not_overwrite_existing_tls_secret"
     fi
     printf '%s' "${result}"
 }
 
 function dispatch_functions () {
     declare -a myarray
+    local i
     (( i=0 ))
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
