@@ -126,10 +126,8 @@ function get_secret_from_shared_vault () {
         --subscription "${subscription}" \
         --vault-name "${vault_name}" \
         --name "${secret_name}" \
-        2> /dev/null
-    if (( $? != 0 )); then
-        kill SIGINT $$
-    fi
+        2> /dev/null \
+    || kill SIGINT $$
 }
 
 function get_original_cert_from_shared_vault () {
