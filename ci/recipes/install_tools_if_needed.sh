@@ -25,15 +25,16 @@ function install_yq_if_needed () {
 }
 
 function install_jq_if_needed () {
-    if ! command -v jq; then
+    if command -v jq; then
         local -r required_minimum='jq-1.6'
         local test_version
         test_version="$(sort <(echo "${required_minimum}") <(jq -V) -u | head -1)"
-        if (( test_version != required_minimum )); then
-            sudo apt-get update -y
-            sudo apt-get install -y jq
+        if (( test_version == required_minimum )); then
+            return
         fi
     fi
+    sudo apt-get update -y
+    sudo apt-get install -y jq
 }
 
 function install_shellcheck_if_needed () {
