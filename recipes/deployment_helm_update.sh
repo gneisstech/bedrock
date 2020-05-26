@@ -120,6 +120,7 @@ function update_helm_chart_on_k8s () {
         "${registry}/${chart_name}" \
         --version "$(get_helm_version "${deployment_json}")" \
         --values <(get_helm_values "${deployment_json}")
+        # --dry-run --debug | tee foo.log
 }
 
 function get_deployment_json_by_name () {
