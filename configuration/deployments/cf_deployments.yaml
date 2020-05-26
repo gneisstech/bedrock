@@ -13,6 +13,7 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         version: '^1.0.0-0'
+        deployment_name: 'cfk8s'
         values_file: ''
   - name: 'CF_CI'
     k8s:
@@ -26,6 +27,7 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
+        deployment_name: 'cfk8s'
         version: '^1.0.0-0'
         values_file: ''
   - name: 'CF_QA'
@@ -40,6 +42,7 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'  # to be cfqaregistry
         name: 'cf-deployment-umbrella'
+        deployment_name: 'cfk8s'
         version: '^1.0.0-0'
         values_file: ''
   - name: 'CF_Prod'
@@ -54,6 +57,7 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'  # to be cfprodregistry
         name: 'cf-deployment-umbrella'
+        deployment_name: 'cfk8s'
         version: '^1.0.0'
         values_file: ''
   - name: 'CF_Local'
@@ -68,6 +72,7 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
+        deployment_name: 'cfk8s'
         version: '^1.0.0'
         values_file: ''
 ---
