@@ -24,7 +24,7 @@ function install_yq_if_needed () {
     fi
 }
 
-function install_yq_if_needed () {
+function install_jq_if_needed () {
     if ! command -v jq; then
         local -r required_minimum='jq-1.6'
         local test_version
