@@ -136,6 +136,9 @@ function update_helm_chart_on_k8s () {
             "$(get_helm_deployment_name "${deployment_json}" )" \
             "${registry}/${chart_name}" \
             --version "$(get_helm_version "${deployment_json}")" \
+            --timeout 1800 \
+            --wait \
+            --debug \
             --values <(cat <<< "${helm_values}")
     fi
 }
