@@ -60,9 +60,9 @@ function trace_environment () {
     readline -v || true
     builtin || true
 
-    printf '--------------------------- "env" follows ----------------------------'
+    printf '--------------------------- %s ----------------------------\n' 'env follows'
     env
-    printf '--------------------------- "set" follows ----------------------------'
+    printf '--------------------------- %s ----------------------------\n' 'set follows'
     set
     set +o xtrace
 }
