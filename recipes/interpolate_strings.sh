@@ -29,10 +29,10 @@
 set -o nounset
 
 # Exit script if a statement returns a non-true return value.
-#set -o errexit
+set -o errexit
 
 # Use the error status of the first failure, rather than that of the last item in a pipeline.
-#set -o pipefail
+set -o pipefail
 
 # Environment Variables
 # ---------------------
@@ -245,8 +245,7 @@ function process_tls_secret () {
 
 function dispatch_functions () {
     declare -a myarray
-    local i
-    (( i=0 ))
+    local i=0
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
         if (( i % 2 == 1 )); then
@@ -272,10 +271,10 @@ function dispatch_functions () {
             esac
         fi
         myarray[i]="${array_entry}"
-        ((++i))
+        (( ++i ))
     done
 
-    (( i=0 ))
+    i=0
     while (( ${#myarray[@]} > i )); do
         printf '%s' "${myarray[i++]}"
     done
@@ -287,14 +286,13 @@ function interpolate_functions () {
 
 function interpolate_strings () {
     declare -a myarray
-    local i
-    (( i=0 ))
+    local i=0
     while IFS=$'\n' read -r line_data; do
         set -x
         local current_line="${line_data}"
-        #if [[ "${current_line}" =~ '##' ]]; then
-        #    current_line="$(interpolate_functions <<< "${current_line}")"
-        #fi
+        if [[ "${current_line}" =~ '##' ]]; then
+            current_line="$(interpolate_functions <<< "${current_line}")"
+        fi
         printf '%s\n' "${current_line}"
     done
 }
