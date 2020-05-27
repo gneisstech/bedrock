@@ -287,6 +287,7 @@ function interpolate_functions () {
 
 function interpolate_strings () {
     declare -a myarray
+    local i
     (( i=0 ))
     while IFS=$'\n' read -r line_data; do
         local current_line="${line_data}"
