@@ -290,6 +290,7 @@ function interpolate_strings () {
     local i
     (( i=0 ))
     while IFS=$'\n' read -r line_data; do
+        set -x
         local current_line="${line_data}"
         if [[ "${current_line}" =~ '##' ]]; then
             current_line="$(interpolate_functions <<< "${current_line}")"
