@@ -297,4 +297,5 @@ function interpolate_strings () {
     done
 }
 
+set -x
 interpolate_strings
