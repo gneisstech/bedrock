@@ -4,6 +4,7 @@ deployments:
     k8s:
       namespace: 'cfk8s'
       context: 'cf-dev-k8s-001-admin'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8001
     environment:
@@ -19,6 +20,7 @@ deployments:
     k8s:
       namespace: 'cfk8s'
       context: 'cf-ci-k8s-001-admin'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8002
     environment:
@@ -34,6 +36,7 @@ deployments:
     k8s:
       namespace: 'cfk8s'
       context: 'cf-qa-k8s-001-admin'
+      tls_secret_name: 'wildcardqaatrius-iotcom'
       dashboard:
         port: 8003
     environment:
@@ -49,6 +52,7 @@ deployments:
     k8s:
       namespace: 'cfk8s'
       context: 'cf-prod-k8s-001-admin'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8004
     environment:
@@ -64,6 +68,7 @@ deployments:
     k8s:
       namespace: 'cfk8s'
       context: 'docker-desktop'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8005
     environment:

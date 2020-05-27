@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: check_key_vault_access.sh
+# usage: promote_qa_to_prod_k8s.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -20,11 +20,11 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function check_key_vault_access () {
+function promote_qa_to_prod_k8s () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
-        "$(repo_root)/recipes/check_key_vault_access.sh" "CF_Development"
+        "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'CF_QA' 'CF_Prod'
     popd
 }
 
-check_key_vault_access
+promote_qa_to_prod_k8s

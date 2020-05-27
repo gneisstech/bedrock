@@ -46,10 +46,11 @@ function get_target_cluster_config_json () {
 
 function explore_key_vault_access () {
     local -r target_cluster_config_json="${1}"
+    local -r deployment_json="${2}"
     local subscription vault_name
     subscription="$(jq -r -e '.target.metadata.default_azure_subscription' <<< "${target_cluster_config_json}")"
     vault_name="$(jq -r -e '.target.paas.keyvaults[1].name' <<< "${target_cluster_config_json}")"
-    secret_name='wildcarddevatrius-iotcom'
+    secret_name="$(jq -r -e '.k8s.tls_secret_name' <<< "${deployment_json}")"
     az keyvault list --subscription "${subscription}" || printf 'NO ACCESS TO LIST OF KEY VAULTS\n'
     az keyvault secret list --subscription "${subscription}" --vault-name "${vault_name}" || printf 'NO ACCESS TO LIST OF SECRETS\n'
     az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" > /dev/null || printf 'NO ACCESS TO SPECIFIC SECRET\n'
