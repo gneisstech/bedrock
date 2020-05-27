@@ -214,7 +214,7 @@ function create_k8s_tls_secret () {
         --namespace "${k8s_namespace}" \
         "${k8s_tls_secret_name}" \
         --cert=<(pem_cert "${pem_key_cert}") \
-        --key=<(pem_key "${pem_key_cert}") > /dev/stderr
+        --key=<(pem_key "${pem_key_cert}") > /dev/null
 }
 
 function k8s_secret_exists () {

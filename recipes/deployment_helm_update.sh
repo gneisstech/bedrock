@@ -102,7 +102,7 @@ function update_helm_repo () {
 
 function failed_secrets () {
     local -r helm_values="${1}"
-    printf 'Evaluating helm values [\n%s\n]\n' "${helm_values}"
+    #printf 'Evaluating helm values [\n%s\n]\n' "${helm_values}"
     grep -iE 'fixme|too2simple' <<< "${helm_values}"
 }
 
@@ -113,9 +113,9 @@ function update_helm_chart_on_k8s () {
     chart_name="$(get_helm_chart_name "${deployment_json}")"
     update_helm_repo "${registry}"
     printf 'Script Failure means unable to access key vault\n'
-    get_helm_values "${deployment_json}"
+    # get_helm_values "${deployment_json}"
+    helm_values="$(get_helm_values "${deployment_json}")"
     printf 'Script succeeded to access key vault\n'
-    # helm_values="$(get_helm_values "${deployment_json}")"
     kubectl cluster-info
     helm list -A \
         --kube-context "$(get_kube_context "${deployment_json}")"
