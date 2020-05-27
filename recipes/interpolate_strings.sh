@@ -292,9 +292,9 @@ function interpolate_strings () {
     while IFS=$'\n' read -r line_data; do
         set -x
         local current_line="${line_data}"
-        if [[ "${current_line}" =~ '##' ]]; then
-            current_line="$(interpolate_functions <<< "${current_line}")"
-        fi
+        #if [[ "${current_line}" =~ '##' ]]; then
+        #    current_line="$(interpolate_functions <<< "${current_line}")"
+        #fi
         printf '%s\n' "${current_line}"
     done
 }
