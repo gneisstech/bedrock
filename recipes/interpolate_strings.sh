@@ -97,10 +97,6 @@ function process_secure_secret () {
     fi
     if [[ -z "${secret}" ]]; then
         secret="FAKE_SECRET"
-        set -o xtrace
-        ## fatal -- abort everyone
-        kill SIGKILL $$
-        set +o xtrace
     fi
     printf '%s' "${secret}" | sed -e 's|\\|\\\\|g'
 }
@@ -126,8 +122,7 @@ function get_secret_from_shared_vault () {
         --subscription "${subscription}" \
         --vault-name "${vault_name}" \
         --name "${secret_name}" \
-        2> /dev/null \
-    || kill SIGINT $$
+        2> /dev/null
 }
 
 function get_original_cert_from_shared_vault () {

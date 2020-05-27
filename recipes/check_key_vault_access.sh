@@ -50,11 +50,9 @@ function explore_key_vault_access () {
     subscription="$(jq -r -e '.target.metadata.default_azure_subscription' <<< "${target_cluster_config_json}")"
     vault_name="$(jq -r -e '.target.paas.keyvaults[1].name' <<< "${target_cluster_config_json}")"
     secret_name='wildcarddevatrius-iotcom'
-    set -o xtrace
-        az keyvault list --subscription "${subscription}"
-        az keyvault secret list --subscription "${subscription}" --vault-name "${vault_name}"
-        az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" > /dev/null
-    set +o xtrace
+    az keyvault list --subscription "${subscription}" || printf 'NO ACCESS TO LIST OF KEY VAULTS\n'
+    az keyvault secret list --subscription "${subscription}" --vault-name "${vault_name}" || printf 'NO ACCESS TO LIST OF SECRETS\n'
+    az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" > /dev/null || printf 'NO ACCESS TO SPECIFIC SECRET\n'
 }
 
 function check_key_vault_access () {
@@ -66,5 +64,4 @@ function check_key_vault_access () {
     explore_key_vault_access "${target_cluster_config_json}"
 }
 
-set -x
 check_key_vault_access "${@}"
