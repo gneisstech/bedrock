@@ -72,6 +72,21 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
+    displayName: 'Check Key Vault Access'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/check_key_vault_access.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
     displayName: 'Install latest umbrella chart to development k8s cluster'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
