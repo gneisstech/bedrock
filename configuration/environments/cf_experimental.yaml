@@ -5,7 +5,7 @@ target:
     environment_name: &environmentName 'Dev'
     default_azure_location: &defaultAzureLocation 'eastus'
     default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
-    tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    tls_cert_subscription: &subscription_tls '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
     dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
     service_deployment:
       tenant: &acuityDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
@@ -1363,7 +1363,7 @@ target:
           policyType: Custom
         ssl_certs:
           - name: 'wildcarddevatrius-iotcom'
-            vault_name: *atriusKVName
+            vault_name: *kvName
             subscription: *subscription_tls
         probe:
           name: &wafProbe 'cf-strict-probe'
@@ -1552,7 +1552,7 @@ target:
           policyType: Custom
         ssl_certs:
           - name: 'wildcarddevatrius-iotcom'
-            vault_name: *atriusKVName
+            vault_name: *kvName
             subscription: *subscription_tls
         probe:
           name: &authnGwAppProbe 'cf-authn-strict-probe'

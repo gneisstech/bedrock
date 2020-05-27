@@ -98,7 +98,7 @@ function process_secure_secret () {
     if [[ -z "${secret}" ]]; then
         secret="FAKE_SECRET"
     fi
-    printf '%s' "${secret}"
+    printf '%s' "${secret}" | sed -e 's|\\|\\\\|g'
 }
 
 function process_ip_address () {
@@ -114,16 +114,22 @@ function process_ip_address () {
     printf '%s' "${public_ip}"
 }
 
-function get_original_cert_from_shared_vault () {
+function get_secret_from_shared_vault () {
     local -r subscription="${1}"
     local -r vault_name="${2}"
     local -r secret_name="${3}"
     az keyvault secret show \
-        --subscription "${subscription})" \
+        --subscription "${subscription}" \
         --vault-name "${vault_name}" \
         --name "${secret_name}" \
-        2> /dev/null \
-    | jq -r '.value'
+        2> /dev/null
+}
+
+function get_original_cert_from_shared_vault () {
+    local -r subscription="${1}"
+    local -r vault_name="${2}"
+    local -r secret_name="${3}"
+    get_secret_from_shared_vault "${subscription}" "${vault_name}" "${secret_name}" | jq -r '.value'
 }
 
 function pkcs12_to_pem () {
@@ -208,7 +214,13 @@ function create_k8s_tls_secret () {
         --namespace "${k8s_namespace}" \
         "${k8s_tls_secret_name}" \
         --cert=<(pem_cert "${pem_key_cert}") \
-        --key=<(pem_key "${pem_key_cert}") > /dev/stderr
+        --key=<(pem_key "${pem_key_cert}") > /dev/null
+}
+
+function k8s_secret_exists () {
+    local -r namespace="${1}"
+    local -r secret_name="${2}"
+    kubectl --namespace "${namespace}" get secret "${secret_name}" > /dev/null
 }
 
 function process_tls_secret () {
@@ -225,16 +237,20 @@ function process_tls_secret () {
     result="$(printf 'FIXME_INVALID_TLS_CERTIFICATE [%s]' "${from_secret_name}")"
     if create_k8s_tls_secret "${k8s_namespace}" "${k8s_tls_secret_name}" "${pem_key_cert}"; then
         result="processed_tls_secret"
+    elif k8s_secret_exists "${k8s_namespace}" "${k8s_tls_secret_name}"; then
+        result="did_not_overwrite_existing_tls_secret"
     fi
     printf '%s' "${result}"
 }
 
 function dispatch_functions () {
     declare -a myarray
-    (( i=0 ))
+    local i=0
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
         if (( i % 2 == 1 )); then
+            # shellcheck disable=2001
+            # -- can be ${line_data//\\\"/}" @@ TODO
             line_data="$( sed -e 's|\\"|"|g' <<< "${line_data}" )"
             case "$line_data" in
                 acr_registry_key*)
@@ -255,10 +271,10 @@ function dispatch_functions () {
             esac
         fi
         myarray[i]="${array_entry}"
-        ((++i))
+        (( ++i ))
     done
 
-    (( i=0 ))
+    i=0
     while (( ${#myarray[@]} > i )); do
         printf '%s' "${myarray[i++]}"
     done
@@ -270,7 +286,7 @@ function interpolate_functions () {
 
 function interpolate_strings () {
     declare -a myarray
-    (( i=0 ))
+    local i=0
     while IFS=$'\n' read -r line_data; do
         local current_line="${line_data}"
         if [[ "${current_line}" =~ '##' ]]; then
