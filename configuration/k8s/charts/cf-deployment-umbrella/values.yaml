@@ -291,6 +291,9 @@ cf-authz-web-api-docker:
     environment:
       <<: *railsEnv
       JWT_ISSUERS: *trustedIdProviders
+      PASSAGE_API_URL: *passageApiUrl
+      PASSAGE_REFERER: *passageReferer
+      PASSAGE_HOST: *passageHost
     secrets:
       DATABASE_URL: *dbUrlAuthZ
       SECRET_KEY_BASE: *secretKeyBaseAuthZ
@@ -321,9 +324,8 @@ cf-elm-web-api-docker:
   config:
     environment:
       <<: *railsEnv
-      PASSAGE_API_URL: *passageApiUrl
       RELAY_API_URL: *relayApiUrl
-      PASSAGE_PARTNER_ENV: *passagePartnerEnv
+      PASSAGE_API_URL: *passageApiUrl
       PASSAGE_REFERER: *passageReferer
       PASSAGE_HOST: *passageHost
       CF_AUTHZ_API_URL: *authzApiUrl
