@@ -112,7 +112,9 @@ function update_helm_chart_on_k8s () {
     registry="$(get_helm_registry "${deployment_json}")"
     chart_name="$(get_helm_chart_name "${deployment_json}")"
     update_helm_repo "${registry}"
+    printf 'Script Failure means unable to access key vault\n'
     helm_values="$(get_helm_values "${deployment_json}")"
+    printf 'Script succeeded to access key vault\n'
     kubectl cluster-info
     helm list -A \
         --kube-context "$(get_kube_context "${deployment_json}")"
