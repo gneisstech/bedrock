@@ -46,7 +46,7 @@ function get_target_cluster_config_json () {
 
 function explore_key_vault_access () {
     local -r target_cluster_config_json="${1}"
-    local subscription vault_resource_group vault_name
+    local subscription vault_name
     subscription="$(jq -r -e '.target.metadata.default_azure_subscription' <<< "${target_cluster_config_json}")"
     vault_name="$(jq -r -e '.target.paas.keyvaults[1].name' <<< "${target_cluster_config_json}")"
     secret_name='wildcarddevatrius-iotcom'
