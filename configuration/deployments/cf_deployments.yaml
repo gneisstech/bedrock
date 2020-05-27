@@ -13,7 +13,7 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
-        version: '^1.0.0-0'
+        version: '^2.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
   - name: 'CF_CI'
