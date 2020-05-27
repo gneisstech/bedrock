@@ -59,9 +59,8 @@ function read_configuration () {
 function extract_service_values () {
     read_configuration \
         | jq -r -e '.target.saas.helm.service_values' \
-        | "$(repo_root)/recipes/join_string_arrays.sh"
-
-#        | "$(repo_root)/recipes/interpolate_strings.sh"
+        | "$(repo_root)/recipes/join_string_arrays.sh" \
+        | "$(repo_root)/recipes/interpolate_strings.sh"
 }
 
 extract_service_values
