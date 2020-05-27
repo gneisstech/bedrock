@@ -102,7 +102,7 @@ function update_helm_repo () {
 
 function failed_secrets () {
     local -r helm_values="${1}"
-    printf 'Evaluating helm values [\n%s\n]\n' "${helm_values}"
+    #printf 'Evaluating helm values [\n%s\n]\n' "${helm_values}"
     grep -iE 'fixme|too2simple' <<< "${helm_values}"
 }
 
