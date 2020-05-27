@@ -54,7 +54,16 @@ function trace_environment () {
     az account show
     yq --version
     jq --version
+    bash --version
+    commnd -v read || true
+    command -v readline || true
+    readline -v
+    builtin
+
+    printf '--------------------------- "env" follows ----------------------------'
     env
+    printf '--------------------------- "set" follows ----------------------------'
+    set
     set +o xtrace
 }
 
