@@ -79,7 +79,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-elm-web-api-docker'
-    version: '^1.0.0-0'
+    version: '^2.0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-elm-web-api-docker.enabled'
     tags:
@@ -171,8 +171,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r1.1.16-dev'
+appVersion: 'r2.0.0-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 1.1.16-dev
+version: 2.0.0-dev

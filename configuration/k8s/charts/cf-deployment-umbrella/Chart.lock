@@ -19,10 +19,10 @@ dependencies:
   version: 1.2.0-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.5-dev
+  version: 1.1.0-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.15-dev
+  version: 2.0.0-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.9-dev
@@ -50,5 +50,5 @@ dependencies:
 - name: cf-sql-server
   repository: file://../cf-sql-server
   version: 1.0.0-dev
-digest: sha256:f92fdf175db6543b90fcd5c77d93c8a235cff515b1d85ea5b5e7171fc69f16a3
-generated: "2020-05-27T20:33:58.733692897Z"
+digest: sha256:801c7ca8b7016699807428dd00cc3c9f5d0a7165e1937f22d918c94d5e1d38ed
+generated: "2020-05-27T20:54:50.730901731Z"
