@@ -51,9 +51,24 @@ function trace_environment () {
     set -o xtrace
     helm version
     az version
+    az account show
     yq --version
     jq --version
+    bash --version
+    command -V read || true
+    command -V readline || true
+    readline -v || true
+    command -V readarray || true
+    command -V mapfile || true
+    help
+    help read || true
+    help mapfile || true
+
+
+    printf '=========================== %s ============================\n' 'env follows'
     env
+    printf '=========================== %s ============================\n' 'set follows'
+    set
     set +o xtrace
 }
 

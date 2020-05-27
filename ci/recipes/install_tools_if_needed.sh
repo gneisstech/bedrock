@@ -19,9 +19,17 @@ set -o pipefail
 function install_yq_if_needed () {
     if ! command -v yq; then
         sudo add-apt-repository ppa:rmescandon/yq
-        sudo apt update
+        sudo apt update -y
         sudo apt install yq -y
     fi
+}
+
+function install_jq_if_needed () {
+set -x
+    curl -L -o jq-local https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+    chmod +x jq-local
+    sudo mv jq-local /usr/bin/jq
+set +x
 }
 
 function install_shellcheck_if_needed () {
@@ -38,6 +46,7 @@ function install_yamllint_if_needed () {
 
 function install_tools_if_needed () {
     install_yq_if_needed
+    install_jq_if_needed
     install_shellcheck_if_needed
     install_yamllint_if_needed
 }
