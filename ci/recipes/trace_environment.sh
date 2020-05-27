@@ -55,10 +55,10 @@ function trace_environment () {
     yq --version
     jq --version
     bash --version
-    commnd -v read || true
-    command -v readline || true
-    readline -v
-    builtin
+    command -V read || true
+    command -V readline || true
+    readline -v || true
+    builtin || true
 
     printf '--------------------------- "env" follows ----------------------------'
     env
