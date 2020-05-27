@@ -125,7 +125,7 @@ function update_helm_chart_on_k8s () {
         --namespace "$(get_kube_namespace "${deployment_json}")" \
         "$(get_helm_deployment_name "${deployment_json}" )"
     if failed_secrets "${helm_values}" ; then
-        echo printf 'FATAL: Failed to retrieve secrets needed in helm values!!\n'
+        printf 'FATAL: Failed to retrieve secrets needed in helm values!!\n'
         set -o xtrace
         ## fatal -- abort everyone
         kill SIGKILL $$
