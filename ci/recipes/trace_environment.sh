@@ -59,7 +59,11 @@ function trace_environment () {
     command -V readline || true
     readline -v || true
     command -V readarray || true
+    command -V mapfile || true
     help
+    help read || true
+    help mapfile || true
+
 
     printf '=========================== %s ============================\n' 'env follows'
     env
