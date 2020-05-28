@@ -23,7 +23,7 @@ function repo_root () {
 function check_prod_key_vault_access () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
-        "$(repo_root)/recipes/check_key_vault_access.sh" "CF_PROD"
+        "$(repo_root)/recipes/check_key_vault_access.sh" "CF_Prod"
     popd
 }
 
