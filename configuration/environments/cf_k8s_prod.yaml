@@ -319,34 +319,34 @@ target:
           partner:
             env: &passagePartnerEnv 'US'
         jwt:
-          issuers: &trustedIdProviders "\
-            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-            =\
-            https://management.core.windows.net/\
-            ,\
-            https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
-            =\
-            https://management.core.windows.net/\
-            ,\
-            https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
-            =\
-            https://management.core.windows.net/\
-            ,\
-            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-            =\
-            https://graph.windows.net\
-            ,\
-            https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
-            =\
-            https://graph.windows.net\
-            ,\
-            https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
-            =\
-            https://graph.windows.net\
-            ,\
-            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-            =\
-            24b765b5-8108-4374-8141-1a65c0fc42ab"
+          issuers: &trustedIdProviders
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - *passageApiApplicationID
         secrets:
           names:
             - &atriusObjectsApiKeySecretName 'cf-prod-atrius-objects-api-key'
@@ -732,6 +732,9 @@ target:
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               JWT_ISSUERS: *trustedIdProviders
+              PASSAGE_API_URL: *passageApiUrl
+              PASSAGE_REFERER: *passageReferer
+              PASSAGE_HOST: *passageHost
             secrets:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
@@ -748,12 +751,10 @@ target:
           config:
             environment:
               <<: *railsEnv
-              ATRIUS_API_URL: *atriusApiUrl
               AZURE_DB: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
               CF_OBJECTS_API_URL: *objectsApiUrl
               PASSAGE_API_URL: *passageApiUrl
-              PASSAGE_PARTNER_ENV: *passagePartnerEnv
               PASSAGE_REFERER: *passageReferer
               PASSAGE_HOST: *passageHost
               RAILS_ENV: 'production'
@@ -863,7 +864,7 @@ target:
             config:
               enable-modsecurity: 'true'
               modsecurity-snippet: ''
-              enable-owasp-modsecurity-cr: 'true'
+              # enable-owasp-modsecurity-cr: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
