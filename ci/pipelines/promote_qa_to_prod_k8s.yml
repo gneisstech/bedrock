@@ -114,7 +114,6 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Install latest umbrella chart to development k8s cluster'
     inputs:
       azureSubscription: 'cf-prod-az-service-connection'
