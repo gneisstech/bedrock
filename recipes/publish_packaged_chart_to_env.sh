@@ -34,6 +34,11 @@ function get_deployment_json_by_name () {
             '.deployments[] | select(.name == "\($deployment_name)")'
 }
 
+function get_helm_registry () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.umbrella.registry' <<< "${deployment_json}"
+}
+
 function extract_chart_version () {
     local theChartfile="${1}"
     grep -i '^version:' "${theChartfile}" | sed -e 's|.*: ||'
