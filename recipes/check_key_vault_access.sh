@@ -62,7 +62,7 @@ function check_key_vault_access () {
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     target_config_filename="$(get_target_config_file_name "${deployment_json}")"
     target_cluster_config_json="$(get_target_cluster_config_json "${target_config_filename}")"
-    explore_key_vault_access "${target_cluster_config_json}"
+    explore_key_vault_access "${target_cluster_config_json}" "${deployment_json}"
 }
 
 check_key_vault_access "${@}"
