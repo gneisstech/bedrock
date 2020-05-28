@@ -84,11 +84,18 @@ function get_cluster_config_json () {
     yq r --tojson "$(repo_root)/$(get_target_config "${deployment_json}")"
 }
 
+function get_subscription () {
+    local -r deployment_json="${1}"
+    local cluster_config_json
+    cluster_config_json="$(get_cluster_config_json "${deployment_json}" )"
+    jq -r -e '.target.metadata.default_azure_subscription' <<< "${cluster_config_json}"
+}
+
 function connect_to_k8s () {
     local -r deployment_json="${1}"
     local cluster_config_json subscription resource_group cluster_name
     cluster_config_json="$(get_cluster_config_json "${deployment_json}" )"
-    subscription="$(jq -r -e '.target.metadata.default_azure_subscription' <<< "${cluster_config_json}")"
+    subscription="$(get_subscription "${deployment_json}")"
     resource_group="$(jq -r -e '.target.paas.k8s.clusters[0].resource_group' <<< "${cluster_config_json}")"
     cluster_name="$(jq -r -e '.target.paas.k8s.clusters[0].name' <<< "${cluster_config_json}")"
     az aks get-credentials \
@@ -101,7 +108,8 @@ function connect_to_k8s () {
 
 function update_helm_repo () {
     local -r registry="${1}"
-    az acr helm repo add --name "${registry}"
+    local -r subscription="${2}"
+    az acr helm repo add --name "${registry}" --subscription "${subscription}"
     helm repo update
     helm version
 }
@@ -117,7 +125,8 @@ function update_helm_chart_on_k8s () {
     local registry chart_name
     registry="$(get_helm_registry "${deployment_json}")"
     chart_name="$(get_helm_chart_name "${deployment_json}")"
-    update_helm_repo "${registry}"
+    subscription="$(get_subscription "${deployment_json}")"
+    update_helm_repo "${registry}" "${subscription}"
     printf 'Script Failure means unable to access key vault\n'
     # get_helm_values "${deployment_json}"
     helm_values="$(get_helm_values "${deployment_json}")"
