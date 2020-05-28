@@ -82,7 +82,7 @@ steps:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: './ci/recipes/check_key_vault_access.sh'
+      scriptPath: './ci/recipes/check_dev_key_vault_access.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
