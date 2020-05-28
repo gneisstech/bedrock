@@ -908,4 +908,3 @@ target:
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
           defaultBackend:
             replicaCount: 3
-
