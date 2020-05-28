@@ -19,7 +19,7 @@ set -o pipefail
 function install_yq_if_needed () {
     if ! command -v yq; then
         curl -L https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -o yq-local
-        chmod +x foo
+        chmod +x yq-local
         sudo mv yq-local /usr/bin/yq
 #        sudo add-apt-repository ppa:rmescandon/yq
 #        sudo apt update -y
