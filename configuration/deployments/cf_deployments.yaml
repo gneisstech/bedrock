@@ -8,6 +8,7 @@ deployments:
       dashboard:
         port: 8001
     environment:
+      suffix: 'dev'
       config: './configuration/environments/cf_k8s_dev.yaml'
     helm:
       umbrella:
@@ -24,6 +25,7 @@ deployments:
       dashboard:
         port: 8002
     environment:
+      suffix: 'ci'
       config: './configuration/environments/cf_k8s_ci.yaml'
     helm:
       umbrella:
@@ -40,13 +42,14 @@ deployments:
       dashboard:
         port: 8003
     environment:
+      suffix: 'qa'
       config: './configuration/environments/cf_k8s_qa.yaml'
     helm:
       umbrella:
-        registry: 'cfdevregistry'  # to be cfqaregistry
+        registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0-0'
+        version: '^2.0.0-0'
         values_file: ''
   - name: 'CF_Prod'
     k8s:
@@ -56,13 +59,14 @@ deployments:
       dashboard:
         port: 8004
     environment:
+      suffix: 'prod'
       config: './configuration/environments/cf_k8s_prod.yaml'
     helm:
       umbrella:
-        registry: 'cfdevregistry'  # to be cfprodregistry
+        registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0'
+        version: '^2.0.0'
         values_file: ''
   - name: 'CF_Local'
     k8s:
@@ -72,6 +76,7 @@ deployments:
       dashboard:
         port: 8005
     environment:
+      suffix: 'local'
       config: './configuration/environments/cf_k8s_local.yaml'
     helm:
       umbrella:

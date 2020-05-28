@@ -90,6 +90,7 @@ function connect_to_k8s () {
         --subscription "${subscription}" \
         --resource-group "${resource_group}" \
         --name "${cluster_name}" \
+        --overwrite-existing \
         --admin
 }
 
