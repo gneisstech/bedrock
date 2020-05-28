@@ -69,7 +69,7 @@ function publish_packaged_chart_to_env () {
     target_registry="$(get_helm_registry "${target_deployment_json}")"
     chart_file_name="$(get_helm_chart_name "${target_deployment_json}")"
 
-    publish_new_umbrella "${target_registry}" "$(repo_root)/${chart_file_name}"
+    publish_new_umbrella "${target_registry}" "$(repo_root)/${chart_file_name}" || true
     rm -f "$(repo_root)/${chart_file_name}" "$(repo_root)/Chart.yaml"
 }
 
