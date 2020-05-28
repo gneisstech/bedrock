@@ -24,16 +24,6 @@ function is_azure_pipeline_build () {
     [[ "True" == "${TF_BUILD:-}" ]]
 }
 
-function update_git_tag () {
-    local -r blessed_release_tag="${1}"
-    if [[ "true" == "${BUMP_SEMVER}" ]]; then
-        printf 'pushing git commits: \n'
-        git status
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-        git push origin "${blessed_release_tag}"
-    fi
-}
-
 function get_kube_context () {
     local -r deployment_json="${1}"
     jq -r -e '.k8s.context' <<< "${deployment_json}"
@@ -59,11 +49,6 @@ function get_helm_chart_name () {
     jq -r -e '.helm.umbrella.name' <<< "${deployment_json}"
 }
 
-function get_helm_version () {
-    local -r deployment_json="${1}"
-    jq -r -e '.helm.umbrella.version' <<< "${deployment_json}"
-}
-
 function get_target_config () {
     local -r deployment_json="${1}"
     jq -r -e '.environment.config' <<< "${deployment_json}"
@@ -72,11 +57,6 @@ function get_target_config () {
 function get_environment_suffix () {
     local -r deployment_json="${1}"
     jq -r -e '.environment.suffix' <<< "${deployment_json}"
-}
-
-function get_helm_values () {
-    local -r deployment_json="${1}"
-    TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/extract_service_values.sh"
 }
 
 function get_cluster_config_json () {
@@ -115,57 +95,6 @@ function update_helm_repo () {
     helm version
 }
 
-function failed_secrets () {
-    local -r helm_values="${1}"
-    #printf 'Evaluating helm values [\n%s\n]\n' "${helm_values}"
-    grep -iE 'fixme|too2simple' <<< "${helm_values}"
-}
-
-function update_helm_chart_on_k8s () {
-    local -r deployment_json="${1}"
-    local registry chart_name
-    registry="$(get_helm_registry "${deployment_json}")"
-    chart_name="$(get_helm_chart_name "${deployment_json}")"
-    subscription="$(get_subscription "${deployment_json}")"
-    update_helm_repo "${registry}" "${subscription}"
-    printf 'Script Failure means unable to access key vault\n'
-    # get_helm_values "${deployment_json}"
-    helm_values="$(get_helm_values "${deployment_json}")"
-    printf 'Script succeeded to access key vault\n'
-    kubectl cluster-info
-    helm list -A \
-        --kube-context "$(get_kube_context "${deployment_json}")"
-    helm history \
-        --kube-context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_kube_namespace "${deployment_json}")" \
-        "$(get_helm_deployment_name "${deployment_json}" )"
-    if failed_secrets "${helm_values}" ; then
-        printf 'FATAL: Failed to retrieve secrets needed in helm values!!\n'
-        set -o xtrace
-        ## fatal -- abort everyone
-        kill SIGKILL $$
-        set +o xtrace
-    else
-        helm upgrade \
-            --kube-context "$(get_kube_context "${deployment_json}")" \
-            --namespace "$(get_kube_namespace "${deployment_json}")" \
-            "$(get_helm_deployment_name "${deployment_json}" )" \
-            "${registry}/${chart_name}" \
-            --version "$(get_helm_version "${deployment_json}")" \
-            --debug --dry-run \
-            --values <(cat <<< "${helm_values}")
-        helm upgrade \
-            --kube-context "$(get_kube_context "${deployment_json}")" \
-            --namespace "$(get_kube_namespace "${deployment_json}")" \
-            "$(get_helm_deployment_name "${deployment_json}" )" \
-            "${registry}/${chart_name}" \
-            --version "$(get_helm_version "${deployment_json}")" \
-            --timeout 30m \
-            --wait \
-            --values <(cat <<< "${helm_values}")
-    fi
-}
-
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
     yq r --tojson "$(repo_root)/configuration/deployments/cf_deployments.yaml" |
@@ -189,10 +118,10 @@ function get_latest_full_chart_name () {
     local origin_deployment_json="${1}"
     local origin_deployment_name
     origin_deployment_name="$(get_helm_deployment_name "${origin_deployment_json}" )"
-    get_latest_deployed_charts "${origin_deployment_json}" | tee /dev/stderr | \
+    get_latest_deployed_charts "${origin_deployment_json}" | \
         jq -r -e \
             --arg deployment_name "${origin_deployment_name}" \
-            '.[] | select(.name == "\($deployment_name)") | .chart' | tee /dev/stderr
+            '.[] | select(.name == "\($deployment_name)") | .chart'
 }
 
 function get_latest_deployed_version () {
@@ -324,10 +253,10 @@ function package_and_publish_new_umbrella () {
     local chart_package
     chart_package="${chart_name}-$(extract_chart_version "./Chart.yaml").tgz"
 
-    az acr helm repo add --name "${target_registry}"
     helm package .
     ls -l
     printf 'chart package name [%s]\n' "${chart_package}"
+    az acr helm repo add --name "${target_registry}"
     if az acr helm push -n "${target_registry}" "${chart_package}" 2> /dev/null; then
         result=0
     else
@@ -366,7 +295,6 @@ function promote_k8s_from_env_to_env () {
         fetch_latest_deployed_chart "${origin_deployment_json}" "${tmp_chart_dir}"
         rewrite_latest_deployment "${origin_deployment_json}" "${target_deployment_json}"  "${tmp_chart_dir}"
         printf 'tmp_chart_dir[%s]\n' "${tmp_chart_dir}"
-        update_helm_chart_on_k8s "${target_deployment_json}"
         #rm -rf "${tmp_chart_dir}"
     fi
 }

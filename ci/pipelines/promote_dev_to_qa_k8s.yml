@@ -84,12 +84,28 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-    displayName: 'Promote Dev to QA K8S'
+    displayName: 'Promote Deployed Dev Artifacts to QA'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/promote_dev_to_qa_k8s.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Install latest umbrella chart to development k8s cluster'
+    inputs:
+      azureSubscription: 'cf-qa-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/deploy_umbrella_chart_to_qa.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
