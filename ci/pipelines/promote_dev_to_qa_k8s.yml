@@ -86,7 +86,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Promote Dev to QA K8S'
     inputs:
-      azureSubscription: 'cf-qa-az-service-connection'
+      azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/promote_dev_to_qa_k8s.sh'
