@@ -629,7 +629,14 @@ target:
               - *subscription_tls
               - '"}'
               - '##'
+        cf-http-https-echo:
+          replicaCount: 3
+        cf-self-healing-app-docker:
+          replicaCount: 3
+        cf-react-app-docker:
+          replicaCount: 3
         cf-atrius-objects-api-docker:
+          replicaCount: 3
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -647,6 +654,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
+          replicaCount: 3
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -664,6 +672,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
+          replicaCount: 3
           config:
             environment:
               JWT_ISSUERS: *trustedIdProviders
@@ -672,6 +681,7 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -694,6 +704,7 @@ target:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
         cf-elm-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -722,6 +733,7 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-admin-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -740,6 +752,7 @@ target:
               DATABASE_URL: *dbUrlAdmin
               SECRET_KEY_BASE: *secretKeyBaseAdmin
         cf-ingest-web-api: &configNetworkView
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -774,6 +787,7 @@ target:
             protocol: 'TCP'
             portName: 'mssql'
         cf-oauth-proxy-docker:
+          replicaCount: 3
           config:
             environment:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
@@ -806,10 +820,12 @@ target:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
         cf-waf-ingress-default-backend:
+          replicaCount: 3
           enabled: true
         cf-waf-ingress:
           enabled: true
           controller:
+            replicaCount: 3
             config:
               # enable-modsecurity: 'true'
               # modsecurity-snippet: ''
@@ -855,3 +871,5 @@ target:
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
+          defaultBackend:
+            replicaCount: 3
