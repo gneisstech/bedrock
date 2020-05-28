@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# usage: az_trace.sh target_environment_config.yaml
 
 #
 # Maintainer: techguru@byiq.com
@@ -35,17 +36,15 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx TARGET_CONFIG
+declare -x AZ_TRACE
 
 # Arguments
 # ---------------------
 
-function repo_root () {
-    git rev-parse --show-toplevel
+function az_trace () {
+    echo 'AZ' "$@" > /dev/stderr
+    az "$@"
 }
 
-function sast_shellcheck () {
-    find "$(repo_root)" -name "*.sh" -print0 | xargs -0 -n 1 shellcheck
-}
-
-sast_shellcheck
-
+az_trace "$@"

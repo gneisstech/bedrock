@@ -18,11 +18,11 @@
 >     environment_name: &environmentName 'QA'
 7,9c7,9
 <     default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
-<     tls_cert_subscription: &subscription_tls '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+<     tls_cert_subscription: &subscription_tls '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
 <     dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
 ---
 >     default_azure_subscription: &defaultAzureSubscription '781c62dc-1612-43e6-a0ca-a8138888691f'  # Acuity Brands, Inc. ConnectedFacilities-QA
->     tls_cert_subscription: &subscription_tls 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Acuity Brands, Inc. Allspice-QA
+>     tls_cert_subscription: &subscription_tls '781c62dc-1612-43e6-a0ca-a8138888691f'  # Acuity Brands, Inc. ConnectedFacilities-QA
 >     dns_subscription: &subscription_dns 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Acuity Brands, Inc. Allspice-QA
 14c14
 <       # application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI

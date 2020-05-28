@@ -164,7 +164,7 @@ function process_secure_secret () {
 
 function dispatch_functions () {
     declare -a myarray
-    (( i=0 ))
+    local i=0
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
         if (( i % 2 == 1 )); then
@@ -181,10 +181,10 @@ function dispatch_functions () {
             esac
         fi
         myarray[i]="${array_entry}"
-        ((++i))
+        (( ++i ))
     done
 
-    (( i=0 ))
+    i=0
     while (( ${#myarray[@]} > i )); do
         printf '%s' "${myarray[i++]}"
     done

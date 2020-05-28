@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
+# usage: extract_service_values.sh target_environment_config.yaml
 
 #
 # Maintainer: techguru@byiq.com
 #
-# Copyright (c) 2017-2019,  Cloud Scaling -- All Rights Reserved
+# Copyright (c) 2017-2020,  Cloud Scaling -- All Rights Reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,14 +39,28 @@ set -o pipefail
 
 # Arguments
 # ---------------------
+declare -rx TARGET_CONFIG
+
+# Arguments
+# ---------------------
 
 function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function sast_shellcheck () {
-    find "$(repo_root)" -name "*.sh" -print0 | xargs -0 -n 1 shellcheck
+function target_config () {
+    echo "$(repo_root)/${TARGET_CONFIG}"
 }
 
-sast_shellcheck
+function read_configuration () {
+    yq read --tojson "$(target_config)"
+}
 
+function extract_datadog_values () {
+    read_configuration \
+        | jq -r -e '.target.paas.k8s.datadog' \
+        | "$(repo_root)/recipes/join_string_arrays.sh" \
+        | "$(repo_root)/recipes/interpolate_strings.sh"
+}
+
+extract_datadog_values

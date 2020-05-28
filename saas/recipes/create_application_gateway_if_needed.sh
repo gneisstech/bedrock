@@ -267,7 +267,7 @@ function add_exclusions () {
     length="$(gw_attr_size 'waf_policy.waf_config.exclusions')"
     if [[ '0' != "${length}" ]]; then
         local i
-        for i in $(seq 0 $(( length - 1)) ); do
+        for i in $(seq 0 $(( length - 1 )) ); do
             local matchVariable selector selectorMatchOperator
             matchVariable="$(gw_attr "waf_policy.waf_config.exclusions[${i}].matchVariable")"
             selector="$(gw_attr "waf_policy.waf_config.exclusions[${i}].selector")"
@@ -587,7 +587,7 @@ function create_rewrite_ruleset_rule_conditions () {
     length="$(rewrite_rule_set_rule_attr_length "${rule_set_name}" "${rule_name}" 'conditions')"
     if [[ '0' != "${length}" ]]; then
         local i
-        for i in $(seq 0 $(( length - 1)) ); do
+        for i in $(seq 0 $(( length - 1 )) ); do
             # shellcheck disable=SC2046
             $AZ_TRACE network application-gateway rewrite-rule condition create \
                 --gateway-name "$(application_gateway_name)" \
@@ -868,7 +868,7 @@ function subnet_service_endpoint () {
 function subnet_service_endpoints () {
     if [[ '0' != "$(gw_attr_size 'subnet_service_endpoints')" ]]; then
         local i
-        for i in $(seq 0 $(( $(gw_attr_size 'subnet_service_endpoints') - 1)) ); do
+        for i in $(seq 0 $(( $(gw_attr_size 'subnet_service_endpoints') - 1 )) ); do
             subnet_service_endpoint "${i}"
         done
     fi

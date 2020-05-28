@@ -2,25 +2,26 @@
 target:
   metadata:
     product_portfolio_name: &productName 'connected-facilities'
-    environment_name: &environmentName 'Ci'
+    environment_name: &environmentName 'QA'
     default_azure_location: &defaultAzureLocation 'eastus'
-    default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
-    tls_cert_subscription: &subscription_tls '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
-    dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    default_azure_subscription: &defaultAzureSubscription '781c62dc-1612-43e6-a0ca-a8138888691f'  # Acuity Brands, Inc. ConnectedFacilities-QA
+    tls_cert_subscription: &subscription_tls '781c62dc-1612-43e6-a0ca-a8138888691f'  # Acuity Brands, Inc. ConnectedFacilities-QA
+    dns_subscription: &subscription_dns 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Acuity Brands, Inc. Allspice-QA
     service_deployment:
       tenant: &acuityDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
-      passage_api_fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
+      passage_api_fqdn: &passageApiFqdn 'passage.atrius-qa.acuitynext.io.'
+      passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
-      application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
-      passage_api_application_id: &passageApiApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
+      application_id: &appRegistrationID '5aa2313f-7a76-4d43-9dc4-612ab69ef306'  # Acuity Brands Atrius QA UI
+      passage_api_application_id: &passageApiApplicationID '528307d1-f67d-4dff-a3a8-c68dace2b072'  # Acuity Brands Atrius QA Passage API
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
     atriusObjectsDatabases:
-      - db_host_name: &cfObjectsDbHostName_001 'pltdata01sqlsep2ftp3b7r'
+      - db_host_name: &cfObjectsDbHostName_001 'pltdata01sqlsw3pyftzuvb'
         db_name: &cfObjectsDbName_001 'allspice-mapmanager01db'
         reader_name: &cfObjectsDbUser_001 'CF_Reader'
-        secret_name: &cfObjectsDbSecretName_001 'ALLSPICEDEV-CFReader-SQLUserPassword'
+        secret_name: &cfObjectsDbSecretName_001 'ASPQA01US-CFReader-SQLUserPassword'
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
     k8s_namespace: &cfNamespace 'cfk8s'
@@ -29,22 +30,22 @@ target:
     resource_groups:
       # for naming conventions, see: https://docs.acuitynext.net/wiki/azure-naming-conventions/
       # pre-existing Atrius resource groups with shared configuration state
-      - name: &atriusDnsRG 'atriusops-allspicedev'
+      - name: &atriusDnsRG 'atriusops-allspiceqa'
         action: 'read'
-      # CF Ci resource groups
-      - name: &cfWafRG 'Waf-CfCi'
+      # cf-qa resource groups
+      - name: &cfWafRG 'Waf-CfQa'
         action: 'create'
-      - name: &cfDbRG 'Data-CfDev'
+      - name: &cfDbRG 'Data-CfQa'
         action: 'create'
-      - name: &cfKeysRG 'Kv-CfCi'
+      - name: &cfKeysRG 'Kv-CfQa'
         action: 'create'
-      - name: &cfAcrRG 'Acr-CfCi'
+      - name: &cfAcrRG 'Acr-CfQa'
         action: 'create'
-      - name: &cfK8sRG 'K8S-CfCi'
+      - name: &cfK8sRG 'K8S-CfQa'
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP 'cf-ci-waf-k8s-pip'
+        - name: &wafIP 'cf-qa-waf-k8s-pip'
           resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
@@ -52,9 +53,9 @@ target:
           allocation_method: 'Static'
           action: 'create'
       dns_a_records:
-        - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf-ci'
-          fqdn: &wafFqdn 'cf-ci.dev.atrius-iot.com.'
+        - zone: &dnsZone 'qa.atrius-iot.com'
+          host: &dnsHost 'cf'
+          fqdn: &wafFqdn 'cf.qa.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
@@ -64,16 +65,16 @@ target:
     location: *defaultAzureLocation
     keyvaults:
       # pre-existing Atrius key vault with shared configuration state such as TLS certificate
-      - name: &atriusKVName 'atrius01kvbxkbdsepg6'
+      - name: &atriusKVName 'atrius01kvjyfjczwcoo'
         action: 'read'
-      # CF Ci Key Vault
-      - name: &kvName 'cf-ci-master-kv'
+      # cf-qa Key Vault
+      - name: &kvName 'cf-qa-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
-      - name: &spK8S 'cf-ci-k8s-sp'
+      - name: &spK8S 'cf-qa-k8s-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
@@ -91,7 +92,7 @@ target:
           - *cfWafRG
         action: 'create'
       # for private calls to Atrius Objects Service
-      - name: &spAtriusObjects 'cf-ci-atrius-objects-sp'
+      - name: &spAtriusObjects 'cf-qa-atrius-objects-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
@@ -104,7 +105,7 @@ target:
           - *cfK8sRG
         action: 'create'
       # for calls to Passage API from ELM
-      - name: &spElmAtrius 'cf-ci-elm-atrius-sp'
+      - name: &spElmAtrius 'cf-qa-elm-atrius-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
@@ -118,15 +119,15 @@ target:
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'cf-dev-sqls'
+        - name: &cfDefaultDbServer 'cf-qa-sqls'
           arm_type: 'Microsoft.Sql/servers'
           subscription: *defaultAzureSubscription
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'cf-dev-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName 'cf-qa-sqls-admin-user'
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
-            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-ci-sqls'
+            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-qa-sqls'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
@@ -148,27 +149,27 @@ target:
         service_objective: 'GP_S_Gen5'
         action: 'preserve'
       instances:
-        - name: &selfHealingSchema 'cf-ci-self-healing'
+        - name: &selfHealingSchema 'cf-qa-self-healing'
           <<: *dbTemplate
-        - name: &authzSchema 'cf-dev-authz-db'
+        - name: &authzSchema 'cf-qa-authz-db'
           <<: *dbTemplate
-        - name: &netWorkViewSchema 'cf-dev-network-view-db'
+        - name: &netWorkViewSchema 'cf-qa-network-view-db'
           <<: *dbTemplate
-        - name: &elmSchema 'cf-dev-elm-db'
+        - name: &elmSchema 'cf-qa-elm-db'
           <<: *dbTemplate
-        - name: &adminSchema 'cf-dev-admin-db'
+        - name: &adminSchema 'cf-qa-admin-db'
           <<: *dbTemplate
     container_registries:
-      - name: &primaryACR 'cfciregistry'
+      - name: &primaryACR 'CfQaregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://cfciregistry.azurecr.io'
+        uri: &uriPrimaryACR 'https://CfQaregistry.azurecr.io'
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
     k8s:
       clusters:
-        - name: 'cf-ci-k8s-001'
+        - name: 'cf-qa-k8s-001'
           resource_group: *cfK8sRG
           location: *defaultAzureLocation
           # aad_client_app_id:
@@ -200,7 +201,7 @@ target:
           node_count: 3
           node_osdisk_size: '60'
           node_vm_size: 'Standard_DS2_v2'
-          nodepool_labels: &labels 'cf-env=ci cf-role=ci'
+          nodepool_labels: &labels 'cf-env=qa cf-role=qa'
           nodepool_name: 'cfnodepool'
           nodepool_tags: *labels
           service_principal:
@@ -211,7 +212,7 @@ target:
             - '-app-id'
             - '"}'
             - '##'
-          ssh_key_value: '~/.ssh/id_cf_ci_k8s.pub'
+          ssh_key_value: '~/.ssh/id_cf_qa_k8s.pub'
           tags: *labels
           vm_set_type: 'VirtualMachineScaleSets'
           zones: '1 2 3'
@@ -219,8 +220,8 @@ target:
           action: 'create'
       secrets:
         names:
-          - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
-          - &neuvectorLicenseKeyName 'cf-ci-neuvector-license-key'
+          - &dataDogApiKeySecretName 'cf-qa-datadog-api-key'
+          - &neuvectorLicenseKeyName 'cf-qa-neuvector-license-key'
         values:
           datadog_api_key: &datadogApiKey
             - '##secure_secret={"vault":"'
@@ -303,16 +304,16 @@ target:
             RAILS_LOG_TO_STDOUT: 'true'
         atrius:
           api:
-            url: &atriusApiUrl 'https://api.dev.atrius-iot.io/api/v1'
+            url: &atriusApiUrl 'https://api.qa.atrius-iot.io/api/v1'
         passage:
           api:
             application_id: *passageApiApplicationID
-            fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
-            url: &passageApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1'
-            relayUrl: &relayApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1/Devices'
-            host: &passageHost 'passage.atrius-dev.acuitynext.io'
+            fqdn: &passageApiFqdn 'passage.atrius-qa.acuitynext.io.'
+            url: &passageApiUrl 'https://passage.atrius-qa.acuitynext.io/api/v1'
+            relayUrl: &relayApiUrl 'https://passage.atrius-qa.acuitynext.io/api/v1/Devices'
+            host: &passageHost 'passage.atrius-qa.acuitynext.io'
           partner:
-            env: &passagePartnerEnv 'DEV'
+            env: &passagePartnerEnv 'QA'
         jwt:
           issuers: &trustedIdProviders
             - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
@@ -344,14 +345,14 @@ target:
             - *passageApiApplicationID
         secrets:
           names:
-            - &atriusObjectsApiKeySecretName 'cf-ci-atrius-objects-api-key'
-            - &secretKeyBaseAdminSecretName 'cf-ci-admin-api-secret-key-base'
-            - &secretKeyBaseAuthZSecretName 'cf-ci-authz-api-secret-key-base'
-            - &secretKeyBaseElmSecretName 'cf-ci-elm-api-secret-key-base'
-            - &secretKeyBaseNetworkViewSecretName 'cf-ci-network-view-api-secret-key-base'
-            - &selfHealingApiKeyName 'cf-ci-self-healing-api-key'
-            - &oauth2ProxyClientSecretName 'cf-ci-oauth2-proxy-client-secret'
-            - &oauth2ProxyCookieSecretName 'cf-ci-oauth2-proxy-cookie-secret'
+            - &atriusObjectsApiKeySecretName 'cf-qa-atrius-objects-api-key'
+            - &secretKeyBaseAdminSecretName 'cf-qa-admin-api-secret-key-base'
+            - &secretKeyBaseAuthZSecretName 'cf-qa-authz-api-secret-key-base'
+            - &secretKeyBaseElmSecretName 'cf-qa-elm-api-secret-key-base'
+            - &secretKeyBaseNetworkViewSecretName 'cf-qa-network-view-api-secret-key-base'
+            - &selfHealingApiKeyName 'cf-qa-self-healing-api-key'
+            - &oauth2ProxyClientSecretName 'cf-qa-oauth2-proxy-client-secret'
+            - &oauth2ProxyCookieSecretName 'cf-qa-oauth2-proxy-cookie-secret'
             - &wafTLSSecret 'waf-tls-secret'
           values:
             atrius_objects_api_key: &atriusObjectsApiKey
@@ -412,17 +413,17 @@ target:
               - '##'
           seed-values:
             - source:
-                secret_name: 'cf-dev-self-healing-api-key'
-                vault_name: &persistentKVName 'cf-dev-master-kv'
+                secret_name: 'cf-qa-self-healing-api-key'
+                vault_name: &persistentKVName 'cf-qa-master-kv'
                 subscription: *defaultAzureSubscription
               dest: *selfHealingApiKeyName
             - source:
-                secret_name: 'cf-dev-oauth2-proxy-client-secret'
+                secret_name: 'cf-qa-oauth2-proxy-client-secret'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *oauth2ProxyClientSecretName
             - source:
-                secret_name: 'cf-dev-lights-map-api-key'
+                secret_name: 'cf-qa-lights-map-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
@@ -432,7 +433,7 @@ target:
                 subscription: *defaultAzureSubscription
               dest: *dataDogApiKeySecretName
             - source:
-                secret_name: 'admin-pw-for-cf-dev-sqls'
+                secret_name: 'admin-pw-for-cf-qa-sqls'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *cfDefaultDBSecretName
@@ -443,7 +444,7 @@ target:
               dest: *cfObjectsDbSecretName_001
         service_principals:
           atrius_objects:
-            sp_name: &atriusObjectsSpName 'cf-ci-atrius-objects-sp'
+            sp_name: &atriusObjectsSpName 'cf-qa-atrius-objects-sp'
             sp_app_id: &atriusObjectsSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
@@ -623,12 +624,19 @@ target:
               - '","from_vault":"'
               - *kvName
               - '","from_secret_name":"'
-              - 'wildcarddevatrius-iotcom'
+              - 'wildcardqaatrius-iotcom'
               - '","from_subscription":"'
               - *subscription_tls
               - '"}'
               - '##'
+        cf-http-https-echo:
+          replicaCount: 3
+        cf-self-healing-app-docker:
+          replicaCount: 3
+        cf-react-app-docker:
+          replicaCount: 3
         cf-atrius-objects-api-docker:
+          replicaCount: 3
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -646,6 +654,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
+          replicaCount: 3
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -663,6 +672,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
+          replicaCount: 3
           config:
             environment:
               JWT_ISSUERS: *trustedIdProviders
@@ -671,6 +681,7 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -693,6 +704,7 @@ target:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
         cf-elm-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -721,6 +733,7 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-admin-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -739,6 +752,7 @@ target:
               DATABASE_URL: *dbUrlAdmin
               SECRET_KEY_BASE: *secretKeyBaseAdmin
         cf-ingest-web-api: &configNetworkView
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -773,6 +787,7 @@ target:
             protocol: 'TCP'
             portName: 'mssql'
         cf-oauth-proxy-docker:
+          replicaCount: 3
           config:
             environment:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
@@ -805,10 +820,12 @@ target:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
         cf-waf-ingress-default-backend:
+          replicaCount: 3
           enabled: true
         cf-waf-ingress:
           enabled: true
           controller:
+            replicaCount: 3
             config:
               # enable-modsecurity: 'true'
               # modsecurity-snippet: ''
@@ -854,3 +871,5 @@ target:
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
+          defaultBackend:
+            replicaCount: 3

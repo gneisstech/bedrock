@@ -63,7 +63,7 @@ function saas_configuration () {
 
 function service_names () {
     local -r service_group="${1}"
-    saas_configuration | jq -r -e "[.${service_group}.services[] | select(.action == \"create\") | .name ] | @tsv"
+    saas_configuration | jq -r -e "[.${service_group}.services[]? | select(.action == \"create\") | .name ] | @tsv // null"
 }
 
 function deploy_services () {
@@ -75,7 +75,7 @@ function deploy_services () {
 }
 
 function application_gateway_names () {
-    saas_configuration | jq -r -e '[.application_gateways[] | select(.action == "preserve") | .name ] | @tsv'
+    saas_configuration | jq -r -e '[.application_gateways[]? | select(.action == "preserve") | .name ] | @tsv // null'
 }
 
 function deploy_application_gateways () {
