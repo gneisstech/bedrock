@@ -104,7 +104,7 @@ function update_helm_repo () {
 function failed_secrets () {
     local -r helm_values="${1}"
     #printf 'Evaluating helm values [\n%s\n]\n' "${helm_values}"
-    grep -iE 'fixme|too2simple' <<< "${helm_values}"
+    grep -iE 'fake|fixme|too2simple' <<< "${helm_values}"
 }
 
 function update_helm_chart_on_k8s () {
@@ -139,15 +139,15 @@ function update_helm_chart_on_k8s () {
             --version "$(get_helm_version "${deployment_json}")" \
             --debug --dry-run \
             --values <(cat <<< "${helm_values}")
-        helm upgrade \
-            --kube-context "$(get_kube_context "${deployment_json}")" \
-            --namespace "$(get_kube_namespace "${deployment_json}")" \
-            "$(get_helm_deployment_name "${deployment_json}" )" \
-            "${registry}/${chart_name}" \
-            --version "$(get_helm_version "${deployment_json}")" \
-            --timeout 30m \
-            --wait \
-            --values <(cat <<< "${helm_values}")
+#        helm upgrade \
+#            --kube-context "$(get_kube_context "${deployment_json}")" \
+#            --namespace "$(get_kube_namespace "${deployment_json}")" \
+#            "$(get_helm_deployment_name "${deployment_json}" )" \
+#            "${registry}/${chart_name}" \
+#            --version "$(get_helm_version "${deployment_json}")" \
+#            --timeout 30m \
+#            --wait \
+#            --values <(cat <<< "${helm_values}")
     fi
 }
 
