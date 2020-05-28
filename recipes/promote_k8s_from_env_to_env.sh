@@ -247,7 +247,7 @@ function rewrite_files () {
     done
 }
 
-function package_and_publish_new_umbrella () {
+function package_new_umbrella () {
     local -r target_registry="${1}"
     local -r chart_name="${2}"
     local chart_package
@@ -256,14 +256,9 @@ function package_and_publish_new_umbrella () {
     helm package .
     ls -l
     printf 'chart package name [%s]\n' "${chart_package}"
-    az acr helm repo add --name "${target_registry}"
-    if az acr helm push -n "${target_registry}" "${chart_package}" 2> /dev/null; then
-        result=0
-    else
-        printf 'Race condition resolved in favor of earlier job\n'
-        result=1
-    fi
-    (( result == 0 ))
+    cp "${chart_package}" "$(repo_root)/${chart_package}"
+    cp "Chart.yaml" "$(repo_root)/Chart.yaml"
+    ls -l "$(repo_root)"
 }
 
 function rewrite_latest_deployment () {
@@ -281,7 +276,7 @@ function rewrite_latest_deployment () {
         copy_containers "${origin_deployment_json}" "${target_deployment_json}" "${origin_suffix}" "${target_suffix}"
         rewrite_files 'Chart.yaml' "${origin_suffix}" "${target_suffix}"
         rewrite_files 'values.yaml' "${origin_registry}" "${target_registry}"
-        package_and_publish_new_umbrella "${target_registry}" "${origin_chart_name}"
+        package_new_umbrella "${target_registry}" "${origin_chart_name}"
     popd
 }
 

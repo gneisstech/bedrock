@@ -84,12 +84,43 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-    displayName: 'Promote QA to PROD K8S'
+    displayName: 'Promote Deployed QA Artifacts to Prod'
+    inputs:
+      azureSubscription: 'cf-qa-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/promote_qa_to_prod_k8s.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+    displayName: 'Push packaged Artifacts to Prod'
     inputs:
       azureSubscription: 'cf-prod-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: './ci/recipes/promote_qa_to_prod_k8s.sh'
+      scriptPath: './ci/recipes/publish_packaged_chart_to_prod.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Install latest umbrella chart to development k8s cluster'
+    inputs:
+      azureSubscription: 'cf-prod-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/deploy_umbrella_chart_to_prod.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
