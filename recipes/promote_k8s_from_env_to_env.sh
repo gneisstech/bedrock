@@ -250,33 +250,37 @@ function rewrite_files () {
 function package_new_umbrella () {
     local -r target_registry="${1}"
     local -r chart_name="${2}"
+    local -r build_root="${3}"
     local chart_package
     chart_package="${chart_name}-$(extract_chart_version "./Chart.yaml").tgz"
 
     helm package .
     ls -l
     printf 'chart package name [%s]\n' "${chart_package}"
-    cp "${chart_package}" "$(repo_root)/${chart_package}"
-    cp "Chart.yaml" "$(repo_root)/Chart.yaml"
-    ls -l "$(repo_root)"
+    cp "${chart_package}" "${build_root}/${chart_package}"
+    cp "Chart.yaml" "${build_root}/Chart.yaml"
+    ls -l "${build_root}"
 }
 
 function rewrite_latest_deployment () {
     local -r origin_deployment_json="${1}"
     local -r target_deployment_json="${2}"
     local -r tmp_chart_dir="${3}"
-    local origin_chart_name origin_registry target_registry
+    local origin_chart_name origin_registry
+    local origin_suffix target_suffix
+    local target_registry build_root
     origin_chart_name="$(get_helm_chart_name "${origin_deployment_json}" )"
     origin_registry="$(get_helm_registry "${origin_deployment_json}")"
     target_registry="$(get_helm_registry "${target_deployment_json}")"
     origin_suffix="-$(get_environment_suffix "${origin_deployment_json}")"
     target_suffix="-$(get_environment_suffix "${target_deployment_json}")"
+    build_root="$(repo_root)"
     pushd "${tmp_chart_dir}/${origin_chart_name}"
         rm -f "Chart.lock"
         copy_containers "${origin_deployment_json}" "${target_deployment_json}" "${origin_suffix}" "${target_suffix}"
         rewrite_files 'Chart.yaml' "${origin_suffix}" "${target_suffix}"
         rewrite_files 'values.yaml' "${origin_registry}" "${target_registry}"
-        package_new_umbrella "${target_registry}" "${origin_chart_name}"
+        package_new_umbrella "${target_registry}" "${origin_chart_name}" "${build_root}"
     popd
 }
 
