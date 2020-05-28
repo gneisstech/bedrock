@@ -109,6 +109,7 @@ function connect_to_k8s () {
 function update_helm_repo () {
     local -r registry="${1}"
     local -r subscription="${2}"
+    printf '[%s]\n' "az acr helm repo add --name ${registry} --subscription ${subscription}"
     az acr helm repo add --name "${registry}" --subscription "${subscription}"
     helm repo update
     helm version
