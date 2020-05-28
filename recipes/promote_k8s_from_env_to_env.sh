@@ -207,7 +207,7 @@ function fetch_latest_deployed_chart () {
     local tmp_chart_dir="${2}"
     registry="$(get_helm_registry "${origin_deployment_json}")"
     chart_name="$(get_helm_chart_name "${origin_deployment_json}")"
-    update_helm_repo "${registry}"
+    update_helm_repo "${registry}" "$(get_subscription "${origin_deployment_json}")"
     helm fetch \
         "${registry}/${chart_name}" \
         --destination "${tmp_chart_dir}" \
