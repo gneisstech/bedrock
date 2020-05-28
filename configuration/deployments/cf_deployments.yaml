@@ -11,6 +11,7 @@ deployments:
       suffix: 'dev'
       config: './configuration/environments/cf_k8s_dev.yaml'
     helm:
+      migration_timeout: '15m'
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
@@ -28,6 +29,7 @@ deployments:
       suffix: 'ci'
       config: './configuration/environments/cf_k8s_ci.yaml'
     helm:
+      migration_timeout: '1m'
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
@@ -45,6 +47,7 @@ deployments:
       suffix: 'qa'
       config: './configuration/environments/cf_k8s_qa.yaml'
     helm:
+      migration_timeout: '15m'
       umbrella:
         registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
@@ -62,6 +65,7 @@ deployments:
       suffix: 'prod'
       config: './configuration/environments/cf_k8s_prod.yaml'
     helm:
+      migration_timeout: '4h'
       umbrella:
         registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
@@ -79,6 +83,7 @@ deployments:
       suffix: 'local'
       config: './configuration/environments/cf_k8s_local.yaml'
     helm:
+      migration_timeout: '5m'
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'

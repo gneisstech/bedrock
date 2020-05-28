@@ -69,6 +69,11 @@ function get_target_config () {
     jq -r -e '.environment.config' <<< "${deployment_json}"
 }
 
+function get_migration_timeout () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.migration_timeout' <<< "${deployment_json}"
+}
+
 function get_helm_values () {
     local -r deployment_json="${1}"
     TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/extract_service_values.sh"
@@ -145,7 +150,7 @@ function update_helm_chart_on_k8s () {
             "$(get_helm_deployment_name "${deployment_json}" )" \
             "${registry}/${chart_name}" \
             --version "$(get_helm_version "${deployment_json}")" \
-            --timeout 30m \
+            --timeout "$(get_migration_timeout "${deployment_json}")" \
             --wait \
             --values <(cat <<< "${helm_values}")
     fi
