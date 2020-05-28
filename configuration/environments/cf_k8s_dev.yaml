@@ -810,8 +810,8 @@ target:
           enabled: true
           controller:
             config:
-              enable-modsecurity: 'true'
-              modsecurity-snippet: ''
+              # enable-modsecurity: 'true'
+              # modsecurity-snippet: ''
               # enable-owasp-modsecurity-cr: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
