@@ -248,14 +248,21 @@ function copy_one_container () {
     docker push "${container_target_repo}:${target_container_version}"
 }
 
+function acr_login () {
+    local -r desired_repo="${1}"
+    if ! is_azure_pipeline_build; then
+        az acr login -n "${desired_repo}" 2> /dev/null
+    fi
+}
+
 function copy_containers_from_list () {
     local -r origin_registry="${1}"
     local -r target_registry="${2}"
     local -r origin_suffix="${3}"
     local -r target_suffix="${4}"
 
-    az acr login -n "${origin_registry}"
-    az acr login -n "${target_registry}"
+    acr_login "${origin_registry}"
+    acr_login "${target_registry}"
 
     local line_data
     while IFS=$'\n' read -r line_data; do
