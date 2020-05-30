@@ -34,7 +34,7 @@ dependencies:
   version: 1.0.2-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.1-dev
+  version: 1.0.2-dev
 - name: nginx-ingress
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 1.33.5
@@ -50,5 +50,5 @@ dependencies:
 - name: cf-sql-server
   repository: file://../cf-sql-server
   version: 1.0.0-dev
-digest: sha256:2d0cf4a227d4b8b017592572c8d120658d708dbf72761c3b5af55b823759b1c8
-generated: "2020-05-30T15:55:16.914689352Z"
+digest: sha256:1b61c55535ebc1d17fb8c2afb6f7403c065143b978d1d8c2ba34b25f188649ef
+generated: "2020-05-30T16:19:59.601679786Z"
