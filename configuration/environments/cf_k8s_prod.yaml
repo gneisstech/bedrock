@@ -821,6 +821,10 @@ target:
             targetPort: 1443
             protocol: 'TCP'
             portName: 'mssql'
+        cf-smoketest-svc-docker:
+          enabled: false
+        cf-assets-v2-telemetry-svc-docker:
+          enabled: false
         cf-oauth-proxy-docker:
           replicaCount: 3
           config:
