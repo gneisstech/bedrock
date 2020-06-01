@@ -55,6 +55,6 @@ dependencies:
   version: 0.0.3-dev
 - name: cf-assets-v2-telemetry-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.3-dev
-digest: sha256:5942ec2a8a44c75eab563bad7919ae49123564d81a4d9a2660841952a8984bce
-generated: "2020-06-01T19:37:02.92512693Z"
+  version: 0.0.4-dev
+digest: sha256:5cb6646ae46bb56d3573a6dbed616cb6905dedaf1294a49fe2d82d0b928da9fc
+generated: "2020-06-01T20:13:05.372459564Z"
