@@ -88,6 +88,18 @@ resources:
       branches:
         include:
         - 'master-bytelight'
+  - pipeline: 'cf-assets-v2-telemetry'
+    source: 'cf_assets_v2_telemetry'
+    trigger:
+      branches:
+        include:
+          - 'master-bytelight'
+  - pipeline: 'cf-smoketest'
+    source: 'cf_smoketest'
+    trigger:
+      branches:
+        include:
+          - 'master-bytelight'
 
 pool:
   vmImage: 'ubuntu-latest'

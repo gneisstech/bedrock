@@ -168,6 +168,24 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: 'cf-sql-server-atrius'
+  - name: 'cf-smoketest-svc-docker'
+    version: '^0.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-smoketest-svc-docker.enabled'
+    tags:
+      - 'cf-smoketest-svc-service'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-assets-v2-telemetry-svc-docker'
+    version: '^0.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-assets-v2-telemetry-svc-docker.enabled'
+    tags:
+      - 'cf-assets-v2-telemetry-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
