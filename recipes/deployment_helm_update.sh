@@ -137,6 +137,7 @@ function update_helm_chart_on_k8s () {
         set +o xtrace
     else
         helm upgrade \
+            --install \
             --kube-context "$(get_kube_context "${deployment_json}")" \
             --namespace "$(get_kube_namespace "${deployment_json}")" \
             "$(get_helm_deployment_name "${deployment_json}" )" \
@@ -145,6 +146,7 @@ function update_helm_chart_on_k8s () {
             --debug --dry-run \
             --values <(cat <<< "${helm_values}")
         helm upgrade \
+            --install \
             --kube-context "$(get_kube_context "${deployment_json}")" \
             --namespace "$(get_kube_namespace "${deployment_json}")" \
             "$(get_helm_deployment_name "${deployment_json}" )" \
