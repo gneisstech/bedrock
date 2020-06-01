@@ -169,7 +169,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-sql-server-atrius'
   - name: 'cf-smoketest-svc-docker'
-    version: '^0.0.0-0'
+    version: '^0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-smoketest-svc-docker.enabled'
     tags:
@@ -178,7 +178,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-assets-v2-telemetry-svc-docker'
-    version: '^0.0.0-0'
+    version: '^0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-assets-v2-telemetry-svc-docker.enabled'
     tags:
