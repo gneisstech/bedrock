@@ -57,4 +57,4 @@ dependencies:
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
 digest: sha256:bbcacd014ba9ddf45ca3bf2996cca7bdc56f5d730f48a49e8ded482febf06c5c
-generated: "2020-06-01T21:01:37.886806008Z"
+generated: "2020-06-01T21:02:56.786651218Z"
