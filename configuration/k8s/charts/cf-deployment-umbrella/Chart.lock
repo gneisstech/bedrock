@@ -19,7 +19,7 @@ dependencies:
   version: 1.2.2-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.1-dev
+  version: 1.1.2-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 2.0.3-dev
@@ -56,5 +56,5 @@ dependencies:
 - name: cf-assets-v2-telemetry-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:7d3237763f9a69ac45b9cf6835a34e15411b20ed941f6349c3ba538c2f7930cf
-generated: "2020-06-01T21:36:49.439258002Z"
+digest: sha256:c3aac0a2538692231db53d3f239042a5ded9cfca24e0d481dc8286e777f9ce8e
+generated: "2020-06-01T22:13:13.900028604Z"
