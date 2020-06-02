@@ -34,7 +34,7 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0-0'
+        version: '^2.0.0-0'
         values_file: ''
   - name: 'CF_QA'
     k8s:
@@ -88,6 +88,6 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0'
+        version: '^2.0.0-0'
         values_file: ''
 ---
