@@ -165,7 +165,7 @@ function process_secure_secret () {
 
 function dispatch_functions () {
     declare -a myarray
-    (( i=0 ))
+    local i=0
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
         if (( i % 2 == 1 )); then
@@ -182,10 +182,10 @@ function dispatch_functions () {
             esac
         fi
         myarray[i]="${array_entry}"
-        ((++i))
+        (( ++i ))
     done
 
-    (( i=0 ))
+    i=0
     while (( ${#myarray[@]} > i )); do
         printf '%s' "${myarray[i++]}"
     done
@@ -234,7 +234,7 @@ function config_access_restriction () {
 function config_access_restrictions () {
     if [[ '0' != "$(svc_attr_size 'access_restrictions')" ]]; then
         local i
-        for i in $(seq 0 $(( $(svc_attr_size 'access_restrictions') - 1)) ); do
+        for i in $(seq 0 $(( $(svc_attr_size 'access_restrictions') - 1 )) ); do
             config_access_restriction "${i}"
         done
     fi

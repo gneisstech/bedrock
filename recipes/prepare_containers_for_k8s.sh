@@ -31,7 +31,8 @@ function acr_containers () {
 
 function prepare_containers_for_k8s () {
     local -r originRepo='cfqaregistry'
-    local -r app_version='r0.0.20-IndividualCI.20200428.3.RC'
+    #local -r app_version='r0.0.20-IndividualCI.20200428.3.RC'
+    local -r app_version='r0.0.26-IndividualCI.20200514.3.RC'
     acr_logins
     for image in $(acr_containers "${originRepo}" ); do
         local originImage originPath targetPath targetRepo

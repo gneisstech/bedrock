@@ -62,7 +62,7 @@ function paas_configuration () {
 }
 
 function keyvault_names () {
-    paas_configuration | jq -r -e '[.keyvaults[] | select(.action == "create") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.keyvaults[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function seed_secrets () {
@@ -80,7 +80,7 @@ function deploy_keyvaults () {
 }
 
 function service_principal_names () {
-    paas_configuration | jq -r -e '[.service_principals[] | select(.action == "create") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.service_principals[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_service_principals () {
@@ -91,7 +91,7 @@ function deploy_service_principals () {
 }
 
 function database_server_names () {
-    paas_configuration | jq -r -e '[.databases.servers[] | select(.action == "preserve") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.databases.servers[]? | select(.action == "preserve") | .name ] | @tsv'
 }
 
 function deploy_database_servers () {
@@ -102,7 +102,7 @@ function deploy_database_servers () {
 }
 
 function database_instance_names () {
-    paas_configuration | jq -r -e '[.databases.instances[] | select(.action == "preserve") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.databases.instances[]? | select(.action == "preserve") | .name ] | @tsv'
 }
 
 function deploy_database_instances () {
@@ -118,7 +118,7 @@ function deploy_databases () {
 }
 
 function server_farm_names () {
-    paas_configuration | jq -r -e '[.server_farms[] | select(.action == "create") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.server_farms[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_server_farms () {
@@ -129,7 +129,7 @@ function deploy_server_farms () {
 }
 
 function container_registry_names () {
-    paas_configuration | jq -r -e '[.container_registries[] | select(.action == "create") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.container_registries[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_container_registries () {
@@ -140,7 +140,7 @@ function deploy_container_registries () {
 }
 
 function virtual_machine_names () {
-    paas_configuration | jq -r -e '[.virtual_machines[] | select(.action == "preserve") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.virtual_machines[]? | select(.action == "preserve") | .name ] | @tsv'
 }
 
 function deploy_virtual_machines () {
@@ -151,7 +151,7 @@ function deploy_virtual_machines () {
 }
 
 function kubernetes_cluster_names () {
-    paas_configuration | jq -r -e '[.k8s.clusters[] | select(.action == "create") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.k8s.clusters[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_kubernetes_clusters () {
