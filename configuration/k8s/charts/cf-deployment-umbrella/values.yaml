@@ -243,11 +243,6 @@ cf-self-healing-api-docker:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
-      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': |
-        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
-        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
           - '/cf-self-healing-api(/|$)(.*)'
@@ -441,6 +436,38 @@ cf-sql-server-atrius:
 cf-waf-ingress-default-backend:
   fullnameOverride: 'cf-waf-ingress-default-backend'
   enabled: true
+
+cf-smoketest-svc-docker:
+  fullnameOverride: 'cf-smoketest-svc-docker'
+  enabled: true
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      TEST_HOST_URL: '127.0.0.1'
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+    secrets:
+      JWT_AUTH_TOKEN: ''
+      CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+      CF_SELF_HEALING_API_KEY: *selfHealingApiKey
+      SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
+
+cf-assets-v2-telemetry-svc-docker:
+  fullnameOverride: 'cf-assets-v2-telemetry-svc-docker'
+  enabled: true
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+    secrets:
+      SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
+      TELEMETRY_EH_CG_ASSETS_V2_INGEST_CONNECTION_STRING: ''
+      TELEMETRY_EH_BAKED_ASSETS_V2_PUBLISH_CONNECTION_STRING: ''
 
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
