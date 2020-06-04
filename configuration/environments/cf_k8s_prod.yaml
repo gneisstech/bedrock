@@ -58,8 +58,8 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf-prod-k8s'
-          fqdn: &wafFqdn 'cf-prod-k8s.dev.atrius-iot.com.'
+          host: &dnsHost 'cf-prod'
+          fqdn: &wafFqdn 'cf-prod.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
@@ -715,6 +715,15 @@ target:
             secrets:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
+        cf-self-healing-ingest-api-docker:
+          replicaCount: 3
+          config:
+            environment:
+              JWT_ISSUERS: *trustedIdProviders
+              URL_PREFIX: *urlPrefixSelfHealing
+            secrets:
+              DATABASE_CONN_STRING: *dbUrlSelfHealing
+              API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
           replicaCount: 3
           config_annotations:
@@ -869,6 +878,7 @@ target:
               # enable-modsecurity: 'true'
               # modsecurity-snippet: ''
               # enable-owasp-modsecurity-cr: 'true'
+              enable-underscores-in-headers: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
