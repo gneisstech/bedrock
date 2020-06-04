@@ -878,6 +878,7 @@ target:
               # enable-modsecurity: 'true'
               # modsecurity-snippet: ''
               # enable-owasp-modsecurity-cr: 'true'
+              enable-underscores-in-headers: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
