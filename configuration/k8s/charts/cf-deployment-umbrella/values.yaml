@@ -255,6 +255,7 @@ cf-self-healing-api-docker:
           - '/cf-self-healing-api(/|$)(api/v1/get_latest_record/.*)'
           - '/cf-self-healing-api(/|$)(api/v1/get_records/.*)'
           - '/cf-self-healing-api(/|$)(api/v1/update_approval.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/get_stats/.*)'
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
