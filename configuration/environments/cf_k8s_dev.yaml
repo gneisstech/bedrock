@@ -665,6 +665,16 @@ target:
         cf-self-healing-api-docker:
           config:
             environment:
+              DEBUG_REQUEST_HEADERS: 'true'
+              JWT_ISSUERS: *trustedIdProviders
+              URL_PREFIX: *urlPrefixSelfHealing
+            secrets:
+              DATABASE_CONN_STRING: *dbUrlSelfHealing
+              API_KEY: *selfHealingApiKey
+        cf-self-healing-ingest-api-docker:
+          config:
+            environment:
+              DEBUG_REQUEST_HEADERS: 'true'
               JWT_ISSUERS: *trustedIdProviders
               URL_PREFIX: *urlPrefixSelfHealing
             secrets:

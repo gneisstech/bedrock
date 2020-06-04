@@ -708,12 +708,15 @@ target:
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
           replicaCount: 3
-          ingress:
-            annotations:
-              'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
-              'nginx.ingress.kubernetes.io/auth-signin': ~
-              'nginx.ingress.kubernetes.io/auth-url': ~
-              'nginx.ingress.kubernetes.io/configuration-snippet': ~
+          config:
+            environment:
+              JWT_ISSUERS: *trustedIdProviders
+              URL_PREFIX: *urlPrefixSelfHealing
+            secrets:
+              DATABASE_CONN_STRING: *dbUrlSelfHealing
+              API_KEY: *selfHealingApiKey
+        cf-self-healing-ingest-api-docker:
+          replicaCount: 3
           config:
             environment:
               JWT_ISSUERS: *trustedIdProviders

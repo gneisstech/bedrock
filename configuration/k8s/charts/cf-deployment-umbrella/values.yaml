@@ -255,12 +255,22 @@ cf-self-healing-api-docker:
           - '/cf-self-healing-api(/|$)(api/v1/get_latest_record/.*)'
           - '/cf-self-healing-api(/|$)(api/v1/get_records/.*)'
           - '/cf-self-healing-api(/|$)(api/v1/update_approval.*)'
-  ingress_api_key:
+  config:
+    environment:
+      JWT_ISSUERS: *trustedIdProviders
+      URL_PREFIX: *urlPrefixSelfHealing
+    secrets:
+      DATABASE_CONN_STRING: *dbUrlSelfHealing
+      API_KEY: *selfHealingApiKey
+
+cf-self-healing-ingest-api-docker:
+  fullnameOverride: 'cf-self-healing-api-docker'
+  enabled: true
+  ingress:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
-      'nginx.ingress.kubernetes.io/configuration-snippet': |
-        proxy_pass_request_headers on;
+      'nginx.ingress.kubernetes.io/client-body-buffer-size': '1M'
     hosts:
       - paths:
           - '/cf-self-healing-api(/|$)(api/v1/process.*)'
