@@ -250,11 +250,11 @@ cf-self-healing-api-docker:
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-self-healing-api(/|$)(update_app_settings.*)'
-          - '/cf-self-healing-api(/|$)(get_sites.*)'
-          - '/cf-self-healing-api(/|$)(get_latest_record/.*)'
-          - '/cf-self-healing-api(/|$)(get_records/.*)'
-          - '/cf-self-healing-api(/|$)(update_approval.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/update_app_settings.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/get_sites.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/get_latest_record/.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/get_records/.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/update_approval.*)'
   ingress_api_key:
     enabled: true
     annotations:
@@ -263,7 +263,7 @@ cf-self-healing-api-docker:
         proxy_pass_request_headers on;
     hosts:
       - paths:
-          - '/cf-self-healing-api(/|$)(process.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/process.*)'
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
