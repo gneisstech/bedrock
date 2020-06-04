@@ -22,7 +22,7 @@ dependencies:
   version: 1.1.3-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.3-dev
+  version: 2.0.4-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.12-dev
@@ -34,7 +34,7 @@ dependencies:
   version: 1.0.2-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.2-dev
+  version: 1.0.6-dev
 - name: nginx-ingress
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 1.33.5
@@ -56,5 +56,5 @@ dependencies:
 - name: cf-assets-v2-telemetry-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:f03c75ce49e1b3d3f6209d451d9071a03184464f3775ae2b5f1967ee1d7e7cf2
-generated: "2020-06-03T01:34:05.384907889Z"
+digest: sha256:7040fe07ef53c9676dd9ce87cb42f10afb1178b24abce32a4298aa791d20718b
+generated: "2020-06-04T03:02:32.355408248Z"
