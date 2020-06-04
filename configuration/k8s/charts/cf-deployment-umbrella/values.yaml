@@ -264,7 +264,7 @@ cf-self-healing-api-docker:
       API_KEY: *selfHealingApiKey
 
 cf-self-healing-ingest-api-docker:
-  fullnameOverride: 'cf-self-healing-api-docker'
+  fullnameOverride: 'cf-self-healing-ingest-api-docker'
   enabled: true
   ingress:
     enabled: true
