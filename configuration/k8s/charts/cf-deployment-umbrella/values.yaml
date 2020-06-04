@@ -160,7 +160,7 @@ cf-react-app-docker:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-app/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
@@ -177,7 +177,7 @@ cf-self-healing-app-docker:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
@@ -194,7 +194,7 @@ cf-atrius-objects-api-docker:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-atrius-objects/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': >
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
@@ -243,9 +243,27 @@ cf-self-healing-api-docker:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
     hosts:
       - paths:
-          - '/cf-self-healing-api(/|$)(.*)'
+          - '/cf-self-healing-api(/|$)(update_app_settings.*)'
+          - '/cf-self-healing-api(/|$)(get_sites.*)'
+          - '/cf-self-healing-api(/|$)(get_latest_record/.*)'
+          - '/cf-self-healing-api(/|$)(get_records/.*)'
+          - '/cf-self-healing-api(/|$)(update_approval.*)'
+  ingress_api_key:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        proxy_pass_request_headers on;
+    hosts:
+      - paths:
+          - '/cf-self-healing-api(/|$)(process.*)'
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
