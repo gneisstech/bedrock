@@ -43,7 +43,7 @@ target:
         action: 'create'
       - name: &cfKeysRG 'Kv-CfProd'
         action: 'create'
-      - name: &cfAcrRG 'Acr-prod-CfProd'
+      - name: &cfAcrRG 'Acr-CfProd'
         action: 'create'
       - name: &cfK8sRG 'K8S-CfProd'
         action: 'create'
