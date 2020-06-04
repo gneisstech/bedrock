@@ -15,17 +15,20 @@ TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml AZ_TRACE=az ./recipe
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
+helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
-helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
-helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
-helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
 docker build . -t cfqaregistry.azurecr.io/cf-objects-api-docker:r0.0.20-IndividualCI.20200428.3.RC
 
@@ -115,6 +118,8 @@ helm search repo cfdevregistry --devel
 az aks get-credentials --resource-group k8s-cfdev --name cf-dev-k8s-001 --overwrite-existing --admin
 kubectl config use-context cf-dev-k8s-001-admin # this may be redundant from above
 helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+
+helm upgrade cfk8s cfprodregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s --dry-run --debug > foo.txt
 
 ==============================
 kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .metadata.name'
@@ -456,3 +461,86 @@ For more specific examples, use: az find "az iot hub routing-endpoint create"
 
 az iot hub routing-endpoint create --hub-name atrius01iothqk6d6r6trv --endpoint-type eventhub --endpoint-name cf-assetv2-telemetry --endpoint-subscription connectedfacilities-dev --endpoint-resource-group iot-eh-cfexp --connection-string 'Endpoint=sb://cf-eh-001-cfexp.servicebus.windows.net/;SharedAccessKeyName=cf-eh-001-ap-cfexp;SharedAccessKey=TWBsKYzc6ZSbjkybUvqosb8+SaSkKsV/ckyR6u+HSwk=;EntityPath=cf-assetv2-telemetry' --subscription allspice-dev
 atrius01iothqk6d6r6trv
+
+curl --location --request POST 'https://cf-prod.dev.atrius-iot.com/cf-self-healing-api/api/v1/process' \
+--header 'API_KEY: 42af47ba718f5bbdcb03ce9dbc023982b3d3ab76e15cbb2adbf0924443df545fe1ac40bed5d712dca02d88cb349b66ac01d33cdf266a8b1024bac3a8e0c446d4' \
+--header 'Content-Type: application/json' \
+--data-raw '{ \
+    “revert”: false, \
+    “partnerOrgComboID”: “0842d87e-c606-477d-9f01-271d4bded17e-0003”, \
+    “siteID”: 35, \
+    “nonIdentifying”: [], \
+    “uncommissioned”: [], \
+    “lightsMap”: [] \
+}'
+
+curl --location --request POST 'https://cf.dev.atrius-iot.com/cf-self-healing-api/api/v1/process' \
+--header 'API_KEY: 42af47ba718f5bbdcb03ce9dbc023982b3d3ab76e15cbb2adbf0924443df545fe1ac40bed5d712dca02d88cb349b66ac01d33cdf266a8b1024bac3a8e0c446d4' \
+--header 'Content-Type: application/json' \
+--data-raw '{ \
+    “revert”: false, \
+    “partnerOrgComboID”: “0842d87e-c606-477d-9f01-271d4bded17e-0003”, \
+    “siteID”: 35, \
+    “nonIdentifying”: [], \
+    “uncommissioned”: [], \
+    “lightsMap”: [] \
+}'
+
+curl --location --request POST 'http://127.0.0.1:5000/cf-self-healing-api/api/v1/process' \
+--header 'API_KEY: 42af47ba718f5bbdcb03ce9dbc023982b3d3ab76e15cbb2adbf0924443df545fe1ac40bed5d712dca02d88cb349b66ac01d33cdf266a8b1024bac3a8e0c446d4' \
+--header 'Content-Type: application/json' \
+--data-raw '{ \
+    “revert”: false, \
+    “partnerOrgComboID”: “0842d87e-c606-477d-9f01-271d4bded17e-0003”, \
+    “siteID”: 35, \
+    “nonIdentifying”: [], \
+    “uncommissioned”: [], \
+    “lightsMap”: [] \
+}'
+
+{
+	"add-headers": "cfk8s/cf-waf-ingress-custom-add-headers",
+	"enable-underscores-in-headers": "true",
+	"ignore-invalid-headers": "false",
+	"proxy-buffer-size": "8k",
+	"ssl-ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
+	"ssl-protocols": "TLSv1.2 TLSv1.3"
+}
+
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: cf-self-healing-api-docker-api-key
+  namespace: cfk8s
+  selfLink: >-
+    /apis/extensions/v1beta1/namespaces/cfk8s/ingresses/cf-self-healing-api-docker-api-key
+  uid: 4da2835c-42de-46c6-ba38-d3afbcd3ed95
+  resourceVersion: '2356148'
+  generation: 3
+  creationTimestamp: '2020-06-04T03:13:00Z'
+  labels:
+    app.kubernetes.io/instance: cfk8s
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cf-self-healing-api-docker
+    app.kubernetes.io/version: r1.0.6-dev
+    helm.sh/chart: cf-self-healing-api-docker-1.0.6-dev
+  annotations:
+    meta.helm.sh/release-name: cfk8s
+    meta.helm.sh/release-namespace: cfk8s
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_pass_request_headers on;
+      proxy_set_header API_KEY $http_api_key;
+      proxy_set_header API_KEY $http_api_key;
+      more_set_input_headers "X_API_KEY: $http_api_key";
+    nginx.ingress.kubernetes.io/rewrite-target: /cf-self-healing-api/$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /cf-self-healing-api(/|$)(api/v1/process.*)
+            backend:
+              serviceName: cf-self-healing-api-docker
+              servicePort: 80
+status:
+  loadBalancer: {}
+

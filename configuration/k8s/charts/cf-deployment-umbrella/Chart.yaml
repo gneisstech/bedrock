@@ -123,6 +123,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: 'cf-self-healing-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-self-healing-ingest-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-self-healing-ingest-api-docker'
   - name: 'nginx-ingress'
     version: '1.33.5'
     repository: 'https://kubernetes-charts.storage.googleapis.com'
@@ -189,8 +198,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r2.1.9-dev'
+appVersion: 'r2.1.30-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 2.1.9-dev
+version: 2.1.30-dev

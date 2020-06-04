@@ -680,6 +680,15 @@ target:
             secrets:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
+        cf-self-healing-ingest-api-docker:
+          replicaCount: 3
+          config:
+            environment:
+              JWT_ISSUERS: *trustedIdProviders
+              URL_PREFIX: *urlPrefixSelfHealing
+            secrets:
+              DATABASE_CONN_STRING: *dbUrlSelfHealing
+              API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
           replicaCount: 3
           config_annotations:
@@ -834,6 +843,7 @@ target:
               # enable-modsecurity: 'true'
               # modsecurity-snippet: ''
               # enable-owasp-modsecurity-cr: 'true'
+              enable-underscores-in-headers: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
