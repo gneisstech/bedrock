@@ -544,3 +544,21 @@ spec:
 status:
   loadBalancer: {}
 
+
+  505  kubectl --context cf-dev-k8s-001 create ns neuvector
+  506  kubectl --context cf-qa-k8s-001 create ns neuvector
+  507  kubectl --context cf-prod-k8s-001 create ns neuvector
+
+  520  helm upgrade --install neuvector . --namespace neuvector --kube-context cf-dev-k8s-001 --set registry=CfDevregistry.azurecr.io
+  521  kubectl --namespace neuvector get all
+  522  kubectl --namespace neuvector get all
+
+kubectl --namespace neuvector --context cf-qa-k8s-001 port-forward service/neuvector-service-webui 8443:8443
+
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-dev-k8s-001 --set registry=Cfqaregistry.azurecr.io
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-qa-k8s-001 --set registry=Cfqaregistry.azurecr.io
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-prod-k8s-001 --set registry=Cfprodregistry.azurecr.io
+
+kubectl --namespace neuvector --context cf-dev-k8s-001 port-forward service/neuvector-service-webui 7443:8443 &
+kubectl --namespace neuvector --context cf-qa-k8s-001 port-forward service/neuvector-service-webui 8443:8443 &
+kubectl --namespace neuvector --context cf-prod-k8s-001 port-forward service/neuvector-service-webui 9443:8443 &
