@@ -7,6 +7,13 @@ deployments:
       tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8001
+    paas:
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'true'
+        namepsace: 'neuvector'
     environment:
       suffix: 'dev'
       config: './configuration/environments/cf_k8s_dev.yaml'
@@ -25,6 +32,13 @@ deployments:
       tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8002
+    paas:
+      datadog:
+        enabled: 'false'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namepsace: 'neuvector'
     environment:
       suffix: 'ci'
       config: './configuration/environments/cf_k8s_ci.yaml'
@@ -43,6 +57,13 @@ deployments:
       tls_secret_name: 'wildcardqaatrius-iotcom'
       dashboard:
         port: 8003
+    paas:
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'true'
+        namepsace: 'neuvector'
     environment:
       suffix: 'qa'
       config: './configuration/environments/cf_k8s_qa.yaml'
@@ -61,6 +82,13 @@ deployments:
       tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8004
+    paas:
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namepsace: 'neuvector'
     environment:
       suffix: 'prod'
       config: './configuration/environments/cf_k8s_prod.yaml'
@@ -79,6 +107,13 @@ deployments:
       tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8005
+    paas:
+      datadog:
+        enabled: 'false'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namepsace: 'neuvector'
     environment:
       suffix: 'local'
       config: './configuration/environments/cf_k8s_local.yaml'
