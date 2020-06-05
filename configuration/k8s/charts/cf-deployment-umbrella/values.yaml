@@ -271,7 +271,8 @@ cf-self-healing-ingest-api-docker:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
-      'nginx.ingress.kubernetes.io/client-body-buffer-size': '1M'
+      'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
+      'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
     hosts:
       - paths:
           - '/cf-self-healing-api(/|$)(api/v1/process.*)'
