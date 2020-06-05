@@ -665,6 +665,16 @@ target:
         cf-self-healing-api-docker:
           config:
             environment:
+              DEBUG_REQUEST_HEADERS: 'true'
+              JWT_ISSUERS: *trustedIdProviders
+              URL_PREFIX: *urlPrefixSelfHealing
+            secrets:
+              DATABASE_CONN_STRING: *dbUrlSelfHealing
+              API_KEY: *selfHealingApiKey
+        cf-self-healing-ingest-api-docker:
+          config:
+            environment:
+              DEBUG_REQUEST_HEADERS: 'true'
               JWT_ISSUERS: *trustedIdProviders
               URL_PREFIX: *urlPrefixSelfHealing
             secrets:
@@ -774,6 +784,16 @@ target:
             portName: 'mssql'
         cf-smoketest-svc-docker:
           enabled: true
+          config:
+            environment:
+              TEST_HOST_URL:
+                - 'https://'
+                - *dnsHost
+                - '.'
+                - *dnsZone
+            secrets:
+              CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+              CF_SELF_HEALING_API_KEY: *selfHealingApiKey
         cf-assets-v2-telemetry-svc-docker:
           enabled: true
         cf-oauth-proxy-docker:
@@ -817,6 +837,7 @@ target:
               # enable-modsecurity: 'true'
               # modsecurity-snippet: ''
               # enable-owasp-modsecurity-cr: 'true'
+              enable-underscores-in-headers: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
