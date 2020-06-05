@@ -839,6 +839,9 @@ target:
                 - *dnsHost
                 - '.'
                 - *dnsZone
+            secrets:
+              CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+              CF_SELF_HEALING_API_KEY: *selfHealingApiKey
         cf-assets-v2-telemetry-svc-docker:
           enabled: false
         cf-oauth-proxy-docker:
