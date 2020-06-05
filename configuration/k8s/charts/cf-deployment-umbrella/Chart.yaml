@@ -79,7 +79,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-elm-web-api-docker'
-    version: '^1.0.0-0'
+    version: '^2.0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-elm-web-api-docker.enabled'
     tags:
@@ -123,6 +123,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: 'cf-self-healing-api-docker'
+    version: '^1.0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-self-healing-ingest-api-docker.enabled'
+    tags:
+      - 'cf-backend-api'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-self-healing-ingest-api-docker'
   - name: 'nginx-ingress'
     version: '1.33.5'
     repository: 'https://kubernetes-charts.storage.googleapis.com'
@@ -168,11 +177,29 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: 'cf-sql-server-atrius'
+  - name: 'cf-smoketest-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-smoketest-svc-docker.enabled'
+    tags:
+      - 'cf-smoketest-svc-service'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-assets-v2-telemetry-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-assets-v2-telemetry-svc-docker.enabled'
+    tags:
+      - 'cf-assets-v2-telemetry-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r1.1.9-dev'
+appVersion: 'r2.2.13-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 1.1.9-dev
+version: 2.2.13-dev

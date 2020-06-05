@@ -54,8 +54,8 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'qa.atrius-iot.com'
-          host: &dnsHost 'cf-k8s'
-          fqdn: &wafFqdn 'cf-k8s.qa.atrius-iot.com.'
+          host: &dnsHost 'cf'
+          fqdn: &wafFqdn 'cf.qa.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
@@ -315,34 +315,34 @@ target:
           partner:
             env: &passagePartnerEnv 'QA'
         jwt:
-          issuers: &trustedIdProviders "\
-            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-            =\
-            https://management.core.windows.net/\
-            ,\
-            https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
-            =\
-            https://management.core.windows.net/\
-            ,\
-            https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
-            =\
-            https://management.core.windows.net/\
-            ,\
-            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-            =\
-            https://graph.windows.net\
-            ,\
-            https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
-            =\
-            https://graph.windows.net\
-            ,\
-            https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
-            =\
-            https://graph.windows.net\
-            ,\
-            https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-            =\
-            24b765b5-8108-4374-8141-1a65c0fc42ab"
+          issuers: &trustedIdProviders
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - *passageApiApplicationID
         secrets:
           names:
             - &atriusObjectsApiKeySecretName 'cf-qa-atrius-objects-api-key'
@@ -629,7 +629,14 @@ target:
               - *subscription_tls
               - '"}'
               - '##'
+        cf-http-https-echo:
+          replicaCount: 3
+        cf-self-healing-app-docker:
+          replicaCount: 3
+        cf-react-app-docker:
+          replicaCount: 3
         cf-atrius-objects-api-docker:
+          replicaCount: 3
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -647,6 +654,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
+          replicaCount: 3
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -664,6 +672,16 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
+          replicaCount: 3
+          config:
+            environment:
+              JWT_ISSUERS: *trustedIdProviders
+              URL_PREFIX: *urlPrefixSelfHealing
+            secrets:
+              DATABASE_CONN_STRING: *dbUrlSelfHealing
+              API_KEY: *selfHealingApiKey
+        cf-self-healing-ingest-api-docker:
+          replicaCount: 3
           config:
             environment:
               JWT_ISSUERS: *trustedIdProviders
@@ -672,6 +690,7 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -687,10 +706,14 @@ target:
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               JWT_ISSUERS: *trustedIdProviders
+              PASSAGE_API_URL: *passageApiUrl
+              PASSAGE_REFERER: *passageReferer
+              PASSAGE_HOST: *passageHost
             secrets:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
         cf-elm-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -702,12 +725,10 @@ target:
           config:
             environment:
               <<: *railsEnv
-              ATRIUS_API_URL: *atriusApiUrl
               AZURE_DB: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
               CF_OBJECTS_API_URL: *objectsApiUrl
               PASSAGE_API_URL: *passageApiUrl
-              PASSAGE_PARTNER_ENV: *passagePartnerEnv
               PASSAGE_REFERER: *passageReferer
               PASSAGE_HOST: *passageHost
               RAILS_ENV: 'production'
@@ -721,6 +742,7 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-admin-web-api-docker:
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -739,6 +761,7 @@ target:
               DATABASE_URL: *dbUrlAdmin
               SECRET_KEY_BASE: *secretKeyBaseAdmin
         cf-ingest-web-api: &configNetworkView
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -772,7 +795,22 @@ target:
             targetPort: 1443
             protocol: 'TCP'
             portName: 'mssql'
+        cf-smoketest-svc-docker:
+          enabled: false
+          config:
+            environment:
+              TEST_HOST_URL:
+                - 'https://'
+                - *dnsHost
+                - '.'
+                - *dnsZone
+            secrets:
+              CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+              CF_SELF_HEALING_API_KEY: *selfHealingApiKey
+        cf-assets-v2-telemetry-svc-docker:
+          enabled: false
         cf-oauth-proxy-docker:
+          replicaCount: 3
           config:
             environment:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
@@ -805,14 +843,17 @@ target:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
         cf-waf-ingress-default-backend:
+          replicaCount: 3
           enabled: true
         cf-waf-ingress:
           enabled: true
           controller:
+            replicaCount: 3
             config:
-              enable-modsecurity: 'true'
-              modsecurity-snippet: ''
-              enable-owasp-modsecurity-cr: 'true'
+              # enable-modsecurity: 'true'
+              # modsecurity-snippet: ''
+              # enable-owasp-modsecurity-cr: 'true'
+              enable-underscores-in-headers: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
@@ -854,3 +895,5 @@ target:
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
+          defaultBackend:
+            replicaCount: 3

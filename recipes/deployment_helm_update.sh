@@ -69,6 +69,11 @@ function get_target_config () {
     jq -r -e '.environment.config' <<< "${deployment_json}"
 }
 
+function get_migration_timeout () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.migration_timeout' <<< "${deployment_json}"
+}
+
 function get_helm_values () {
     local -r deployment_json="${1}"
     TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/extract_service_values.sh"
@@ -90,6 +95,7 @@ function connect_to_k8s () {
         --subscription "${subscription}" \
         --resource-group "${resource_group}" \
         --name "${cluster_name}" \
+        --overwrite-existing \
         --admin
 }
 
@@ -103,7 +109,7 @@ function update_helm_repo () {
 function failed_secrets () {
     local -r helm_values="${1}"
     #printf 'Evaluating helm values [\n%s\n]\n' "${helm_values}"
-    grep -iE 'fixme|too2simple' <<< "${helm_values}"
+    grep -iE 'fake|fixme|too2simple' <<< "${helm_values}"
 }
 
 function update_helm_chart_on_k8s () {
@@ -131,11 +137,23 @@ function update_helm_chart_on_k8s () {
         set +o xtrace
     else
         helm upgrade \
+            --install \
             --kube-context "$(get_kube_context "${deployment_json}")" \
             --namespace "$(get_kube_namespace "${deployment_json}")" \
             "$(get_helm_deployment_name "${deployment_json}" )" \
             "${registry}/${chart_name}" \
             --version "$(get_helm_version "${deployment_json}")" \
+            --debug --dry-run \
+            --values <(cat <<< "${helm_values}")
+        helm upgrade \
+            --install \
+            --kube-context "$(get_kube_context "${deployment_json}")" \
+            --namespace "$(get_kube_namespace "${deployment_json}")" \
+            "$(get_helm_deployment_name "${deployment_json}" )" \
+            "${registry}/${chart_name}" \
+            --version "$(get_helm_version "${deployment_json}")" \
+            --timeout "$(get_migration_timeout "${deployment_json}")" \
+            --wait \
             --values <(cat <<< "${helm_values}")
     fi
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: check_key_vault_access.sh
+# usage: deploy_umbrella_chart_to_prod.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -20,11 +20,11 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function check_key_vault_access () {
+function deploy_umbrella_chart_to_prod () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
-        "$(repo_root)/recipes/check_key_vault_access.sh" "CF_Development"
+        "$(repo_root)/recipes/deployment_helm_update.sh" "CF_Prod"
     popd
 }
 
-check_key_vault_access
+deploy_umbrella_chart_to_prod

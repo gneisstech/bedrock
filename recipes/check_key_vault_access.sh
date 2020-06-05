@@ -46,13 +46,25 @@ function get_target_cluster_config_json () {
 
 function explore_key_vault_access () {
     local -r target_cluster_config_json="${1}"
+    local -r deployment_json="${2}"
     local subscription vault_name
+    local retval=0
     subscription="$(jq -r -e '.target.metadata.default_azure_subscription' <<< "${target_cluster_config_json}")"
     vault_name="$(jq -r -e '.target.paas.keyvaults[1].name' <<< "${target_cluster_config_json}")"
-    secret_name='wildcarddevatrius-iotcom'
-    az keyvault list --subscription "${subscription}" || printf 'NO ACCESS TO LIST OF KEY VAULTS\n'
-    az keyvault secret list --subscription "${subscription}" --vault-name "${vault_name}" || printf 'NO ACCESS TO LIST OF SECRETS\n'
-    az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" > /dev/null || printf 'NO ACCESS TO SPECIFIC SECRET\n'
+    secret_name="$(jq -r -e '.k8s.tls_secret_name' <<< "${deployment_json}")"
+    if ! az keyvault list --subscription "${subscription}" -o table; then
+        printf 'NO ACCESS TO LIST OF KEY VAULTS\n'
+        retval=1
+    fi
+    if ! az keyvault secret list --subscription "${subscription}" --vault-name "${vault_name}" -o table; then
+        printf 'NO ACCESS TO LIST OF SECRETS\n'
+        retval=1
+    fi
+    if ! az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" -o table; then
+        printf 'NO ACCESS TO SPECIFIC SECRET\n'
+        retval=1
+    fi
+    (( retval == 0 ))
 }
 
 function check_key_vault_access () {
@@ -61,7 +73,8 @@ function check_key_vault_access () {
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     target_config_filename="$(get_target_config_file_name "${deployment_json}")"
     target_cluster_config_json="$(get_target_cluster_config_json "${target_config_filename}")"
-    explore_key_vault_access "${target_cluster_config_json}"
+    explore_key_vault_access "${target_cluster_config_json}" "${deployment_json}"
 }
 
+set -x
 check_key_vault_access "${@}"

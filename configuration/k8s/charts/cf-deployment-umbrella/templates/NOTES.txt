@@ -1,1 +1,1 @@
-1. this the umbrella chart for deploying the entire CF application stack
+1. this is the umbrella chart for deploying the entire CF application stack

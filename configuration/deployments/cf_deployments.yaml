@@ -4,75 +4,125 @@ deployments:
     k8s:
       namespace: 'cfk8s'
       context: 'cf-dev-k8s-001-admin'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8001
+    paas:
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'true'
+        namepsace: 'neuvector'
     environment:
+      suffix: 'dev'
       config: './configuration/environments/cf_k8s_dev.yaml'
     helm:
+      migration_timeout: '15m'
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
-        version: '^1.0.0-0'
+        version: '^2.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
   - name: 'CF_CI'
     k8s:
       namespace: 'cfk8s'
       context: 'cf-ci-k8s-001-admin'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8002
+    paas:
+      datadog:
+        enabled: 'false'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namepsace: 'neuvector'
     environment:
+      suffix: 'ci'
       config: './configuration/environments/cf_k8s_ci.yaml'
     helm:
+      migration_timeout: '1m'
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0-0'
+        version: '^2.0.0-0'
         values_file: ''
   - name: 'CF_QA'
     k8s:
       namespace: 'cfk8s'
       context: 'cf-qa-k8s-001-admin'
+      tls_secret_name: 'wildcardqaatrius-iotcom'
       dashboard:
         port: 8003
+    paas:
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'true'
+        namepsace: 'neuvector'
     environment:
+      suffix: 'qa'
       config: './configuration/environments/cf_k8s_qa.yaml'
     helm:
+      migration_timeout: '15m'
       umbrella:
-        registry: 'cfdevregistry'  # to be cfqaregistry
+        registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0-0'
+        version: '^2.0.0-0'
         values_file: ''
   - name: 'CF_Prod'
     k8s:
       namespace: 'cfk8s'
       context: 'cf-prod-k8s-001-admin'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8004
+    paas:
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namepsace: 'neuvector'
     environment:
+      suffix: 'prod'
       config: './configuration/environments/cf_k8s_prod.yaml'
     helm:
+      migration_timeout: '4h'
       umbrella:
-        registry: 'cfdevregistry'  # to be cfprodregistry
+        registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0'
+        version: '^2.0.0-0'
         values_file: ''
   - name: 'CF_Local'
     k8s:
       namespace: 'cfk8s'
       context: 'docker-desktop'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
       dashboard:
         port: 8005
+    paas:
+      datadog:
+        enabled: 'false'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namepsace: 'neuvector'
     environment:
+      suffix: 'local'
       config: './configuration/environments/cf_k8s_local.yaml'
     helm:
+      migration_timeout: '5m'
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^1.0.0'
+        version: '^2.0.0-0'
         values_file: ''
 ---

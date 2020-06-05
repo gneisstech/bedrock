@@ -15,17 +15,20 @@ TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml AZ_TRACE=az ./recipe
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
+helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+
 helm install cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 helm upgrade cfk8s ./configuration/k8s/charts/cf-deployment-umbrella --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_ci.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
-helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
-helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_qa.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
-helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
-helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm install cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
 
 docker build . -t cfqaregistry.azurecr.io/cf-objects-api-docker:r0.0.20-IndividualCI.20200428.3.RC
 
@@ -64,6 +67,8 @@ az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/5649ad97-
 
 az aks update -n cf-qa-k8s-001 -g k8s-cfqa --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 az aks update -n cf-prod-k8s-001 -g k8s-cfprod --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
+
+az aks update -n cf-qa-k8s-001 -g k8s-cfqa --attach-acr /subscriptions/781c62dc-1612-43e6-a0ca-a8138888691f/resourceGroups/Acr-CfQA/providers/Microsoft.ContainerRegistry/registries/cfqaregistry
 
 environments:
 clean-local
@@ -110,9 +115,11 @@ helm repo update
 helm search repo cfdevregistry --devel
 ## repeat previous 2 steps until you see the new chart for the service you just build
 # pull the latest master-bytelight from cf_devops repository
-az aks get-credentials --resource-group k8s-cfdev --name cf-dev-k8s-001
+az aks get-credentials --resource-group k8s-cfdev --name cf-dev-k8s-001 --overwrite-existing --admin
 kubectl config use-context cf-dev-k8s-001-admin # this may be redundant from above
 helm upgrade cfk8s cfdevregistry/cf-deployment-umbrella --version ^1.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_dev.yaml ./recipes/extract_service_values.sh) --namespace cfk8s
+
+helm upgrade cfk8s cfprodregistry/cf-deployment-umbrella --version ^2.0.0-0 --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_service_values.sh) --namespace cfk8s --dry-run --debug > foo.txt
 
 ==============================
 kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .metadata.name'
@@ -121,3 +128,437 @@ kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.met
 ==============================
 kubectl --context cf-dev-k8s-001-admin --namespace cfk8s get pods -o json |jq -r '.items[].metadata.name' | grep -E 'admin|authz|health|elm' | xargs -n 1 -I {} kubectl --context cf-dev-k8s-001-admin --namespace cfk8s exec {} rake routes > rails_routes.txt
 
+
+============
+eventhub
+1) create resource group
+2) create namespace [resources]
+3) create eventhub topic
+4) create eventhub topic filter for publish only
+5) drop copy of keys from topic filter into CF keyvault
+6) drop copy of keys from topic filter into Atrius keyvault if possible
+7) create IAM role base permission for SP EH reader(s)
+8) add iot hub route filter
+9) add iot hub endpoint [must be done via ARM template, not portal, for cross-subscription
+10) connect route filter to endpoint
+
+
+Command
+    az group create : Create a new resource group.
+
+Arguments
+    --location -l                 [Required] : Location. Values from: `az account list-locations`.
+                                               You can configure the default location using `az
+                                               configure --defaults location=<location>`.
+    --name --resource-group -g -n [Required] : Name of the new resource group.
+    --managed-by                             : The ID of the resource that manages this resource
+                                               group.
+    --tags                                   : Space-separated tags: key[=value] [key[=value] ...].
+                                               Use '' to clear existing tags.
+
+Global Arguments
+    --debug                                  : Increase logging verbosity to show all debug logs.
+    --help -h                                : Show this help message and exit.
+    --only-show-errors                       : Only show errors, suppressing warnings.
+    --output -o                              : Output format.  Allowed values: json, jsonc, none,
+                                               table, tsv, yaml, yamlc.  Default: json.
+    --query                                  : JMESPath query string. See http://jmespath.org/ for
+                                               more information and examples.
+    --subscription                           : Name or ID of subscription. You can configure the
+                                               default subscription using `az account set -s
+                                               NAME_OR_ID`.
+    --verbose                                : Increase logging verbosity. Use --debug for full
+                                               debug logs.
+
+
+Command
+    az eventhubs namespace create : Creates the EventHubs Namespace.
+
+Arguments
+    --name -n           [Required] : Name of Namespace.
+    --resource-group -g [Required] : Name of resource group. You can configure the default group
+                                     using `az configure --defaults group=<name>`.
+    --capacity                     : Capacity for Sku.
+    --enable-auto-inflate          : A boolean value that indicates whether AutoInflate is enabled
+                                     for eventhub namespace.  Allowed values: false, true.
+    --enable-kafka                 : A boolean value that indicates whether Kafka is enabled for
+                                     eventhub namespace.  Allowed values: false, true.
+    --location -l                  : Location. Values from: `az account list-locations`. You can
+                                     configure the default location using `az configure --defaults
+                                     location=<location>`.
+    --maximum-throughput-units     : Upper limit of throughput units when AutoInflate is enabled,
+                                     vaule should be within 0 to 20 throughput units. ( 0 if
+                                     AutoInflateEnabled = true).
+    --sku                          : Namespace SKU.  Allowed values: Basic, Standard.  Default:
+                                     Standard.
+    --tags                         : Space-separated tags: key[=value] [key[=value] ...]. Use '' to
+                                     clear existing tags.
+
+networkrule Arguments
+    --default-action               : Default Action for Network Rule Set.  Allowed values: Allow,
+                                     Deny.
+
+Global Arguments
+    --debug                        : Increase logging verbosity to show all debug logs.
+    --help -h                      : Show this help message and exit.
+    --only-show-errors             : Only show errors, suppressing warnings.
+    --output -o                    : Output format.  Allowed values: json, jsonc, none, table, tsv,
+                                     yaml, yamlc.  Default: json.
+    --query                        : JMESPath query string. See http://jmespath.org/ for more
+                                     information and examples.
+    --subscription                 : Name or ID of subscription. You can configure the default
+                                     subscription using `az account set -s NAME_OR_ID`.
+    --verbose                      : Increase logging verbosity. Use --debug for full debug logs.
+
+Examples
+    Creates a new namespace.
+        az eventhubs namespace create --resource-group myresourcegroup --name mynamespace --location
+        westus --tags tag1=value1 tag2=value2 --sku Standard --enable-auto-inflate --maximum-
+        throughput-units 20
+
+For more specific examples, use: az find "az eventhubs namespace create"
+
+Command
+    az eventhubs eventhub create : Creates the EventHubs Eventhub.
+
+Arguments
+    --name -n           [Required] : Name of Eventhub.
+    --namespace-name    [Required] : Name of Namespace.
+    --resource-group -g [Required] : Name of resource group. You can configure the default group
+                                     using `az configure --defaults group=<name>`.
+    --enable-capture               : A boolean value that indicates whether capture description is
+                                     enabled.  Allowed values: false, true.
+    --message-retention            : Number of days to retain events for this Event Hub, value
+                                     should be 1 to 7 days and depends on Namespace sku. if
+                                     Namespace sku is Basic than value should be one and is
+                                     Manadatory parameter. Namespace sku is standard value should be
+                                     1 to 7 days, default is 7 days and is optional parameter.
+    --partition-count              : Number of partitions created for the Event Hub. By default,
+                                     allowed values are 2-32. Lower value of 1 is supported with
+                                     Kafka enabled namespaces. In presence of a custom quota, the
+                                     upper limit will match the upper limit of the quota.
+    --skip-empty-archives          : A boolean value that indicates whether to Skip Empty.  Allowed
+                                     values: false, true.
+    --status                       : Status of Eventhub.  Allowed values: Active, Disabled,
+                                     SendDisabled.
+
+Capture Arguments
+    --capture-interval             : Allows you to set the frequency with which the capture to Azure
+                                     Blobs will happen, value should between 60 to 900 seconds.
+    --capture-size-limit           : Defines the amount of data built up in your Event Hub before an
+                                     capture operation, value should be between 10485760 to
+                                     524288000 bytes.
+
+Capture-Destination Arguments
+    --archive-name-format          : Blob naming convention for archive, e.g.
+                                     {Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour
+                                     }/{Minute}/{Second}. Here all the parameters
+                                     (Namespace,EventHub .. etc) are mandatory irrespective of
+                                     order.
+    --blob-container               : Blob container Name.
+    --destination-name             : Name for capture destination.
+    --storage-account              : Name (if within same resource group and not of type Classic
+                                     Storage) or ARM id of the storage account to be used to create
+                                     the blobs.
+
+Global Arguments
+    --debug                        : Increase logging verbosity to show all debug logs.
+    --help -h                      : Show this help message and exit.
+    --only-show-errors             : Only show errors, suppressing warnings.
+    --output -o                    : Output format.  Allowed values: json, jsonc, none, table, tsv,
+                                     yaml, yamlc.  Default: json.
+    --query                        : JMESPath query string. See http://jmespath.org/ for more
+                                     information and examples.
+    --subscription                 : Name or ID of subscription. You can configure the default
+                                     subscription using `az account set -s NAME_OR_ID`.
+    --verbose                      : Increase logging verbosity. Use --debug for full debug logs.
+
+Examples
+    Create a new Eventhub.
+        az eventhubs eventhub create --resource-group myresourcegroup --namespace-name mynamespace
+        --name myeventhub --message-retention 4 --partition-count 15
+
+For more specific examples, use: az find "az eventhubs eventhub create"
+
+
+Command
+    az eventhubs eventhub authorization-rule create : Creates Authorizationrule for the given
+    Eventhub.
+
+Arguments
+    --eventhub-name     [Required] : Name of EventHub.
+    --name -n           [Required] : Name of EventHub AuthorizationRule.
+    --namespace-name    [Required] : Name of Namespace.
+    --resource-group -g [Required] : Name of resource group. You can configure the default group
+                                     using `az configure --defaults group=<name>`.
+    --rights            [Required] : Space-separated list of Authorization rule rights.  Allowed
+                                     values: Listen, Manage, Send.
+
+Global Arguments
+    --debug                        : Increase logging verbosity to show all debug logs.
+    --help -h                      : Show this help message and exit.
+    --only-show-errors             : Only show errors, suppressing warnings.
+    --output -o                    : Output format.  Allowed values: json, jsonc, none, table, tsv,
+                                     yaml, yamlc.  Default: json.
+    --query                        : JMESPath query string. See http://jmespath.org/ for more
+                                     information and examples.
+    --subscription                 : Name or ID of subscription. You can configure the default
+                                     subscription using `az account set -s NAME_OR_ID`.
+    --verbose                      : Increase logging verbosity. Use --debug for full debug logs.
+
+Examples
+    Creates Authorizationrule
+        az eventhubs eventhub authorization-rule create --resource-group myresourcegroup
+        --namespace-name mynamespace --eventhub-name myeventhub --name myauthorule --rights Listen
+
+For more specific examples, use: az find "az eventhubs eventhub authorization-rule create"
+
+Command
+    az eventhubs eventhub consumer-group create : Creates the EventHub ConsumerGroup.
+
+Arguments
+    --eventhub-name     [Required] : Name of EventHub.
+    --name -n           [Required] : Name of ConsumerGroup.
+    --namespace-name    [Required] : Name of Namespace.
+    --resource-group -g [Required] : Name of resource group. You can configure the default group
+                                     using `az configure --defaults group=<name>`.
+    --user-metadata                : Usermetadata is a placeholder to store user-defined string data
+                                     with maximum length 1024. e.g. it can be used to store
+                                     descriptive data, such as list of teams and their contact
+                                     information also user-defined configuration settings can be
+                                     stored.
+
+Global Arguments
+    --debug                        : Increase logging verbosity to show all debug logs.
+    --help -h                      : Show this help message and exit.
+    --only-show-errors             : Only show errors, suppressing warnings.
+    --output -o                    : Output format.  Allowed values: json, jsonc, none, table, tsv,
+                                     yaml, yamlc.  Default: json.
+    --query                        : JMESPath query string. See http://jmespath.org/ for more
+                                     information and examples.
+    --subscription                 : Name or ID of subscription. You can configure the default
+                                     subscription using `az account set -s NAME_OR_ID`.
+    --verbose                      : Increase logging verbosity. Use --debug for full debug logs.
+
+Examples
+    Create EventHub ConsumerGroup.
+        az eventhubs eventhub consumer-group create --resource-group myresourcegroup --namespace-
+        name mynamespace --eventhub-name myeventhub --name myconsumergroup
+
+For more specific examples, use: az find "az eventhubs eventhub consumer-group create"
+
+Command
+    az eventhubs eventhub authorization-rule keys list : Shows the connection strings of
+    Authorizationrule for the Eventhub.
+
+Arguments
+    --eventhub-name     [Required] : Name of EventHub.
+    --name -n           [Required] : Name of EventHub AuthorizationRule.
+    --namespace-name    [Required] : Name of Namespace.
+    --resource-group -g [Required] : Name of resource group. You can configure the default group
+                                     using `az configure --defaults group=<name>`.
+
+Global Arguments
+    --debug                        : Increase logging verbosity to show all debug logs.
+    --help -h                      : Show this help message and exit.
+    --only-show-errors             : Only show errors, suppressing warnings.
+    --output -o                    : Output format.  Allowed values: json, jsonc, none, table, tsv,
+                                     yaml, yamlc.  Default: json.
+    --query                        : JMESPath query string. See http://jmespath.org/ for more
+                                     information and examples.
+    --subscription                 : Name or ID of subscription. You can configure the default
+                                     subscription using `az account set -s NAME_OR_ID`.
+    --verbose                      : Increase logging verbosity. Use --debug for full debug logs.
+
+Examples
+    Shows the connection strings of Authorizationrule for the eventhub.
+        az eventhubs eventhub authorization-rule keys list --resource-group myresourcegroup
+        --namespace-name mynamespace --eventhub-name myeventhub --name myauthorule
+
+For more specific examples, use: az find "az eventhubs eventhub authorization-rule keys
+list"
+
+Command
+    az iot hub routing-endpoint create : Add an endpoint to your IoT Hub.
+        Create a new custom endpoint in your IoT Hub.
+
+Arguments
+    --endpoint-name --name -n          [Required] : Name of the Routing Endpoint.
+    --endpoint-resource-group --erg -r [Required] : Resource group of the Endpoint resoure.
+    --endpoint-subscription-id -s      [Required] : SubscriptionId of the Endpoint resource.
+    --endpoint-type --type -t          [Required] : Type of the Routing Endpoint.  Allowed values:
+                                                    azurestoragecontainer, eventhub,
+                                                    servicebusqueue, servicebustopic.
+    --hub-name                         [Required] : IoT Hub name.
+    --auth-type                                   : Authentication type for the endpoint. The
+                                                    default is keyBased.  Allowed values:
+                                                    identitybased, keybased.
+    --batch-frequency -b                          : Request batch frequency in seconds. The maximum
+                                                    amount of time that can elapse before data is
+                                                    written to a blob, between 60 and 720 seconds.
+                                                    Default: 300.
+    --chunk-size -w                               : Request chunk size in megabytes(MB). The maximum
+                                                    size of blobs, between 10 and 500 MB.  Default:
+                                                    300.
+    --connection-string -c                        : Connection string of the Routing Endpoint.
+    --container --container-name                  : Name of the storage container.
+    --encoding                                    : Encoding format for the container. The default
+                                                    is AVRO. Note that this field is applicable only
+                                                    for blob container endpoints.  Allowed values:
+                                                    avro, json.
+    --endpoint-uri                                : The uri of the endpoint resource.
+    --entity-path                                 : The entity path of the endpoint resource.
+    --ff --file-name-format                       : File name format for the blob. The file name
+                                                    format must contain {iothub}, {partition},
+                                                    {YYYY}, {MM}, {DD}, {HH} and {mm} fields. All
+                                                    parameters are mandatory but can be reordered
+                                                    with or without delimiters.  Default:
+                                                    {iothub}/{partition}/{YYYY}/{MM}/{DD}/{HH}/{mm}.
+    --resource-group -g                           : Name of resource group. You can configure the
+                                                    default group using `az configure --defaults
+                                                    group=<name>`.
+
+Global Arguments
+    --debug                                       : Increase logging verbosity to show all debug
+                                                    logs.
+    --help -h                                     : Show this help message and exit.
+    --only-show-errors                            : Only show errors, suppressing warnings.
+    --output -o                                   : Output format.  Allowed values: json, jsonc,
+                                                    none, table, tsv, yaml, yamlc.  Default: json.
+    --query                                       : JMESPath query string. See http://jmespath.org/
+                                                    for more information and examples.
+    --subscription                                : Name or ID of subscription. You can configure
+                                                    the default subscription using `az account set
+                                                    -s NAME_OR_ID`.
+    --verbose                                     : Increase logging verbosity. Use --debug for full
+                                                    debug logs.
+
+Examples
+    Add a new endpoint "E2" of type EventHub to "MyIotHub" IoT Hub.
+        az iot hub routing-endpoint create --resource-group MyResourceGroup --hub-name MyIotHub
+        --endpoint-name E2 --endpoint-type eventhub --endpoint-resource-group {ResourceGroup}
+        --endpoint-subscription-id {SubscriptionId} --connection-string {ConnectionString}
+
+
+    Add a new endpoint "S1" of type AzureStorageContainer to "MyIotHub" IoT Hub.
+        az iot hub routing-endpoint create --resource-group MyResourceGroup --hub-name MyIotHub \
+        --endpoint-name S1 --endpoint-type azurestoragecontainer --endpoint-resource-group
+        "[Resource Group]" \
+        --endpoint-subscription-id {SubscriptionId} --connection-string {ConnectionString} \
+        --container-name {ContainerName} --batch-frequency 100 --chunk-size 100 \
+        --ff {iothub}-{partition}-{YYYY}-{MM}-{DD}-{HH}-{mm}
+
+
+    Add a new identity-based EventHub endpoint named "EventHubIdentity"
+        az iot hub routing-endpoint create --resource-group MyResourceGroup --hub-name MyIotHub
+        --endpoint-name EventHubIdentity --endpoint-type eventhub --endpoint-resource-group
+        {ResourceGroup} --endpoint-subscription-id {SubscriptionId} --auth-type identityBased
+        --endpoint-uri {EventHubEndpointUri} --entity-path {EntityPath}
+
+
+For more specific examples, use: az find "az iot hub routing-endpoint create"
+
+
+az iot hub routing-endpoint create --hub-name atrius01iothqk6d6r6trv --endpoint-type eventhub --endpoint-name cf-assetv2-telemetry --endpoint-subscription connectedfacilities-dev --endpoint-resource-group iot-eh-cfexp --connection-string 'Endpoint=sb://cf-eh-001-cfexp.servicebus.windows.net/;SharedAccessKeyName=cf-eh-001-ap-cfexp;SharedAccessKey=TWBsKYzc6ZSbjkybUvqosb8+SaSkKsV/ckyR6u+HSwk=;EntityPath=cf-assetv2-telemetry' --subscription allspice-dev
+atrius01iothqk6d6r6trv
+
+curl --location --request POST 'https://cf-prod.dev.atrius-iot.com/cf-self-healing-api/api/v1/process' \
+--header 'API_KEY: 42af47ba718f5bbdcb03ce9dbc023982b3d3ab76e15cbb2adbf0924443df545fe1ac40bed5d712dca02d88cb349b66ac01d33cdf266a8b1024bac3a8e0c446d4' \
+--header 'Content-Type: application/json' \
+--data-raw '{ \
+    “revert”: false, \
+    “partnerOrgComboID”: “0842d87e-c606-477d-9f01-271d4bded17e-0003”, \
+    “siteID”: 35, \
+    “nonIdentifying”: [], \
+    “uncommissioned”: [], \
+    “lightsMap”: [] \
+}'
+
+curl --location --request POST 'https://cf.dev.atrius-iot.com/cf-self-healing-api/api/v1/process' \
+--header 'API_KEY: 42af47ba718f5bbdcb03ce9dbc023982b3d3ab76e15cbb2adbf0924443df545fe1ac40bed5d712dca02d88cb349b66ac01d33cdf266a8b1024bac3a8e0c446d4' \
+--header 'Content-Type: application/json' \
+--data-raw '{ \
+    “revert”: false, \
+    “partnerOrgComboID”: “0842d87e-c606-477d-9f01-271d4bded17e-0003”, \
+    “siteID”: 35, \
+    “nonIdentifying”: [], \
+    “uncommissioned”: [], \
+    “lightsMap”: [] \
+}'
+
+curl --location --request POST 'http://127.0.0.1:5000/cf-self-healing-api/api/v1/process' \
+--header 'API_KEY: 42af47ba718f5bbdcb03ce9dbc023982b3d3ab76e15cbb2adbf0924443df545fe1ac40bed5d712dca02d88cb349b66ac01d33cdf266a8b1024bac3a8e0c446d4' \
+--header 'Content-Type: application/json' \
+--data-raw '{ \
+    “revert”: false, \
+    “partnerOrgComboID”: “0842d87e-c606-477d-9f01-271d4bded17e-0003”, \
+    “siteID”: 35, \
+    “nonIdentifying”: [], \
+    “uncommissioned”: [], \
+    “lightsMap”: [] \
+}'
+
+{
+	"add-headers": "cfk8s/cf-waf-ingress-custom-add-headers",
+	"enable-underscores-in-headers": "true",
+	"ignore-invalid-headers": "false",
+	"proxy-buffer-size": "8k",
+	"ssl-ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
+	"ssl-protocols": "TLSv1.2 TLSv1.3"
+}
+
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: cf-self-healing-api-docker-api-key
+  namespace: cfk8s
+  selfLink: >-
+    /apis/extensions/v1beta1/namespaces/cfk8s/ingresses/cf-self-healing-api-docker-api-key
+  uid: 4da2835c-42de-46c6-ba38-d3afbcd3ed95
+  resourceVersion: '2356148'
+  generation: 3
+  creationTimestamp: '2020-06-04T03:13:00Z'
+  labels:
+    app.kubernetes.io/instance: cfk8s
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: cf-self-healing-api-docker
+    app.kubernetes.io/version: r1.0.6-dev
+    helm.sh/chart: cf-self-healing-api-docker-1.0.6-dev
+  annotations:
+    meta.helm.sh/release-name: cfk8s
+    meta.helm.sh/release-namespace: cfk8s
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_pass_request_headers on;
+      proxy_set_header API_KEY $http_api_key;
+      proxy_set_header API_KEY $http_api_key;
+      more_set_input_headers "X_API_KEY: $http_api_key";
+    nginx.ingress.kubernetes.io/rewrite-target: /cf-self-healing-api/$2
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /cf-self-healing-api(/|$)(api/v1/process.*)
+            backend:
+              serviceName: cf-self-healing-api-docker
+              servicePort: 80
+status:
+  loadBalancer: {}
+
+
+  505  kubectl --context cf-dev-k8s-001 create ns neuvector
+  506  kubectl --context cf-qa-k8s-001 create ns neuvector
+  507  kubectl --context cf-prod-k8s-001 create ns neuvector
+
+  520  helm upgrade --install neuvector . --namespace neuvector --kube-context cf-dev-k8s-001 --set registry=CfDevregistry.azurecr.io
+  521  kubectl --namespace neuvector get all
+  522  kubectl --namespace neuvector get all
+
+kubectl --namespace neuvector --context cf-qa-k8s-001 port-forward service/neuvector-service-webui 8443:8443
+
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-dev-k8s-001 --set registry=Cfqaregistry.azurecr.io
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-qa-k8s-001 --set registry=Cfqaregistry.azurecr.io
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-prod-k8s-001 --set registry=Cfprodregistry.azurecr.io
+
+kubectl --namespace neuvector --context cf-dev-k8s-001 port-forward service/neuvector-service-webui 7443:8443 &
+kubectl --namespace neuvector --context cf-qa-k8s-001 port-forward service/neuvector-service-webui 8443:8443 &
+kubectl --namespace neuvector --context cf-prod-k8s-001 port-forward service/neuvector-service-webui 9443:8443 &
