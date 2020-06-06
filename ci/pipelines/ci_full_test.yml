@@ -115,9 +115,6 @@ steps:
       # workingDirectory
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
-  - task: ManualIntervention@8
-    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
-    displayName: 'Review and approve cluster configuration manually'
   - task: AzureCLI@2
     condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Purge CI k8s cluster'
@@ -125,7 +122,7 @@ steps:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: './ci/recipes/purge_ci_cluster.sh'
+      scriptPath: 'echo ./ci/recipes/purge_ci_cluster.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
