@@ -35,13 +35,15 @@ EOF
 }
 
 function define_datadog_metric () {
-        printf 'Defining metric: [%s]\n' "$(datadog_metric_definition "$@")"
-        # Curl command
-        curl -X PUT "https://api.datadoghq.com/api/v1/metrics/${metric_name}" \
-            -H "Content-Type: application/json" \
-            -H "DD-API-KEY: ${DD_CLIENT_API_KEY}" \
-            -H "DD-APPLICATION-KEY: ${DD_CLIENT_APP_KEY}" \
-            -d @<(datadog_metric_definition "$@")
+    local -r metric_name="${1}"
+    local -r metric_value="${2}"
+    printf 'Defining metric: [%s]\n' "$(datadog_metric_definition "$@")"
+    # Curl command
+    curl -X PUT "https://api.datadoghq.com/api/v1/metrics/${metric_name}" \
+        -H "Content-Type: application/json" \
+        -H "DD-API-KEY: ${DD_CLIENT_API_KEY}" \
+        -H "DD-APPLICATION-KEY: ${DD_CLIENT_APP_KEY}" \
+        -d @<(datadog_metric_definition "$@")
 }
 
 function datadog_metric_payload () {
