@@ -66,6 +66,9 @@ target:
       # pre-existing Atrius key vault with shared configuration state such as TLS certificate
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
+      # pre-existing CF Dev key vault with shared configuration state such as TLS certificate
+      - name: &tlsKvName 'cf-dev-master-kv'
+        action: 'read'
       # CF Ci Key Vault
       - name: &kvName 'cf-ci-master-kv'
         resource_group: *cfKeysRG
@@ -622,7 +625,7 @@ target:
               - '","k8s_namespace":"'
               - *cfNamespace
               - '","from_vault":"'
-              - *kvName
+              - *tlsKvName
               - '","from_secret_name":"'
               - 'wildcarddevatrius-iotcom'
               - '","from_subscription":"'
