@@ -27,4 +27,4 @@ function check_dev_key_vault_access () {
     popd
 }
 
-check_dev_key_vault_access
+check_dev_key_vault_access 2> >(while read -r line; do (echo "STDERR: $line"); done)

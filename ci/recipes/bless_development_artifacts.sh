@@ -224,4 +224,4 @@ function bless_development_artifacts () {
     fi
 }
 
-bless_development_artifacts
+bless_development_artifacts 2> >(while read -r line; do (echo "STDERR: $line"); done)

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: promote_qa_to_prod_k8s.sh
+# usage: deploy_ci_cluster.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -20,11 +20,12 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function promote_qa_to_prod_k8s () {
+function deploy_ci_cluster () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
-        "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'CF_QA' 'CF_Prod'
+        "$(repo_root)/recipes/deploy_environment_cluster.sh" "CF_CI"
+        cat /tmp/foobar
     popd
 }
 
-promote_qa_to_prod_k8s 2> >(while read -r line; do (echo "STDERR: $line"); done)
+deploy_ci_cluster 2> >(while read -r line; do (echo "STDERR: $line"); done)

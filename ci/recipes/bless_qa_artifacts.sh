@@ -35,4 +35,4 @@ function bless_qa_artifacts () {
     exec "$(repo_root)/ci/recipes/bless_development_artifacts.sh"
 }
 
-bless_qa_artifacts
+bless_qa_artifacts 2> >(while read -r line; do (echo "STDERR: $line"); done)

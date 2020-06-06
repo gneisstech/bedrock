@@ -27,4 +27,4 @@ function deploy_umbrella_chart_to_dev () {
     popd
 }
 
-deploy_umbrella_chart_to_dev
+deploy_umbrella_chart_to_dev 2> >(while read -r line; do (echo "STDERR: $line"); done)

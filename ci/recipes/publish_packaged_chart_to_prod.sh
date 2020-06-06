@@ -27,4 +27,4 @@ function publish_packaged_chart_to_prod () {
     popd
 }
 
-publish_packaged_chart_to_prod
+publish_packaged_chart_to_prod 2> >(while read -r line; do (echo "STDERR: $line"); done)

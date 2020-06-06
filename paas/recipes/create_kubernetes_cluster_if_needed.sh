@@ -188,7 +188,6 @@ function create_kubernetes_cluster () {
         --resource-group "$(kubernetes_cluster_resource_group)" \
         --location "$(k8s_attr 'location')" \
         --admin-username "$(k8s_attr 'admin_username')" \
-        --attach-acr "$(k8s_attr 'attach_acr')" \
         --client-secret "$(prepare_k8s_string 'client_secret')" \
         $(option_if_true 'enable-cluster-autoscaler' 'enable_cluster_autoscaler') \
         $(option_if_true 'enable-managed-identity' 'enable_managed_identity') \
@@ -213,11 +212,27 @@ function create_kubernetes_cluster () {
         --vm-set-type "$(k8s_attr 'vm_set_type')" \
         --zones $(k8s_attr 'zones')
 
+#        --attach-acr "$(k8s_attr 'attach_acr')"
 #        --api-server-authorized-ip-ranges "$(k8s_attr 'api_server_authorized_ip_ranges')"
 #        --aad-tenant-id "$(k8s_attr 'aad_tenant_id')"
 #        --aad-client-app-id "$(k8s_attr 'aad_client_app_id')"
 #        --aad-server-app-id "$(k8s_attr 'aad_server_app_id')"
 #        --aad-server-app-secret "$(k8s_attr 'aad_server_app_secret')"
+}
+
+function get_acr_resource_id () {
+    az acr show --name "$(k8s_attr 'attach_acr')" | jq -r -e '.id'
+}
+
+function create_kubernetes_cluster_acr_connection () {
+    $AZ_TRACE role assignment create \
+        --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
+        --scope "$(get_acr_resource_id)" \
+        --role acrpull
+#    $AZ_TRACE aks update \
+#        --name "$(kubernetes_cluster_name)" \
+#        --resource-group "$(kubernetes_cluster_resource_group)" \
+#        --attach-acr "$(get_acr_resource_id)"
 }
 
 function create_kubernetes_cluster_credentials () {
@@ -269,6 +284,7 @@ function create_kubernetes_dashboard_admin_service_account () {
 
 function deploy_kubernetes_cluster () {
     create_kubernetes_cluster
+    create_kubernetes_cluster_acr_connection
     create_kubernetes_cluster_credentials
     create_kubernetes_cluster_admin_credentials
     create_kubernetes_dashboard_admin_service_account

@@ -27,4 +27,4 @@ function check_qa_key_vault_access () {
     popd
 }
 
-check_qa_key_vault_access
+check_qa_key_vault_access 2> >(while read -r line; do (echo "STDERR: $line"); done)

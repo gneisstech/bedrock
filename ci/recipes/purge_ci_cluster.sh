@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: promote_qa_to_prod_k8s.sh
+# usage: purge_environment_cluster.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -20,11 +20,11 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function promote_qa_to_prod_k8s () {
+function purge_environment_cluster () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
-        "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'CF_QA' 'CF_Prod'
+        "$(repo_root)/recipes/purge_environment_cluster.sh" "CF_CI"
     popd
 }
 
-promote_qa_to_prod_k8s 2> >(while read -r line; do (echo "STDERR: $line"); done)
+purge_environment_cluster 2> >(while read -r line; do (echo "STDERR: $line"); done)

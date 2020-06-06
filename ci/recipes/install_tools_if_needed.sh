@@ -54,4 +54,4 @@ function install_tools_if_needed () {
     install_yamllint_if_needed
 }
 
-install_tools_if_needed
+install_tools_if_needed 2> >(while read -r line; do (echo "STDERR: $line"); done)

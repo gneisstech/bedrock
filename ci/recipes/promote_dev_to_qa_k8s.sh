@@ -27,4 +27,4 @@ function promote_dev_to_qa_k8s () {
     popd
 }
 
-promote_dev_to_qa_k8s
+promote_dev_to_qa_k8s 2> >(while read -r line; do (echo "STDERR: $line"); done)

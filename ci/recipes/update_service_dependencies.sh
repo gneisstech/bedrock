@@ -371,4 +371,4 @@ function update_service_dependencies () {
     fi
 }
 
-update_service_dependencies
+update_service_dependencies 2> >(while read -r line; do (echo "STDERR: $line"); done)

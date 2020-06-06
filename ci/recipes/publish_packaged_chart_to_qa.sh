@@ -27,4 +27,4 @@ function publish_packaged_chart_to_qa () {
     popd
 }
 
-publish_packaged_chart_to_qa
+publish_packaged_chart_to_qa 2> >(while read -r line; do (echo "STDERR: $line"); done)

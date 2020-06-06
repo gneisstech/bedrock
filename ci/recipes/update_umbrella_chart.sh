@@ -284,4 +284,4 @@ function update_umbrella_chart () {
     popd
 }
 
-update_umbrella_chart
+update_umbrella_chart 2> >(while read -r line; do (echo "STDERR: $line"); done)

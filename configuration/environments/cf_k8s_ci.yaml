@@ -34,7 +34,7 @@ target:
       # CF Ci resource groups
       - name: &cfWafRG 'Waf-CfCi'
         action: 'create'
-      - name: &cfDbRG 'Data-CfDev'
+      - name: &cfDbRG 'Data-CfCi'
         action: 'create'
       - name: &cfKeysRG 'Kv-CfCi'
         action: 'create'
@@ -59,7 +59,7 @@ target:
           subscription: *subscription_dns
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
-          action: 'create'
+          action: 'ignore-create'
   paas:
     location: *defaultAzureLocation
     keyvaults:
@@ -70,6 +70,7 @@ target:
       - name: &kvName 'cf-ci-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
+        soft_delete: 'false'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
@@ -118,11 +119,11 @@ target:
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'cf-dev-sqls'
+        - name: &cfDefaultDbServer 'cf-ci-sqls'
           arm_type: 'Microsoft.Sql/servers'
           subscription: *defaultAzureSubscription
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'cf-dev-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName 'cf-ci-sqls-admin-user'
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
@@ -150,13 +151,13 @@ target:
       instances:
         - name: &selfHealingSchema 'cf-ci-self-healing'
           <<: *dbTemplate
-        - name: &authzSchema 'cf-dev-authz-db'
+        - name: &authzSchema 'cf-ci-authz-db'
           <<: *dbTemplate
-        - name: &netWorkViewSchema 'cf-dev-network-view-db'
+        - name: &netWorkViewSchema 'cf-ci-network-view-db'
           <<: *dbTemplate
-        - name: &elmSchema 'cf-dev-elm-db'
+        - name: &elmSchema 'cf-ci-elm-db'
           <<: *dbTemplate
-        - name: &adminSchema 'cf-dev-admin-db'
+        - name: &adminSchema 'cf-ci-admin-db'
           <<: *dbTemplate
     container_registries:
       - name: &primaryACR 'cfciregistry'
@@ -190,7 +191,7 @@ target:
           enable_managed_identity: 'false'
           enable_private_cluster: 'false'
           generate_ssh_keys: 'true'
-          kubernetes_version: '1.16.7'
+          kubernetes_version: '1.16.9'
           load_balancer_sku: 'standard'
           max_count: 100
           max_pods: 30
@@ -412,17 +413,17 @@ target:
               - '##'
           seed-values:
             - source:
-                secret_name: 'cf-dev-self-healing-api-key'
-                vault_name: &persistentKVName 'cf-dev-master-kv'
+                secret_name: 'cf-ci-self-healing-api-key'
+                vault_name: &persistentKVName 'cf-ci-master-kv'
                 subscription: *defaultAzureSubscription
               dest: *selfHealingApiKeyName
             - source:
-                secret_name: 'cf-dev-oauth2-proxy-client-secret'
+                secret_name: 'cf-ci-oauth2-proxy-client-secret'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *oauth2ProxyClientSecretName
             - source:
-                secret_name: 'cf-dev-lights-map-api-key'
+                secret_name: 'cf-ci-lights-map-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
@@ -432,7 +433,7 @@ target:
                 subscription: *defaultAzureSubscription
               dest: *dataDogApiKeySecretName
             - source:
-                secret_name: 'admin-pw-for-cf-dev-sqls'
+                secret_name: *cfDefaultDBSecretName
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *cfDefaultDBSecretName
@@ -461,7 +462,7 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name: &elmSpName 'cf-elm-web-sp'
+            sp_name: &elmSpName 'cf-ci-elm-web-sp'
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
