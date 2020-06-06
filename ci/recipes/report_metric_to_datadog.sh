@@ -37,7 +37,7 @@ EOF
 function define_datadog_metric () {
         printf 'Defining metric: [%s]\n' "$(datadog_metric_definition "$@")"
         # Curl command
-        curl -X PUT https://api.datadoghq.com/api/v1/metrics/${metric_name} \
+        curl -X PUT "https://api.datadoghq.com/api/v1/metrics/${metric_name}" \
             -H "Content-Type: application/json" \
             -H "DD-API-KEY: ${DD_CLIENT_API_KEY}" \
             -H "DD-APPLICATION-KEY: ${DD_CLIENT_APP_KEY}" \
