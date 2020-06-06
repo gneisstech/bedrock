@@ -295,16 +295,17 @@ function create_kubernetes_dashboard_admin_service_account () {
 
 function deploy_kubernetes_cluster () {
     create_kubernetes_cluster
-    create_kubernetes_cluster_acr_connection
-    create_kubernetes_cluster_credentials
-    create_kubernetes_cluster_admin_credentials
-    create_kubernetes_dashboard_admin_service_account
 }
 
 function create_kubernetes_cluster_if_needed () {
     if ! kubernetes_cluster_already_exists; then
         deploy_kubernetes_cluster
     fi
+set -x
+    create_kubernetes_cluster_acr_connection
+    create_kubernetes_cluster_credentials
+    create_kubernetes_cluster_admin_credentials
+    create_kubernetes_dashboard_admin_service_account
 }
 
 create_kubernetes_cluster_if_needed

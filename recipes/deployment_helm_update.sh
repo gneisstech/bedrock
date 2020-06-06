@@ -99,6 +99,13 @@ function connect_to_k8s () {
         --admin
 }
 
+function create_k8s_app_namespace () {
+    local -r deployment_json="${1}"
+    local namespace
+    namespace="$(get_kube_namespace "${deployment_json}")"
+    kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
+}
+
 function update_helm_repo () {
     local -r registry="${1}"
     az acr helm repo add --name "${registry}"
@@ -171,6 +178,7 @@ function deployment_helm_update () {
     local deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     connect_to_k8s "${deployment_json}"
+    create_k8s_app_namespace "${deployment_json}"
     update_helm_chart_on_k8s "${deployment_json}"
 }
 
