@@ -224,26 +224,34 @@ function get_acr_resource_id () {
     az acr show --name "$(k8s_attr 'attach_acr')" | jq -r -e '.id'
 }
 
-function create_kubernetes_cluster_acr_connection () {
-    echo "$AZ_TRACE" role assignment create \
-        --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
-        --scope "$(get_acr_resource_id)" \
-        --role acrpull
+function is_azure_pipeline_build () {
+    [[ "True" == "${TF_BUILD:-}" ]]
+}
 
-    $AZ_TRACE role assignment create \
-        --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
-        --scope "$(get_acr_resource_id)" \
-        --role acrpull \
-    || true
-    echo "$AZ_TRACE" aks update \
-        --name "$(kubernetes_cluster_name)" \
-        --resource-group "$(kubernetes_cluster_resource_group)" \
-        --attach-acr "$(get_acr_resource_id)"
-    $AZ_TRACE aks update \
-        --name "$(kubernetes_cluster_name)" \
-        --resource-group "$(kubernetes_cluster_resource_group)" \
-        --attach-acr "$(get_acr_resource_id)" \
-    || true
+function create_kubernetes_cluster_acr_connection () {
+    if ! is_azure_pipeline_build; then
+        # azure pipeline SP does not have enough permissions to grant "acrpull" role to the k8s SP
+        # so, for CI, we pre-create both SP and give them contributor access to the subscription
+        echo "$AZ_TRACE" role assignment create \
+            --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
+            --scope "$(get_acr_resource_id)" \
+            --role acrpull
+
+        $AZ_TRACE role assignment create \
+            --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
+            --scope "$(get_acr_resource_id)" \
+            --role acrpull \
+        || true
+        echo "$AZ_TRACE" aks update \
+            --name "$(kubernetes_cluster_name)" \
+            --resource-group "$(kubernetes_cluster_resource_group)" \
+            --attach-acr "$(get_acr_resource_id)"
+        $AZ_TRACE aks update \
+            --name "$(kubernetes_cluster_name)" \
+            --resource-group "$(kubernetes_cluster_resource_group)" \
+            --attach-acr "$(get_acr_resource_id)" \
+        || true
+    fi
 }
 
 function create_kubernetes_cluster_credentials () {
