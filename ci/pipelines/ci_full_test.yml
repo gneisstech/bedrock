@@ -101,12 +101,44 @@ steps:
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
 #    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Copy Deployed Dev Artifacts to CI'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/copy_dev_to_ci_k8s.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Push packaged Artifacts to CI'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/publish_packaged_chart_to_ci.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Install latest umbrella chart to development k8s cluster'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: './ci/recipes/deploy_umbrella_chart_to_dev.sh'
+      scriptPath: './ci/recipes/deploy_umbrella_chart_to_ci.sh'
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
@@ -116,8 +148,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-    condition: true
- #   condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Purge CI k8s cluster'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'

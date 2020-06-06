@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: purge_environment_cluster.sh
+# usage: deploy_umbrella_chart_to_dev.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -20,11 +20,11 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function purge_environment_cluster () {
+function deploy_umbrella_chart_to_dev () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
-        true || "$(repo_root)/recipes/purge_environment_cluster.sh" "CF_CI"
+        "$(repo_root)/recipes/deployment_helm_update.sh" "CF_CI"
     popd
 }
 
-purge_environment_cluster 2> >(while read -r line; do (echo "STDERR: $line"); done)
+deploy_umbrella_chart_to_dev 2> >(while read -r line; do (echo "STDERR: $line"); done)

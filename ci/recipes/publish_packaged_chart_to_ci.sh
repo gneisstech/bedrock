@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: purge_environment_cluster.sh
+# usage: publish_packaged_chart_to_qa.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -20,11 +20,11 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function purge_environment_cluster () {
+function publish_packaged_chart_to_qa () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
-        true || "$(repo_root)/recipes/purge_environment_cluster.sh" "CF_CI"
+        "$(repo_root)/recipes/publish_packaged_chart_to_env.sh" 'CF_CI'
     popd
 }
 
-purge_environment_cluster 2> >(while read -r line; do (echo "STDERR: $line"); done)
+publish_packaged_chart_to_qa 2> >(while read -r line; do (echo "STDERR: $line"); done)
