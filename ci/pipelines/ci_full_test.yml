@@ -140,7 +140,7 @@ steps:
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/publish_packaged_chart_to_ci.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig
