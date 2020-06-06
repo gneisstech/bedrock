@@ -24,7 +24,6 @@ function deploy_ci_cluster () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         "$(repo_root)/recipes/deploy_environment_cluster.sh" "CF_CI"
-        cat /tmp/foobar
     popd
 }
 
