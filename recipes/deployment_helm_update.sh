@@ -135,7 +135,8 @@ function update_helm_chart_on_k8s () {
     helm history \
         --kube-context "$(get_kube_context "${deployment_json}")" \
         --namespace "$(get_kube_namespace "${deployment_json}")" \
-        "$(get_helm_deployment_name "${deployment_json}" )"
+        "$(get_helm_deployment_name "${deployment_json}" )" \
+    || true
     if failed_secrets "${helm_values}" ; then
         printf 'FATAL: Failed to retrieve secrets needed in helm values!!\n'
         set -o xtrace
