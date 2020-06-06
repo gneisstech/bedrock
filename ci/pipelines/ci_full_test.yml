@@ -100,6 +100,22 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
+    #    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Login to CI ACR Registry'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/acr_login_ci_registry.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
 #    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Copy Deployed Dev Artifacts to CI'
     inputs:
