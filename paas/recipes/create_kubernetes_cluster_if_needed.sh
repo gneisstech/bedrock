@@ -225,14 +225,25 @@ function get_acr_resource_id () {
 }
 
 function create_kubernetes_cluster_acr_connection () {
-    $AZ_TRACE role assignment create \
+    echo $AZ_TRACE role assignment create \
         --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
         --scope "$(get_acr_resource_id)" \
         --role acrpull
-#    $AZ_TRACE aks update \
-#        --name "$(kubernetes_cluster_name)" \
-#        --resource-group "$(kubernetes_cluster_resource_group)" \
-#        --attach-acr "$(get_acr_resource_id)"
+
+    $AZ_TRACE role assignment create \
+        --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
+        --scope "$(get_acr_resource_id)" \
+        --role acrpull \
+    || true
+    echo $AZ_TRACE aks update \
+        --name "$(kubernetes_cluster_name)" \
+        --resource-group "$(kubernetes_cluster_resource_group)" \
+        --attach-acr "$(get_acr_resource_id)"
+    $AZ_TRACE aks update \
+        --name "$(kubernetes_cluster_name)" \
+        --resource-group "$(kubernetes_cluster_resource_group)" \
+        --attach-acr "$(get_acr_resource_id)" \
+    || true
 }
 
 function create_kubernetes_cluster_credentials () {

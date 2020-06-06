@@ -89,13 +89,6 @@ function kv_secret_name () {
     service_principal_attr 'key_vault.secret_name'
 }
 
-function kubernetes_cluster_already_exists () {
-    $AZ_TRACE aks show \
-        --name "$(kubernetes_cluster_name)" \
-        --resource-group "$(kubernetes_cluster_resource_group)" \
-        > /dev/stderr 2>&1
-}
-
 function is_azure_pipeline_build () {
     [[ "True" == "${TF_BUILD:-}" ]]
 }

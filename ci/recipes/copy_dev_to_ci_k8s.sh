@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: promote_dev_to_qa_k8s.sh
+# usage: copy_dev_to_ci.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -20,11 +20,11 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function promote_dev_to_qa_k8s () {
+function copy_dev_to_ci () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'CF_Development' 'CF_CI'
     popd
 }
 
-promote_dev_to_qa_k8s 2> >(while read -r line; do (echo "STDERR: $line"); done)
+copy_dev_to_ci 2> >(while read -r line; do (echo "STDERR: $line"); done)
