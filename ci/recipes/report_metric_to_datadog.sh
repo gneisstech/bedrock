@@ -20,6 +20,10 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
+function metric_context () {
+    printf 'cf.ci_cmd_duration'
+}
+
 function datadog_metric_definition () {
     local -r metric_name="${1}"
     local -r metric_value="${2}"
@@ -27,7 +31,7 @@ cat <<EOF
 {
   "description": "Duration of CI Script Run in seconds",
   "per_unit": "run",
-  "short_name": "cf.ci_cmd_duration.${metric_name}",
+  "short_name": "${metric_name}",
   "type": "gauge",
   "unit": "seconds"
 }
@@ -39,7 +43,7 @@ function define_datadog_metric_metadata () {
     local -r metric_value="${2}"
     printf 'Defining metric: [%s]\n' "$(datadog_metric_definition "$@")"
     # Curl command
-    curl -X PUT "https://api.datadoghq.com/api/v1/metrics/${metric_name}" \
+    curl -X PUT "https://api.datadoghq.com/api/v1/metrics/$(metric_context).${metric_name}" \
         -H "Content-Type: application/json" \
         -H "DD-API-KEY: ${DD_CLIENT_API_KEY}" \
         -H "DD-APPLICATION-KEY: ${DD_CLIENT_APP_KEY}" \
@@ -53,7 +57,7 @@ cat <<EOF
 {
   "series": [
     {
-      "metric": "cf.ci_cmd_duration.${metric_name}",
+      "metric": "$(metric_context).${metric_name}",
       "points": [ "${metric_value}" ]
     }
   ]
