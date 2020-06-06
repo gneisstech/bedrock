@@ -41,9 +41,11 @@ EOF
 function define_datadog_metric_metadata () {
     local -r metric_name="${1}"
     local -r metric_value="${2}"
-    printf 'Defining metric: [%s]\n' "$(datadog_metric_definition "$@")"
+    local -r dd_url="https://api.datadoghq.com/api/v1/metrics/$(metric_context).${metric_name}"
+
+    printf 'Defining metric: [%s]\n  to: %s\n' "$(datadog_metric_definition "$@")" "${dd_url}"
     # Curl command
-    curl -X PUT "https://api.datadoghq.com/api/v1/metrics/$(metric_context).${metric_name}" \
+    curl -X PUT "${dd_url}" \
         -H "Content-Type: application/json" \
         -H "DD-API-KEY: ${DD_CLIENT_API_KEY}" \
         -H "DD-APPLICATION-KEY: ${DD_CLIENT_APP_KEY}" \
@@ -57,8 +59,11 @@ cat <<EOF
 {
   "series": [
     {
+      "host": "ci_full_test",
       "metric": "$(metric_context).${metric_name}",
       "points": [ "${metric_value}" ]
+      "tags": [ "cf-env:ci" ],
+      "type": "gauge"
     }
   ]
 }
@@ -66,9 +71,10 @@ EOF
 }
 
 function send_datadog_metric () {
-        printf 'Sending metric: [%s]\n' "$(datadog_metric_payload "$@")"
+        local -r dd_url="https://api.datadoghq.com/api/v1/series"
+        printf 'Sending metric: [%s]\n  to: %s\n' "$(datadog_metric_payload "$@")" "${dd_url}"
         # Curl command
-        curl -X POST "https://api.datadoghq.com/api/v1/series?api_key=${DD_CLIENT_API_KEY}" \
+        curl -X POST "${dd_url}?api_key=${DD_CLIENT_API_KEY}" \
             -H "Content-Type: application/json" \
             -d @<(datadog_metric_payload "$@")
 }
