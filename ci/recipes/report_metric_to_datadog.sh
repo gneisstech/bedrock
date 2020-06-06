@@ -34,7 +34,7 @@ cat <<EOF
 EOF
 }
 
-function define_datadog_metric () {
+function define_datadog_metric_metadata () {
     local -r metric_name="${1}"
     local -r metric_value="${2}"
     printf 'Defining metric: [%s]\n' "$(datadog_metric_definition "$@")"
@@ -71,8 +71,8 @@ function send_datadog_metric () {
 
 function report_metric_to_datadog () {
     if [[ -n "${DD_CLIENT_API_KEY:-}" ]] && [[ -n "${DD_CLIENT_APP_KEY:-}" ]]; then
-        define_datadog_metric "$@" || true
-        send_datadog_metric "@" || true
+        send_datadog_metric "$@" || true
+        define_datadog_metric_metadata "$@" || true
     fi
 }
 
