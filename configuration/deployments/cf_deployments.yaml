@@ -45,7 +45,7 @@ deployments:
     helm:
       migration_timeout: '1m'
       umbrella:
-        registry: 'cfdevregistry'
+        registry: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
         version: '^2.0.0-0'
