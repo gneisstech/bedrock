@@ -75,6 +75,7 @@ target:
       - name: &kvName 'cf-prod-k8s-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
+        soft_delete: 'true'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
@@ -195,7 +196,7 @@ target:
           enable_managed_identity: 'false'
           enable_private_cluster: 'false'
           generate_ssh_keys: 'true'
-          kubernetes_version: '1.16.7'
+          kubernetes_version: '1.16.9'
           load_balancer_sku: 'standard'
           max_count: 100
           max_pods: 30
@@ -301,7 +302,7 @@ target:
             verticalpodautoscalers: null
   saas:
     helm:
-      default-values:
+      default_values:
         rails:
           env: &railsEnv
             RAILS_ENV: 'production'
@@ -415,7 +416,7 @@ target:
               - *oauth2ProxyCookieSecretName
               - '"}'
               - '##'
-          seed-values:
+          seed_values:
             - source:
                 secret_name: 'cf-prod-self-healing-api-key'
                 vault_name: &persistentKVName 'cf-prod-master-kv'
@@ -437,7 +438,7 @@ target:
                 subscription: *defaultAzureSubscription
               dest: *dataDogApiKeySecretName
             - source:
-                secret_name: 'admin-pw-for-cf-prod-sqls'
+                secret_name: *cfDefaultDBSecretName
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *cfDefaultDBSecretName

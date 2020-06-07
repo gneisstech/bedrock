@@ -89,21 +89,33 @@ function kv_secret_name () {
     service_principal_attr 'key_vault.secret_name'
 }
 
-function kubernetes_cluster_already_exists () {
-    $AZ_TRACE aks show \
-        --name "$(kubernetes_cluster_name)" \
-        --resource-group "$(kubernetes_cluster_resource_group)" \
-        > /dev/stderr 2>&1
+function is_azure_pipeline_build () {
+    [[ "True" == "${TF_BUILD:-}" ]]
+}
+
+function get_prebuilt_sp_info () {
+    local -r vault="cf-ci-devops-kv"
+    local -r secret_name="cf-ci-devops-sp-info"
+    az keyvault secret show \
+        --vault-name "${vault}" \
+        --name "${secret_name}" \
+        2> /dev/null \
+    | tee /dev/stderr | jq -r '.value'
+
 }
 
 function az_create_service_principal () {
-    # shellcheck disable=SC2046
-    az ad sp create-for-rbac \
-        --name "http://$(sp_name)" \
-        --role "$(service_principal_attr 'role')" \
-        --output 'json' \
-        --scopes $(service_principal_string_attr    '' 'scopes') \
-    | tee /dev/stderr
+    if ! is_azure_pipeline_build; then
+        # shellcheck disable=SC2046
+        az ad sp create-for-rbac \
+            --name "http://$(sp_name)" \
+            --role "$(service_principal_attr 'role')" \
+            --output 'json' \
+            --scopes $(service_principal_string_attr    '' 'scopes') \
+        | tee /dev/stderr
+    else
+        get_prebuilt_sp_info
+    fi
 }
 
 function get_vault_secret () {
@@ -120,6 +132,7 @@ function set_vault_secret () {
     local -r vault="${1}"
     local -r secret_name="${2}"
     local -r secret="${3}"
+    ls -l /dev/std* /proc/self/fd/?
     $AZ_TRACE keyvault secret set \
         --vault-name "${vault}" \
         --name "${secret_name}" \
@@ -139,6 +152,10 @@ function persist_service_principal_details_to_kv () {
     kv_set "$(kv_secret_name)-spdata" "${sp_json}" || true
     kv_set "$(kv_secret_name)-app-id" "$(jq -r -e '.appId // "fixme" ' <<< "${sp_json}")" || true
     kv_set "$(kv_secret_name)-secret" "$(jq -r -e '.password // "fixme" ' <<< "${sp_json}")" || true
+    printf 'sp_json [%s] set in vault [%s]\n' "${sp_json}" "$(kv_name)"
+    get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata"
+    get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id"
+    get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret"
 }
 
 function create_service_principal () {
@@ -175,12 +192,12 @@ function service_principal_already_exists () {
     false
 }
 
-
 function create_service_principal_if_needed () {
     printf 'testing sp [%s]\n' "$(sp_name)"
     if ! service_principal_already_exists; then
         printf 'creating sp [%s]\n' "$(sp_name)"
         create_service_principal || true
+        service_principal_show || true
     fi
 }
 

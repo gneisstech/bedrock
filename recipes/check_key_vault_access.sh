@@ -76,5 +76,4 @@ function check_key_vault_access () {
     explore_key_vault_access "${target_cluster_config_json}" "${deployment_json}"
 }
 
-set -x
 check_key_vault_access "${@}"

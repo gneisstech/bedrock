@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: TARGET_CONFIG=target_environment_config.yaml purge_environment.sh
+# usage: purge_resource_groups.sh
 
 #
 # Maintainer: techguru@byiq.com
@@ -37,7 +37,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
-declare -x AZ_TRACE
+declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
@@ -46,49 +46,27 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function invoke_layer () {
-  local -r layer="${1}"
-  local -r target_recipe="${2}"
-  shift 2
-  "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
-}
-
-function init_trace () {
-    if [[ -z "${AZ_TRACE}" ]]; then
-        export AZ_TRACE="echo az"
-    fi
-}
-
 function target_config () {
     echo "$(repo_root)/${TARGET_CONFIG}"
 }
 
-function target_subscription () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.default_azure_subscription'
+function iaas_configuration () {
+    yq read --tojson "$(target_config)" | jq -r -e '.target.iaas'
 }
 
-function set_subscription () {
-    local -r desired_subscription="${1}"
-    az account set --subscription "${desired_subscription}"
+function resource_group_names () {
+    iaas_configuration | jq -r -e '[.resource_groups[] | select(.action == "create") | .name ] | @tsv'
 }
 
-function set_target_subscription () {
-    set_subscription "$(target_subscription)"
+function purge_resource_group () {
+    local -r rg_name="${1}"
+    $AZ_TRACE group delete --yes --name "${rg_name}"
 }
 
-function current_azure_subscription () {
-    az account show -o json | jq -r -e '.id'
+function purge_resource_groups () {
+    for rg in $(resource_group_names); do
+        purge_resource_group "${rg}" || true
+    done
 }
 
-function purge_environment () {
-    local saved_subscription
-    date
-    saved_subscription="$(current_azure_subscription)"
-    set_target_subscription
-    init_trace
-    invoke_layer 'iaas' 'purge_resource_groups'
-    set_subscription "${saved_subscription}"
-    date
-}
-
-purge_environment
+purge_resource_groups
