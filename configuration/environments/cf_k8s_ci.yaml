@@ -365,7 +365,7 @@ target:
             verticalpodautoscalers: null
   saas:
     helm:
-      default-values:
+      default_values:
         rails:
           env: &railsEnv
             RAILS_ENV: 'production'
@@ -479,27 +479,31 @@ target:
               - *oauth2ProxyCookieSecretName
               - '"}'
               - '##'
-          seed-values:
+          seed_values:
             - source:
-                secret_name: 'cf-ci-self-healing-api-key'
-                vault_name: &persistentKVName 'cf-ci-master-kv'
+                secret_name: 'cf-dev-self-healing-api-key'
+                vault_name: &persistentKVName 'cf-dev-master-kv'
                 subscription: *defaultAzureSubscription
               dest: *selfHealingApiKeyName
             - source:
-                secret_name: 'cf-ci-oauth2-proxy-client-secret'
+                secret_name: 'cf-dev-oauth2-proxy-client-secret'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *oauth2ProxyClientSecretName
             - source:
-                secret_name: 'cf-ci-lights-map-api-key'
+                secret_name: 'cf-dev-lights-map-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
             - source:
-                secret_name: 'datadogclient'
+                secret_name: 'cf-dev-datadog-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *dataDogApiKeySecretName
+            - source:
+                secret_name: 'cf-dev-neuvector-license-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
             - source:
                 secret_name: *cfDefaultDBSecretName
                 vault_name: *persistentKVName
