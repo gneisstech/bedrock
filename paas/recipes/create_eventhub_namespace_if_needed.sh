@@ -234,7 +234,7 @@ function update_authorization_rule () {
         --eventhub-name "$(jq -r -e '.topic_name' <<< "${authorization_rule_json}" )" \
         --namespace-name "$(jq -r -e '.namespace' <<< "${authorization_rule_json}" )"\
         --resource-group "$(jq -r -e '.resource_group' <<< "${authorization_rule_json}" )" \
-        --rights $(jq -r -e '.resource_group' <<< "${authorization_rule_json}" )
+        --rights $(jq -r -e '.rights' <<< "${authorization_rule_json}" )
 }
 
 function create_authorization_rule () {
@@ -245,7 +245,7 @@ function create_authorization_rule () {
         --eventhub-name "$(jq -r -e '.topic_name' <<< "${authorization_rule_json}" )" \
         --namespace-name "$(jq -r -e '.namespace' <<< "${authorization_rule_json}" )"\
         --resource-group "$(jq -r -e '.resource_group' <<< "${authorization_rule_json}" )" \
-        --rights $(jq -r -e '.resource_group' <<< "${authorization_rule_json}" )
+        --rights $(jq -r -e '.rights' <<< "${authorization_rule_json}" )
 }
 
 function create_or_update_authorization_rule () {
