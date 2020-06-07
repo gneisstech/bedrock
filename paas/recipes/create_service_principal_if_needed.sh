@@ -195,11 +195,17 @@ function service_principal_already_exists () {
 }
 
 function create_service_principal_if_needed () {
-    printf 'testing sp [%s]\n' "$(sp_name)" > /dev/stderr
-    if ! service_principal_already_exists; then
-        printf 'creating sp [%s]\n' "$(sp_name)" > /dev/stderr
-        create_service_principal || true
-        # service_principal_show || true
+    if is_azure_pipeline_build; then
+        # do not create if already exists due to operational concerns
+        # @@ TODO if vault entries already exist, and point to a valid SP, then assume that manual configuration
+        # overrides potentially detected misconfiguration
+
+        printf 'testing sp [%s]\n' "$(sp_name)" > /dev/stderr
+        if ! service_principal_already_exists; then
+            printf 'creating sp [%s]\n' "$(sp_name)" > /dev/stderr
+            create_service_principal || true
+            # service_principal_show || true
+        fi
     fi
 }
 

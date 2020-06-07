@@ -58,15 +58,8 @@ function resource_group_names () {
     iaas_configuration | jq -r -e '[.resource_groups[] | select(.action == "create") | .name ] | @tsv'
 }
 
-function purge_resource_group () {
-    local -r rg_name="${1}"
-    $AZ_TRACE group delete --yes --name "${rg_name}"
-}
-
 function purge_resource_groups () {
-    for rg in $(resource_group_names); do
-        purge_resource_group "${rg}" || true
-    done
+    resource_group_names | xargs -n 1 -P 10 $AZ_TRACE group delete --yes --name
 }
 
 purge_resource_groups
