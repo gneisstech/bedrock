@@ -178,7 +178,7 @@ function kubernetes_cluster_already_exists () {
     $AZ_TRACE aks show \
         --name "$(kubernetes_cluster_name)" \
         --resource-group "$(kubernetes_cluster_resource_group)" \
-        > /dev/stderr 2>&1
+        > /dev/null 2>&1
 }
 
 function create_kubernetes_cluster () {
@@ -234,11 +234,13 @@ function create_kubernetes_cluster_acr_connection () {
         # so, for CI, we pre-create both SP and give them contributor access to the subscription
         echo "$AZ_TRACE" role assignment create \
             --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
+            --assignee-principal-type 'ServicePrincipal' \
             --scope "$(get_acr_resource_id)" \
             --role acrpull
 
         $AZ_TRACE role assignment create \
             --assignee-object-id "$(prepare_k8s_string 'service_principal')" \
+            --assignee-principal-type 'ServicePrincipal' \
             --scope "$(get_acr_resource_id)" \
             --role acrpull \
         || true

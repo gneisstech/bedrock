@@ -158,6 +158,17 @@ function deploy_virtual_machines () {
     done
 }
 
+function eventhub_namespaces () {
+    paas_configuration | jq -r -e '[.event_hub_namespaces.instances[]? | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_eventhub_namespaces () {
+    local eventhub_name
+    for eventhub_name in $(eventhub_namespaces); do
+        invoke_layer 'paas' 'create_eventhub_namespace_if_needed' "${eventhub_name}"
+    done
+}
+
 function kubernetes_cluster_names () {
     paas_configuration | jq -r -e '[.k8s.clusters[]? | select(.action == "create") | .name ] | @tsv'
 }
@@ -178,6 +189,7 @@ function deploy_paas () {
     deploy_container_registries
     deploy_virtual_machines
     deploy_kubernetes_clusters
+    deploy_eventhub_namespaces
 }
 
 deploy_paas

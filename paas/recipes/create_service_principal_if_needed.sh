@@ -43,7 +43,7 @@ declare -rx AZ_TRACE
 # ---------------------
 declare -rx SERVICE_PRINCIPAL_NAME="${1}"
 
-function service_principal_name (){
+function service_principal_name () {
     echo "${SERVICE_PRINCIPAL_NAME}"
 }
 
@@ -100,19 +100,20 @@ function get_prebuilt_sp_info () {
         --vault-name "${vault}" \
         --name "${secret_name}" \
         2> /dev/null \
-    | tee /dev/stderr | jq -r '.value'
+    | jq -r '.value'
 
 }
 
 function az_create_service_principal () {
     if ! is_azure_pipeline_build; then
-        # shellcheck disable=SC2046
-        az ad sp create-for-rbac \
-            --name "http://$(sp_name)" \
-            --role "$(service_principal_attr 'role')" \
-            --output 'json' \
-            --scopes $(service_principal_string_attr    '' 'scopes') \
-        | tee /dev/stderr
+        if [[ "${AZ_TRACE}" == "az" ]]; then
+            # shellcheck disable=SC2046
+            $AZ_TRACE ad sp create-for-rbac \
+                --name "http://$(sp_name)" \
+                --role "$(service_principal_attr 'role')" \
+                --output 'json' \
+                --scopes $(service_principal_string_attr    '' 'scopes')
+        fi
     else
         get_prebuilt_sp_info
     fi
@@ -121,18 +122,17 @@ function az_create_service_principal () {
 function get_vault_secret () {
     local -r vault="${1}"
     local -r secret_name="${2}"
-    $AZ_TRACE keyvault secret show \
+    az keyvault secret show \
         --vault-name "${vault}" \
         --name "${secret_name}" \
         2> /dev/null \
-    | tee /dev/stderr | jq -r '.value'
+    | jq -r '.value'
 }
 
 function set_vault_secret () {
     local -r vault="${1}"
     local -r secret_name="${2}"
     local -r secret="${3}"
-    ls -l /dev/std* /proc/self/fd/?
     $AZ_TRACE keyvault secret set \
         --vault-name "${vault}" \
         --name "${secret_name}" \
@@ -149,23 +149,25 @@ function kv_set () {
 
 function persist_service_principal_details_to_kv () {
     local -r sp_json="${1}"
-    kv_set "$(kv_secret_name)-spdata" "${sp_json}" || true
-    kv_set "$(kv_secret_name)-app-id" "$(jq -r -e '.appId // "fixme" ' <<< "${sp_json}")" || true
-    kv_set "$(kv_secret_name)-secret" "$(jq -r -e '.password // "fixme" ' <<< "${sp_json}")" || true
-    printf 'sp_json [%s] set in vault [%s]\n' "${sp_json}" "$(kv_name)"
-    get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata"
-    get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id"
-    get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret"
+    if [[ -n "${sp_json}" ]]; then
+        kv_set "$(kv_secret_name)-spdata" "${sp_json}" > /dev/stderr || true
+        kv_set "$(kv_secret_name)-app-id" "$(jq -r -e '.appId // "fixme" ' <<< "${sp_json}")" > /dev/stderr || true
+        kv_set "$(kv_secret_name)-secret" "$(jq -r -e '.password // "fixme" ' <<< "${sp_json}")" > /dev/stderr || true
+        printf 'sp_json [%s] set in vault [%s]\n' "${sp_json}" "$(kv_name)" > /dev/stderr
+        # get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata"
+        # get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id"
+        # get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret"
+    fi
 }
 
 function create_service_principal () {
-    persist_service_principal_details_to_kv "$(az_create_service_principal)"
+    persist_service_principal_details_to_kv "$(az_create_service_principal)" 2> /dev/null
 }
 
 function service_principal_show () {
     az ad sp show \
         --id "http://$(sp_name)" \
-    2> /dev/null
+        2> /dev/null
 }
 
 function service_principal_already_exists () {
@@ -193,11 +195,11 @@ function service_principal_already_exists () {
 }
 
 function create_service_principal_if_needed () {
-    printf 'testing sp [%s]\n' "$(sp_name)"
+    printf 'testing sp [%s]\n' "$(sp_name)" > /dev/stderr
     if ! service_principal_already_exists; then
-        printf 'creating sp [%s]\n' "$(sp_name)"
+        printf 'creating sp [%s]\n' "$(sp_name)" > /dev/stderr
         create_service_principal || true
-        service_principal_show || true
+        # service_principal_show || true
     fi
 }
 
