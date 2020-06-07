@@ -48,10 +48,12 @@ function install_yamllint_if_needed () {
 }
 
 function install_tools_if_needed () {
+    SECONDS=0
     install_yq_if_needed
     install_jq_if_needed
     install_shellcheck_if_needed
     install_yamllint_if_needed
+    DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
 }
 
-install_tools_if_needed 2> >(while read -r line; do (echo "STDERR: $line"); done)
+install_tools_if_needed "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)

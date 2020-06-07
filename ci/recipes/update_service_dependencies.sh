@@ -362,13 +362,15 @@ function check_services_config () {
 }
 
 function update_service_dependencies () {
+    SECONDS=0
     update_helm_repo
     if check_services_config; then
         # shellcheck disable=2046
         $(repo_root)/ci/recipes/update_umbrella_chart.sh
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     else
         false
     fi
 }
 
-update_service_dependencies 2> >(while read -r line; do (echo "STDERR: $line"); done)
+update_service_dependencies "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)

@@ -28,7 +28,7 @@ steps:
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/install_tools_if_needed.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig
@@ -46,7 +46,7 @@ steps:
       # inlineScript:
       # arguments
       # powerShellErrorActionPreference
-      addSpnToEnvironment: true
+      # addSpnToEnvironment
       # useGlobalConfig
       # workingDirectory
       # failOnStandardError
@@ -60,7 +60,7 @@ steps:
       scriptLocation: scriptPath
       scriptPath: './recipes/sast_shellcheck.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig
@@ -76,7 +76,7 @@ steps:
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/check_dev_key_vault_access.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig
@@ -92,7 +92,7 @@ steps:
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/deploy_ci_cluster.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig
@@ -108,7 +108,7 @@ steps:
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/acr_login_ci_registry.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig
@@ -124,7 +124,7 @@ steps:
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/copy_dev_to_ci_k8s.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig
@@ -158,7 +158,7 @@ steps:
       # inlineScript:
       arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
-      addSpnToEnvironment: true
+      # addSpnToEnvironment
       # useGlobalConfig
       # workingDirectory
       # failOnStandardError
@@ -170,9 +170,9 @@ steps:
       azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
-      scriptPath: 'echo ./ci/recipes/purge_ci_cluster.sh'
+      scriptPath: './ci/recipes/purge_ci_cluster.sh'
       # inlineScript:
-      # arguments
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
       # powerShellErrorActionPreference
       # addSpnToEnvironment
       # useGlobalConfig

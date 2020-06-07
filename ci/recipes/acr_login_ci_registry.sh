@@ -61,8 +61,10 @@ function acr_login_cluster_registry () {
 function acr_login_ci_registry () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
+        SECONDS=0
         acr_login_cluster_registry "CF_CI"
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }
 
-acr_login_ci_registry 2> >(while read -r line; do (echo "STDERR: $line"); done)
+acr_login_ci_registry "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)

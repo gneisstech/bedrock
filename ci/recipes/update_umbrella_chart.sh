@@ -278,10 +278,12 @@ function update_helm_git () {
 function update_umbrella_chart () {
     pushd "${BUILD_REPOSITORY_LOCALPATH}"
     pwd
+        SECONDS=0
         internal_semver_file_json
         update_helm_repo
         update_helm_git
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }
 
-update_umbrella_chart 2> >(while read -r line; do (echo "STDERR: $line"); done)
+update_umbrella_chart "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)

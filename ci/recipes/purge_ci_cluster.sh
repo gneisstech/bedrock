@@ -23,8 +23,10 @@ function repo_root () {
 function purge_environment_cluster () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
+        SECONDS=0
         true || "$(repo_root)/recipes/purge_environment_cluster.sh" "CF_CI"
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }
 
-purge_environment_cluster 2> >(while read -r line; do (echo "STDERR: $line"); done)
+purge_environment_cluster "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
