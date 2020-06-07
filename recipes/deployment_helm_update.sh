@@ -99,6 +99,13 @@ function connect_to_k8s () {
         --admin
 }
 
+function create_k8s_app_namespace () {
+    local -r deployment_json="${1}"
+    local namespace
+    namespace="$(get_kube_namespace "${deployment_json}")"
+    kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
+}
+
 function update_helm_repo () {
     local -r registry="${1}"
     az acr helm repo add --name "${registry}"
@@ -128,7 +135,8 @@ function update_helm_chart_on_k8s () {
     helm history \
         --kube-context "$(get_kube_context "${deployment_json}")" \
         --namespace "$(get_kube_namespace "${deployment_json}")" \
-        "$(get_helm_deployment_name "${deployment_json}" )"
+        "$(get_helm_deployment_name "${deployment_json}" )" \
+    || true
     if failed_secrets "${helm_values}" ; then
         printf 'FATAL: Failed to retrieve secrets needed in helm values!!\n'
         set -o xtrace
@@ -154,6 +162,7 @@ function update_helm_chart_on_k8s () {
             --version "$(get_helm_version "${deployment_json}")" \
             --timeout "$(get_migration_timeout "${deployment_json}")" \
             --wait \
+            --debug \
             --values <(cat <<< "${helm_values}")
     fi
 }
@@ -171,6 +180,8 @@ function deployment_helm_update () {
     local deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     connect_to_k8s "${deployment_json}"
+    create_k8s_app_namespace "${deployment_json}"
+set -x
     update_helm_chart_on_k8s "${deployment_json}"
 }
 

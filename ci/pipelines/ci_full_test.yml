@@ -1,0 +1,181 @@
+#
+# trigger this pipeline when desired to perform a full CI test
+#
+
+trigger:
+  - azure-pipelines
+pr: none
+
+pool:
+  vmImage: 'ubuntu-18.04'
+
+steps:
+  - checkout: self
+    # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
+    persistCredentials: true
+  - task: Docker@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: Login to ACR for Dev registry
+    inputs:
+      command: login
+      containerRegistry: cf-dev-acr-service-connection
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Install tools if needed'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/install_tools_if_needed.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Trace Environment'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/trace_environment.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Static Analysis'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './recipes/sast_shellcheck.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Check Key Vault Access'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/check_dev_key_vault_access.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Provision CI k8s cluster'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/deploy_ci_cluster.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+    #    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Login to CI ACR Registry'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/acr_login_ci_registry.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Copy Deployed Dev Artifacts to CI'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/copy_dev_to_ci_k8s.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Push packaged Artifacts to CI'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/publish_packaged_chart_to_ci.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Install latest umbrella chart to development k8s cluster'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/deploy_umbrella_chart_to_ci.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    displayName: 'Purge CI k8s cluster'
+    inputs:
+      azureSubscription: 'cf-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/purge_ci_cluster.sh'
+      # inlineScript:
+      arguments: $(DD_CLIENT_API_KEY) $(DD_CLIENT_APP_KEY)
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE

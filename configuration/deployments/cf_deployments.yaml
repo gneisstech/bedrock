@@ -43,9 +43,9 @@ deployments:
       suffix: 'ci'
       config: './configuration/environments/cf_k8s_ci.yaml'
     helm:
-      migration_timeout: '1m'
+      migration_timeout: '10m'
       umbrella:
-        registry: 'cfdevregistry'
+        registry: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
         version: '^2.0.0-0'

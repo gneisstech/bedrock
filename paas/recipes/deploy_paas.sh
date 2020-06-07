@@ -61,14 +61,12 @@ function paas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
-function keyvault_names () {
-    paas_configuration | jq -r -e '[.keyvaults[]? | select(.action == "create") | .name ] | @tsv'
+function saas_configuration () {
+    yq read --tojson "$(target_config)" | jq -r -e '.target.saas'
 }
 
-function seed_secrets () {
-    invoke_layer 'paas' create_registration_auth_binding_secret_if_needed
-    invoke_layer 'paas' create_database_secret_if_needed
-    invoke_layer 'paas' copy_tls_certificate_if_needed
+function keyvault_names () {
+    paas_configuration | jq -r -e '[.keyvaults[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_keyvaults () {
@@ -76,7 +74,17 @@ function deploy_keyvaults () {
     for keyvault_name in $(keyvault_names); do
         invoke_layer 'paas' 'create_keyvault_if_needed' "${keyvault_name}"
     done
-#    seed_secrets
+}
+
+function seeded_secret_names () {
+    saas_configuration | jq -r -e '[.helm.default_values.secrets.seed_values[]? | .dest ] | @tsv'
+}
+
+function seed_secrets () {
+    local secret_name
+    for secret_name in $(seeded_secret_names); do
+        invoke_layer 'paas' 'seed_secret_if_needed' "${secret_name}"
+    done
 }
 
 function service_principal_names () {
@@ -163,6 +171,7 @@ function deploy_kubernetes_clusters () {
 
 function deploy_paas () {
     deploy_keyvaults
+    seed_secrets
     deploy_service_principals
     deploy_databases
     deploy_server_farms

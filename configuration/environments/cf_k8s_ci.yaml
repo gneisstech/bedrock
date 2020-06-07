@@ -34,7 +34,7 @@ target:
       # CF Ci resource groups
       - name: &cfWafRG 'Waf-CfCi'
         action: 'create'
-      - name: &cfDbRG 'Data-CfDev'
+      - name: &cfDbRG 'Data-CfCi'
         action: 'create'
       - name: &cfKeysRG 'Kv-CfCi'
         action: 'create'
@@ -59,17 +59,21 @@ target:
           subscription: *subscription_dns
           a_record_ttl: 3600
           a_record_public_ip: *wafIP
-          action: 'create'
+          action: 'ignore-create'
   paas:
     location: *defaultAzureLocation
     keyvaults:
       # pre-existing Atrius key vault with shared configuration state such as TLS certificate
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
+      # pre-existing CF Dev key vault with shared configuration state such as TLS certificate
+      - name: &tlsKvName 'cf-dev-master-kv'
+        action: 'read'
       # CF Ci Key Vault
       - name: &kvName 'cf-ci-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
+        soft_delete: 'false'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
@@ -118,11 +122,11 @@ target:
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'cf-dev-sqls'
+        - name: &cfDefaultDbServer 'cf-ci-sqls'
           arm_type: 'Microsoft.Sql/servers'
           subscription: *defaultAzureSubscription
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'cf-dev-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName 'cf-ci-sqls-admin-user'
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
@@ -150,14 +154,79 @@ target:
       instances:
         - name: &selfHealingSchema 'cf-ci-self-healing'
           <<: *dbTemplate
-        - name: &authzSchema 'cf-dev-authz-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
+        - name: &authzSchema 'cf-ci-authz-db'
           <<: *dbTemplate
-        - name: &netWorkViewSchema 'cf-dev-network-view-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
+        - name: &netWorkViewSchema 'cf-ci-network-view-db'
           <<: *dbTemplate
-        - name: &elmSchema 'cf-dev-elm-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
+        - name: &elmSchema 'cf-ci-elm-db'
           <<: *dbTemplate
-        - name: &adminSchema 'cf-dev-admin-db'
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
+        - name: &adminSchema 'cf-ci-admin-db'
           <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
     container_registries:
       - name: &primaryACR 'cfciregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
@@ -190,7 +259,7 @@ target:
           enable_managed_identity: 'false'
           enable_private_cluster: 'false'
           generate_ssh_keys: 'true'
-          kubernetes_version: '1.16.7'
+          kubernetes_version: '1.16.9'
           load_balancer_sku: 'standard'
           max_count: 100
           max_pods: 30
@@ -296,7 +365,7 @@ target:
             verticalpodautoscalers: null
   saas:
     helm:
-      default-values:
+      default_values:
         rails:
           env: &railsEnv
             RAILS_ENV: 'production'
@@ -410,7 +479,7 @@ target:
               - *oauth2ProxyCookieSecretName
               - '"}'
               - '##'
-          seed-values:
+          seed_values:
             - source:
                 secret_name: 'cf-dev-self-healing-api-key'
                 vault_name: &persistentKVName 'cf-dev-master-kv'
@@ -427,12 +496,16 @@ target:
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
             - source:
-                secret_name: 'datadogclient'
+                secret_name: 'cf-dev-datadog-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *dataDogApiKeySecretName
             - source:
-                secret_name: 'admin-pw-for-cf-dev-sqls'
+                secret_name: 'cf-dev-neuvector-license-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+            - source:
+                secret_name: *cfDefaultDBSecretName
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *cfDefaultDBSecretName
@@ -461,7 +534,7 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name: &elmSpName 'cf-elm-web-sp'
+            sp_name: &elmSpName 'cf-ci-elm-web-sp'
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
@@ -621,7 +694,7 @@ target:
               - '","k8s_namespace":"'
               - *cfNamespace
               - '","from_vault":"'
-              - *kvName
+              - *tlsKvName
               - '","from_secret_name":"'
               - 'wildcarddevatrius-iotcom'
               - '","from_subscription":"'

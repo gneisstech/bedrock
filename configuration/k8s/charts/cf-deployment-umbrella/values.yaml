@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-default-values:
+default_values:
   rails:
     env: &railsEnv
       RAILS_ENV: 'production'
