@@ -16,6 +16,10 @@ set -o pipefail
 # Arguments
 # ---------------------
 
+function repo_root () {
+    git rev-parse --show-toplevel
+}
+
 function install_yq_if_needed () {
     if ! command -v yq; then
         curl -L https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -o yq-local
