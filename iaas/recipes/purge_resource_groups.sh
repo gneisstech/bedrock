@@ -37,7 +37,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
-declare -rx AZ_TRACE
+declare -rx AZ_TRACE="${AZTRACE:-echo az}"
 
 # Arguments
 # ---------------------
@@ -59,6 +59,7 @@ function resource_group_names () {
 }
 
 function purge_resource_groups () {
+    # shellcheck disable=2086
     resource_group_names | xargs -n 1 -P 10 $AZ_TRACE group delete --yes --name
 }
 
