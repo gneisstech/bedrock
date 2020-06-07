@@ -366,7 +366,7 @@ target:
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
-                  rights: 'Receive'
+                  rights: 'Listen'
                   key_store:
                     vault: *kvName
                     secret_name_001: &cf_iot_eh_consumer_key_001 'cf-ci-iot-eventhub-consumer-key-001'
