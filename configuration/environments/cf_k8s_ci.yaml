@@ -267,7 +267,7 @@ target:
         auto_inflate: 'true'
         enable_kafka: 'true'
         location: *defaultAzureLocation
-        maximum_throughput_units: '0'  # 0 when auto_inflate is 'true'
+        maximum_throughput_units: '0'  # 0 when auto_inflate is 'false'
         sku: 'Standard'
         tags: ''
         network_rules_default_action: 'Deny'
@@ -318,7 +318,7 @@ target:
         - name: &cfIotEhNamespace 'cf-ci-iot-eh-namespace'
           <<: *eh_namespace_template
           resource_group: *cfIotEhRG
-          capacity: '0'
+          capacity: '1'
           auto_inflate: 'true'
           enable_kafka: 'true'
           location: *defaultAzureLocation
@@ -378,10 +378,10 @@ target:
                 - id: 'fixme-authorized-managed-identity-002'
                   roles:
                     - 'fixme-role-reader'
-        - name: &cfAtEhNamespace 'cf-asset-tag-eh-namespace'
+        - name: &cfAtEhNamespace 'cf-ci-asset-tag-eh-namespace'
           <<: *eh_namespace_template
           resource_group: *cfAtEhRG
-          capacity: '0'
+          capacity: '1'
           auto_inflate: 'true'
           enable_kafka: 'true'
           location: *defaultAzureLocation
