@@ -318,11 +318,11 @@ target:
         - name: &cfIotEhNamespace 'cf-ci-iot-eh-namespace'
           <<: *eh_namespace_template
           resource_group: *cfIotEhRG
-          capacity: '1'
+          capacity: '0'
           auto_inflate: 'true'
           enable_kafka: 'true'
           location: *defaultAzureLocation
-          maximum_throughput_units: '0'  # 0 when auto_inflate is 'true'
+          maximum_throughput_units: '20'
           sku: 'Standard'
           tags: *labels
           network_rules_default_action: 'Deny'
@@ -381,11 +381,11 @@ target:
         - name: &cfAtEhNamespace 'cf-asset-tag-eh-namespace'
           <<: *eh_namespace_template
           resource_group: *cfAtEhRG
-          capacity: '1'
+          capacity: '0'
           auto_inflate: 'true'
           enable_kafka: 'true'
           location: *defaultAzureLocation
-          maximum_throughput_units: '0'  # 0 when auto_inflate is 'true'
+          maximum_throughput_units: '20'
           sku: 'Standard'
           tags: *labels
           network_rules_default_action: 'Deny'
