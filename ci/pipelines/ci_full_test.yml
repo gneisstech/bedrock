@@ -1,3 +1,4 @@
+---
 #
 # trigger this pipeline when desired to perform a full CI test
 #
@@ -14,13 +15,13 @@ steps:
     # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
     persistCredentials: true
   - task: Docker@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: Login to ACR for Dev registry
     inputs:
       command: login
       containerRegistry: cf-dev-acr-service-connection
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Install tools if needed'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -36,7 +37,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Trace Environment'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -52,7 +53,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Static Analysis'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -68,7 +69,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Check Key Vault Access'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -84,7 +85,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Provision CI k8s cluster'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -100,7 +101,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-    #    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Login to CI ACR Registry'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -116,7 +117,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Copy Deployed Dev Artifacts to CI'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -132,7 +133,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Push packaged Artifacts to CI'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -148,7 +149,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Install latest umbrella chart to development k8s cluster'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
@@ -164,7 +165,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-#    condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+    # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Purge CI k8s cluster'
     inputs:
       azureSubscription: 'cf-dev-az-service-connection'
