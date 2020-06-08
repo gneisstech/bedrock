@@ -139,7 +139,7 @@ target:
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
-            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-ci-sqls'
+            secret_name: &cfDefaultDBSecretName 'cf-ci-sqls-admin-pw'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
@@ -701,11 +701,7 @@ target:
                 secret_name: 'cf-dev-neuvector-license-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
-            - source:
-                secret_name: *cfDefaultDBSecretName
-                vault_name: *persistentKVName
-                subscription: *defaultAzureSubscription
-              dest: *cfDefaultDBSecretName
+              dest: *neuvectorLicenseKeyName
             - source:
                 secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
                 vault_name: *persistentKVName

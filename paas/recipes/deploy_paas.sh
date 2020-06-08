@@ -183,8 +183,8 @@ function deploy_kubernetes_clusters () {
 function deploy_paas () {
     deploy_keyvaults
     deploy_service_principals
-    seed_secrets
     deploy_databases
+    seed_secrets
     deploy_server_farms
     deploy_container_registries
     deploy_virtual_machines
