@@ -175,7 +175,7 @@ function fail_empty_set () {
 }
 
 function kubernetes_cluster_already_exists () {
-    $AZ_TRACE aks show \
+    az aks show \
         --name "$(kubernetes_cluster_name)" \
         --resource-group "$(kubernetes_cluster_resource_group)" \
         > /dev/null 2>&1

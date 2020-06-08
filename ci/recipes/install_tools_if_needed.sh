@@ -32,11 +32,9 @@ function install_yq_if_needed () {
 }
 
 function install_jq_if_needed () {
-set -x
     curl -L -o jq-local https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
     chmod +x jq-local
     sudo mv jq-local /usr/bin/jq
-set +x
 }
 
 function install_shellcheck_if_needed () {

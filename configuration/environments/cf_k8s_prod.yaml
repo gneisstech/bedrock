@@ -29,6 +29,7 @@ target:
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
     k8s_namespace: &cfNamespace 'cfk8s'
+    tags: &labels 'cf-env=dev cf-role=dev'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -46,6 +47,14 @@ target:
       - name: &cfAcrRG 'Acr-CfProd'
         action: 'create'
       - name: &cfK8sRG 'K8S-CfProd'
+        action: 'create'
+      - name: &cfIotEhRG 'Iot-Eh-CfProd'
+        action: 'create'
+      - name: &cfIotDlRG 'Iot-Dl-CfProd'
+        action: 'create'
+      - name: &cfAtEhRG 'AssetTag-Eh-CfProd'
+        action: 'create'
+      - name: &cfAtDlRG 'AssetTag-Dl-CfProd'
         action: 'create'
     networking:
       public_ip:
@@ -156,14 +165,94 @@ target:
       instances:
         - name: &selfHealingSchema 'cf-prod-self-healing'
           <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
         - name: &authzSchema 'cf-prod-authz-db'
           <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
         - name: &netWorkViewSchema 'cf-prod-network-view-db'
           <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
         - name: &elmSchema 'cf-prod-elm-db'
           <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
         - name: &adminSchema 'cf-prod-admin-db'
           <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
+        - name: &assetTagSchema 'cf-prod-asset-tag-db'
+          <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 14
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
     container_registries:
       - name: &primaryACR 'CfProdregistry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
@@ -172,6 +261,179 @@ target:
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
+    event_hub_namespaces:
+      eh_namespace_template: &eh_namespace_template
+        name: &eh_ns_template_namespace 'fixme-eh-name-placeholder'
+        resource_group: &eh_ns_template_resource_group 'fixme-eh-resource-group-placeholder'
+        capacity: 'fixme-eh-capacity-placeholder'
+        auto_inflate: 'true'
+        enable_kafka: 'true'
+        location: *defaultAzureLocation
+        maximum_throughput_units: '0'  # 0 when auto_inflate is 'false'
+        sku: 'Standard'
+        tags: ''
+        network_rules_default_action: 'Deny'
+        arm_type: 'Microsoft.EventHub/Namespaces'
+        action: 'Preserve'
+        topics:
+          - name: &eh_topic_name 'fixme-eventub-topic-name'
+            namespace: *eh_ns_template_namespace
+            resource_group: *eh_ns_template_resource_group
+            enable_capture: 'false'
+            message_retention: 7
+            partition_count: 32
+            status: 'Active'
+            arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+            action: 'Preserve'
+            capture:
+              skip_empty_archives: 'true'
+              capture_interval: 60
+              capture_size_limit: 524288000
+              archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+              blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
+              destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
+              storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+            consumer_groups:
+              - name: &eh_consumer_group_template
+                topic_name: *eh_topic_name
+                namespace: *eh_ns_template_namespace
+                resource_group: *eh_ns_template_resource_group
+                user_metadata: 'fixme-user-meta-data-1024-bytes'
+            authorization_rules:
+              - name: &eh_authorization_rule_template 'fixme-eventhub-authorization-rule-name'
+                topic_name: *eh_topic_name
+                namespace: *eh_ns_template_namespace
+                resource_group: *eh_ns_template_resource_group
+                rights: 'Send'  # Space-separated list of Authorization rule rights.  Allowed values: Listen, Manage, Send.
+                key_store:
+                  vault: *kvName
+                  secret_name_001: ''
+                  secret_name_002: ''
+            authorized_managed_identities:
+              - id: 'fixme-authorized-managed-identity-001'
+                roles:
+                  - 'fixme-role-writer'
+              - id: 'fixme-authorized-managed-identity-002'
+                roles:
+                  - 'fixme-role-writer'
+      instances:
+        - name: &cfIotEhNamespace 'cf-prod-iot-eh-namespace'
+          <<: *eh_namespace_template
+          resource_group: *cfIotEhRG
+          capacity: '1'
+          auto_inflate: 'true'
+          enable_kafka: 'true'
+          location: *defaultAzureLocation
+          maximum_throughput_units: '20'
+          sku: 'Standard'
+          tags: *labels
+          network_rules_default_action: 'Deny'
+          arm_type: 'Microsoft.EventHub/Namespaces'
+          action: 'create'
+          topics:
+            - name: &cfIotEhTopic 'cf-prod-iot-eh-topic'
+              namespace: *cfIotEhNamespace
+              resource_group: *cfIotEhRG
+              enable_capture: 'false'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
+                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
+                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+              consumer_groups:
+                - name: &iot_eh_asset_tags_consumer_group 'cf-prod-iot-eventhub-asset-tags-cg'
+                  topic_name: *cfIotEhTopic
+                  namespace: *cfIotEhNamespace
+                  resource_group: *cfIotEhRG
+                  user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for assets tag consumers'
+              authorization_rules:
+                - name: &cf_iot_eh_producer_rule 'cf-prod-iot-eventhub-producer'
+                  topic_name: *cfIotEhTopic
+                  namespace: *cfIotEhNamespace
+                  resource_group: *cfIotEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_iot_eh_producer_key_001 'cf-dev-iot-eventhub-producer-key-001'
+                    secret_name_002: &cf_iot_eh_producer_key_002 'cf-dev-iot-eventhub-producer-key-002'
+                - name: &cf_iot_eh_consumer_rule 'cf-prod-iot-eventhub-consumer'
+                  topic_name: *cfIotEhTopic
+                  namespace: *cfIotEhNamespace
+                  resource_group: *cfIotEhRG
+                  rights: 'Listen'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_iot_eh_consumer_key_001 'cf-dev-iot-eventhub-consumer-key-001'
+                    secret_name_002: &cf_iot_eh_consumer_key_002 'cf-dev-iot-eventhub-consumer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
+        - name: &cfAtEhNamespace 'cf-prod-asset-tag-eh-namespace'
+          <<: *eh_namespace_template
+          resource_group: *cfAtEhRG
+          capacity: '1'
+          auto_inflate: 'true'
+          enable_kafka: 'true'
+          location: *defaultAzureLocation
+          maximum_throughput_units: '20'
+          sku: 'Standard'
+          tags: *labels
+          network_rules_default_action: 'Deny'
+          arm_type: 'Microsoft.EventHub/Namespaces'
+          action: 'create'
+          topics:
+            - name: &cfAtEhTopic 'cf-prod-asset-tag-eh-topic'
+              namespace: *cfAtEhNamespace
+              resource_group: *cfAtEhRG
+              enable_capture: 'false'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
+                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
+                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+              consumer_groups:
+                - name: &asset_tag_eh_assets_consumer_group 'cf-prod-asset-tag-eventhub-asset-tags-cg'
+                  topic_name: *cfAtEhTopic
+                  namespace: *cfAtEhNamespace
+                  resource_group: *cfAtEhRG
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag consumers'
+              authorization_rules:
+                - name: &cf_asset_tag_eh_producer_rule 'cf-prod-asset-tag-eventhub-producer'
+                  topic_name: *cfAtEhTopic
+                  namespace: *cfAtEhNamespace
+                  resource_group: *cfAtEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_asset_tag_eh_producer_key_001 'cf-dev-asset-tag-eventhub-producer-key-001'
+                    secret_name_002: &cf_asset_tag_eh_producer_key_002 'cf-dev-asset-tag-eventhub-producer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
     k8s:
       clusters:
         - name: 'cf-prod-k8s-001'
@@ -206,7 +468,7 @@ target:
           node_count: 3
           node_osdisk_size: '60'
           node_vm_size: 'Standard_DS2_v2'
-          nodepool_labels: &labels 'cf-env=prod cf-role=prod'
+          nodepool_labels: *labels
           nodepool_name: 'cfnodepool'
           nodepool_tags: *labels
           service_principal:
@@ -432,21 +694,6 @@ target:
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
-            - source:
-                secret_name: 'datadogclient'
-                vault_name: *persistentKVName
-                subscription: *defaultAzureSubscription
-              dest: *dataDogApiKeySecretName
-            - source:
-                secret_name: *cfDefaultDBSecretName
-                vault_name: *persistentKVName
-                subscription: *defaultAzureSubscription
-              dest: *cfDefaultDBSecretName
-            - source:
-                secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
-                vault_name: *persistentKVName
-                subscription: *defaultAzureSubscription
-              dest: *cfObjectsDbSecretName_001
         service_principals:
           atrius_objects:
             sp_name: &atriusObjectsSpName 'cf-prod-atrius-objects-sp'
@@ -467,7 +714,7 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name: &elmSpName 'cf-elm-web-sp'
+            sp_name: &elmSpName 'cf-prod-elm-web-sp'
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
