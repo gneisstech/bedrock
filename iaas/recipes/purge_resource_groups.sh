@@ -37,7 +37,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx TARGET_CONFIG
-declare -rx AZ_TRACE="${AZTRACE:-echo az}"
+declare -rx AZ_TRACE="${AZ_TRACE:-echo az}"
 
 # Arguments
 # ---------------------

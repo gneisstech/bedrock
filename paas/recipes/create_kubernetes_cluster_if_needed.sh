@@ -229,7 +229,7 @@ function is_azure_pipeline_build () {
 }
 
 function create_kubernetes_cluster_acr_connection () {
-    if true || ! is_azure_pipeline_build; then
+    if ! is_azure_pipeline_build; then
         # azure pipeline SP does not have enough permissions to grant "acrpull" role to the k8s SP
         # so, for CI, we pre-create both SP and give them contributor access to the subscription
         echo "$AZ_TRACE" role assignment create \
