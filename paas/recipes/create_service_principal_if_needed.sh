@@ -178,12 +178,12 @@ function service_principal_already_exists () {
     sp_app_id="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id")"
     sp_secret="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret")"
     if [[ -n "${sp_app_id}" ]] || [[ -n "${sp_secret}" ]]; then
-        printf '->sp required information missing from vault;'
+        printf -- '->sp required information missing from vault;'
         false
         return
     else
         # use sp as provisioned in vault
-        printf '->sp information in vault presumed accurate;'
+        printf -- '->sp information in vault presumed accurate'
     fi
     # audit sp information as a warning to administrator
     if [[ -n "${sp_show}" ]]; then
@@ -191,27 +191,27 @@ function service_principal_already_exists () {
         showDisplayName="$(jq -r -e '.appDisplayName' <<< "${sp_show}")"
         vaultDisplayName="$(jq -r -e '.displayName' <<< "${sp_data}")"
         if [[ "${showDisplayName}" != "${vaultDisplayName}" ]]; then
-            printf '--->AAD sp displayName [%s] does not match appDisplay name [%s] in vault' "${showDisplayName}" "${vaultDisplayName}"
+            printf -- '--->AAD sp displayName [%s] does not match appDisplay name [%s] in vault' "${showDisplayName}" "${vaultDisplayName}"
         fi
         local showAppId vaultAppId
         showAppId="$(jq -r -e '.appId' <<< "${sp_show}")"
         vaultAppId="$(jq -r -e '.appId' <<< "${sp_data}")"
         if [[ "${showAppId}" != "${vaultAppId}" ]]; then
-            printf '--->AAD sp appId [%s] does not match appId  [%s] in vault' "${showAppId}" "${vaultAppId}"
+            printf -- '--->AAD sp appId [%s] does not match appId  [%s] in vault' "${showAppId}" "${vaultAppId}"
         fi
         local showAppOwnerTenantId vaultTenant
         showAppOwnerTenantId="$(jq -r -e '.appOwnerTenantId' <<< "${sp_show}")"
         vaultTenant="$(jq -r -e '.tenant' <<< "${sp_data}")"
         if [[ "${showAppOwnerTenantId}" != "${vaultTenant}" ]]; then
-            printf '--->AAD sp tenant [%s] does not match tenant  [%s] in vault' "${showAppOwnerTenantId}" "${vaultTenant}"
+            printf -- '--->AAD sp tenant [%s] does not match tenant  [%s] in vault' "${showAppOwnerTenantId}" "${vaultTenant}"
         fi
     fi
     if [[ -n "${sp_data}" ]]; then
         if [[ "${sp_secret}" != "$(jq -r -e '.password' <<< "${sp_data}")" ]]; then
-            printf '--->vault sp_data password does not match vault password for SP'
+            printf -- '--->vault sp_data password does not match vault password for SP'
         fi
         if [[ "${sp_app_id}" != "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
-            printf '--->vault sp_data appId [%s] does not match vault appId [%s] for SP' "$(jq -r -e '.appId' <<< "${sp_data}")" "${sp_app_id}"
+            printf -- '--->vault sp_data appId [%s] does not match vault appId [%s] for SP' "$(jq -r -e '.appId' <<< "${sp_data}")" "${sp_app_id}"
         fi
     fi
     true
