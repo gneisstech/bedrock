@@ -63,4 +63,5 @@ function purge_resource_groups () {
     resource_group_names | xargs -n 1 -P 10 $AZ_TRACE group delete --yes --name
 }
 
-purge_resource_groups
+# retry a second time to remove cyclic dependencies in the resource group graph
+purge_resource_groups || purge_resource_groups || true

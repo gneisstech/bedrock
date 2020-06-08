@@ -177,35 +177,52 @@ function service_principal_already_exists () {
     sp_data="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata")"
     sp_app_id="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id")"
     sp_secret="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret")"
-    if [[ -n "${sp_show}" ]] && [[ -n "${sp_data}" ]] && [[ -n "${sp_app_id}" ]] && [[ -n "${sp_secret}" ]]; then
-        if [[ "$(jq -r -e '.appDisplayName' <<< "${sp_show}")" == "$(jq -r -e '.displayName' <<< "${sp_data}")" ]]; then
-            if [[ "$(jq -r -e '.appId' <<< "${sp_show}")" == "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
-                if [[ "$(jq -r -e '.appOwnerTenantId' <<< "${sp_show}")" == "$(jq -r -e '.tenant' <<< "${sp_data}")" ]]; then
-                    if [[ "${sp_secret}" == "$(jq -r -e '.password' <<< "${sp_data}")" ]]; then
-                        if [[ "${sp_app_id}" == "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
-                            true
-                            return
-                        fi
-                    fi
-                fi
-            fi
+    if [[ -n "${sp_app_id}" ]] || [[ -n "${sp_secret}" ]]; then
+        printf '->sp required information missing from vault;'
+        false
+        return
+    else
+        # use sp as provisioned in vault
+        printf '->sp information in vault presumed accurate;'
+    fi
+    # audit sp information as a warning to administrator
+    if [[ -n "${sp_show}" ]]; then
+        local showDisplayName vaultDisplayName
+        showDisplayName="$(jq -r -e '.appDisplayName' <<< "${sp_show}")"
+        vaultDisplayName="$(jq -r -e '.displayName' <<< "${sp_data}")"
+        if [[ "${showDisplayName}" != "${vaultDisplayName}" ]]; then
+            printf '--->AAD sp displayName [%s] does not match appDisplay name [%s] in vault' "${showDisplayName}" "${vaultDisplayName}"
+        fi
+        local showAppId vaultAppId
+        showAppId="$(jq -r -e '.appId' <<< "${sp_show}")"
+        vaultAppId="$(jq -r -e '.appId' <<< "${sp_data}")"
+        if [[ "${showAppId}" != "${vaultAppId}" ]]; then
+            printf '--->AAD sp appId [%s] does not match appId  [%s] in vault' "${showAppId}" "${vaultAppId}"
+        fi
+        local showAppOwnerTenantId vaultTenant
+        showAppOwnerTenantId="$(jq -r -e '.appOwnerTenantId' <<< "${sp_show}")"
+        vaultTenant="$(jq -r -e '.tenant' <<< "${sp_data}")"
+        if [[ "${showAppOwnerTenantId}" != "${vaultTenant}" ]]; then
+            printf '--->AAD sp tenant [%s] does not match tenant  [%s] in vault' "${showAppOwnerTenantId}" "${vaultTenant}"
         fi
     fi
-    false
+    if [[ -n "${sp_data}" ]]; then
+        if [[ "${sp_secret}" != "$(jq -r -e '.password' <<< "${sp_data}")" ]]; then
+            printf '--->vault sp_data password does not match vault password for SP'
+        fi
+        if [[ "${sp_app_id}" != "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
+            printf '--->vault sp_data appId [%s] does not match vault appId [%s] for SP' "$(jq -r -e '.appId' <<< "${sp_data}")" "${sp_app_id}"
+        fi
+    fi
+    true
 }
 
 function create_service_principal_if_needed () {
-    if is_azure_pipeline_build; then
-        # do not create if already exists due to operational concerns
-        # @@ TODO if vault entries already exist, and point to a valid SP, then assume that manual configuration
-        # overrides potentially detected misconfiguration
-
-        printf 'testing sp [%s]\n' "$(sp_name)" > /dev/stderr
-        if ! service_principal_already_exists; then
-            printf 'creating sp [%s]\n' "$(sp_name)" > /dev/stderr
-            create_service_principal || true
-            # service_principal_show || true
-        fi
+    printf 'testing sp [%s]\n' "$(sp_name)" > /dev/stderr
+    if ! service_principal_already_exists; then
+        printf '  creating sp [%s]\n' "$(sp_name)" > /dev/stderr
+        create_service_principal || true
+        # service_principal_show || true
     fi
 }
 
