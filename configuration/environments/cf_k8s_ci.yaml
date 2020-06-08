@@ -117,11 +117,11 @@ target:
           - *cfK8sRG
         action: 'create'
       # for calls to Passage API from ELM
-      - name: &spElmAtrius 'cf-ci-elm-atrius-sp'
+      - name: &spElmServiceSpName 'cf-ci-elm-service-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
-          secret_name: *spElmAtrius
+          secret_name: *spElmServiceSpName
         role: 'Contributor'
         scopes:
           - '/subscriptions/'
@@ -727,12 +727,12 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name: &elmSpName 'cf-ci-elm-web-sp'
+            sp_name: *spElmServiceSpName
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - *elmSpName
+              - *spElmServiceSpName
               - '-app-id'
               - '"}'
               - '##'
@@ -740,7 +740,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - *elmSpName
+              - *spElmServiceSpName
               - '-secret'
               - '"}'
               - '##'
