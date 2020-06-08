@@ -61,7 +61,7 @@ cat <<EOF
     {
       "host": "ci_full_test",
       "metric": "$(metric_context).${metric_name}",
-      "points": [ "${metric_value}" ],
+      "points": [ [ "$(date +%s), "${metric_value}"] ],
       "tags": [ "cf-env:ci" ],
       "type": "gauge"
     }

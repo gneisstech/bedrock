@@ -65,6 +65,7 @@ kubectl --namespace cfk8s delete secret waf-tls-secret
 az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/781c62dc-1612-43e6-a0ca-a8138888691f/resourceGroups/Acr-CfQA/providers/Microsoft.ContainerRegistry/registries/cfqaregistry
 az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 
+az aks update -n cf-dev-k8s-001 -g k8s-cfdev --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 az aks update -n cf-qa-k8s-001 -g k8s-cfqa --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 az aks update -n cf-prod-k8s-001 -g k8s-cfprod --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 
