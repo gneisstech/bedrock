@@ -126,7 +126,7 @@ function get_vault_secret () {
         --vault-name "${vault}" \
         --name "${secret_name}" \
         2> /dev/null \
-    | jq -r '.value'
+    | jq -r -e '.value'
 }
 
 function set_vault_secret () {
@@ -174,16 +174,16 @@ function service_principal_already_exists () {
     # sp must exist, 3 secrets must exist and reconcile with each other and the sp data
     local sp_show sp_data sp_app_id sp_secret
     sp_show="$(service_principal_show)"
-    sp_data="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata")"
-    sp_app_id="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id")"
-    sp_secret="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret")"
-    if [[ -n "${sp_app_id}" ]] || [[ -n "${sp_secret}" ]]; then
-        printf -- '->sp required information missing from vault;'
+    sp_data="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata")" || true
+    sp_app_id="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id")" || true
+    sp_secret="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret")" || true
+    if [[ -z "${sp_app_id}" ]] || [[ -z "${sp_secret}" ]]; then
+        printf -- '->sp required information missing from vault\n'
         false
         return
     else
         # use sp as provisioned in vault
-        printf -- '->sp information in vault presumed accurate'
+        printf -- '->sp information in vault presumed accurate sp_app_id [%s]\n' "${sp_app_id}"
     fi
     # audit sp information as a warning to administrator
     if [[ -n "${sp_show}" ]]; then
@@ -191,27 +191,27 @@ function service_principal_already_exists () {
         showDisplayName="$(jq -r -e '.appDisplayName' <<< "${sp_show}")"
         vaultDisplayName="$(jq -r -e '.displayName' <<< "${sp_data}")"
         if [[ "${showDisplayName}" != "${vaultDisplayName}" ]]; then
-            printf -- '--->AAD sp displayName [%s] does not match appDisplay name [%s] in vault' "${showDisplayName}" "${vaultDisplayName}"
+            printf -- '--->AAD sp displayName [%s] does not match appDisplay name [%s] in vault\n' "${showDisplayName}" "${vaultDisplayName}"
         fi
         local showAppId vaultAppId
         showAppId="$(jq -r -e '.appId' <<< "${sp_show}")"
         vaultAppId="$(jq -r -e '.appId' <<< "${sp_data}")"
         if [[ "${showAppId}" != "${vaultAppId}" ]]; then
-            printf -- '--->AAD sp appId [%s] does not match appId  [%s] in vault' "${showAppId}" "${vaultAppId}"
+            printf -- '--->AAD sp appId [%s] does not match appId  [%s] in vault\n' "${showAppId}" "${vaultAppId}"
         fi
         local showAppOwnerTenantId vaultTenant
         showAppOwnerTenantId="$(jq -r -e '.appOwnerTenantId' <<< "${sp_show}")"
         vaultTenant="$(jq -r -e '.tenant' <<< "${sp_data}")"
         if [[ "${showAppOwnerTenantId}" != "${vaultTenant}" ]]; then
-            printf -- '--->AAD sp tenant [%s] does not match tenant  [%s] in vault' "${showAppOwnerTenantId}" "${vaultTenant}"
+            printf -- '--->AAD sp tenant [%s] does not match tenant  [%s] in vault\n' "${showAppOwnerTenantId}" "${vaultTenant}"
         fi
     fi
     if [[ -n "${sp_data}" ]]; then
         if [[ "${sp_secret}" != "$(jq -r -e '.password' <<< "${sp_data}")" ]]; then
-            printf -- '--->vault sp_data password does not match vault password for SP'
+            printf -- '--->vault sp_data password does not match vault password for SP\n'
         fi
         if [[ "${sp_app_id}" != "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
-            printf -- '--->vault sp_data appId [%s] does not match vault appId [%s] for SP' "$(jq -r -e '.appId' <<< "${sp_data}")" "${sp_app_id}"
+            printf -- '--->vault sp_data appId [%s] does not match vault appId [%s] for SP\n' "$(jq -r -e '.appId' <<< "${sp_data}")" "${sp_app_id}"
         fi
     fi
     true
