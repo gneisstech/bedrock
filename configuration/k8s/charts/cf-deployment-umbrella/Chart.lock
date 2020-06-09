@@ -22,7 +22,7 @@ dependencies:
   version: 1.1.3-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.12-dev
+  version: 2.0.13-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.12-dev
@@ -55,9 +55,9 @@ dependencies:
   version: 1.0.0-dev
 - name: cf-smoketest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.10-dev
+  version: 0.0.11-dev
 - name: cf-assets-v2-telemetry-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:bd4ed1262f7e5c72e186e01e7440d11e8a844a48fe9343205502d55dc33708cb
-generated: "2020-06-09T19:24:39.560276554Z"
+digest: sha256:7857ec67f0739700a4c9d864917c95c5b74d052cc7bd0e56e0fa23464b8d591c
+generated: "2020-06-09T22:01:57.791757428Z"
