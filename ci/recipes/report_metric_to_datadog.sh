@@ -12,6 +12,8 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx DD_CLIENT_API_KEY
+declare -rx DD_CLIENT_APP_KEY
 
 # Arguments
 # ---------------------
@@ -29,11 +31,11 @@ function datadog_metric_definition () {
     local -r metric_value="${2}"
 cat <<EOF
 {
-  "description": "Duration of CI Script Run in seconds",
-  "per_unit": "run",
+  "description": "Duration of CI Script Run for [${metric_name}] in seconds",
+  "per_unit": "command",
   "short_name": "${metric_name}",
   "type": "gauge",
-  "unit": "seconds"
+  "unit": "second"
 }
 EOF
 }
@@ -81,8 +83,8 @@ function send_datadog_metric () {
 
 function report_metric_to_datadog () {
     if [[ -n "${DD_CLIENT_API_KEY:-}" ]] && [[ -n "${DD_CLIENT_APP_KEY:-}" ]]; then
-        send_datadog_metric "$@" || true
-        define_datadog_metric_metadata "$@" || true
+        send_datadog_metric "$@" > /dev/null 2>&1 || true
+        define_datadog_metric_metadata "$@" > /dev/null 2>& 1|| true
     fi
 }
 

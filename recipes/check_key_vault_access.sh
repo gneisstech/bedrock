@@ -60,7 +60,7 @@ function explore_key_vault_access () {
         printf 'NO ACCESS TO LIST OF SECRETS\n'
         retval=1
     fi
-    if ! az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" -o table; then
+    if ! az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" > /dev/null; then
         printf 'NO ACCESS TO SPECIFIC SECRET\n'
         retval=1
     fi
