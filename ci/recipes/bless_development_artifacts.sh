@@ -219,9 +219,11 @@ function validate_branch () {
 }
 
 function bless_development_artifacts () {
+    SECONDS=0
     if validate_branch; then
         bless_deployed_containers
     fi
+    DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
 }
 
-bless_development_artifacts
+bless_development_artifacts "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
