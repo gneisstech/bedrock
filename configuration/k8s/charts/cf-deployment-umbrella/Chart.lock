@@ -55,9 +55,9 @@ dependencies:
   version: 1.0.0-dev
 - name: cf-smoketest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.11-dev
+  version: 0.0.12-dev
 - name: cf-assets-v2-telemetry-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:7857ec67f0739700a4c9d864917c95c5b74d052cc7bd0e56e0fa23464b8d591c
-generated: "2020-06-09T22:01:57.791757428Z"
+digest: sha256:a0e53eb51c71d2ba41a7972211c593f9c7583f618ce10b7df4b1bb96c688af04
+generated: "2020-06-10T00:26:44.329057113Z"
