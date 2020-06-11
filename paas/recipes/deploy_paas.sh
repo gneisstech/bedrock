@@ -61,14 +61,12 @@ function paas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
-function keyvault_names () {
-    paas_configuration | jq -r -e '[.keyvaults[]? | select(.action == "create") | .name ] | @tsv'
+function saas_configuration () {
+    yq read --tojson "$(target_config)" | jq -r -e '.target.saas'
 }
 
-function seed_secrets () {
-    invoke_layer 'paas' create_registration_auth_binding_secret_if_needed
-    invoke_layer 'paas' create_database_secret_if_needed
-    invoke_layer 'paas' copy_tls_certificate_if_needed
+function keyvault_names () {
+    paas_configuration | jq -r -e '[.keyvaults[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_keyvaults () {
@@ -76,7 +74,17 @@ function deploy_keyvaults () {
     for keyvault_name in $(keyvault_names); do
         invoke_layer 'paas' 'create_keyvault_if_needed' "${keyvault_name}"
     done
-#    seed_secrets
+}
+
+function seeded_secret_names () {
+    saas_configuration | jq -r -e '[.helm.default_values.secrets.seed_values[]? | .dest ] | @tsv'
+}
+
+function seed_secrets () {
+    local secret_name
+    for secret_name in $(seeded_secret_names); do
+        invoke_layer 'paas' 'seed_secret_if_needed' "${secret_name}"
+    done
 }
 
 function service_principal_names () {
@@ -150,6 +158,17 @@ function deploy_virtual_machines () {
     done
 }
 
+function eventhub_namespaces () {
+    paas_configuration | jq -r -e '[.event_hub_namespaces.instances[]? | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_eventhub_namespaces () {
+    local eventhub_name
+    for eventhub_name in $(eventhub_namespaces); do
+        invoke_layer 'paas' 'create_eventhub_namespace_if_needed' "${eventhub_name}"
+    done
+}
+
 function kubernetes_cluster_names () {
     paas_configuration | jq -r -e '[.k8s.clusters[]? | select(.action == "create") | .name ] | @tsv'
 }
@@ -165,10 +184,12 @@ function deploy_paas () {
     deploy_keyvaults
     deploy_service_principals
     deploy_databases
+    seed_secrets
     deploy_server_farms
     deploy_container_registries
     deploy_virtual_machines
     deploy_kubernetes_clusters
+    deploy_eventhub_namespaces
 }
 
 deploy_paas

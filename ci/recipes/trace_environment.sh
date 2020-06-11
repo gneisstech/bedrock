@@ -63,7 +63,10 @@ function trace_environment () {
     help
     help read || true
     help mapfile || true
-
+    ls -l /dev/std*
+    find /dev || true
+    find /proc/self/fd || true
+    az ad signed-in-user show || true
 
     printf '=========================== %s ============================\n' 'env follows'
     env
@@ -72,4 +75,4 @@ function trace_environment () {
     set +o xtrace
 }
 
-trace_environment
+trace_environment 2> >(while read -r line; do (echo "STDERR: $line"); done)

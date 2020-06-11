@@ -23,8 +23,10 @@ function repo_root () {
 function promote_qa_to_prod_k8s () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
+        SECONDS=0
         "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'CF_QA' 'CF_Prod'
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }
 
-promote_qa_to_prod_k8s
+promote_qa_to_prod_k8s "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)

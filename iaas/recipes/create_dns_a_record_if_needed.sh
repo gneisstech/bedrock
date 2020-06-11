@@ -117,7 +117,7 @@ function dns_target_resource () {
     subscription="$(public_ip_subscription)"
     rg="$(public_ip_resource_group)"
     pip="$(public_ip_name)"
-    echo "/subscriptions/${subscription}/resourceGroups/${rg}/providers/Microsoft.Network/publicIPAddresses/${pip}"
+    printf '/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/publicIPAddresses/%s' "${subscription}" "${rg}" "${pip}"
 }
 
 function create_dns_a_record () {
@@ -131,6 +131,15 @@ function create_dns_a_record () {
         --ttl "$(dns_a_record_ttl)"
 }
 
+function update_dns_a_record () {
+    $AZ_TRACE network dns record-set a update \
+        --name "$(dns_a_record_host)" \
+        --resource-group "$(dns_a_record_resource_group)" \
+        --zone-name "$(dns_a_record_zone)" \
+        --subscription "$(dns_a_record_subscription)" \
+        --target-resource "$(dns_target_resource)"
+}
+
 function dns_zone_exists () {
     az network dns zone show \
         --name "$(dns_a_record_zone)" \
@@ -140,7 +149,13 @@ function dns_zone_exists () {
 }
 
 function create_dns_a_record_if_needed () {
-    dns_zone_exists && (dns_a_record_already_exists || create_dns_a_record)
+    if dns_zone_exists; then
+        if dns_a_record_already_exists; then
+            update_dns_a_record
+        else
+            create_dns_a_record
+        fi
+    fi
 }
 
 create_dns_a_record_if_needed

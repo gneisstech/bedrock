@@ -93,4 +93,4 @@ function deploy_environment () {
     date
 }
 
-deploy_environment
+deploy_environment 2> >(while read -r line; do (echo "# STDERR: $line"); done)

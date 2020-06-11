@@ -62,15 +62,46 @@ function get_keyvault_rg () {
     paas_configuration | jq -r -e ".keyvaults[] | select ( .name == \"$(keyvault_name)\" ) | .resource_group"
 }
 
+function get_soft_delete () {
+    paas_configuration | jq -r -e ".keyvaults[] | select ( .name == \"$(keyvault_name)\" ) | .soft_delete"
+}
+
 function keyvault_already_exists () {
     az keyvault show --name "$(keyvault_name)" --resource-group "$(get_keyvault_rg)" > /dev/null 2>&1
+}
+
+function is_azure_pipeline_build () {
+    [[ "True" == "${TF_BUILD:-}" ]]
+}
+
+function get_azure_pipeline_sp_id () {
+    env | grep 'SPNOBJECTID=' | sed -e 's/.*=//'
+}
+
+function get_azure_pipeline_sp_info () {
+    az ad sp show --id "$(get_azure_pipeline_sp_id)"
+}
+
+function get_azure_pipeline_app_id () {
+    get_azure_pipeline_sp_info | jq -r -e '.appId'
+}
+
+function assign_list_get_set_policy_if_needed () {
+    if is_azure_pipeline_build; then
+        $AZ_TRACE keyvault set-policy \
+            --name "$(keyvault_name)" \
+            --spn "$(get_azure_pipeline_app_id)" \
+            --secret-permissions get list set
+    fi
 }
 
 function create_keyvault () {
     $AZ_TRACE keyvault create \
         --name "$(keyvault_name)" \
         --resource-group "$(get_keyvault_rg)" \
+        --enable-soft-delete "$(get_soft_delete)" \
         --enabled-for-template-deployment
+    assign_list_get_set_policy_if_needed
 }
 
 function create_keyvault_if_needed () {

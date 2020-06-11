@@ -177,6 +177,7 @@ function copy_one_container () {
     chart_file="${values_dir}/Chart.yaml"
     printf '[%s]\n  [%s]\n   [%s]\n' "${values_file}" "${values_dir}" "${chart_file}"
     container_version="$(extract_chart_appversion "${chart_file}")"
+    # shellcheck disable=2001
     target_container_version="$(sed -e "s|${origin_suffix}|${target_suffix}|" <<< "${container_version}")"
     # shellcheck disable=2001
     container_origin_repo="$(sed -e "s|.* '||" -e "s|'$||" <<< "${container_ref}")"

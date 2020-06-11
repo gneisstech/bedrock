@@ -84,7 +84,7 @@ function fetch_kv_database_server_admin_password () {
         --vault-name "$(server_attr 'admin_password_kv.vault')" \
         --name "$(server_attr 'admin_password_kv.secret_name')" \
         2> /dev/null \
-    | jq -r '.value'
+    | jq -r -e '.value'
 }
 
 function random_key () {
@@ -99,19 +99,19 @@ function create_kv_database_server_admin_password () {
         --name "$(server_attr 'admin_password_kv.secret_name')" \
         --description "admin password for database server [$(database_server_name)]" \
         --value "${password}" \
-    | jq -r '.value'
+    | jq -r -e '.value'
 }
 
 function database_server_admin_password () {
     local password
-    password=$(fetch_kv_database_server_admin_password)
+    password="$(fetch_kv_database_server_admin_password)" || true
     if [[ -z "${password:-}" ]]; then
-        password=$(create_kv_database_server_admin_password)
+        password="$(create_kv_database_server_admin_password)" || true
         if [[ -z "${password:-}" ]]; then
             return 1
         fi
     fi
-    echo -n "${password}"
+    printf '%s' "${password}"
 }
 
 function database_server_already_exists () {

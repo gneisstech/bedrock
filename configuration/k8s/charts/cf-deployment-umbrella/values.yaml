@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-default-values:
+default_values:
   rails:
     env: &railsEnv
       RAILS_ENV: 'production'
@@ -255,6 +255,7 @@ cf-self-healing-api-docker:
           - '/cf-self-healing-api(/|$)(api/v1/get_latest_record/.*)'
           - '/cf-self-healing-api(/|$)(api/v1/get_records/.*)'
           - '/cf-self-healing-api(/|$)(api/v1/update_approval.*)'
+          - '/cf-self-healing-api(/|$)(api/v1/get_stats/.*)'
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
@@ -270,7 +271,8 @@ cf-self-healing-ingest-api-docker:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
-      'nginx.ingress.kubernetes.io/client-body-buffer-size': '1M'
+      'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
+      'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
     hosts:
       - paths:
           - '/cf-self-healing-api(/|$)(api/v1/process.*)'
@@ -406,6 +408,8 @@ cf-ingest-web-api:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
+      'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
     hosts:
       - paths:
           - '/cf-ingest(/|$)(.*)'

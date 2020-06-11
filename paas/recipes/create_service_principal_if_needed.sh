@@ -43,7 +43,7 @@ declare -rx AZ_TRACE
 # ---------------------
 declare -rx SERVICE_PRINCIPAL_NAME="${1}"
 
-function service_principal_name (){
+function service_principal_name () {
     echo "${SERVICE_PRINCIPAL_NAME}"
 }
 
@@ -89,31 +89,44 @@ function kv_secret_name () {
     service_principal_attr 'key_vault.secret_name'
 }
 
-function kubernetes_cluster_already_exists () {
-    $AZ_TRACE aks show \
-        --name "$(kubernetes_cluster_name)" \
-        --resource-group "$(kubernetes_cluster_resource_group)" \
-        > /dev/stderr 2>&1
+function is_azure_pipeline_build () {
+    [[ "True" == "${TF_BUILD:-}" ]]
+}
+
+function get_prebuilt_sp_info () {
+    local -r vault="cf-ci-devops-kv"
+    local -r secret_name="cf-ci-devops-sp-info"
+    az keyvault secret show \
+        --vault-name "${vault}" \
+        --name "${secret_name}" \
+        2> /dev/null \
+    | jq -r '.value'
+
 }
 
 function az_create_service_principal () {
-    # shellcheck disable=SC2046
-    az ad sp create-for-rbac \
-        --name "http://$(sp_name)" \
-        --role "$(service_principal_attr 'role')" \
-        --output 'json' \
-        --scopes $(service_principal_string_attr    '' 'scopes') \
-    | tee /dev/stderr
+    if ! is_azure_pipeline_build; then
+        if [[ "${AZ_TRACE}" == "az" ]]; then
+            # shellcheck disable=SC2046
+            $AZ_TRACE ad sp create-for-rbac \
+                --name "http://$(sp_name)" \
+                --role "$(service_principal_attr 'role')" \
+                --output 'json' \
+                --scopes $(service_principal_string_attr    '' 'scopes')
+        fi
+    else
+        get_prebuilt_sp_info
+    fi
 }
 
 function get_vault_secret () {
     local -r vault="${1}"
     local -r secret_name="${2}"
-    $AZ_TRACE keyvault secret show \
+    az keyvault secret show \
         --vault-name "${vault}" \
         --name "${secret_name}" \
         2> /dev/null \
-    | tee /dev/stderr | jq -r '.value'
+    | jq -r -e '.value'
 }
 
 function set_vault_secret () {
@@ -136,51 +149,80 @@ function kv_set () {
 
 function persist_service_principal_details_to_kv () {
     local -r sp_json="${1}"
-    kv_set "$(kv_secret_name)-spdata" "${sp_json}" || true
-    kv_set "$(kv_secret_name)-app-id" "$(jq -r -e '.appId // "fixme" ' <<< "${sp_json}")" || true
-    kv_set "$(kv_secret_name)-secret" "$(jq -r -e '.password // "fixme" ' <<< "${sp_json}")" || true
+    if [[ -n "${sp_json}" ]]; then
+        kv_set "$(kv_secret_name)-spdata" "${sp_json}" > /dev/stderr || true
+        kv_set "$(kv_secret_name)-app-id" "$(jq -r -e '.appId // "fixme" ' <<< "${sp_json}")" > /dev/stderr || true
+        kv_set "$(kv_secret_name)-secret" "$(jq -r -e '.password // "fixme" ' <<< "${sp_json}")" > /dev/stderr || true
+        printf 'sp_json [%s] set in vault [%s]\n' "${sp_json}" "$(kv_name)" > /dev/stderr
+        # get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata"
+        # get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id"
+        # get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret"
+    fi
 }
 
 function create_service_principal () {
-    persist_service_principal_details_to_kv "$(az_create_service_principal)"
+    persist_service_principal_details_to_kv "$(az_create_service_principal)" 2> /dev/null
 }
 
 function service_principal_show () {
     az ad sp show \
         --id "http://$(sp_name)" \
-    2> /dev/null
+        2> /dev/null
 }
 
 function service_principal_already_exists () {
     # sp must exist, 3 secrets must exist and reconcile with each other and the sp data
     local sp_show sp_data sp_app_id sp_secret
     sp_show="$(service_principal_show)"
-    sp_data="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata")"
-    sp_app_id="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id")"
-    sp_secret="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret")"
-    if [[ -n "${sp_show}" ]] && [[ -n "${sp_data}" ]] && [[ -n "${sp_app_id}" ]] && [[ -n "${sp_secret}" ]]; then
-        if [[ "$(jq -r -e '.appDisplayName' <<< "${sp_show}")" == "$(jq -r -e '.displayName' <<< "${sp_data}")" ]]; then
-            if [[ "$(jq -r -e '.appId' <<< "${sp_show}")" == "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
-                if [[ "$(jq -r -e '.appOwnerTenantId' <<< "${sp_show}")" == "$(jq -r -e '.tenant' <<< "${sp_data}")" ]]; then
-                    if [[ "${sp_secret}" == "$(jq -r -e '.password' <<< "${sp_data}")" ]]; then
-                        if [[ "${sp_app_id}" == "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
-                            true
-                            return
-                        fi
-                    fi
-                fi
-            fi
+    sp_data="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-spdata")" || true
+    sp_app_id="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-app-id")" || true
+    sp_secret="$(get_vault_secret "$(kv_name)" "$(kv_secret_name)-secret")" || true
+    if [[ -z "${sp_app_id}" ]] || [[ -z "${sp_secret}" ]]; then
+        printf -- '->sp required information missing from vault\n'
+        false
+        return
+    else
+        # use sp as provisioned in vault
+        printf -- '->sp information in vault presumed accurate sp_app_id [%s]\n' "${sp_app_id}"
+    fi
+    # audit sp information as a warning to administrator
+    if [[ -n "${sp_show}" ]]; then
+        local showDisplayName vaultDisplayName
+        showDisplayName="$(jq -r -e '.appDisplayName' <<< "${sp_show}")"
+        vaultDisplayName="$(jq -r -e '.displayName' <<< "${sp_data}")"
+        if [[ "${showDisplayName}" != "${vaultDisplayName}" ]]; then
+            printf -- '--->AAD sp displayName [%s] does not match appDisplay name [%s] in vault\n' "${showDisplayName}" "${vaultDisplayName}"
+        fi
+        local showAppId vaultAppId
+        showAppId="$(jq -r -e '.appId' <<< "${sp_show}")"
+        vaultAppId="$(jq -r -e '.appId' <<< "${sp_data}")"
+        if [[ "${showAppId}" != "${vaultAppId}" ]]; then
+            printf -- '--->AAD sp appId [%s] does not match appId  [%s] in vault\n' "${showAppId}" "${vaultAppId}"
+        fi
+        local showAppOwnerTenantId vaultTenant
+        showAppOwnerTenantId="$(jq -r -e '.appOwnerTenantId' <<< "${sp_show}")"
+        vaultTenant="$(jq -r -e '.tenant' <<< "${sp_data}")"
+        if [[ "${showAppOwnerTenantId}" != "${vaultTenant}" ]]; then
+            printf -- '--->AAD sp tenant [%s] does not match tenant  [%s] in vault\n' "${showAppOwnerTenantId}" "${vaultTenant}"
         fi
     fi
-    false
+    if [[ -n "${sp_data}" ]]; then
+        if [[ "${sp_secret}" != "$(jq -r -e '.password' <<< "${sp_data}")" ]]; then
+            printf -- '--->vault sp_data password does not match vault password for SP\n'
+        fi
+        if [[ "${sp_app_id}" != "$(jq -r -e '.appId' <<< "${sp_data}")" ]]; then
+            printf -- '--->vault sp_data appId [%s] does not match vault appId [%s] for SP\n' "$(jq -r -e '.appId' <<< "${sp_data}")" "${sp_app_id}"
+        fi
+    fi
+    true
 }
 
-
 function create_service_principal_if_needed () {
-    printf 'testing sp [%s]\n' "$(sp_name)"
+    printf 'testing sp [%s]\n' "$(sp_name)" > /dev/stderr
     if ! service_principal_already_exists; then
-        printf 'creating sp [%s]\n' "$(sp_name)"
+        printf '  creating sp [%s]\n' "$(sp_name)" > /dev/stderr
         create_service_principal || true
+        # service_principal_show || true
     fi
 }
 

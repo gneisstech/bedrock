@@ -65,6 +65,7 @@ kubectl --namespace cfk8s delete secret waf-tls-secret
 az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/781c62dc-1612-43e6-a0ca-a8138888691f/resourceGroups/Acr-CfQA/providers/Microsoft.ContainerRegistry/registries/cfqaregistry
 az aks update -n cf-ci-k8s-001 -g k8s-cfci --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 
+az aks update -n cf-dev-k8s-001 -g k8s-cfdev --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 az aks update -n cf-qa-k8s-001 -g k8s-cfqa --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 az aks update -n cf-prod-k8s-001 -g k8s-cfprod --attach-acr /subscriptions/5649ad97-1fd3-460f-b569-9995bbb6c5c0/resourceGroups/Acr-CfDev/providers/Microsoft.ContainerRegistry/registries/cfdevregistry
 
@@ -544,3 +545,21 @@ spec:
 status:
   loadBalancer: {}
 
+
+  505  kubectl --context cf-dev-k8s-001 create ns neuvector
+  506  kubectl --context cf-qa-k8s-001 create ns neuvector
+  507  kubectl --context cf-prod-k8s-001 create ns neuvector
+
+  520  helm upgrade --install neuvector . --namespace neuvector --kube-context cf-dev-k8s-001 --set registry=CfDevregistry.azurecr.io
+  521  kubectl --namespace neuvector get all
+  522  kubectl --namespace neuvector get all
+
+kubectl --namespace neuvector --context cf-qa-k8s-001 port-forward service/neuvector-service-webui 8443:8443
+
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-dev-k8s-001 --set registry=Cfqaregistry.azurecr.io
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-qa-k8s-001 --set registry=Cfqaregistry.azurecr.io
+helm upgrade --install neuvector . --namespace neuvector --kube-context cf-prod-k8s-001 --set registry=Cfprodregistry.azurecr.io
+
+kubectl --namespace neuvector --context cf-dev-k8s-001 port-forward service/neuvector-service-webui 7443:8443 &
+kubectl --namespace neuvector --context cf-qa-k8s-001 port-forward service/neuvector-service-webui 8443:8443 &
+kubectl --namespace neuvector --context cf-prod-k8s-001 port-forward service/neuvector-service-webui 9443:8443 &
