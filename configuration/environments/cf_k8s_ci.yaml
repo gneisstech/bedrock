@@ -1057,9 +1057,14 @@ target:
                 - *dnsHost
                 - '.'
                 - *dnsZone
+              SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
             secrets:
               CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
               CF_SELF_HEALING_API_KEY: *selfHealingApiKey
+              JWT_AUTH_TOKEN: ''
+              SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-svc-docker:
           enabled: true
         cf-oauth-proxy-docker:
