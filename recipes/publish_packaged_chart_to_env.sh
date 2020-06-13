@@ -73,4 +73,5 @@ function publish_packaged_chart_to_env () {
     rm -f "$(repo_root)/${chart_file_name}" "$(repo_root)/Chart.yaml"
 }
 
+set -x
 publish_packaged_chart_to_env "${@}"

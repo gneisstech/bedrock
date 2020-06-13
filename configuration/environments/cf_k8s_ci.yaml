@@ -24,7 +24,7 @@ target:
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
     k8s_namespace: &cfNamespace 'cfk8s'
-    tags: &labels 'cf-env=dev cf-role=dev'
+    tags: &labels 'cf-env=ci cf-role=ci'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
