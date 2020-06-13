@@ -244,8 +244,8 @@ function copy_containers () {
     local origin_registry target_registry origin_subscription target_subscription
     origin_registry="$(get_helm_registry "${origin_deployment_json}")"
     target_registry="$(get_helm_registry "${target_deployment_json}")"
-    origin_subscription="$(get_subscription "${origin_deployment_json}")"
-    target_subscription="$(get_subscription "${target_deployment_json}")"
+    origin_subscription="$(get_subscription_name "${origin_deployment_json}")"
+    target_subscription="$(get_subscription_name "${target_deployment_json}")"
     find_container_references "${origin_registry}" \
         | copy_containers_from_list \
             "${origin_registry}" \
