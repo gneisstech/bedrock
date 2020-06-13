@@ -15,11 +15,11 @@ steps:
   - checkout: self
     # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
     persistCredentials: true
-  - task: Docker@2
-    displayName: Login to ACR for QA registry
-    inputs:
-      command: login
-      containerRegistry: cf-qa-acr-service-connection
+#  - task: Docker@2
+#    displayName: Login to ACR for QA registry
+#    inputs:
+#      command: login
+#      containerRegistry: cf-qa-acr-service-connection
   - task: Docker@2
     displayName: Login to ACR for Prod registry
     inputs:
