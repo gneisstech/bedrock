@@ -168,9 +168,9 @@ function find_container_references () {
 function docker_push_to_target_subscription () {
     local -r origin_subscription="${1}"
     local -r target_subscription="${2}"
-    az account set --subscription ${target_subscription}
+    az account set --subscription "${target_subscription}"
     docker push "${container_target_repo}:${target_container_version}"
-    az account set --subscription ${origin_subscription}
+    az account set --subscription "${origin_subscription}"
 }
 
 function copy_one_container () {
