@@ -6,7 +6,6 @@
 
 trigger:
   - deployment_request/prod
-  - azure-pipelines
 
 pool:
   vmImage: 'ubuntu-latest'
