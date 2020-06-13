@@ -12,17 +12,12 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx TF_BUILD
 
 # Arguments
 # ---------------------
 
 function repo_root () {
     git rev-parse --show-toplevel
-}
-
-function is_azure_pipeline_build () {
-    [[ "True" == "${TF_BUILD:-}" ]]
 }
 
 function get_kube_context () {
@@ -191,9 +186,7 @@ function copy_one_container () {
 
 function acr_login () {
     local -r desired_repo="${1}"
-    if ! is_azure_pipeline_build; then
-        az acr login -n "${desired_repo}" 2> /dev/null
-    fi
+    az acr login -n "${desired_repo}" 2> /dev/null
 }
 
 function copy_containers_from_list () {
