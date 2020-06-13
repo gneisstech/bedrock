@@ -20,10 +20,6 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function is_azure_pipeline_build () {
-    [[ "True" == "${TF_BUILD:-}" ]]
-}
-
 function get_kube_context () {
     local -r deployment_json="${1}"
     jq -r -e '.k8s.context' <<< "${deployment_json}"
@@ -190,9 +186,7 @@ function copy_one_container () {
 
 function acr_login () {
     local -r desired_repo="${1}"
-    if ! is_azure_pipeline_build; then
-        az acr login -n "${desired_repo}" 2> /dev/null
-    fi
+    az acr login -n "${desired_repo}" 2> /dev/null
 }
 
 function copy_containers_from_list () {
@@ -278,7 +272,11 @@ function rewrite_latest_deployment () {
     build_root="$(repo_root)"
     pushd "${tmp_chart_dir}/${origin_chart_name}"
         rm -f "Chart.lock"
-        copy_containers "${origin_deployment_json}" "${target_deployment_json}" "${origin_suffix}" "${target_suffix}"
+        copy_containers \
+            "${origin_deployment_json}" \
+            "${target_deployment_json}" \
+            "${origin_suffix}" \
+            "${target_suffix}"
         rewrite_files 'Chart.yaml' "${origin_suffix}" "${target_suffix}"
         rewrite_files 'values.yaml' "${origin_registry}" "${target_registry}"
         package_new_umbrella "${target_registry}" "${origin_chart_name}" "${build_root}"

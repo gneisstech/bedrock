@@ -1,6 +1,32 @@
 ---
 deployments:
   - name: 'CF_Development'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'ConnectedFacilities-Dev'
+            id: '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
+          location: 'eastus'
+          tls_subscription:
+            name: 'ConnectedFacilities-Dev'
+            id: '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
+          dns_subscription:
+            name: 'Allspice-Dev'
+            id: '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    external_services:
+      atrius:
+        databases:
+          - db_host_name: 'pltdata01sqlsep2ftp3b7r'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
+        passage:
+          ad_tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+          authn_tenant: 'common'  # allow all AD tenants to authenticate
+          api_host: 'passage.atrius-dev.acuitynext.io'
+          api_application_id: '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
     k8s:
       namespace: 'cfk8s'
       context: 'cf-dev-k8s-001-admin'
@@ -22,10 +48,36 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
-        version: '^2.0.0-0'
+        version: '^3.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
   - name: 'CF_CI'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'ConnectedFacilities-Dev'
+            id: '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
+          location: 'eastus'
+          tls_subscription:
+            name: 'ConnectedFacilities-Dev'
+            id: '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
+          dns_subscription:
+            name: 'Allspice-Dev'
+            id: '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    external_services:
+      atrius:
+        databases:
+          - db_host_name: 'pltdata01sqlsep2ftp3b7r'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
+        passage:
+          ad_tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+          authn_tenant: 'common'  # allow all AD tenants to authenticate
+          api_host: 'passage.atrius-dev.acuitynext.io'
+          api_application_id: '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
     k8s:
       namespace: 'cfk8s'
       context: 'cf-ci-k8s-001-admin'
@@ -48,9 +100,35 @@ deployments:
         registry: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^2.0.0-0'
+        version: '^3.0.0-0'
         values_file: ''
   - name: 'CF_QA'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'ConnectedFacilities-QA'
+            id: '781c62dc-1612-43e6-a0ca-a8138888691f'  # Acuity Brands, Inc. ConnectedFacilities-QA
+          location: 'eastus'
+          tls_subscription:
+            name: 'ConnectedFacilities-QA'
+            id: '781c62dc-1612-43e6-a0ca-a8138888691f'  # Acuity Brands, Inc. ConnectedFacilities-QA
+          dns_subscription:
+            name: 'Allspice-QA'
+            id: 'a98f27b5-367a-44b6-af72-26fab4efc5f7'  # Acuity Brands, Inc. Allspice-QA
+    external_services:
+      atrius:
+        databases:
+          - db_host_name: 'pltdata01sqlsw3pyftzuvb'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ASPQA01US-CFReader-SQLUserPassword'
+        passage:
+          ad_tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+          authn_tenant: 'common'  # allow all AD tenants to authenticate
+          api_host: 'passage.atrius-qa.acuitynext.io'
+          api_application_id: '528307d1-f67d-4dff-a3a8-c68dace2b072'  # Acuity Brands Atrius QA Passage API
     k8s:
       namespace: 'cfk8s'
       context: 'cf-qa-k8s-001-admin'
@@ -73,9 +151,39 @@ deployments:
         registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^2.0.0-0'
+        version: '^3.0.0-0'
         values_file: ''
   - name: 'CF_Prod'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'ConnectedFacilities-Prod'
+            id: 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
+          location: 'eastus'
+          tls_subscription:
+            name: 'ConnectedFacilities-Prod'
+            id: 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
+          dns_subscription:
+            name: 'Allspice-Dev'
+            id: '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    external_services:
+      atrius:
+        databases:
+          - db_host_name: 'pltdata01sqls5vysxyq75v'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ATRDEMO01US-CFReader-SQLUserPassword'
+          - db_host_name: 'pltdata01sqlsbb6ahiz252'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ATRPROD02US-CFReader-SQLUserPassword'
+        passage:
+          ad_tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+          authn_tenant: 'common'  # allow all AD tenants to authenticate
+          api_host: 'passage.atrius-us.acuitynext.io'
+          api_application_id: 'd9253624-7e87-426c-8132-75858e1dcf0b'  # Acuity Brands Atrius US Passage API
     k8s:
       namespace: 'cfk8s'
       context: 'cf-prod-k8s-001-admin'
@@ -98,9 +206,25 @@ deployments:
         registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^2.0.0-0'
+        version: '^3.0.0-0'
         values_file: ''
   - name: 'CF_Local'
+    iaas:
+      provider:
+        docker-desktop:
+          enabled: 'true'
+    external_services:
+      atrius:
+        databases:
+          - db_host_name: 'pltdata01sqlsep2ftp3b7r'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
+        passage:
+          ad_tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+          authn_tenant: 'common'  # allow all AD tenants to authenticate
+          api_host: 'passage.atrius-dev.acuitynext.io'
+          api_application_id: '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
     k8s:
       namespace: 'cfk8s'
       context: 'docker-desktop'
@@ -123,6 +247,6 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^2.0.0-0'
+        version: '^3.0.0-0'
         values_file: ''
 ---

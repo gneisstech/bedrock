@@ -87,7 +87,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Promote Deployed QA Artifacts to Prod'
     inputs:
-      azureSubscription: 'cf-qa-az-service-connection'
+      azureSubscription: 'cf-prod-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/promote_qa_to_prod_k8s.sh'
