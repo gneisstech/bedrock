@@ -12,6 +12,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx TF_BUILD
 
 # Arguments
 # ---------------------
@@ -57,11 +58,6 @@ function get_target_config () {
 function get_environment_suffix () {
     local -r deployment_json="${1}"
     jq -r -e '.environment.suffix' <<< "${deployment_json}"
-}
-
-function get_subscription_name () {
-    local -r deployment_json="${1}"
-    jq -r -e '.iaas.provider.azure.subscription.name' <<< "${deployment_json}"
 }
 
 function get_cluster_config_json () {
@@ -165,25 +161,12 @@ function find_container_references () {
     find . -name "values.yaml" -exec grep -iH "${origin_registry}.azurecr.io" {} \;
 }
 
-function docker_push_to_target_subscription () {
-    local -r origin_subscription="${1}"
-    local -r target_subscription="${2}"
-    local -r container_target_repo="${3}"
-    local -r target_container_version="${4}"
-    az account set --subscription "${target_subscription}"
-    od -xa <<< "${container_target_repo}:${target_container_version}"
-    docker push "${container_target_repo}:${target_container_version}"
-    az account set --subscription "${origin_subscription}"
-}
-
 function copy_one_container () {
     local -r container_ref="${1}"
     local -r origin_registry="${2}"
     local -r target_registry="${3}"
     local -r origin_suffix="${4}"
     local -r target_suffix="${5}"
-    local -r origin_subscription="${6}"
-    local -r target_subscription="${7}"
 
     local container_origin_repo container_target_repo
     local values_file values_dir chart_file
@@ -203,18 +186,14 @@ function copy_one_container () {
     container_target_repo="$(sed -e "s|${origin_registry}|${target_registry}|" <<< "${container_origin_repo}")"
     docker pull "${container_origin_repo}:${container_version}"
     docker tag "${container_origin_repo}:${container_version}" "${container_target_repo}:${target_container_version}"
-    docker_push_to_target_subscription \
-        "${origin_subscription}" \
-        "${target_subscription}" \
-        "${container_target_repo}" \
-        "${target_container_version}"
+    docker push "${container_target_repo}:${target_container_version}"
 }
 
 function acr_login () {
     local -r desired_repo="${1}"
-    #if ! is_azure_pipeline_build; then
+    if ! is_azure_pipeline_build; then
         az acr login -n "${desired_repo}" 2> /dev/null
-    #fi
+    fi
 }
 
 function copy_containers_from_list () {
@@ -222,8 +201,6 @@ function copy_containers_from_list () {
     local -r target_registry="${2}"
     local -r origin_suffix="${3}"
     local -r target_suffix="${4}"
-    local -r origin_subscription="${5}"
-    local -r target_subscription="${6}"
 
     acr_login "${origin_registry}"
     acr_login "${target_registry}"
@@ -237,9 +214,7 @@ function copy_containers_from_list () {
             "${origin_registry}" \
             "${target_registry}" \
             "${origin_suffix}" \
-            "${target_suffix}" \
-            "${origin_subscription}" \
-            "${target_subscription}"
+            "${target_suffix}"
     done
 }
 
@@ -248,19 +223,15 @@ function copy_containers () {
     local -r target_deployment_json="${2}"
     local -r origin_suffix="${3}"
     local -r target_suffix="${4}"
-    local origin_registry target_registry origin_subscription target_subscription
+    local origin_registry target_registry
     origin_registry="$(get_helm_registry "${origin_deployment_json}")"
     target_registry="$(get_helm_registry "${target_deployment_json}")"
-    origin_subscription="$(get_subscription_name "${origin_deployment_json}")"
-    target_subscription="$(get_subscription_name "${target_deployment_json}")"
     find_container_references "${origin_registry}" \
         | copy_containers_from_list \
             "${origin_registry}" \
             "${target_registry}" \
             "${origin_suffix}" \
-            "${target_suffix}" \
-            "${origin_subscription}" \
-            "${target_subscription}"
+            "${target_suffix}"
 }
 
 function rewrite_files () {
