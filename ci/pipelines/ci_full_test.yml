@@ -3,8 +3,7 @@
 # trigger this pipeline when desired to perform a full CI test
 #
 
-trigger:
-  - azure-pipelines
+trigger: none
 pr: none
 
 pool:
