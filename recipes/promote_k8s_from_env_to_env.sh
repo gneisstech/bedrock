@@ -297,5 +297,4 @@ function promote_k8s_from_env_to_env () {
     fi
 }
 
-set -x
 promote_k8s_from_env_to_env "${@}"

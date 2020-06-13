@@ -29,4 +29,4 @@ function deploy_umbrella_chart_to_prod () {
     popd
 }
 
-# deploy_umbrella_chart_to_prod "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
+deploy_umbrella_chart_to_prod "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
