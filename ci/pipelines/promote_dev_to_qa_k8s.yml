@@ -87,7 +87,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Promote Deployed Dev Artifacts to QA'
     inputs:
-      azureSubscription: 'cf-dev-az-service-connection'
+      azureSubscription: 'cf-qa-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/promote_dev_to_qa_k8s.sh'
