@@ -168,7 +168,10 @@ function find_container_references () {
 function docker_push_to_target_subscription () {
     local -r origin_subscription="${1}"
     local -r target_subscription="${2}"
+    local -r container_target_repo="${3}"
+    local -r target_container_version="${4}"
     az account set --subscription "${target_subscription}"
+    od -xa <<< "${container_target_repo}:${target_container_version}"
     docker push "${container_target_repo}:${target_container_version}"
     az account set --subscription "${origin_subscription}"
 }
@@ -200,14 +203,18 @@ function copy_one_container () {
     container_target_repo="$(sed -e "s|${origin_registry}|${target_registry}|" <<< "${container_origin_repo}")"
     docker pull "${container_origin_repo}:${container_version}"
     docker tag "${container_origin_repo}:${container_version}" "${container_target_repo}:${target_container_version}"
-    docker_push_to_target_subscription "${origin_subscription}" "${target_subscription}"
+    docker_push_to_target_subscription \
+        "${origin_subscription}" \
+        "${target_subscription}" \
+        "${container_target_repo}" \
+        "${target_container_version}"
 }
 
 function acr_login () {
     local -r desired_repo="${1}"
-    if ! is_azure_pipeline_build; then
+    #if ! is_azure_pipeline_build; then
         az acr login -n "${desired_repo}" 2> /dev/null
-    fi
+    #fi
 }
 
 function copy_containers_from_list () {
