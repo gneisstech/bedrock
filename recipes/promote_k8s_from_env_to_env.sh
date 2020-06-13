@@ -284,7 +284,6 @@ function rewrite_latest_deployment () {
 }
 
 function promote_k8s_from_env_to_env () {
-set -x
     local -r origin_deployment_name="${1}"
     local -r target_deployment_name="${2}"
     local origin_deployment_json target_deployment_json tmp_chart_dir
