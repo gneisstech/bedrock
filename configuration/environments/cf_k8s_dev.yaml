@@ -1097,9 +1097,16 @@ target:
           enabled: true
           controller:
             config:
-              # enable-modsecurity: 'true'
-              # modsecurity-snippet: ''
-              # enable-owasp-modsecurity-cr: 'true'
+              nginx.ingress.kubernetes.io/affinity: 'cookie'
+              nginx.ingress.kubernetes.io/enable-modsecurity: "true"
+              nginx.ingress.kubernetes.io/enable-owasp-core-rules: "false"
+              nginx.ingress.kubernetes.io/modsecurity-snippet: |
+                SecRuleEngine On
+                SecRequestBodyAccess On
+                SecAuditEngine RelevantOnly
+                SecAuditLogParts ABIJDEFHZ
+                SecAuditLog /dev/stderr
+                Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
               enable-underscores-in-headers: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
