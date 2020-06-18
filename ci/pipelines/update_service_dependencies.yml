@@ -101,6 +101,12 @@ resources:
         branches:
           include:
             - 'master-bytelight'
+    - pipeline: 'cf-tls-certificate-manager-svc-docker'
+      source: 'cf_tls_certificate_manager'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
 
 pool:
   vmImage: 'ubuntu-latest'
