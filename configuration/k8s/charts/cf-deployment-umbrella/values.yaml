@@ -501,6 +501,18 @@ cf-assets-v2-telemetry-svc-docker:
       TELEMETRY_EH_CG_ASSETS_V2_INGEST_CONNECTION_STRING: ''
       TELEMETRY_EH_BAKED_ASSETS_V2_PUBLISH_CONNECTION_STRING: ''
 
+cf-tls-certificate-manager-svc-docker:
+  fullnameOverride: 'cf-tls-certificate-manager-svc-docker'
+  enabled: false
+
+cf-coordinate-transform-svc-docker:
+  fullnameOverride: 'cf-coordinate-transform-svc-docker'
+  enabled: false
+
+cf-city-state-zip-svc-docker:
+  fullnameOverride:  'cf-city-state-zip-svc-docker'
+  enabled: false
+
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
   enabled: true

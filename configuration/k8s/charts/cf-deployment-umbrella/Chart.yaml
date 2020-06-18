@@ -195,6 +195,33 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: 'cf-tls-certificate-manager-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-tls-certificate-manager-svc-docker.enabled'
+    tags:
+      - 'cf-tls-certificate-manager-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-coordinate-transform-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-coordinate-transform-svc-docker.enabled'
+    tags:
+      - 'cf-coordinate-transform-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-city-state-zip-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-city-state-zip-svc-docker.enabled'
+    tags:
+      - 'cf-city-state-zip-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.

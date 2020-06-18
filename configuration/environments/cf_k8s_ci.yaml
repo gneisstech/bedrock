@@ -1067,6 +1067,12 @@ target:
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-svc-docker:
           enabled: true
+        cf-tls-certificate-manager-svc-docker:
+          enabled: false
+        cf-coordinate-transform-svc-docker:
+          enabled: false
+        cf-city-state-zip-svc-docker:
+          enabled: false
         cf-oauth-proxy-docker:
           config:
             environment:
