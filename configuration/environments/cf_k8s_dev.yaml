@@ -1075,7 +1075,7 @@ target:
               CERTIFICATE_NAME: '{{ .Release.Name }}'
               CERTIFICATE_ORG: 'Acuity Brands, Inc.'
               DEV_CERTIFICATE_DIR:
-                - *certificateDir
+                - *leCertificateDir
                 - "/dev-cert"
               DEVELOPER_CERTIFICATE_REQUIRED_FLAG:
                 - *leCertificateDir
