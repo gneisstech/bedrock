@@ -13,10 +13,10 @@ dependencies:
   version: 1.0.7-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.2-dev
+  version: 1.4.3-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.2-dev
+  version: 1.4.3-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.1.3-dev
@@ -61,6 +61,6 @@ dependencies:
   version: 0.0.4-dev
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.4-dev
-digest: sha256:1016fab22e0d7b202eede3ca8232fd66969dee70b1a4589c9b430305e61c903b
-generated: "2020-06-18T18:59:49.393948322Z"
+  version: 0.0.5-dev
+digest: sha256:06116613f50c88a986159fcbd91ce9474494834030ed81d72b56480ea4756e2e
+generated: "2020-06-18T19:13:28.091425808Z"
