@@ -1097,10 +1097,10 @@ target:
           enabled: true
           controller:
             config:
-              nginx.ingress.kubernetes.io/affinity: 'cookie'
-              nginx.ingress.kubernetes.io/enable-modsecurity: "true"
-              nginx.ingress.kubernetes.io/enable-owasp-core-rules: "false"
-              nginx.ingress.kubernetes.io/modsecurity-snippet: |
+              # nginx.ingress.kubernetes.io/affinity: 'cookie'
+              enable-modsecurity: "true"
+              enable-owasp-core-rules: "false"
+              modsecurity-snippet: |
                 SecRuleEngine On
                 SecRequestBodyAccess On
                 SecAuditEngine RelevantOnly
