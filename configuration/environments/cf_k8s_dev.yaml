@@ -1097,7 +1097,7 @@ target:
                 - '/'
                 - *wafTLSSecret
             secrets:
-              TLS_PEM: ''
+              TLS_PEM:
                 - '##secure_secret={"vault":"'
                 - *kvName
                 - '","secret_name":"'
