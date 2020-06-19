@@ -64,9 +64,9 @@ dependencies:
   version: 0.0.5-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.1-dev
+  version: 0.0.2-dev
 - name: cf-city-state-zip-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:8ccc6ddc63219102a4f8bb7044164cf0146b21b9e95f64d42ff1cb01357ffb9f
-generated: "2020-06-19T14:28:41.373890519Z"
+digest: sha256:1cff310c2ea44c8800dee22b5e9c5cdb29dee33603e66ea35b12b05abc09b70d
+generated: "2020-06-19T14:38:37.624933433Z"
