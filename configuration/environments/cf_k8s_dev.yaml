@@ -1096,8 +1096,8 @@ target:
                 - *subscription_tls
                 - '"}'
                 - '##'
-        cf-coordinate-transform-svc-docker:
-          enabled: false
+        cf-coordinate-transforms-svc-docker:
+          enabled: true
         cf-city-state-zip-svc-docker:
           enabled: true
         cf-oauth-proxy-docker:

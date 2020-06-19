@@ -1099,7 +1099,7 @@ target:
           enabled: false
         cf-tls-certificate-manager-svc-docker:
           enabled: false
-        cf-coordinate-transform-svc-docker:
+        cf-coordinate-transforms-svc-docker:
           enabled: false
         cf-city-state-zip-svc-docker:
           enabled: false
