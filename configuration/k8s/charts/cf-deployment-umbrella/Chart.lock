@@ -62,8 +62,11 @@ dependencies:
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.5-dev
+- name: cf-coordinate-transforms-svc-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.1-dev
 - name: cf-city-state-zip-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:158bbd0b87acce43c9d01dc88f577fb8377ada3eb105581c5b42baed2892d526
-generated: "2020-06-19T12:41:49.684745922Z"
+digest: sha256:8ccc6ddc63219102a4f8bb7044164cf0146b21b9e95f64d42ff1cb01357ffb9f
+generated: "2020-06-19T14:28:41.373890519Z"
