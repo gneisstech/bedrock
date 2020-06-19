@@ -507,7 +507,7 @@ cf-tls-certificate-manager-svc-docker:
 
 cf-coordinate-transforms-svc-docker:
   fullnameOverride: 'cf-coordinate-transforms-svc-docker'
-  enabled: false
+  enabled: true
 
 cf-city-state-zip-svc-docker:
   fullnameOverride:  'cf-city-state-zip-svc-docker'
@@ -528,6 +528,10 @@ cf-city-state-zip-svc-docker:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
+
+cf-ecy-ingest-svc-docker:
+  fullnameOverride: 'cf-ecy-ingest-svc-docker'
+  enabled: true
 
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'

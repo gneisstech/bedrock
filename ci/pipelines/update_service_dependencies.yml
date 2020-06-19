@@ -119,6 +119,12 @@ resources:
         branches:
           include:
             - 'master-bytelight'
+    - pipeline: 'cf-ecy-ingest-svc-docker'
+      source: 'cf_ecy_ingest'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
 
 pool:
   vmImage: 'ubuntu-latest'

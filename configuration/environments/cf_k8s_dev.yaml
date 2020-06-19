@@ -1100,6 +1100,8 @@ target:
           enabled: true
         cf-city-state-zip-svc-docker:
           enabled: true
+        cf-ecy-ingest-svc-docker:
+          enabled: true
         cf-oauth-proxy-docker:
           config:
             environment:

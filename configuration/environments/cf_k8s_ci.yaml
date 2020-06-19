@@ -1073,6 +1073,8 @@ target:
           enabled: false
         cf-city-state-zip-svc-docker:
           enabled: false
+        cf-ecy-ingest-svc-docker:
+          enabled: false
         cf-oauth-proxy-docker:
           config:
             environment:
