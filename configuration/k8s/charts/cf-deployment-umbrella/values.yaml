@@ -511,7 +511,23 @@ cf-coordinate-transform-svc-docker:
 
 cf-city-state-zip-svc-docker:
   fullnameOverride:  'cf-city-state-zip-svc-docker'
-  enabled: false
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-city-state-zip/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
+          - '/cf-city-state-zip(/|$)(.*)'
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      APP_VERSION: '{{ .Chart.AppVersion }}'
 
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'

@@ -872,21 +872,6 @@ target:
           api_url:
             prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
       service_values:
-        tls_secrets:
-          - result:
-              - '##tls_secret={'
-              - '"k8s_tls_secret_name":"'
-              - *wafTLSSecret
-              - '","k8s_namespace":"'
-              - *cfNamespace
-              - '","from_vault":"'
-              - *kvName
-              - '","from_secret_name":"'
-              - *tlsSecretName
-              - '","from_subscription":"'
-              - *subscription_tls
-              - '"}'
-              - '##'
         cf-atrius-objects-api-docker:
           config:
             environment:
@@ -1098,16 +1083,23 @@ target:
                 - *wafTLSSecret
             secrets:
               TLS_PEM:
-                - '##secure_secret={"vault":"'
+                - '##tls_secret={'
+                - '"k8s_tls_secret_name":"'
+                - *wafTLSSecret
+                - '","k8s_namespace":"'
+                - *cfNamespace
+                - '","from_vault":"'
                 - *kvName
-                - '","secret_name":"'
+                - '","from_secret_name":"'
                 - *tlsSecretName
+                - '","from_subscription":"'
+                - *subscription_tls
                 - '"}'
                 - '##'
         cf-coordinate-transform-svc-docker:
           enabled: false
         cf-city-state-zip-svc-docker:
-          enabled: false
+          enabled: true
         cf-oauth-proxy-docker:
           config:
             environment:

@@ -107,6 +107,12 @@ resources:
         branches:
           include:
             - 'master-bytelight'
+    - pipeline: 'cf-city-state-zip-svc-docker'
+      source: 'cf_city_state_zip'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
 
 pool:
   vmImage: 'ubuntu-latest'
