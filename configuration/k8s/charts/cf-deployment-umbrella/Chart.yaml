@@ -214,7 +214,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-city-state-zip-svc-docker'
-    version: '^0.0-0'
+    version: '^1.0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-city-state-zip-svc-docker.enabled'
     tags:
@@ -234,8 +234,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r3.3.34-dev'
+appVersion: 'r4.0.0-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 3.3.34-dev
+version: 4.0.0-dev
