@@ -48,7 +48,7 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
-        version: '^3.0.0-0'
+        version: '^4.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
   - name: 'CF_CI'
@@ -100,7 +100,7 @@ deployments:
         registry: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^3.0.0-0'
+        version: '^4.0.0-0'
         values_file: ''
   - name: 'CF_QA'
     iaas:
