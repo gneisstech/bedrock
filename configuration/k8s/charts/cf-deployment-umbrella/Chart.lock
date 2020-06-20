@@ -1,7 +1,7 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.5-dev
+  version: 1.1.11-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.1.1-dev
@@ -13,22 +13,22 @@ dependencies:
   version: 1.0.7-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.2-dev
+  version: 1.4.3-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.2-dev
+  version: 1.4.3-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.3-dev
+  version: 1.1.7-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.17-dev
+  version: 2.0.24-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.12-dev
+  version: 1.0.16-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.12-dev
+  version: 1.0.16-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.2-dev
@@ -59,5 +59,17 @@ dependencies:
 - name: cf-assets-v2-telemetry-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:72ce73ec44e97684fcb3c9499ea65a77b21fe10cb7c1a673d95e34ec71e5815c
-generated: "2020-06-16T21:53:25.119093475Z"
+- name: cf-tls-certificate-manager-svc-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.5-dev
+- name: cf-coordinate-transforms-svc-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.2-dev
+- name: cf-city-state-zip-svc-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 1.0.1-dev
+- name: cf-ecy-ingest-svc-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.2-dev
+digest: sha256:ec42525730e3e5e5dbf06e5bb4d0c497a950612132bf4e943ca8add05dd0a2c4
+generated: "2020-06-20T01:44:18.493293083Z"

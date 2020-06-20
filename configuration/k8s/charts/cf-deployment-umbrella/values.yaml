@@ -501,6 +501,38 @@ cf-assets-v2-telemetry-svc-docker:
       TELEMETRY_EH_CG_ASSETS_V2_INGEST_CONNECTION_STRING: ''
       TELEMETRY_EH_BAKED_ASSETS_V2_PUBLISH_CONNECTION_STRING: ''
 
+cf-tls-certificate-manager-svc-docker:
+  fullnameOverride: 'cf-tls-certificate-manager-svc-docker'
+  enabled: false
+
+cf-coordinate-transforms-svc-docker:
+  fullnameOverride: 'cf-coordinate-transforms-svc-docker'
+  enabled: true
+
+cf-city-state-zip-svc-docker:
+  fullnameOverride:  'cf-city-state-zip-svc-docker'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-city-state-zip/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
+          - '/cf-city-state-zip(/|$)(.*)'
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+
+cf-ecy-ingest-svc-docker:
+  fullnameOverride: 'cf-ecy-ingest-svc-docker'
+  enabled: true
+
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
   enabled: true
