@@ -1049,6 +1049,8 @@ target:
           enabled: true
           yaml_values:
             - &leCertificateDir '/etc/letsencrypt'
+          rbac:
+            create: true
           config:
             environment:
               ADMIN_EMAIL: 'techguru@byiq.com'
