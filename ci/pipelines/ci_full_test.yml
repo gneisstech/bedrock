@@ -6,6 +6,14 @@
 trigger: none
 pr: none
 
+schedules:
+  - cron: "0 4 * * *"
+    displayName: Nightly build
+    branches:
+      include:
+        - master-bytelight
+    always: true
+
 pool:
   vmImage: 'ubuntu-18.04'
 
