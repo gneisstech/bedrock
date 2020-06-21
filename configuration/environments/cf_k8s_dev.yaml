@@ -1051,6 +1051,14 @@ target:
             - &leCertificateDir '/etc/letsencrypt'
           rbac:
             create: true
+          ingress:
+            enabled: true
+            annotations:
+              'nginx.ingress.kubernetes.io/rewrite-target': '/.well-known/$2'
+              'nginx.ingress.kubernetes.io/ssl-redirect': "false"
+            hosts:
+              - paths:
+                  - '/.well-known(/|$)(.*)'
           config:
             environment:
               ADMIN_EMAIL: 'techguru@byiq.com'
