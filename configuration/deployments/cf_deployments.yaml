@@ -151,7 +151,7 @@ deployments:
         registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^3.0.0-0'
+        version: '^4.0.0-0'
         values_file: ''
   - name: 'CF_Prod'
     iaas:
@@ -206,7 +206,7 @@ deployments:
         registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^3.0.0-0'
+        version: '^4.0.0-0'
         values_file: ''
   - name: 'CF_Local'
     iaas:
@@ -247,6 +247,6 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^3.0.0-0'
+        version: '^4.0.0-0'
         values_file: ''
 ---
