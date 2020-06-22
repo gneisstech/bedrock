@@ -518,6 +518,7 @@ cf-tls-certificate-manager-svc-docker:
     create: true
   config:
     environment:
+      ACTIVE_TLS_PUBLISH: 'false'
       ADMIN_EMAIL: 'techguru@byiq.com'
       APP_VERSION: '{{ .Chart.AppVersion }}'
       CERTIFICATE_CREATED_FLAG: 'fixme-certificate-created-flag'
