@@ -535,10 +535,7 @@ cf-tls-certificate-manager-svc-docker:
               DEVELOPER_CERTIFICATE_REQUIRED_FLAG:
                 - *leCertificateDir
                 - "/developer_certificate_required.flag"
-              HOST_DOMAIN:
-                - *dnsHost
-                - '.'
-                - *dnsZone
+              HOST_DOMAIN: 'fixme-missing-host-domain'
               IS_PRODUCTION: 'false'
               METRICS_PREFIX: 'cf.service.cf_tls_certificate_manager.'
               PRIVATE_TLS: 'true'
@@ -547,25 +544,9 @@ cf-tls-certificate-manager-svc-docker:
               RENEWAL_FAILED_FLAG:
                 - *leCertificateDir
                 - "/renewal_failed.flag"
-              TLS_SECRET_NAME:
-                - *cfNamespace
-                - '/'
-                - *wafTLSSecret
+              TLS_SECRET_NAME: 'fixme-missing-tls-secret-name'
             secrets:
-              TLS_PEM:
-                - '##tls_secret={'
-                - '"k8s_tls_secret_name":"'
-                - *wafTLSSecret
-                - '","k8s_namespace":"'
-                - *cfNamespace
-                - '","from_vault":"'
-                - *kvName
-                - '","from_secret_name":"'
-                - *tlsSecretName
-                - '","from_subscription":"'
-                - *subscription_tls
-                - '"}'
-                - '##'
+              TLS_PEM: 'fixme-missing-tls-pem-secret'
 
 cf-coordinate-transforms-svc-docker:
   fullnameOverride: 'cf-coordinate-transforms-svc-docker'

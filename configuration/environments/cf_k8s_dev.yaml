@@ -1047,6 +1047,31 @@ target:
           enabled: true
         cf-tls-certificate-manager-svc-docker:
           enabled: true
+          config:
+            environment:
+              HOST_DOMAIN:
+                - *dnsHost
+                - '.'
+                - *dnsZone
+              TLS_SECRET_NAME:
+                - *cfNamespace
+                - '/'
+                - *wafTLSSecret
+            secrets:
+              TLS_PEM:
+                - '##tls_secret={'
+                - '"k8s_tls_secret_name":"'
+                - *wafTLSSecret
+                - '","k8s_namespace":"'
+                - *cfNamespace
+                - '","from_vault":"'
+                - *kvName
+                - '","from_secret_name":"'
+                - *tlsSecretName
+                - '","from_subscription":"'
+                - *subscription_tls
+                - '"}'
+                - '##'
         cf-coordinate-transforms-svc-docker:
           enabled: true
         cf-city-state-zip-svc-docker:
