@@ -1047,65 +1047,6 @@ target:
           enabled: true
         cf-tls-certificate-manager-svc-docker:
           enabled: true
-          yaml_values:
-            - &leCertificateDir '/etc/letsencrypt'
-          rbac:
-            create: true
-          ingress:
-            enabled: true
-            annotations:
-              'nginx.ingress.kubernetes.io/rewrite-target': '/.well-known/$2'
-              'nginx.ingress.kubernetes.io/ssl-redirect': "false"
-            hosts:
-              - paths:
-                  - '/.well-known(/|$)(.*)'
-          config:
-            environment:
-              ADMIN_EMAIL: 'techguru@byiq.com'
-              APP_VERSION: '{{ .Chart.AppVersion }}'
-              CERTIFICATE_CREATED_FLAG:
-                - *leCertificateDir
-                - "/certificate_created.flag"
-              CERTIFICATE_DIR: *leCertificateDir
-              CERTIFICATE_NAME: '{{ .Release.Name }}'
-              CERTIFICATE_ORG: 'Acuity Brands, Inc.'
-              DEV_CERTIFICATE_DIR:
-                - *leCertificateDir
-                - "/dev-cert"
-              DEVELOPER_CERTIFICATE_REQUIRED_FLAG:
-                - *leCertificateDir
-                - "/developer_certificate_required.flag"
-              HOST_DOMAIN:
-                - *dnsHost
-                - '.'
-                - *dnsZone
-              IS_PRODUCTION: 'false'
-              METRICS_PREFIX: 'cf.service.cf_tls_certificate_manager.'
-              PRIVATE_TLS: 'true'
-              RELEASE_NAME: '{{ .Release.Name }}'
-              RELEASE_NAMESPACE: '{{ .Release.Namespace }}'
-              RENEWAL_FAILED_FLAG:
-                - *leCertificateDir
-                - "/renewal_failed.flag"
-              TLS_SECRET_NAME:
-                - *cfNamespace
-                - '/'
-                - *wafTLSSecret
-            secrets:
-              TLS_PEM:
-                - '##tls_secret={'
-                - '"k8s_tls_secret_name":"'
-                - *wafTLSSecret
-                - '","k8s_namespace":"'
-                - *cfNamespace
-                - '","from_vault":"'
-                - *kvName
-                - '","from_secret_name":"'
-                - *tlsSecretName
-                - '","from_subscription":"'
-                - *subscription_tls
-                - '"}'
-                - '##'
         cf-coordinate-transforms-svc-docker:
           enabled: true
         cf-city-state-zip-svc-docker:
