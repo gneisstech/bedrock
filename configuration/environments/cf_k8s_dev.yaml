@@ -25,6 +25,7 @@ target:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
     k8s_namespace: &cfNamespace 'cfk8s'
     tags: &labels 'cf-env=dev cf-role=dev'
+    tls_secret_name: &tlsSecretName 'wildcarddevatrius-iotcom'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -871,21 +872,6 @@ target:
           api_url:
             prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
       service_values:
-        tls_secrets:
-          - result:
-              - '##tls_secret={'
-              - '"k8s_tls_secret_name":"'
-              - *wafTLSSecret
-              - '","k8s_namespace":"'
-              - *cfNamespace
-              - '","from_vault":"'
-              - *kvName
-              - '","from_secret_name":"'
-              - 'wildcarddevatrius-iotcom'
-              - '","from_subscription":"'
-              - *subscription_tls
-              - '"}'
-              - '##'
         cf-atrius-objects-api-docker:
           config:
             environment:
@@ -1059,6 +1045,51 @@ target:
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-svc-docker:
           enabled: true
+        cf-tls-certificate-manager-svc-docker:
+          enabled: true
+          yaml_values:
+            - &leCertificateDir '/etc/letsencrypt'
+          config:
+            environment:
+              CERTIFICATE_CREATED_FLAG:
+                - *leCertificateDir
+                - "/certificate_created.flag"
+              DEV_CERTIFICATE_DIR:
+                - *leCertificateDir
+                - "/dev-cert"
+              DEVELOPER_CERTIFICATE_REQUIRED_FLAG:
+                - *leCertificateDir
+                - "/developer_certificate_required.flag"
+              HOST_DOMAIN:
+                - *dnsHost
+                - '.'
+                - *dnsZone
+              RENEWAL_FAILED_FLAG:
+                - *leCertificateDir
+                - "/renewal_failed.flag"
+              TLS_SECRET_NAME:
+                - *wafTLSSecret
+            secrets:
+              TLS_PEM:
+                - '##tls_secret={'
+                - '"k8s_tls_secret_name":"'
+                - *wafTLSSecret
+                - '","k8s_namespace":"'
+                - *cfNamespace
+                - '","from_vault":"'
+                - *kvName
+                - '","from_secret_name":"'
+                - *tlsSecretName
+                - '","from_subscription":"'
+                - *subscription_tls
+                - '"}'
+                - '##'
+        cf-coordinate-transforms-svc-docker:
+          enabled: true
+        cf-city-state-zip-svc-docker:
+          enabled: true
+        cf-ecy-ingest-svc-docker:
+          enabled: true
         cf-oauth-proxy-docker:
           config:
             environment:
@@ -1097,9 +1128,16 @@ target:
           enabled: true
           controller:
             config:
-              # enable-modsecurity: 'true'
-              # modsecurity-snippet: ''
-              # enable-owasp-modsecurity-cr: 'true'
+              # nginx.ingress.kubernetes.io/affinity: 'cookie'
+              enable-modsecurity: "true"
+              enable-owasp-core-rules: "false"
+              modsecurity-snippet: |
+                SecRuleEngine On
+                SecRequestBodyAccess On
+                SecAuditEngine RelevantOnly
+                SecAuditLogParts ABIJDEFHZ
+                SecAuditLog /dev/stderr
+                Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
               enable-underscores-in-headers: 'true'
               proxy-buffer-size: '8k'
               ssl-ciphers:
@@ -1128,7 +1166,7 @@ target:
                 - '/'
                 - *wafTLSSecret
             service:
-              enableHttp: false
+              enableHttp: true
               loadBalancerIP:
                 - '##ip_address={"ip_resource_id":"'
                 - '/subscriptions/'
