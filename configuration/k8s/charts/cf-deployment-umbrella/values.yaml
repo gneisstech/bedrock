@@ -503,11 +503,59 @@ cf-assets-v2-telemetry-svc-docker:
 
 cf-tls-certificate-manager-svc-docker:
   fullnameOverride: 'cf-tls-certificate-manager-svc-docker'
-  enabled: false
+  enabled: true
+  yaml_values:
+    - &leCertificateDir '/etc/letsencrypt'
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/.well-known/$2'
+      'nginx.ingress.kubernetes.io/ssl-redirect': "false"
+    hosts:
+      - paths:
+          - '/.well-known(/|$)(.*)'
+  rbac:
+    create: true
+  config:
+    environment:
+      ADMIN_EMAIL: 'techguru@byiq.com'
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+      CERTIFICATE_CREATED_FLAG: 'fixme-certificate-created-flag'
+      CERTIFICATE_DIR: *leCertificateDir
+      CERTIFICATE_NAME: '{{ .Release.Name }}'
+      CERTIFICATE_ORG: 'Acuity Brands, Inc.'
+      DEV_CERTIFICATE_DIR: 'fixme-dev-certificate-dir'
+      DEVELOPER_CERTIFICATE_REQUIRED_FLAG: 'fixme-developer-certificate-required-flag'
+      HOST_DOMAIN: 'fixme-missing-host-domain'
+      IS_PRODUCTION: 'false'
+      METRICS_PREFIX: 'cf.service.cf_tls_certificate_manager.'
+      PRIVATE_TLS: 'true'
+      RELEASE_NAME: '{{ .Release.Name }}'
+      RELEASE_NAMESPACE: '{{ .Release.Namespace }}'
+      RENEWAL_FAILED_FLAG: 'fixme-renewal-failed-flag'
+      TLS_SECRET_NAME: 'fixme-missing-tls-secret-name'
+    secrets:
+      TLS_PEM: 'fixme-missing-tls-pem-secret'
 
 cf-coordinate-transforms-svc-docker:
   fullnameOverride: 'cf-coordinate-transforms-svc-docker'
   enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-coordinate-transforms/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
+          - '/cf-coordinate-transforms(/|$)(.*)'
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      APP_VERSION: '{{ .Chart.AppVersion }}'
 
 cf-city-state-zip-svc-docker:
   fullnameOverride:  'cf-city-state-zip-svc-docker'
@@ -532,6 +580,28 @@ cf-city-state-zip-svc-docker:
 cf-ecy-ingest-svc-docker:
   fullnameOverride: 'cf-ecy-ingest-svc-docker'
   enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-ecy-ingest/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
+          - '/cf-ecy-ingest(/|$)(.*)'
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+    secrets:
+      JWT_AUTH_TOKEN: ''
+      SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
