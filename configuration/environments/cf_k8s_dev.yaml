@@ -1054,8 +1054,6 @@ target:
                 - '.'
                 - *dnsZone
               TLS_SECRET_NAME:
-                - *cfNamespace
-                - '/'
                 - *wafTLSSecret
             secrets:
               TLS_PEM:
@@ -1154,7 +1152,7 @@ target:
                 - '/'
                 - *wafTLSSecret
             service:
-              enableHttp: false
+              enableHttp: true
               loadBalancerIP:
                 - '##ip_address={"ip_resource_id":"'
                 - '/subscriptions/'
