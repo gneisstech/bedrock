@@ -170,7 +170,7 @@ function deploy_eventhub_namespaces () {
 }
 
 function storage_accounts () {
-    paas_configuration | jq -r -e '[.storage_accounts[]? | select(.action == "create") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.storage.accounts[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_storage_accounts () {
@@ -181,7 +181,7 @@ function deploy_storage_accounts () {
 }
 
 function az_file_shares () {
-    paas_configuration | jq -r -e '[.azure_files[]? | select(.action == "create") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.storage.azure_files[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_azure_file_shares () {

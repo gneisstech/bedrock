@@ -279,6 +279,7 @@ target:
           quota: '10gb'
           storage_account_name: *sa001name
           metadata: *labels
+          action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
     event_hub_namespaces:
       eh_namespace_template: &eh_namespace_template
