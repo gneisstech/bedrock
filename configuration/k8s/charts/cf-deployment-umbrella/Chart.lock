@@ -61,7 +61,7 @@ dependencies:
   version: 0.0.4-dev
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.10-dev
+  version: 0.0.11-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.2-dev
@@ -71,5 +71,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.3-dev
-digest: sha256:b6fa9525dc539e881722646ae6cea1373d99a03c92d5cb0cf7a2ac20cd4b0699
-generated: "2020-06-23T03:58:54.460237318Z"
+digest: sha256:b254441d87b1497b4f8472da7c20e4e954fa9968ff9d4b035ce5daaabf8f82c7
+generated: "2020-06-23T04:53:23.13821574Z"
