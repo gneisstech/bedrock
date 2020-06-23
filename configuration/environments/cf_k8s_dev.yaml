@@ -258,7 +258,7 @@ target:
         admin_enabled: true
         action: 'create'
     # storage accounts - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
-    storage_accounts:
+    storage:
       accounts:
         - name: &sa001name 'cfdevcmsa001abl'
           resource_group: *cfDbRG
