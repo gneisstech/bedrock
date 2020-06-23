@@ -1065,6 +1065,7 @@ target:
                 - *dnsHost
                 - '.'
                 - *dnsZone
+              PRIVATE_TLS: 'false'
               RENEWAL_FAILED_FLAG:
                 - *leCertificateDir
                 - "/renewal_failed.flag"
