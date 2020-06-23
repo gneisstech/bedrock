@@ -908,7 +908,7 @@ target:
               - '","k8s_namespace":"'
               - *cfNamespace
               - '","from_vault":"'
-              - *tlsKvName
+              - *kvName
               - '","from_secret_name":"'
               - 'wildcarddevatrius-iotcom'
               - '","from_subscription":"'
