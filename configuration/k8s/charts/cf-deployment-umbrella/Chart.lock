@@ -1,7 +1,7 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.11-dev
+  version: 1.1.12-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.1.1-dev
@@ -55,13 +55,13 @@ dependencies:
   version: 1.0.0-dev
 - name: cf-smoketest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.1-dev
+  version: 1.1.2-dev
 - name: cf-assets-v2-telemetry-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.7-dev
+  version: 0.0.15-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.2-dev
@@ -70,6 +70,6 @@ dependencies:
   version: 1.0.1-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.2-dev
-digest: sha256:e0e36f22910bb2fd15d29de9b626b2ae22dafedf8dd11ec09ba2374da6d37254
-generated: "2020-06-22T15:08:45.72891251Z"
+  version: 0.0.3-dev
+digest: sha256:1c3ad8eb03644e9c3aab02479601113c385cdbe059c9b1d6d0cabda1b61e54ae
+generated: "2020-06-23T09:07:52.042977533Z"

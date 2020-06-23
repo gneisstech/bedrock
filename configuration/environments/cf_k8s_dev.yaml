@@ -1051,6 +1051,7 @@ target:
             - &leCertificateDir '/etc/letsencrypt'
           config:
             environment:
+              ACTIVE_TLS_PUBLISH: 'false'
               CERTIFICATE_CREATED_FLAG:
                 - *leCertificateDir
                 - "/certificate_created.flag"
@@ -1064,6 +1065,8 @@ target:
                 - *dnsHost
                 - '.'
                 - *dnsZone
+              IS_PRODUCTION: 'false'
+              PRIVATE_TLS: 'false'
               RENEWAL_FAILED_FLAG:
                 - *leCertificateDir
                 - "/renewal_failed.flag"
