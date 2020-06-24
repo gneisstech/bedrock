@@ -92,7 +92,7 @@ function azure_storage_account_connection_string () {
 function update_azure_file_share () {
     local fs_name_json="${1}"
     # shellcheck disable=2046
-    $AZ_TRACE storage share create \
+    $AZ_TRACE storage share update \
         --name "$(jq -r -e '.name' <<< "${fs_name_json}" )" \
         --connection-string "$(azure_storage_account_connection_string "${fs_name_json}" )" \
         --quota "$(jq -r -e '.quota' <<< "${fs_name_json}" )" \
@@ -127,4 +127,5 @@ function create_azure_file_share_if_needed () {
     create_or_update_azure_file_share "${fs_name_json}"
 }
 
+set -x
 create_azure_file_share_if_needed "$@"

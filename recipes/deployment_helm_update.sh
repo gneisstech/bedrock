@@ -113,7 +113,7 @@ function get_sa_name () {
 
 function get_sa_key () {
     local -r sa_name="${1}"
-    az storage account keys list --account-name "${sa_name}" | jq -r -e '.[0].value'
+    az storage account keys list --account-name "${sa_name}" | jq -r -e '.[0].value | @base64'
 }
 
 function create_azure_secret_resource () {
@@ -132,7 +132,7 @@ metadata:
   namespace: cfk8s
 data:
   azurestorageaccountname: '$(base64 <<< "${sa_name}")'
-  azurestorageaccountkey: '$(base64 <<< "${sa_key}")'
+  azurestorageaccountkey: '${sa_key}'
 
 EOF
 }
