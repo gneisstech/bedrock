@@ -257,6 +257,27 @@ target:
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
+    # storage accounts - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+    storage:
+      accounts:
+        - name: &sa001name 'cfdevcmsa001abl'
+          resource_group: *cfDbRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_ZRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
+      # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+      azure_files:
+        - name: &certbotState 'certbot-state'
+          quota: '10'
+          storage_account_name: *sa001name
+          metadata: *labels
+          action: 'create'
+    # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
     event_hub_namespaces:
       eh_namespace_template: &eh_namespace_template
         name: &eh_ns_template_namespace 'fixme-eh-name-placeholder'
@@ -267,7 +288,7 @@ target:
         location: *defaultAzureLocation
         maximum_throughput_units: '0'  # 0 when auto_inflate is 'false'
         sku: 'Standard'
-        tags: ''
+        tags: *labels
         network_rules_default_action: 'Deny'
         arm_type: 'Microsoft.EventHub/Namespaces'
         action: 'Preserve'
@@ -691,10 +712,15 @@ target:
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
             - source:
-                secret_name: 'datadogclient'
+                secret_name: 'cf-dev-datadog-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *dataDogApiKeySecretName
+            - source:
+                secret_name: 'cf-dev-neuvector-license-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *neuvectorLicenseKeyName
             - source:
                 secret_name: 'ALLSPICEDEV-CFReader-SQLUserPassword'
                 vault_name: *persistentKVName
@@ -872,6 +898,21 @@ target:
           api_url:
             prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
       service_values:
+        tls_secrets:
+          - result:
+              - '##tls_secret={'
+              - '"k8s_tls_secret_name":"'
+              - *wafTLSSecret
+              - '","k8s_namespace":"'
+              - *cfNamespace
+              - '","from_vault":"'
+              - *kvName
+              - '","from_secret_name":"'
+              - *tlsSecretName
+              - '","from_subscription":"'
+              - *subscription_tls
+              - '"}'
+              - '##'
         cf-atrius-objects-api-docker:
           config:
             environment:

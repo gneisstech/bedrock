@@ -106,6 +106,49 @@ function create_k8s_app_namespace () {
     kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
 }
 
+function get_sa_name () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.storage.account.name' <<< "${deployment_json}"
+}
+
+function get_sa_key () {
+    local -r sa_name="${1}"
+    az storage account keys list --account-name "${sa_name}" | jq -r -e '.[0].value | @base64'
+}
+
+function create_azure_secret_resource () {
+    local -r sa_name="${1}"
+    local -r sa_key="${2}"
+cat <<EOF
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  annotations:
+  labels:
+    component: az-files-certbot-state
+    release: cfk8s
+  name: cf-az-files-certbot-state
+  namespace: cfk8s
+data:
+  azurestorageaccountname: '$(base64 <<< "${sa_name}")'
+  azurestorageaccountkey: '${sa_key}'
+
+EOF
+}
+
+function create_azure_volume_secret () {
+    local -r deployment_json="${1}"
+    local sa_name sa_key
+    sa_name="$(get_sa_name "${deployment_json}")"
+    sa_key="$(get_sa_key "${sa_name}")"
+
+    kubectl \
+        --context "$(get_kube_context "${deployment_json}")" \
+        --namespace "$(get_kube_namespace "${deployment_json}")" \
+        apply -f <(create_azure_secret_resource "${sa_name}" "${sa_key}")
+}
+
 function update_helm_repo () {
     local -r registry="${1}"
     az acr helm repo add --name "${registry}"
@@ -181,6 +224,7 @@ function deployment_helm_update () {
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     connect_to_k8s "${deployment_json}"
     create_k8s_app_namespace "${deployment_json}"
+    create_azure_volume_secret "${deployment_json}"
     update_helm_chart_on_k8s "${deployment_json}"
 }
 

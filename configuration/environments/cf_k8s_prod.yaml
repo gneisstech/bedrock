@@ -11,7 +11,6 @@ target:
       tenant: &acuityDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
       passage_api_fqdn: &passageApiFqdn 'passage.atrius-us.acuitynext.io.'
-      passage_partner_environment: &passagePartnerEnv 'ASP_DEV_US'
     app_registration:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '6d566d2d-acfa-4fb0-a56b-c48ccc07cc53'  # Acuity Brands Atrius US UI
@@ -30,6 +29,7 @@ target:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
     k8s_namespace: &cfNamespace 'cfk8s'
     tags: &labels 'cf-env=prod cf-role=prod'
+    tls_secret_name: &tlsSecretName 'wildcarddevatrius-iotcom'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -261,6 +261,27 @@ target:
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
+    # storage accounts - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+    storage:
+      accounts:
+        - name: &sa001name 'cfprodcmsa001abl'
+          resource_group: *cfDbRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_ZRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
+      # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+      azure_files:
+        - name: &certbotState 'certbot-state'
+          quota: '10'
+          storage_account_name: *sa001name
+          metadata: *labels
+          action: 'create'
+    # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
     event_hub_namespaces:
       eh_namespace_template: &eh_namespace_template
         name: &eh_ns_template_namespace 'fixme-eh-name-placeholder'
@@ -271,7 +292,7 @@ target:
         location: *defaultAzureLocation
         maximum_throughput_units: '0'  # 0 when auto_inflate is 'false'
         sku: 'Standard'
-        tags: ''
+        tags: *labels
         network_rules_default_action: 'Deny'
         arm_type: 'Microsoft.EventHub/Namespaces'
         action: 'Preserve'
@@ -694,6 +715,16 @@ target:
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
+            - source:
+                secret_name: 'cf-dev-datadog-api-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *dataDogApiKeySecretName
+            - source:
+                secret_name: 'cf-dev-neuvector-license-key'
+                vault_name: *persistentKVName
+                subscription: *defaultAzureSubscription
+              dest: *neuvectorLicenseKeyName
         service_principals:
           atrius_objects:
             sp_name: &atriusObjectsSpName 'cf-prod-atrius-objects-sp'
@@ -901,7 +932,7 @@ target:
               - '","from_vault":"'
               - *kvName
               - '","from_secret_name":"'
-              - 'wildcarddevatrius-iotcom'
+              - *tlsSecretName
               - '","from_subscription":"'
               - *subscription_tls
               - '"}'
@@ -1096,15 +1127,60 @@ target:
               JWT_AUTH_TOKEN: ''
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-svc-docker:
-          enabled: false
+          enabled: true
+          replicaCount: 3          
         cf-tls-certificate-manager-svc-docker:
-          enabled: false
+          enabled: true
+          replicaCount: 3
+          yaml_values:
+            - &leCertificateDir '/etc/letsencrypt'
+          config:
+            environment:
+              ACTIVE_TLS_PUBLISH: 'false'
+              CERTIFICATE_CREATED_FLAG:
+                - *leCertificateDir
+                - "/certificate_created.flag"
+              DEV_CERTIFICATE_DIR:
+                - *leCertificateDir
+                - "/dev-cert"
+              DEVELOPER_CERTIFICATE_REQUIRED_FLAG:
+                - *leCertificateDir
+                - "/developer_certificate_required.flag"
+              HOST_DOMAIN:
+                - *dnsHost
+                - '.'
+                - *dnsZone
+              IS_PRODUCTION: 'false'
+              PRIVATE_TLS: 'false'
+              RENEWAL_FAILED_FLAG:
+                - *leCertificateDir
+                - "/renewal_failed.flag"
+              TLS_SECRET_NAME:
+                - *wafTLSSecret
+            secrets:
+              TLS_PEM:
+                - '##tls_secret={'
+                - '"k8s_tls_secret_name":"'
+                - *wafTLSSecret
+                - '","k8s_namespace":"'
+                - *cfNamespace
+                - '","from_vault":"'
+                - *kvName
+                - '","from_secret_name":"'
+                - *tlsSecretName
+                - '","from_subscription":"'
+                - *subscription_tls
+                - '"}'
+                - '##'
         cf-coordinate-transforms-svc-docker:
-          enabled: false
+          enabled: true
+          replicaCount: 3
         cf-city-state-zip-svc-docker:
-          enabled: false
+          enabled: true
+          replicaCount: 3
         cf-ecy-ingest-svc-docker:
-          enabled: false
+          enabled: true
+          replicaCount: 3
         cf-oauth-proxy-docker:
           replicaCount: 3
           config:
@@ -1177,7 +1253,7 @@ target:
                 - '/'
                 - *wafTLSSecret
             service:
-              enableHttp: false
+              enableHttp: true
               loadBalancerIP:
                 - '##ip_address={"ip_resource_id":"'
                 - '/subscriptions/'

@@ -51,6 +51,9 @@ deployments:
         version: '^4.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
+      storage:
+        account:
+          name: cfdevcmsa001abl
   - name: 'CF_CI'
     iaas:
       provider:
@@ -102,6 +105,9 @@ deployments:
         deployment_name: 'cfk8s'
         version: '^4.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfcicmsa001abl
   - name: 'CF_QA'
     iaas:
       provider:
@@ -153,6 +159,9 @@ deployments:
         deployment_name: 'cfk8s'
         version: '^4.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfdqacmsa001abl
   - name: 'CF_Prod'
     iaas:
       provider:
@@ -208,6 +217,9 @@ deployments:
         deployment_name: 'cfk8s'
         version: '^4.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfprodcmsa001abl
   - name: 'CF_Local'
     iaas:
       provider:
@@ -249,4 +261,7 @@ deployments:
         deployment_name: 'cfk8s'
         version: '^4.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfdevcmsa001abl
 ---
