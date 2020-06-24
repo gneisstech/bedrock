@@ -161,7 +161,7 @@ deployments:
         values_file: ''
       storage:
         account:
-          name: cfdqacmsa001abl
+          name: cfqacmsa001abl
   - name: 'CF_Prod'
     iaas:
       provider:
