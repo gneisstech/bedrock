@@ -48,9 +48,12 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
+      storage:
+        account:
+          name: cfdevcmsa001abl
   - name: 'CF_CI'
     iaas:
       provider:
@@ -100,8 +103,11 @@ deployments:
         registry: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfcicmsa001abl
   - name: 'CF_QA'
     iaas:
       provider:
@@ -151,8 +157,11 @@ deployments:
         registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfdqacmsa001abl
   - name: 'CF_Prod'
     iaas:
       provider:
@@ -206,8 +215,11 @@ deployments:
         registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfprodcmsa001abl
   - name: 'CF_Local'
     iaas:
       provider:
@@ -247,6 +259,9 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfdevcmsa001abl
 ---
