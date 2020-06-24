@@ -127,5 +127,4 @@ function create_azure_file_share_if_needed () {
     create_or_update_azure_file_share "${fs_name_json}"
 }
 
-set -x
 create_azure_file_share_if_needed "$@"

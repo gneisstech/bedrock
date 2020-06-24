@@ -223,7 +223,6 @@ function deployment_helm_update () {
     local deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     connect_to_k8s "${deployment_json}"
-set -x
     create_k8s_app_namespace "${deployment_json}"
     create_azure_volume_secret "${deployment_json}"
     update_helm_chart_on_k8s "${deployment_json}"
