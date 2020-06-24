@@ -48,7 +48,7 @@ deployments:
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
       storage:
@@ -103,7 +103,7 @@ deployments:
         registry: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
       storage:
         account:
@@ -157,7 +157,7 @@ deployments:
         registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
       storage:
         account:
@@ -215,7 +215,7 @@ deployments:
         registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
       storage:
         account:
@@ -259,7 +259,7 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
       storage:
         account:
