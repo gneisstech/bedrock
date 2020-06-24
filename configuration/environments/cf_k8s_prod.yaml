@@ -1131,7 +1131,7 @@ target:
           replicaCount: 3          
         cf-tls-certificate-manager-svc-docker:
           enabled: true
-          replicaCount: 3
+          replicaCount: 1
           yaml_values:
             - &leCertificateDir '/etc/letsencrypt'
           config:
