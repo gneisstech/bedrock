@@ -1,0 +1,170 @@
+# Default values for test-mod-security.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+#
+# default vaults for sub-charts
+#
+nginx-ingress:
+  enabled: true
+  rbac:
+    scope: true
+  controller:
+    scope:
+      enabled: true
+    addHeaders:
+      'Strict-Transport-Security': 'max-age=31536000'
+      'Referrer-Policy': 'strict-origin-when-cross-origin'
+      'X-Frame-Options': 'sameorigin'
+      'Content-Security-Policy': "default-src 'self'; frame-ancestors 'self' login.microsoft.com;"
+      'Server': ''
+      'Access-Control-Allow-Origin': 'https://login.microsoftonline.com'
+    config:
+      # nginx.ingress.kubernetes.io/affinity: 'cookie'
+      enable-modsecurity: "true"
+      enable-owasp-core-rules: "false"
+      modsecurity-snippet: |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+      enable-underscores-in-headers: 'true'
+      proxy-buffer-size: '8k'
+    service:
+      enableHttp: true
+
+http-https-echo:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/echo/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+        more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
+    hosts:
+      - paths:
+          - '/echo(/|$)(.*)'
+
+oauth-proxy-docker:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/rewrite-target': '/oauth2/$2'
+    hosts:
+      - paths:
+          - '/oauth2(/|$)(.*)'
+  config:
+    environment:
+      OAUTH2_PROXY_AZURE_TENANT: 'common'
+      OAUTH2_PROXY_CLIENT_ID: *passageApiApplicationID
+      OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
+      OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev__utm'
+      OAUTH2_PROXY_COOKIE_PATH: '/'
+      OAUTH2_PROXY_COOKIE_REFRESH: '1h'
+      OAUTH2_PROXY_EMAIL_DOMAINS: '*'
+      OAUTH2_PROXY_EXTRA_JWT_ISSUERS: *trustedIdProviders
+      OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
+      OAUTH2_PROXY_PASS_ACCESS_TOKEN: 'true'
+      OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
+      OAUTH2_PROXY_PING_PATH: '/'
+      OAUTH2_PROXY_PROVIDER: 'azure'
+      OAUTH2_PROXY_REDIRECT_URL:
+        - 'https://'
+        - *dnsHost
+        - '.'
+        - *dnsZone
+        - '/oauth2/callback'
+      OAUTH2_PROXY_RESOURCE: *passageApiApplicationID
+      OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: 'true'
+      OAUTH2_PROXY_SET_XAUTHREQUEST: 'true'
+      OAUTH2_PROXY_SILENCE_PING_LOGGING: 'true'
+      OAUTH2_PROXY_SKIP_AUTH_REGEX: '^/cf-self-healing-api/api/v1/process,^/cf-lights-map/distech-eclypse'
+      OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: 'true'
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: 'true'
+      OAUTH2_PROXY_UPSTREAMS: ''  # deliberately empty
+    secrets:
+      OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
+      OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
