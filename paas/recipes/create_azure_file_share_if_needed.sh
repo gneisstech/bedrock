@@ -68,7 +68,7 @@ function paas_configuration () {
 
 function azure_file_share_json () {
     local -r fs_name="${1}"
-    jq -r -e --arg fs_name "${fs_name}" '.azure_file_shares[]? | select(.name | test($fs_name))'
+    jq -r -e --arg fs_name "${fs_name}" '.storage.azure_files[]? | select(.name | test($fs_name))'
 }
 
 function azure_file_share_available () {
@@ -78,11 +78,23 @@ function azure_file_share_available () {
     | jq -r -e '.nameAvailable'
 }
 
+function az_cli_get_connection_string () {
+    local -r sa_name="${1}"
+     az storage account show-connection-string --name "${sa_name}"
+}
+function azure_storage_account_connection_string () {
+    local fs_name_json="${1}"
+    local sa_name
+    sa_name="$(jq -r -e '.storage_account_name' <<< "${fs_name_json}" )"
+    az_cli_get_connection_string "${sa_name}" | jq -r -e '.connectionString'
+}
+
 function update_azure_file_share () {
     local fs_name_json="${1}"
     # shellcheck disable=2046
     $AZ_TRACE storage share create \
         --name "$(jq -r -e '.name' <<< "${fs_name_json}" )" \
+        --connection-string "$(azure_storage_account_connection_string "${fs_name_json}" )" \
         --quota "$(jq -r -e '.quota' <<< "${fs_name_json}" )" \
         --account-name "$(jq -r -e '.storage_account_name' <<< "${fs_name_json}" )"
 }
@@ -92,6 +104,7 @@ function create_azure_file_share () {
     # shellcheck disable=2046
     $AZ_TRACE storage share create \
         --name "$(jq -r -e '.name' <<< "${fs_name_json}" )" \
+        --connection-string "$(azure_storage_account_connection_string "${fs_name_json}" )" \
         --quota "$(jq -r -e '.quota' <<< "${fs_name_json}" )" \
         --account-name "$(jq -r -e '.storage_account_name' <<< "${fs_name_json}" )" \
         --metadata $(jq -r -e '.metadata' <<< "${fs_name_json}" )

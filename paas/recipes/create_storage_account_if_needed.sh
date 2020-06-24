@@ -68,7 +68,7 @@ function paas_configuration () {
 
 function storage_account_json () {
     local -r sa_name="${1}"
-    jq -r -e --arg sa_name "${sa_name}" '.storage_accounts[]? | select(.name | test($sa_name))'
+    jq -r -e --arg sa_name "${sa_name}" '.storage.accounts[]? | select(.name | test($sa_name))'
 }
 
 function storage_account_available () {
@@ -81,12 +81,9 @@ function storage_account_available () {
 function update_storage_account () {
     local sa_name_json="${1}"
     # shellcheck disable=2046
-    $AZ_TRACE storage account create \
+    $AZ_TRACE storage account update \
         --name "$(jq -r -e '.name' <<< "${sa_name_json}" )" \
         --resource-group "$(jq -r -e '.resource_group' <<< "${sa_name_json}" )" \
-        --assign-identity "$(jq -r -e '.assign_identity' <<< "${sa_name_json}" )" \
-        --enable-files-aadds "$(jq -r -e '.enable_files_aadds' <<< "${sa_name_json}" )" \
-        --enable-hierarchical-namespace "$(jq -r -e '.enable_hierarchical_namespace' <<< "${sa_name_json}" )" \
         --encryption-services "$(jq -r -e '.encryption_services' <<< "${sa_name_json}" )" \
         --https-only "$(jq -r -e '.https_only' <<< "${sa_name_json}" )" \
         --sku "$(jq -r -e '.sku' <<< "${sa_name_json}" )" \
@@ -100,9 +97,6 @@ function create_storage_account () {
         --name "$(jq -r -e '.name' <<< "${sa_name_json}" )" \
         --resource-group "$(jq -r -e '.resource_group' <<< "${sa_name_json}" )" \
         --location "$(jq -r -e '.location' <<< "${sa_name_json}" )" \
-        --assign-identity "$(jq -r -e '.assign_identity' <<< "${sa_name_json}" )" \
-        --enable-files-aadds "$(jq -r -e '.enable_files_aadds' <<< "${sa_name_json}" )" \
-        --enable-hierarchical-namespace "$(jq -r -e '.enable_hierarchical_namespace' <<< "${sa_name_json}" )" \
         --encryption-services "$(jq -r -e '.encryption_services' <<< "${sa_name_json}" )" \
         --https-only "$(jq -r -e '.https_only' <<< "${sa_name_json}" )" \
         --kind "$(jq -r -e '.kind' <<< "${sa_name_json}" )" \

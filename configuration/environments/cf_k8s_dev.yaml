@@ -263,20 +263,17 @@ target:
         - name: &sa001name 'cfdevcmsa001abl'
           resource_group: *cfDbRG
           location: *defaultAzureLocation
-          assign_identity: false
-          enable_files_aadds: true
-          enable_hierarchical_namespace: true
-          encryption_services:
+          encryption_services: 'file'
           https_only: true
           kind: 'StorageV2'
-          sku: 'Premium_ZRS'
+          sku: 'Standard_ZRS'
           tags: *labels
-          arm_type: ''
+          arm_type: 'Microsoft.Storage/storageAccounts'
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
         - name: &certbotState 'certbot-state'
-          quota: '10gb'
+          quota: '10'
           storage_account_name: *sa001name
           metadata: *labels
           action: 'create'
@@ -911,7 +908,7 @@ target:
               - '","from_vault":"'
               - *kvName
               - '","from_secret_name":"'
-              - 'wildcarddevatrius-iotcom'
+              - *tlsSecretName
               - '","from_subscription":"'
               - *subscription_tls
               - '"}'
