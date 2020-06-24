@@ -269,7 +269,7 @@ function deployment_helm_update () {
     connect_to_k8s "${deployment_json}"
     create_k8s_app_namespace "${deployment_json}"
     create_azure_volume_secret "${deployment_json}"
-    create_k8s_persistent_volume "${deployment_json}"
+    create_k8s_persistent_volume "${deployment_json}" || true
     update_helm_chart_on_k8s "${deployment_json}"
 }
 
