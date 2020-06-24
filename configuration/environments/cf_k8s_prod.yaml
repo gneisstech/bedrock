@@ -279,7 +279,7 @@ target:
         - name: &certbotState 'certbot-state'
           quota: '10'
           storage_account_name: *sa001name
-          metadata: *labels
+          metadata: 'cfenv=prod cfrole=prod'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
     event_hub_namespaces:

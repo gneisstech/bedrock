@@ -71,13 +71,6 @@ function azure_file_share_json () {
     jq -r -e --arg fs_name "${fs_name}" '.storage.azure_files[]? | select(.name | test($fs_name))'
 }
 
-function azure_file_share_available () {
-    local fs_name_json="${1}"
-    az storage share exists \
-        --name "$(jq -r -e '.name' <<< "${fs_name_json}" )" \
-    | jq -r -e '.nameAvailable'
-}
-
 function az_cli_get_connection_string () {
     local -r sa_name="${1}"
      az storage account show-connection-string --name "${sa_name}"
@@ -87,6 +80,14 @@ function azure_storage_account_connection_string () {
     local sa_name
     sa_name="$(jq -r -e '.storage_account_name' <<< "${fs_name_json}" )"
     az_cli_get_connection_string "${sa_name}" | jq -r -e '.connectionString'
+}
+
+function azure_file_share_exists () {
+    local fs_name_json="${1}"
+    az storage share exists \
+        --name "$(jq -r -e '.name' <<< "${fs_name_json}" )" \
+        --connection-string "$(azure_storage_account_connection_string "${fs_name_json}" )" \
+    | jq -r -e '.exists'
 }
 
 function update_azure_file_share () {
@@ -112,7 +113,7 @@ function create_azure_file_share () {
 
 function create_or_update_azure_file_share () {
     local fs_name_json="${1}"
-    if [[ "$(azure_file_share_available "${fs_name_json}" )" == 'true' ]]; then
+    if [[ "$(azure_file_share_exists "${fs_name_json}" )" == 'false' ]]; then
         create_azure_file_share "${fs_name_json}"
     else
         update_azure_file_share "${fs_name_json}"
