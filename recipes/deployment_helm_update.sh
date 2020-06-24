@@ -113,7 +113,7 @@ function get_sa_name () {
 
 function get_sa_key () {
     local -r sa_name="${1}"
-    az az storage account keys list --name "${sa_name}" | jq -r -e '.[0].value'
+    az storage account keys list --account-name "${sa_name}" | jq -r -e '.[0].value'
 }
 
 function create_azure_secret_resource () {

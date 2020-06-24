@@ -203,7 +203,6 @@ function deploy_kubernetes_clusters () {
 }
 
 function deploy_paas () {
-set -x
     deploy_keyvaults
     deploy_service_principals
     deploy_databases
