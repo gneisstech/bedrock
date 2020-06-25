@@ -1158,7 +1158,7 @@ target:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
               OAUTH2_PROXY_CLIENT_ID: *passageApiApplicationID
               OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
-              OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev__utm'
+              OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_qa_v2__utm'
               OAUTH2_PROXY_COOKIE_PATH: '/'
               OAUTH2_PROXY_COOKIE_REFRESH: '1h'
               OAUTH2_PROXY_EMAIL_DOMAINS: '*'
