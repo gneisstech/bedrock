@@ -1187,7 +1187,9 @@ target:
               proxy-body-size: '8M'
               client-body-buffer-size: '2M'
               client-header-buffer-size: '16k'
+              large-client-header-buffers: '4 16k'
               proxy-add-original-uri-header: 'false'
+              http2-max-header-size: '16k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
                 - ':'
