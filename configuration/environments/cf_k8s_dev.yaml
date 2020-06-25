@@ -1183,13 +1183,14 @@ target:
               #  SecAuditLog /dev/stderr
               #  Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
               enable-underscores-in-headers: 'true'
-              proxy-buffer-size: '16k'
+              proxy-buffer-size: '32k'
               proxy-body-size: '8M'
               client-body-buffer-size: '2M'
-              client-header-buffer-size: '16k'
-              large-client-header-buffers: '4 16k'
+              client-header-buffer-size: '32k'
+              large-client-header-buffers: '4 32k'
               proxy-add-original-uri-header: 'false'
-              http2-max-header-size: '16k'
+              http2-max-header-size: '32k'
+              http2-max-field-size: '32k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
                 - ':'
