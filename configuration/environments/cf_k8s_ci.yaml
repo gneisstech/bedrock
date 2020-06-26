@@ -104,7 +104,7 @@ target:
           - '/resourceGroups/'
           - *cfWafRG
         action: 'create'
-      # for private calls to Atrius Objects Service
+      # SP identity for Atrius Objects Service to call ELM and other services
       - name: &spAtriusObjects 'cf-ci-atrius-objects-sp'
         key_vault:
           vault: *kvName
@@ -117,12 +117,25 @@ target:
           - '/resourceGroups/'
           - *cfK8sRG
         action: 'create'
-      # for calls to Passage API from ELM
-      - name: &spElmServiceSpName 'cf-ci-elm-service-sp'
+      # SP identity for ELM Service to call Atrius Objects, Passage API, and other services
+      - name: &spElmAtrius 'cf-ci-elm-atrius-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
-          secret_name: *spElmServiceSpName
+          secret_name: *spElmAtrius
+        role: 'Contributor'
+        scopes:
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfK8sRG
+        action: 'create'
+      # SP identity for ELM Service to call Atrius Objects, Passage API, and other services
+      - name: &spAtV1FeedWriter 'cf-ci-atv1-feed-writer-sp'
+        key_vault:
+          vault: *kvName
+          resource_group: *cfKeysRG
+          secret_name: *spAtV1FeedWriter
         role: 'Contributor'
         scopes:
           - '/subscriptions/'
