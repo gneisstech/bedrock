@@ -103,6 +103,7 @@ cf-http-https-echo:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-echo/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -120,6 +121,7 @@ cf-oauth-proxy-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/oauth2/$2'
     hosts:
       - paths:
@@ -157,6 +159,7 @@ cf-react-app-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-app/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -174,6 +177,7 @@ cf-self-healing-app-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -191,6 +195,7 @@ cf-atrius-objects-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-atrius-objects/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -219,6 +224,7 @@ cf-lights-map-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-lights-map/$2'
     hosts:
       - paths:
@@ -242,6 +248,7 @@ cf-self-healing-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -270,6 +277,7 @@ cf-self-healing-ingest-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
@@ -298,6 +306,7 @@ cf-authz-web-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-authz/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -332,6 +341,7 @@ cf-elm-web-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-elm/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -371,6 +381,7 @@ cf-admin-web-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-admin/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -402,6 +413,7 @@ cf-ingest-web-api:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-ingest/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -435,6 +447,7 @@ cf-health-web-api:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-health/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -509,8 +522,8 @@ cf-tls-certificate-manager-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'false'
       'nginx.ingress.kubernetes.io/rewrite-target': '/.well-known/$2'
-      'nginx.ingress.kubernetes.io/ssl-redirect': "false"
     hosts:
       - paths:
           - '/.well-known(/|$)(.*)'
@@ -544,6 +557,7 @@ cf-coordinate-transforms-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-coordinate-transforms/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -564,6 +578,7 @@ cf-city-state-zip-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-city-state-zip/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
@@ -584,6 +599,7 @@ cf-ecy-ingest-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-ecy-ingest/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
