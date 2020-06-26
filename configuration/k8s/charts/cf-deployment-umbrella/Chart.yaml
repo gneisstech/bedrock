@@ -133,7 +133,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-self-healing-ingest-api-docker'
   - name: 'nginx-ingress'
-    version: '1.33.5'
+    version: '1.40.1'
     repository: 'https://kubernetes-charts.storage.googleapis.com'
     condition: 'cf-waf-ingress.enabled'
     tags:

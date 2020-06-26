@@ -509,44 +509,6 @@ curl --location --request POST 'http://127.0.0.1:5000/cf-self-healing-api/api/v1
 	"ssl-protocols": "TLSv1.2 TLSv1.3"
 }
 
-kind: Ingress
-apiVersion: extensions/v1beta1
-metadata:
-  name: cf-self-healing-api-docker-api-key
-  namespace: cfk8s
-  selfLink: >-
-    /apis/extensions/v1beta1/namespaces/cfk8s/ingresses/cf-self-healing-api-docker-api-key
-  uid: 4da2835c-42de-46c6-ba38-d3afbcd3ed95
-  resourceVersion: '2356148'
-  generation: 3
-  creationTimestamp: '2020-06-04T03:13:00Z'
-  labels:
-    app.kubernetes.io/instance: cfk8s
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: cf-self-healing-api-docker
-    app.kubernetes.io/version: r1.0.6-dev
-    helm.sh/chart: cf-self-healing-api-docker-1.0.6-dev
-  annotations:
-    meta.helm.sh/release-name: cfk8s
-    meta.helm.sh/release-namespace: cfk8s
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_pass_request_headers on;
-      proxy_set_header API_KEY $http_api_key;
-      proxy_set_header API_KEY $http_api_key;
-      more_set_input_headers "X_API_KEY: $http_api_key";
-    nginx.ingress.kubernetes.io/rewrite-target: /cf-self-healing-api/$2
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /cf-self-healing-api(/|$)(api/v1/process.*)
-            backend:
-              serviceName: cf-self-healing-api-docker
-              servicePort: 80
-status:
-  loadBalancer: {}
-
-
   505  kubectl --context cf-dev-k8s-001 create ns neuvector
   506  kubectl --context cf-qa-k8s-001 create ns neuvector
   507  kubectl --context cf-prod-k8s-001 create ns neuvector

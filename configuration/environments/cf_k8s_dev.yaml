@@ -1182,6 +1182,7 @@ target:
               #  SecAuditLogParts ABIJDEFHZ
               #  SecAuditLog /dev/stderr
               #  Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+              # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
               enable-underscores-in-headers: 'true'
               proxy-buffer-size: '32k'
               proxy-body-size: '8M'
