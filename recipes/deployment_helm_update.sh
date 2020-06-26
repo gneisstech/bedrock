@@ -235,6 +235,7 @@ function update_helm_chart_on_k8s () {
             --install \
             --kube-context "$(get_kube_context "${deployment_json}")" \
             --namespace "$(get_kube_namespace "${deployment_json}")" \
+            --history-max 200 \
             "$(get_helm_deployment_name "${deployment_json}" )" \
             "${registry}/${chart_name}" \
             --version "$(get_helm_version "${deployment_json}")" \
@@ -244,6 +245,7 @@ function update_helm_chart_on_k8s () {
             --install \
             --kube-context "$(get_kube_context "${deployment_json}")" \
             --namespace "$(get_kube_namespace "${deployment_json}")" \
+            --history-max 200 \
             "$(get_helm_deployment_name "${deployment_json}" )" \
             "${registry}/${chart_name}" \
             --version "$(get_helm_version "${deployment_json}")" \
