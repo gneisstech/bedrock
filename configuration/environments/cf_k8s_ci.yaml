@@ -61,6 +61,13 @@ target:
           sku: 'Standard'
           allocation_method: 'Static'
           action: 'create'
+        - name: &wafSecondaryIP 'cf-ci-waf-k8s-002-pip'
+          resource_group: *cfWafRG
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.Network/publicIPAddresses'
+          sku: 'Standard'
+          allocation_method: 'Static'
+          action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
           host: &dnsHost 'cf-ci'
@@ -183,6 +190,7 @@ target:
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
@@ -199,6 +207,7 @@ target:
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
@@ -215,6 +224,7 @@ target:
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
@@ -231,6 +241,7 @@ target:
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
@@ -247,6 +258,7 @@ target:
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
@@ -263,6 +275,7 @@ target:
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'

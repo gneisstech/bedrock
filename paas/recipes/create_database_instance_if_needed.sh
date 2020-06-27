@@ -111,6 +111,7 @@ function update_database_instance () {
         --zone-redundant "$(db_attr 'zone_redundant')" \
         --capacity "$(db_attr 'capacity')" \
         --min-capacity "$(db_attr 'min_capacity')" \
+        --auto-pause-delay "$(db_attr "auto_pause_delay")" \
         --tier "$(db_attr 'tier')" \
         --service-objective "$(db_attr 'service_objective')" \
         $(database_instance_option_if_present 'family' 'family')
@@ -129,6 +130,7 @@ function deploy_database_instance () {
         --collation "$(db_attr 'collation')" \
         --capacity "$(db_attr 'capacity')" \
         --min-capacity "$(db_attr 'min_capacity')" \
+        --auto-pause-delay "$(db_attr "auto_pause_delay")" \
         --tier "$(db_attr 'tier')" \
         --service-objective "$(db_attr 'service_objective')" \
         $(database_instance_option_if_present 'family' 'family')
