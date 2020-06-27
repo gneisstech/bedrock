@@ -176,6 +176,7 @@ target:
         service_objective: 'GP_S_Gen5'
         action: 'preserve'
       instances:
+        # https://docs.microsoft.com/en-us/azure/azure-sql/database/resource-limits-vcore-single-databases
         - name: &selfHealingSchema 'cf-prod-self-healing'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -186,7 +187,8 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 2
+          min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
@@ -201,7 +203,8 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 2
+          min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
@@ -216,7 +219,8 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 8
+          min_capacity: 1
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
@@ -231,7 +235,8 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 8
+          min_capacity: 1
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
@@ -246,7 +251,8 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 2
+          min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
@@ -261,7 +267,8 @@ target:
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 8
+          min_capacity: 1
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
