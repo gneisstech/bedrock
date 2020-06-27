@@ -1196,6 +1196,13 @@ target:
                 SecAuditLogParts ABIJDEFHZ
                 SecAuditLog /dev/stderr
                 Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+                SecAction \
+                  "id:980000,\
+                   phase:1,\
+                   nolog,\
+                   pass,\
+                   t:none,\
+                   setvar:tx.paranoia_level=3"
               enable-underscores-in-headers: 'true'
               use-http2: 'false'
               proxy-buffer-size: '8k'

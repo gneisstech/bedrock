@@ -1205,10 +1205,26 @@ target:
           controller:
             replicaCount: 3
             config:
-              # enable-modsecurity: 'true'
-              # modsecurity-snippet: ''
-              # enable-owasp-modsecurity-cr: 'true'
+              # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
+              # nginx.ingress.kubernetes.io/affinity: 'cookie'
+              enable-modsecurity: "true"
+              enable-owasp-core-rules: "false"
+              modsecurity-snippet: |
+                SecRuleEngine On
+                SecRequestBodyAccess On
+                SecAuditEngine RelevantOnly
+                SecAuditLogParts ABIJDEFHZ
+                SecAuditLog /dev/stderr
+                Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+                SecAction \
+                  "id:980000,\
+                   phase:1,\
+                   nolog,\
+                   pass,\
+                   t:none,\
+                   setvar:tx.paranoia_level=3"
               enable-underscores-in-headers: 'true'
+              use-http2: 'false'
               proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
