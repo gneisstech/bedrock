@@ -1236,13 +1236,11 @@ target:
                 SecAuditLogParts ABIJDEFHZ
                 SecAuditLog /dev/stderr
                 Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
-                SecAction \
-                  "id:980000,\
-                   phase:1,\
-                   nolog,\
-                   pass,\
-                   t:none,\
-                   setvar:tx.paranoia_level=3"
+                SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+                SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000002,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+                SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
+                SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+                SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
               enable-underscores-in-headers: 'true'
               use-http2: 'false'
               proxy-buffer-size: '8k'
