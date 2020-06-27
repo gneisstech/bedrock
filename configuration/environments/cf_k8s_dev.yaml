@@ -1185,26 +1185,20 @@ target:
           enabled: true
           controller:
             config:
-              # nginx.ingress.kubernetes.io/affinity: 'cookie'
-              # enable-modsecurity: "true"
-              # enable-owasp-core-rules: "false"
-              # modsecurity-snippet: |
-              #  SecRuleEngine On
-              #  SecRequestBodyAccess On
-              #  SecAuditEngine RelevantOnly
-              #  SecAuditLogParts ABIJDEFHZ
-              #  SecAuditLog /dev/stderr
-              #  Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
               # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
+              # nginx.ingress.kubernetes.io/affinity: 'cookie'
+              enable-modsecurity: "true"
+              enable-owasp-core-rules: "false"
+              modsecurity-snippet: |
+                SecRuleEngine On
+                SecRequestBodyAccess On
+                SecAuditEngine RelevantOnly
+                SecAuditLogParts ABIJDEFHZ
+                SecAuditLog /dev/stderr
+                Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
               enable-underscores-in-headers: 'true'
-              proxy-buffer-size: '32k'
-              proxy-body-size: '8M'
-              client-body-buffer-size: '2M'
-              client-header-buffer-size: '32k'
-              large-client-header-buffers: '4 32k'
-              proxy-add-original-uri-header: 'false'
-              http2-max-header-size: '32k'
-              http2-max-field-size: '32k'
+              use-http2: 'false'
+              proxy-buffer-size: '8k'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
                 - ':'
