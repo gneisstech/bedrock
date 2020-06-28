@@ -61,7 +61,7 @@ dependencies:
   version: 1.0.2-dev
 - name: cf-assets-v2-telemetry-tracking-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.5-dev
+  version: 0.3.6-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.2.4-dev
@@ -74,5 +74,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:17df78d15eb5c4b1c7f4b01c4739ed68acdc639b5a6085110e99c90022679dfb
-generated: "2020-06-28T19:48:17.792260293Z"
+digest: sha256:9c2c67386b67bd463220596df959bd2ca3858e45265fb63d2bb37375446d2fbb
+generated: "2020-06-28T23:24:41.91717085Z"
