@@ -508,8 +508,6 @@ cf-assets-v2-telemetry-tracking-svc-docker:
       APP_VERSION: '{{ .Chart.AppVersion }}'
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
-      STATSD_HOST: ''
-      STATSD_PORT: 8125
       TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME: ''
     secrets:
@@ -525,8 +523,6 @@ cf-assets-v2-telemetry-forwarding-svc-docker:
       APP_VERSION: '{{ .Chart.AppVersion }}'
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
-      STATSD_HOST: ''
-      STATSD_PORT: 8125
       TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: ''
     secrets:
