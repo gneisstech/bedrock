@@ -210,7 +210,7 @@ dependencies: # A list of the chart requirements (optional)
     condition: 'cf-assets-v2-telemetry-forwarding-svc-docker.enabled'
     tags:
       - 'cf-assets-v2-telemetry-forwarding-svc-docker'
-    enabled: true
+    enabled: false  # true
     import-values: [] # (optional)
     alias: null
   - name: 'cf-coordinate-transforms-svc-docker'
