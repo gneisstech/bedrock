@@ -96,7 +96,7 @@ resources:
           include:
             - 'master-bytelight'
     - pipeline: 'cf-assets-v2-telemetry-forwarding-svc-docker'
-      source: 'forwarding'
+      source: 'cf_assets_v2_telemetry_forwarding'
       trigger:
         branches:
           include:

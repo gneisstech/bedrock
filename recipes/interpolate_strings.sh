@@ -243,6 +243,24 @@ function process_tls_secret () {
     printf '%s' "${result}"
 }
 
+function process_eventhub_connection_string () {
+    local -r theString="${1}"
+    local theMessage
+    local resource_group namespace_name eventhub_name policy_name
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
+    namespace_name="$(jq -r '.namespace_name' <<< "${theMessage}")"
+    eventhub_name="$(jq -r '.eventhub_name' <<< "${theMessage}")"
+    policy_name="$(jq -r '.policy_name' <<< "${theMessage}")"
+
+    az eventhubs eventhub authorization-rule keys list \
+        --resource-group "${resource_group}" \
+        --namespace-name "${namespace_name}" \
+        --eventhub-name "${eventhub_name}" \
+        --name "${policy_name}" \
+    | jq -r '.primaryConnectionString'
+}
+
 function dispatch_functions () {
     declare -a myarray
     local i=0
@@ -264,6 +282,9 @@ function dispatch_functions () {
                     ;;
                 tls_secret*)
                     array_entry="$(process_tls_secret "${line_data}")"
+                    ;;
+                eventhub_connection_string*)
+                    array_entry="$(process_eventhub_connection_string "${line_data}")"
                     ;;
                 *)
                    array_entry="UNDEFINED_FUNCTION [${line_data}]"

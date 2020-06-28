@@ -265,7 +265,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &assetTagSchema 'cf-dev-asset-tag-db'
+        - name: &assetTelemetrySchema 'cf-dev-asset-tag-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
@@ -399,11 +399,16 @@ target:
                 destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
                 storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
               consumer_groups:
-                - name: &iot_eh_asset_tags_consumer_group 'cf-dev-iot-eventhub-asset-tags-cg'
+                - name: &iot_eh_asset_tags_telemetry_tracking_consumer_group 'cf-dev-iot-eventhub-asset-tags-telemetry-tracking-cg'
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
-                  user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for assets tag consumers'
+                  user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for tracking assets'
+                - name: &iot_eh_asset_tags_telemetry_forwarding-consumer_group 'cf-dev-iot-eventhub-asset-tags-telemetry-forwarding-cg'
+                  topic_name: *cfIotEhTopic
+                  namespace: *cfIotEhNamespace
+                  resource_group: *cfIotEhRG
+                  user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for forwarding asset telemetry'
               authorization_rules:
                 - name: &cf_iot_eh_producer_rule 'cf-dev-iot-eventhub-producer'
                   topic_name: *cfIotEhTopic
@@ -910,6 +915,18 @@ target:
               - *dbLinuxPassword
               - ';'
               - 'PORT=1433'
+            asset_telemery_tracking: &dbAssetTelemetryTracking
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *assetTelemetrySchema
         authz:
           api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
         elm:
@@ -1119,6 +1136,32 @@ target:
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-tracking-svc-docker:
           enabled: true
+          config:
+            # placeholder values should allow the service to install and minimally respond
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT:
+                - *cfIotEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME:
+                - *iot_eh_asset_tags_telemetry_tracking_consumer_group
+            secrets:
+              DATABASE_URL: *dbAssetTelemetryTracking
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfIotEhRG
+                - '","namespace_name":"'
+                - *cfIotEhNamespace
+                - '","eventhub_name":"'
+                - *cfIotEhTopic
+                - '","policy_name":"'
+                - *cf_iot_eh_consumer_rule
+                - '"}'
+                - '##'
         cf-assets-v2-telemetry-forwarding-svc-docker:
           enabled: true
         cf-tls-certificate-manager-svc-docker:

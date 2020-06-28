@@ -1130,10 +1130,10 @@ target:
               JWT_AUTH_TOKEN: ''
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-tracking-svc-docker:
-          enabled: true
+          enabled: false
           replicaCount: 3
         cf-assets-v2-telemetry-forwarding-svc-docker:
-          enabled: true
+          enabled: false
           replicaCount: 3
         cf-tls-certificate-manager-svc-docker:
           enabled: true
