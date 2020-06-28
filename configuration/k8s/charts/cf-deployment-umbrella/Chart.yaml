@@ -196,7 +196,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-assets-v2-telemetry-tracking-svc-docker'
-    version: '^0.2.0-0'
+    version: '^0.3.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-assets-v2-telemetry-tracking-svc-docker.enabled'
     tags:
