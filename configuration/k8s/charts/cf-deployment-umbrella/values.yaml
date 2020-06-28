@@ -523,12 +523,13 @@ cf-assets-v2-telemetry-forwarding-svc-docker:
       APP_VERSION: '{{ .Chart.AppVersion }}'
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
-      TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT: ''
+      TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: ''
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: ''
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: ''
     secrets:
-      DATABASE_URL: ''
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING: ''
-      TELEMETRY_EH_FORWARDING_ASSETS_V2_PUBLISH_CONNECTION_STRING: ''
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING: ''
 
 cf-tls-certificate-manager-svc-docker:
   fullnameOverride: 'cf-tls-certificate-manager-svc-docker'

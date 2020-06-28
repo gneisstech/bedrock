@@ -1164,6 +1164,50 @@ target:
                 - '##'
         cf-assets-v2-telemetry-forwarding-svc-docker:
           enabled: true
+          config:
+            # placeholder values should allow the service to install and minimally respond
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
+                - *cfIotEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME:
+                - *iot_eh_asset_tags_telemetry_forwarding-consumer_group
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT:
+                - *cfAtEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME:
+                - *cfAtEhTopic
+            secrets:
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfIotEhRG
+                - '","namespace_name":"'
+                - *cfIotEhNamespace
+                - '","eventhub_name":"'
+                - *cfIotEhTopic
+                - '","policy_name":"'
+                - *cf_iot_eh_consumer_rule
+                - '"}'
+                - '##'
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAtEhRG
+                - '","namespace_name":"'
+                - *cfAtEhNamespace
+                - '","eventhub_name":"'
+                - *cfAtEhTopic
+                - '","policy_name":"'
+                - *cf_asset_tag_eh_producer_rule
+                - '"}'
+                - '##'
         cf-tls-certificate-manager-svc-docker:
           enabled: true
           yaml_values:
