@@ -1159,7 +1159,10 @@ target:
               CF_SELF_HEALING_API_KEY: *selfHealingApiKey
               JWT_AUTH_TOKEN: ''
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
-        cf-assets-v2-telemetry-svc-docker:
+        cf-assets-v2-telemetry-tracking-svc-docker:
+          enabled: true
+          replicaCount: 3
+        cf-assets-v2-telemetry-forwarding-svc-docker:
           enabled: true
           replicaCount: 3
         cf-tls-certificate-manager-svc-docker:

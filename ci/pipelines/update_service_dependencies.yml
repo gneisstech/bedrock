@@ -89,8 +89,14 @@ resources:
         branches:
           include:
             - 'master-bytelight'
-    - pipeline: 'cf-assets-v2-telemetry-svc-docker'
-      source: 'cf_assets_v2_telemetry'
+    - pipeline: 'cf-assets-v2-telemetry-tracking-svc-docker'
+      source: 'cf_assets_v2_telemetry_tracking'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
+    - pipeline: 'cf-assets-v2-telemetry-forwarding-svc-docker'
+      source: 'forwarding'
       trigger:
         branches:
           include:
