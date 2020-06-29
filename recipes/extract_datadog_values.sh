@@ -53,11 +53,19 @@ function read_configuration () {
     yq read --tojson "$(target_config)"
 }
 
+function get_app () {
+    read_configuration | jq -r -e '.target.app'
+}
+
+function get_env () {
+    read_configuration | jq -r -e '.target.env'
+}
+
 function extract_datadog_values () {
     read_configuration \
         | jq -r -e '.target.paas.k8s.datadog' \
         | "$(repo_root)/recipes/join_string_arrays.sh" \
-        | "$(repo_root)/recipes/interpolate_strings.sh"
+        | "$(repo_root)/recipes/interpolate_strings.sh" "$(get_app)" "$(get_env)"
 }
 
 extract_datadog_values

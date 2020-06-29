@@ -301,6 +301,16 @@ function dispatch_functions () {
     done
 }
 
+function process_app_env () {
+    local -r app="${1:-cf}"
+    local -r env="${2:-env}"
+    sed -e "s|##app##|${app}|g" \
+        -e "s|##env##|${env}|g" \
+        -e "s|##app-env##|${app}-${env}|g" \
+        -e "s|##app_env##|${app}_${env}|g" \
+        -e "s|##appenv##|${app}${env}|g"
+}
+
 function interpolate_functions () {
     awk '{gsub(/##/,"\n"); print}' | dispatch_functions
 }
@@ -311,6 +321,7 @@ function interpolate_strings () {
     while IFS=$'\n' read -r line_data; do
         local current_line="${line_data}"
         if [[ "${current_line}" =~ '##' ]]; then
+            current_line="$(process_app_env "$@" <<< "${current_line}")"
             current_line="$(interpolate_functions <<< "${current_line}")"
         fi
         printf '%s\n' "${current_line}"
