@@ -81,7 +81,7 @@ function get_helm_values () {
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    yq r --tojson "$(repo_root)/$(get_target_config "${deployment_json}")"
+    TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/pre_process_strings.sh"
 }
 
 function connect_to_k8s () {
