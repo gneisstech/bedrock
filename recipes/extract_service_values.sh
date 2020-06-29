@@ -41,9 +41,6 @@ set -o pipefail
 # ---------------------
 declare -rx TARGET_CONFIG
 
-# Arguments
-# ---------------------
-
 function repo_root () {
     git rev-parse --show-toplevel
 }
