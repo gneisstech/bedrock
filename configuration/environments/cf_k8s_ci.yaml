@@ -787,7 +787,7 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name:  &elmSpName 'cf-dev-elm-web-sp'
+            sp_name: &elmSpName 'cf-dev-elm-web-sp'
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
