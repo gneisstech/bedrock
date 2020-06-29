@@ -328,4 +328,4 @@ function interpolate_strings () {
     done
 }
 
-interpolate_strings
+interpolate_strings "$@"
