@@ -53,11 +53,19 @@ function read_configuration () {
     yq read --tojson "$(target_config)"
 }
 
+function get_app () {
+    read_configuration | jq -r -e '.target.app'
+}
+
+function get_env () {
+    read_configuration | jq -r -e '.target.env'
+}
+
 function extract_service_values () {
     read_configuration \
         | jq -r -e '.target.saas.helm.service_values' \
         | "$(repo_root)/recipes/join_string_arrays.sh" \
-        | "$(repo_root)/recipes/interpolate_strings.sh"
+        | "$(repo_root)/recipes/interpolate_strings.sh" "$(get_app)" "$(get_env)"
 }
 
 extract_service_values
