@@ -81,7 +81,9 @@ function process_app_env () {
 }
 
 function get_cluster_config_json () {
-    local -r config_filename="${1}"
+    local -r deployment_json="${1}"
+    local config_filename
+    config_filename="$(get_target_config "${deployment_json}")"
     local -r app="$(get_app "${config_filename}")"
     local -r env="$(get_env "${config_filename}" )"
     read_configuration "${config_filename}" \
