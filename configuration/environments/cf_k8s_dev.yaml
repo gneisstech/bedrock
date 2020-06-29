@@ -157,7 +157,7 @@ target:
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
-            secret_name: &cfDefaultDBSecretName 'admin-pw-for-cf-dev-sqls'
+            secret_name: &cfDefaultDBSecretName 'cf-dev-sqls-admin-pw'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
@@ -399,12 +399,12 @@ target:
                 destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
                 storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
               consumer_groups:
-                - name: &iot_eh_asset_tags_telemetry_tracking_consumer_group 'cf-dev-iot-eventhub-asset-tags-telemetry-tracking-cg'
+                - name: &iot_eh_asset_tags_telemetry_tracking_consumer_group 'cf-dev-iot-eh-asset-tags-telemetry-tracking-cg'
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
                   user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for tracking assets'
-                - name: &iot_eh_asset_tags_telemetry_forwarding-consumer_group 'cf-dev-iot-eventhub-asset-tags-telemetry-forwarding-cg'
+                - name: &iot_eh_asset_tags_telemetry_forwarding-consumer_group 'cf-dev-iot-eh-asset-tags-telemetry-forwarding-cg'
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
@@ -1210,6 +1210,7 @@ target:
                 - '##'
         cf-tls-certificate-manager-svc-docker:
           enabled: true
+          replicaCount: 1
           yaml_values:
             - &leCertificateDir '/etc/letsencrypt'
           config:
@@ -1262,7 +1263,7 @@ target:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
               OAUTH2_PROXY_CLIENT_ID: *passageApiApplicationID
               OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
-              OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev_v2__utm'
+              OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_dev_v2__utm'
               OAUTH2_PROXY_COOKIE_PATH: '/'
               OAUTH2_PROXY_COOKIE_REFRESH: '1h'
               OAUTH2_PROXY_EMAIL_DOMAINS: '*'
