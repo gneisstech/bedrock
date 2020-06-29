@@ -37,11 +37,50 @@ function get_deployment_json_by_name () {
             '.deployments[] | select(.name == "\($deployment_name)")'
 }
 
+function read_configuration () {
+    local -r config_filename="${1}"
+    yq read --tojson "${config_filename}"
+}
+
+function get_app () {
+    local -r config_filename="${1}"
+    read_configuration "${config_filename}" | jq -r -e '.target.app'
+}
+
+function get_env () {
+    local -r config_filename="${1}"
+    read_configuration "${config_filename}" | jq -r -e '.target.env'
+}
+
+function process_app_env () {
+    local -r app="${1:-cf}"
+    local -r env="${2:-env}"
+    sed -e "s|##app##|${app}|g" \
+        -e "s|##env##|${env}|g" \
+        -e "s|##app-env##|${app}-${env}|g" \
+        -e "s|##app_env##|${app}_${env}|g" \
+        -e "s|##appenv##|${app}${env}|g"
+}
+
+function populate_config_file () {
+    local -r deployment_json="${1}"
+    local -r new_config_file="${2}"
+    local original_config_file
+    original_config_file="$(get_target_config "${deployment_json}")"
+    read_configuration "${original_config_file}" \
+    | process_app_env "$(get_app "${original_config_file}")" "$(get_env "${original_config_file}")" \
+    > "${new_config_file}"
+}
+
 function deploy_environment_cluster () {
     local -r deployment_name="${1}"
+    local -r new_config="./.new_config"
     local deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
-    TARGET_CONFIG="$(get_target_config "${deployment_json}")" AZ_TRACE=az "$(repo_root)/recipes/deploy_environment.sh"
+    populate_config_file "${deployment_json}" "$(repo_root)/${new_config}"
+    less "${new_config}"
+    TARGET_CONFIG="${new_config}" AZ_TRACE=az "$(repo_root)/recipes/deploy_environment.sh"
+    rm -f "${new_config}"
 }
 
 deploy_environment_cluster "${@}"
