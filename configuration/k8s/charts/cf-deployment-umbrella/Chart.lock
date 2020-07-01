@@ -31,7 +31,7 @@ dependencies:
   version: 1.0.21-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.0-dev
+  version: 1.1.2-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.1.2-dev
@@ -74,5 +74,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:7b96400cfc154940160730f5992258c532f6cce2626bfd2ce2da2559f3989628
-generated: "2020-07-01T02:11:04.073806852Z"
+digest: sha256:7be4ac38c8e4235efb9211eb0d37e4552605c3e7066a9f63adeef08a1d170fe2
+generated: "2020-07-01T10:11:52.699388278Z"
