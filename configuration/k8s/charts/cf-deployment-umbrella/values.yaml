@@ -108,6 +108,12 @@ cf-http-https-echo:
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $name_upstream_1 $upstream_cookie_name_1;
+        access_by_lua_block {
+          if ngx.var.name_upstream_1 ~= "" then
+            ngx.header["Set-Cookie"] = "name_1=" .. ngx.var.name_upstream_1 .. ngx.var.auth_cookie:match("(; .*)")
+          end
+        }
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
