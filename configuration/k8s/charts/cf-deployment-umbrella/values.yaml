@@ -140,6 +140,7 @@ cf-oauth-proxy-docker:
       OAUTH2_PROXY_PASS_ACCESS_TOKEN: 'true'
       OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
       OAUTH2_PROXY_PING_PATH: '/'
+      OAUTH2_PROXY_PROFILE_URL: 'https://graph.windows.net/me?api-version=1.6'
       OAUTH2_PROXY_PROVIDER: 'azure'
       OAUTH2_PROXY_REDIRECT_URL: 'fixme-oauth-redirect-url'
       OAUTH2_PROXY_RESOURCE: 'fixme-oauth-proxy-resource'
