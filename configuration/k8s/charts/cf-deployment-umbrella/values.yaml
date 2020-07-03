@@ -361,6 +361,8 @@ cf-elm-web-api-docker:
   config:
     environment:
       <<: *railsEnv
+      RELAY_API_BATCH_SIZE: '1000'
+      RELAY_API_TIMEOUT: '179'
       RELAY_API_URL: *relayApiUrl
       PASSAGE_API_URL: *passageApiUrl
       PASSAGE_REFERER: *passageReferer
