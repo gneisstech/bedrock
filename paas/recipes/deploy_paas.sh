@@ -169,6 +169,28 @@ function deploy_eventhub_namespaces () {
     done
 }
 
+function storage_accounts () {
+    paas_configuration | jq -r -e '[.storage.accounts[]? | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_storage_accounts () {
+    local sa_name
+    for sa_name in $(storage_accounts); do
+        invoke_layer 'paas' 'create_storage_account_if_needed' "${sa_name}"
+    done
+}
+
+function az_file_shares () {
+    paas_configuration | jq -r -e '[.storage.azure_files[]? | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_azure_file_shares () {
+    local fs_name
+    for fs_name in $(az_file_shares); do
+        invoke_layer 'paas' 'create_azure_file_share_if_needed' "${fs_name}"
+    done
+}
+
 function kubernetes_cluster_names () {
     paas_configuration | jq -r -e '[.k8s.clusters[]? | select(.action == "create") | .name ] | @tsv'
 }
@@ -184,6 +206,8 @@ function deploy_paas () {
     deploy_keyvaults
     deploy_service_principals
     deploy_databases
+    deploy_storage_accounts
+    deploy_azure_file_shares
     seed_secrets
     deploy_server_farms
     deploy_container_registries
