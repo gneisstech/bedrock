@@ -23,7 +23,7 @@ dependencies:
     import-values: [] # (optional)
     alias: 'nginx-ingress'
   - name: 'http-https-echo'
-    version: '^1.0.0-0'
+    version: '^0.0.2'
     repository: 'file://../http-https-echo'
     condition: 'http-https-echo.enabled'
     tags:

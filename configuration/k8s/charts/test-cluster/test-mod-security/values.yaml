@@ -93,12 +93,50 @@ nginx-ingress:
       'Referrer-Policy': 'strict-origin-when-cross-origin'
       'X-Frame-Options': 'sameorigin'
       'Content-Security-Policy': "default-src 'self'; frame-ancestors 'self' login.microsoft.com;"
-      'Server': ''
+      'Feature-Policy': >-
+        accelerometer 'none';
+        ambient-light-sensor 'none';
+        autoplay 'none';
+        battery 'none';
+        camera 'none';
+        display-capture 'none';
+        document-domain 'none';
+        encrypted-media 'none';
+        execution-while-not-rendered 'none';
+        execution-while-out-of-viewport 'none';
+        fullscreen 'none';
+        geolocation 'none';
+        gyroscope 'none';
+        layout-animations 'none';
+        legacy-image-formats 'none';
+        magnetometer 'none';
+        microphone 'none';
+        midi 'none';
+        oversized-images 'none';
+        payment 'none';
+        picture-in-picture 'none';
+        speaker 'none';
+        sync-xhr 'none';
+        unoptimized-images 'none';
+        unsized-media 'none';
+        usb 'none';
+        vibrate 'none';
+        vr 'none';
+        wake-lock 'none';
+        webauthn 'none';
+        vr 'none';
+        xr-spatial-tracking 'none';
+        xr 'none';
+      'X-Content-Type-Options': 'nosniff'
+      'Server': ''  # TODO: delete server header from upstream
       'Access-Control-Allow-Origin': 'https://login.microsoftonline.com'
+    # config:
     config:
       # nginx.ingress.kubernetes.io/affinity: 'cookie'
       enable-modsecurity: "true"
       enable-owasp-core-rules: "false"
+      # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
+      # nginx.ingress.kubernetes.io/affinity: 'cookie'
       modsecurity-snippet: |
         SecRuleEngine On
         SecRequestBodyAccess On
@@ -106,10 +144,34 @@ nginx-ingress:
         SecAuditLogParts ABIJDEFHZ
         SecAuditLog /dev/stderr
         Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000002,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+        SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
+        SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+        SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
       enable-underscores-in-headers: 'true'
+      use-http2: 'false'
       proxy-buffer-size: '8k'
+      ssl-ciphers: >-
+        ECDHE-ECDSA-AES128-GCM-SHA256
+        :
+        ECDHE-RSA-AES128-GCM-SHA256
+        :
+        ECDHE-ECDSA-AES256-GCM-SHA384
+        :
+        ECDHE-RSA-AES256-GCM-SHA384
+        :
+        ECDHE-ECDSA-CHACHA20-POLY1305
+        :
+        ECDHE-RSA-CHACHA20-POLY1305
+        :
+        DHE-RSA-AES128-GCM-SHA256
+        :
+        DHE-RSA-AES256-GCM-SHA384
+      ssl-protocols: 'TLSv1.2 TLSv1.3'
     service:
       enableHttp: true
+      type: 'NodePort'
 
 http-https-echo:
   enabled: true
@@ -117,8 +179,8 @@ http-https-echo:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/echo/$2'
-      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+#      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+#      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -139,13 +201,13 @@ oauth-proxy-docker:
   config:
     environment:
       OAUTH2_PROXY_AZURE_TENANT: 'common'
-      OAUTH2_PROXY_CLIENT_ID: *passageApiApplicationID
+      OAUTH2_PROXY_CLIENT_ID: '*passageApiApplicationID'
       OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
       OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev__utm'
       OAUTH2_PROXY_COOKIE_PATH: '/'
       OAUTH2_PROXY_COOKIE_REFRESH: '1h'
       OAUTH2_PROXY_EMAIL_DOMAINS: '*'
-      OAUTH2_PROXY_EXTRA_JWT_ISSUERS: *trustedIdProviders
+      OAUTH2_PROXY_EXTRA_JWT_ISSUERS: '*trustedIdProviders'
       OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
       OAUTH2_PROXY_PASS_ACCESS_TOKEN: 'true'
       OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
@@ -153,18 +215,18 @@ oauth-proxy-docker:
       OAUTH2_PROXY_PROVIDER: 'azure'
       OAUTH2_PROXY_REDIRECT_URL:
         - 'https://'
-        - *dnsHost
-        - '.'
-        - *dnsZone
+        - 'localhost'
+        - ':'
+        - '7443'
         - '/oauth2/callback'
-      OAUTH2_PROXY_RESOURCE: *passageApiApplicationID
+      OAUTH2_PROXY_RESOURCE: '*passageApiApplicationID'
       OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: 'true'
       OAUTH2_PROXY_SET_XAUTHREQUEST: 'true'
       OAUTH2_PROXY_SILENCE_PING_LOGGING: 'true'
-      OAUTH2_PROXY_SKIP_AUTH_REGEX: '^/cf-self-healing-api/api/v1/process,^/cf-lights-map/distech-eclypse'
+      OAUTH2_PROXY_SKIP_AUTH_REGEX: ''
       OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: 'true'
       OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: 'true'
       OAUTH2_PROXY_UPSTREAMS: ''  # deliberately empty
     secrets:
-      OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
-      OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
+      OAUTH2_PROXY_CLIENT_SECRET: '*oauth2ProxyClientSecret'
+      OAUTH2_PROXY_COOKIE_SECRET: 'xyzzy'
