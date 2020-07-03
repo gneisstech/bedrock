@@ -78,7 +78,6 @@ function deploy_environment_cluster () {
     local deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     populate_config_file "${deployment_json}" "$(repo_root)/${new_config}"
-    less "${new_config}"
     TARGET_CONFIG="${new_config}" AZ_TRACE=az "$(repo_root)/recipes/deploy_environment.sh"
     rm -f "${new_config}"
 }
