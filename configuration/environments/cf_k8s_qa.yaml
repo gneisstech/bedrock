@@ -925,7 +925,8 @@ target:
               - '.database.windows.net'
               - ':'
               - 1433
-              - '/'
+              - '?'
+              - 'database='
               - *assetTelemetrySchema
         authz:
           api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
