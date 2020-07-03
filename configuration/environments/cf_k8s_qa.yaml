@@ -265,7 +265,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &assetTagSchema 'cf-qa-asset-tag-db'
+        - name: &assetTelemetrySchema 'cf-qa-asset-tag-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
