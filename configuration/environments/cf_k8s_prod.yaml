@@ -1180,6 +1180,14 @@ target:
         cf-assets-v2-telemetry-tracking-svc-docker:
           enabled: false
           replicaCount: 3
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
           config:
             # placeholder values should allow the service to install and minimally respond
             environment:
