@@ -1,0 +1,12 @@
+dependencies:
+- name: nginx-ingress
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 1.33.5
+- name: http-https-echo
+  repository: file://../http-https-echo
+  version: 0.0.2
+- name: oauth-proxy-docker
+  repository: file://../oauth-proxy-docker
+  version: 0.0.4
+digest: sha256:a8098d555434cadb2e9a827e670a72102266358663af0e80fd473e032be9bb8f
+generated: "2020-07-03T13:48:44.73003-10:00"

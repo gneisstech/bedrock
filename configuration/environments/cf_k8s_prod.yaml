@@ -644,6 +644,10 @@ target:
           issuers: &trustedIdProviders
             - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
             - '='
+            - *passageApiApplicationID
+            - ','
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
             - 'https://management.core.windows.net/'
             - ','
             - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
@@ -665,10 +669,34 @@ target:
             - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
             - '='
             - 'https://graph.windows.net'
-            - ','
-            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+          issuers_go: &trustedIdProvidersGo
+            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
             - '='
             - *passageApiApplicationID
+            - ','
+            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://graph.windows.net'
         secrets:
           names:
             - &atriusObjectsApiKeySecretName 'cf-prod-atrius-objects-api-key'
@@ -1370,9 +1398,19 @@ target:
                 SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
                 SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
                 SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
+                SecRequestBodyAccess On
+                SecRequestBodyLimit 134217728
+                SecRequestBodyNoFilesLimit 2097152
+                SecRequestBodyLimitAction ProcessPartial
+                SecResponseBodyAccess On
+                SecResponseBodyLimit 2097152
+                SecResponseBodyLimitAction ProcessPartial
               enable-underscores-in-headers: 'true'
               use-http2: 'false'
-              proxy-buffer-size: '8k'
+              proxy-body-size: '32k'
+              proxy-buffer-size: '32k'
+              client-header-buffer-size: '32k'
+              client-body-buffer-size: '2m'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
                 - ':'
