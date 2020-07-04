@@ -89,14 +89,44 @@ resources:
         branches:
           include:
             - 'master-bytelight'
-    - pipeline: 'cf-assets-v2-telemetry-svc-docker'
-      source: 'cf_assets_v2_telemetry'
+    - pipeline: 'cf-assets-v2-telemetry-tracking-svc-docker'
+      source: 'cf_assets_v2_telemetry_tracking'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
+    - pipeline: 'cf-assets-v2-telemetry-forwarding-svc-docker'
+      source: 'cf_assets_v2_telemetry_forwarding'
       trigger:
         branches:
           include:
             - 'master-bytelight'
     - pipeline: 'cf-smoketest-svc-docker'
       source: 'cf_smoketest'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
+    - pipeline: 'cf-tls-certificate-manager-svc-docker'
+      source: 'cf_tls_certificate_manager'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
+    - pipeline: 'cf-city-state-zip-svc-docker'
+      source: 'cf_city_state_zip'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
+    - pipeline: 'cf-coordinate-transforms-svc-docker'
+      source: 'cf_coordinate_transforms'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
+    - pipeline: 'cf-ecy-ingest-svc-docker'
+      source: 'cf_ecy_ingest'
       trigger:
         branches:
           include:

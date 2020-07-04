@@ -509,44 +509,6 @@ curl --location --request POST 'http://127.0.0.1:5000/cf-self-healing-api/api/v1
 	"ssl-protocols": "TLSv1.2 TLSv1.3"
 }
 
-kind: Ingress
-apiVersion: extensions/v1beta1
-metadata:
-  name: cf-self-healing-api-docker-api-key
-  namespace: cfk8s
-  selfLink: >-
-    /apis/extensions/v1beta1/namespaces/cfk8s/ingresses/cf-self-healing-api-docker-api-key
-  uid: 4da2835c-42de-46c6-ba38-d3afbcd3ed95
-  resourceVersion: '2356148'
-  generation: 3
-  creationTimestamp: '2020-06-04T03:13:00Z'
-  labels:
-    app.kubernetes.io/instance: cfk8s
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: cf-self-healing-api-docker
-    app.kubernetes.io/version: r1.0.6-dev
-    helm.sh/chart: cf-self-healing-api-docker-1.0.6-dev
-  annotations:
-    meta.helm.sh/release-name: cfk8s
-    meta.helm.sh/release-namespace: cfk8s
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_pass_request_headers on;
-      proxy_set_header API_KEY $http_api_key;
-      proxy_set_header API_KEY $http_api_key;
-      more_set_input_headers "X_API_KEY: $http_api_key";
-    nginx.ingress.kubernetes.io/rewrite-target: /cf-self-healing-api/$2
-spec:
-  rules:
-    - http:
-        paths:
-          - path: /cf-self-healing-api(/|$)(api/v1/process.*)
-            backend:
-              serviceName: cf-self-healing-api-docker
-              servicePort: 80
-status:
-  loadBalancer: {}
-
-
   505  kubectl --context cf-dev-k8s-001 create ns neuvector
   506  kubectl --context cf-qa-k8s-001 create ns neuvector
   507  kubectl --context cf-prod-k8s-001 create ns neuvector
@@ -564,3 +526,18 @@ helm upgrade --install neuvector . --namespace neuvector --kube-context cf-prod-
 kubectl --namespace neuvector --context cf-dev-k8s-001 port-forward service/neuvector-service-webui 7443:8443 &
 kubectl --namespace neuvector --context cf-qa-k8s-001 port-forward service/neuvector-service-webui 8443:8443 &
 kubectl --namespace neuvector --context cf-prod-k8s-001 port-forward service/neuvector-service-webui 9443:8443 &
+
+auth="$(  az account get-access-token 2>/dev/null | jq -r '.accessToken')"
+curl -vvv --REQUEST POST 'https://cf.dev.atrius-iot.com/cf-elm/api/v1/gateway-settings/213A69FA-51C8-49A0-9490-5D45DBBD92B0/update-and-publish?selected_org_id=1C42D92B-D7B5-4C17-BDA8-ECB794194B94' --header "Authorization: Bearer $auth" --header 'Content-Type: application/json;charset=utf-8' --header 'Content-Length: 945' -d '{"gateway_settings":{"id":"213A69FA-51C8-49A0-9490-5D45DBBD92B0","site_id":"A61069D2-BA53-486A-A2C0-D2B8B5D4CADA","atrius_partner_id":"16B91907-FB97-4B79-B49F-149A761E003E-0001","saved_by":"7D7EF90A-6B63-451B-8F3C-603A9D97D2B3","published_by":"7D7EF90A-6B63-451B-8F3C-603A9D97D2B3","saved_at":"2020-06-16T14:14:04.370-04:00","published_at":"2020-06-16T14:14:04.390-04:00","version_num":37,"heartbeat_timer":1,"broadcast_timer":605,"group_zero_broadcast_timer":600,"comm_restore_timer":5,"manual_light_level":95,"push_button_override_duration":60,"manual_override_duration":60,"store_min_lighting":20,"store_max_lighting":45,"scale_factor_low_limit":0,"scale_factor_high_limit":100,"hoa_off_level":50,"proportional_band":300,"deadband":50,"integral":10,"filter_speed":0.5,"created_at":"2020-06-16T14:14:04.366-04:00","updated_at":"2020-06-16T14:14:04.393-04:00","external_bms_control":false,"in_draft":false,"revertible":false,"publishing":true}}'
+
+curl -vvv --request POST 'https://cf.dev.atrius-iot.com/cf-elm/api/v1/gateway-settings/213A69FA-51C8-49A0-9490-5D45DBBD92B0/update-and-publish?selected_org_id=1C42D92B-D7B5-4C17-BDA8-ECB794194B94' --header "Authorization: Bearer $auth" --header 'Content-Type: application/json' --header 'Content-Length: 945' -d '{"gateway_settings":{"id":"213A69FA-51C8-49A0-9490-5D45DBBD92B0","site_id":"A61069D2-BA53-486A-A2C0-D2B8B5D4CADA","atrius_partner_id":"16B91907-FB97-4B79-B49F-149A761E003E-0001","saved_by":"7D7EF90A-6B63-451B-8F3C-603A9D97D2B3","published_by":"7D7EF90A-6B63-451B-8F3C-603A9D97D2B3","saved_at":"2020-06-16T14:14:04.370-04:00","published_at":"2020-06-16T14:14:04.390-04:00","version_num":37,"heartbeat_timer":1,"broadcast_timer":605,"group_zero_broadcast_timer":600,"comm_restore_timer":5,"manual_light_level":95,"push_button_override_duration":60,"manual_override_duration":60,"store_min_lighting":20,"store_max_lighting":45,"scale_factor_low_limit":0,"scale_factor_high_limit":100,"hoa_off_level":50,"proportional_band":300,"deadband":50,"integral":10,"filter_speed":0.5,"created_at":"2020-06-16T14:14:04.366-04:00","updated_at":"2020-06-16T14:14:04.393-04:00","external_bms_control":false,"in_draft":false,"revertible":false,"publishing":true}}'
+
+curl -vvv --request POST 'https://cf.dev.atrius-iot.com/cf-elm/api/v1/gateway-settings/213A69FA-51C8-49A0-9490-5D45DBBD92B0/update-and-publish?selected_org_id=1C42D92B-D7B5-4C17-BDA8-ECB794194B94' --header "Authorization: Bearer $auth" --header 'Content-Type: application/x-www-form-encoded' --header 'Content-Length: 945' -d '{"gateway_settings":{"id":"213A69FA-51C8-49A0-9490-5D45DBBD92B0","site_id":"A61069D2-BA53-486A-A2C0-D2B8B5D4CADA","atrius_partner_id":"16B91907-FB97-4B79-B49F-149A761E003E-0001","saved_by":"7D7EF90A-6B63-451B-8F3C-603A9D97D2B3","published_by":"7D7EF90A-6B63-451B-8F3C-603A9D97D2B3","saved_at":"2020-06-16T14:14:04.370-04:00","published_at":"2020-06-16T14:14:04.390-04:00","version_num":37,"heartbeat_timer":1,"broadcast_timer":605,"group_zero_broadcast_timer":600,"comm_restore_timer":5,"manual_light_level":95,"push_button_override_duration":60,"manual_override_duration":60,"store_min_lighting":20,"store_max_lighting":45,"scale_factor_low_limit":0,"scale_factor_high_limit":100,"hoa_off_level":50,"proportional_band":300,"deadband":50,"integral":10,"filter_speed":0.5,"created_at":"2020-06-16T14:14:04.366-04:00","updated_at":"2020-06-16T14:14:04.393-04:00","external_bms_control":false,"in_draft":false,"revertible":false,"publishing":true}}'
+
+    SecAuditEngine RelevantOnly
+    SecAuditLogParts ABIJDEFHZ
+    SecAuditLog /dev/stderr
+    SecDebugLog /dev/stderr
+    SecDebugLogLevel 9
+
+

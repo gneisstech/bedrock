@@ -38,9 +38,32 @@ function read_configuration () {
     yq read --tojson "${config_filename}"
 }
 
+function get_app () {
+    local -r config_filename="${1}"
+    read_configuration "${config_filename}" | jq -r -e '.target.app'
+}
+
+function get_env () {
+    local -r config_filename="${1}"
+    read_configuration "${config_filename}" | jq -r -e '.target.env'
+}
+
+function process_app_env () {
+    local -r app="${1:-cf}"
+    local -r env="${2:-env}"
+    sed -e "s|##app##|${app}|g" \
+        -e "s|##env##|${env}|g" \
+        -e "s|##app-env##|${app}-${env}|g" \
+        -e "s|##app_env##|${app}_${env}|g" \
+        -e "s|##appenv##|${app}${env}|g"
+}
+
 function get_target_cluster_config_json () {
     local -r config_filename="${1}"
+    local -r app="$(get_app "${config_filename}")"
+    local -r env="$(get_env "${config_filename}" )"
     read_configuration "${config_filename}" \
+        | process_app_env "${app}" "${env}" \
         | "$(repo_root)/recipes/join_string_arrays.sh"
 }
 

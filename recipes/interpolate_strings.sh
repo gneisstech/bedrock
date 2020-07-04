@@ -243,6 +243,24 @@ function process_tls_secret () {
     printf '%s' "${result}"
 }
 
+function process_eventhub_connection_string () {
+    local -r theString="${1}"
+    local theMessage
+    local resource_group namespace_name eventhub_name policy_name
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
+    namespace_name="$(jq -r '.namespace_name' <<< "${theMessage}")"
+    eventhub_name="$(jq -r '.eventhub_name' <<< "${theMessage}")"
+    policy_name="$(jq -r '.policy_name' <<< "${theMessage}")"
+
+    az eventhubs eventhub authorization-rule keys list \
+        --resource-group "${resource_group}" \
+        --namespace-name "${namespace_name}" \
+        --eventhub-name "${eventhub_name}" \
+        --name "${policy_name}" \
+    | jq -r '.primaryConnectionString'
+}
+
 function dispatch_functions () {
     declare -a myarray
     local i=0
@@ -265,6 +283,9 @@ function dispatch_functions () {
                 tls_secret*)
                     array_entry="$(process_tls_secret "${line_data}")"
                     ;;
+                eventhub_connection_string*)
+                    array_entry="$(process_eventhub_connection_string "${line_data}")"
+                    ;;
                 *)
                    array_entry="UNDEFINED_FUNCTION [${line_data}]"
                    ;;
@@ -280,6 +301,16 @@ function dispatch_functions () {
     done
 }
 
+function process_app_env () {
+    local -r app="${1:-cf}"
+    local -r env="${2:-env}"
+    sed -e "s|##app##|${app}|g" \
+        -e "s|##env##|${env}|g" \
+        -e "s|##app-env##|${app}-${env}|g" \
+        -e "s|##app_env##|${app}_${env}|g" \
+        -e "s|##appenv##|${app}${env}|g"
+}
+
 function interpolate_functions () {
     awk '{gsub(/##/,"\n"); print}' | dispatch_functions
 }
@@ -290,10 +321,11 @@ function interpolate_strings () {
     while IFS=$'\n' read -r line_data; do
         local current_line="${line_data}"
         if [[ "${current_line}" =~ '##' ]]; then
+            current_line="$(process_app_env "$@" <<< "${current_line}")"
             current_line="$(interpolate_functions <<< "${current_line}")"
         fi
         printf '%s\n' "${current_line}"
     done
 }
 
-interpolate_strings
+interpolate_strings "$@"
