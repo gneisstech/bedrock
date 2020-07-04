@@ -1342,7 +1342,10 @@ target:
                 SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
               enable-underscores-in-headers: 'true'
               use-http2: 'false'
-              proxy-buffer-size: '8k'
+              proxy-body-size: '32k'
+              proxy-buffer-size: '32k'
+              client-header-buffer-size: '32k'
+              client-body-buffer-size: '2m'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
                 - ':'
