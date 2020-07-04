@@ -149,6 +149,14 @@ nginx-ingress:
         SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
         SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
         SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
+        SecRequestBodyAccess On
+        SecRequestBodyInMemoryLimit 2097152
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
       enable-underscores-in-headers: 'true'
       use-http2: 'false'
       proxy-body-size: '32k'
