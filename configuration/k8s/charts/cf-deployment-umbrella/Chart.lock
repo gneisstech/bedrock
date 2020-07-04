@@ -4,13 +4,13 @@ dependencies:
   version: 1.1.22-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.3-dev
+  version: 1.1.4-dev
 - name: cf-http-https-echo
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.12-dev
+  version: 1.0.13-dev
 - name: cf-admin-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.9-dev
+  version: 1.0.10-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.4.6-dev
@@ -19,10 +19,10 @@ dependencies:
   version: 1.4.6-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.7-dev
+  version: 1.2.8-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.42-dev
+  version: 2.0.43-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.23-dev
@@ -31,7 +31,7 @@ dependencies:
   version: 1.0.23-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.0-dev
+  version: 1.2.1-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.1.2-dev
@@ -58,10 +58,10 @@ dependencies:
   version: 1.1.8-dev
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.2-dev
+  version: 1.0.3-dev
 - name: cf-assets-v2-telemetry-tracking-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.20-dev
+  version: 0.3.21-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.2.7-dev
@@ -74,5 +74,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.5-dev
-digest: sha256:22b5e2d63eac7d964de5b4577b7142ad84e4a56e0d86c18cbefab037fb7a5b9f
-generated: "2020-07-04T21:56:01.146294715Z"
+digest: sha256:83b6c23f7b0cc98bced7391e02f83849efae40a6b963e35f2d4ba70384aee1f2
+generated: "2020-07-04T22:11:33.131182589Z"
