@@ -31,6 +31,15 @@ dependencies:
     enabled: true
     import-values: [] # (optional)
     alias: 'http-https-echo'
+  - name: 'oauth-proxy-docker'
+    version: '^0.0.4'
+    repository: 'file://../oauth-proxy-docker'
+    condition: 'oauth-proxy-docker.enabled'
+    tags:
+      - 'oauth-proxy-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'oauth-proxy-docker'
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

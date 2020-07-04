@@ -5,5 +5,8 @@ dependencies:
 - name: http-https-echo
   repository: file://../http-https-echo
   version: 0.0.2
-digest: sha256:0443f49e3c08ed5ba908fbb89dd6ee03e9d4817f61f6707e16fd3a645d750da2
-generated: "2020-07-03T07:37:41.961248-10:00"
+- name: oauth-proxy-docker
+  repository: file://../oauth-proxy-docker
+  version: 0.0.4
+digest: sha256:a8098d555434cadb2e9a827e670a72102266358663af0e80fd473e032be9bb8f
+generated: "2020-07-03T13:48:44.73003-10:00"

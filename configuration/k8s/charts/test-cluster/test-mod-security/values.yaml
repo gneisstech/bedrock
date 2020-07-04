@@ -182,8 +182,9 @@ http-https-echo:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/rewrite-target': '/echo/$2'
-#      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-#      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-url': "http://$host/oauth2/auth"
+      #'nginx.ingress.kubernetes.io/auth-url': "http://test001-oauth-proxy-docker.test-cluster.svc.cluster.local/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -204,25 +205,53 @@ oauth-proxy-docker:
   config:
     environment:
       OAUTH2_PROXY_AZURE_TENANT: 'common'
-      OAUTH2_PROXY_CLIENT_ID: '*passageApiApplicationID'
+      OAUTH2_PROXY_CLIENT_ID: '24b765b5-8108-4374-8141-1a65c0fc42ab'
       OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
-      OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev__utm'
+      OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Test__utm'
       OAUTH2_PROXY_COOKIE_PATH: '/'
       OAUTH2_PROXY_COOKIE_REFRESH: '1h'
       OAUTH2_PROXY_EMAIL_DOMAINS: '*'
-      OAUTH2_PROXY_EXTRA_JWT_ISSUERS: '*trustedIdProviders'
+      OAUTH2_PROXY_EXTRA_JWT_ISSUERS: "\
+        sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+        =\
+        https://management.core.windows.net/\
+        ,\
+        sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
+        =\
+        https://management.core.windows.net/\
+        ,\
+        sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
+        =\
+        https://management.core.windows.net/\
+        ,\
+        sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+        =\
+        https://graph.windows.net\
+        ,\
+        sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
+        =\
+        https://graph.windows.net\
+        ,\
+        sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
+        =\
+        https://graph.windows.net\
+        ,\
+        sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
+        =\
+        24b765b5-8108-4374-8141-1a65c0fc42ab"
       OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
       OAUTH2_PROXY_PASS_ACCESS_TOKEN: 'true'
       OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
       OAUTH2_PROXY_PING_PATH: '/'
+      #OAUTH2_PROXY_PROFILE_URL: 'https://graph.windows.net/me?api-version=1.6'
       OAUTH2_PROXY_PROVIDER: 'azure'
-      OAUTH2_PROXY_REDIRECT_URL:
-        - 'https://'
-        - 'localhost'
-        - ':'
-        - '7443'
-        - '/oauth2/callback'
-      OAUTH2_PROXY_RESOURCE: '*passageApiApplicationID'
+      OAUTH2_PROXY_REDIRECT_URL: "\
+        https://\
+        localhost\
+        :\
+        7443\
+        /oauth2/callback"
+      OAUTH2_PROXY_RESOURCE: '24b765b5-8108-4374-8141-1a65c0fc42ab'
       OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: 'true'
       OAUTH2_PROXY_SET_XAUTHREQUEST: 'true'
       OAUTH2_PROXY_SILENCE_PING_LOGGING: 'true'
@@ -232,4 +261,4 @@ oauth-proxy-docker:
       OAUTH2_PROXY_UPSTREAMS: ''  # deliberately empty
     secrets:
       OAUTH2_PROXY_CLIENT_SECRET: '*oauth2ProxyClientSecret'
-      OAUTH2_PROXY_COOKIE_SECRET: 'xyzzy'
+      OAUTH2_PROXY_COOKIE_SECRET: 'xyzzyxyzzyxyzzy1'
