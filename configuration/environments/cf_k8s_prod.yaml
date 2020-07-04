@@ -1399,7 +1399,6 @@ target:
                 SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
                 SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
                 SecRequestBodyAccess On
-                SecRequestBodyInMemoryLimit 2097152
                 SecRequestBodyLimit 134217728
                 SecRequestBodyNoFilesLimit 2097152
                 SecRequestBodyLimitAction ProcessPartial
