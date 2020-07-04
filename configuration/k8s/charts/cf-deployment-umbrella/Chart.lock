@@ -7,7 +7,7 @@ dependencies:
   version: 1.1.3-dev
 - name: cf-http-https-echo
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.8-dev
+  version: 1.0.9-dev
 - name: cf-admin-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.9-dev
@@ -74,5 +74,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:ca90d7ba6d5b38a9d55670c29ac1c9de18d350d941763b6d3aed43c1bf9924d9
-generated: "2020-07-04T19:02:36.155646673Z"
+digest: sha256:895095c37eb7b6a5d04e8f910429f1fa3827274c9187258ed236b616399ce745
+generated: "2020-07-04T19:29:08.38027857Z"
