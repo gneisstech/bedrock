@@ -22,9 +22,11 @@ function repo_root () {
 }
 
 function acr_logins () {
-    az acr login -n cfdevregistry
-    az acr login -n cfqaregistry
-    az acr login -n cfprodregistry
+set -x
+    az acr login -n cfdevregistry || true
+    az acr login -n cfqaregistry || true
+    az acr login -n cfprodregistry || true
+set +x
 }
 
 function neuvector_containers () {
@@ -47,7 +49,7 @@ function clone_neuvector () {
             local targetPath
             targetPath="${targetRepo}.azurecr.io/${image}"
             docker tag "${originPath}" "${targetPath}"
-            docker push "${targetPath}"
+            docker push "${targetPath}" || true
         done
     done
 }
