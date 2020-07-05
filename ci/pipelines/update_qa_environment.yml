@@ -45,7 +45,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-    displayName: 'Update QA Cluster'
+    displayName: 'Update QA Environment'
     inputs:
       azureSubscription: 'cf-qa-az-service-connection'
       scriptType: bash
