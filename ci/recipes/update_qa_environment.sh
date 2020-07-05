@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: update_dev_cluster.sh
+# usage: update_qa_environment.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -24,7 +24,7 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function update_dev_cluster () {
+function update_qa_environment () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         SECONDS=0
@@ -33,4 +33,4 @@ function update_dev_cluster () {
     popd
 }
 
-update_dev_cluster "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
+update_qa_environmentw "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)

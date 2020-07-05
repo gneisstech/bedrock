@@ -50,7 +50,7 @@ steps:
       azureSubscription: 'cf-qa-az-service-connection'
       scriptType: bash
       scriptLocation: 'scriptPath'
-      scriptPath: './ci/recipes/update_qa_cluster.sh'
+      scriptPath: './ci/recipes/update_qa_environment.sh'
       # inlineScript
       # arguments
       # powerShellErrorActionPreference

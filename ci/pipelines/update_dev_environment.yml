@@ -45,12 +45,12 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
-    displayName: 'Update Prod Cluster'
+    displayName: 'Update Dev Cluster'
     inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
+      azureSubscription: 'cf-dev-az-service-connection'
       scriptType: bash
       scriptLocation: 'scriptPath'
-      scriptPath: './ci/recipes/update_prod_cluster.sh'
+      scriptPath: './ci/recipes/update_dev_environment.sh'
       # inlineScript
       # arguments
       # powerShellErrorActionPreference
