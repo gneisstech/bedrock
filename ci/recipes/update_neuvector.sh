@@ -12,6 +12,10 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+# Environment Variables
+# ---------------------
+declare -rx DOCKER_TOKEN
+declare -rx DOCKER_USER
 
 # Arguments
 # ---------------------

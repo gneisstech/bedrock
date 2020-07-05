@@ -72,9 +72,10 @@ steps:
     inputs:
       azureSubscription: 'cf-prod-az-service-connection'
       scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/update_neuvector.sh'
-      # inlineScript:
+      scriptLocation: 'inlineScript'
+      # scriptPath
+      inlineScript: >
+        DOCKER_TOKEN="$(docker_token)" DOCKER_USER="$(docker_user)" ./ci/recipes/update_neuvector.sh
       # arguments
       # powerShellErrorActionPreference
       # addSpnToEnvironment
