@@ -13,6 +13,8 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx DOCKER_TOKEN
+declare -rx DOCKER_USER
 
 # Arguments
 # ---------------------
@@ -37,7 +39,7 @@ function clone_neuvector () {
     containers="$(neuvector_containers)"
     printf 'containers [%s]\n' "${containers}"
     acr_logins
-    docker login
+    echo "${DOCKER_TOKEN}" | docker login --username "${DOCKER_USER}" --password-stdin
     for image in ${containers}; do
         local originPath targetPath targetRepo
         originPath="${originRepo}${image}"
