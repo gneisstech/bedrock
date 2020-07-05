@@ -76,12 +76,8 @@ function process_app_env () {
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    local config_filename app env
-    config_filename="$(get_target_config "${deployment_json}")"
-    app="$(get_app "${deployment_json}")"
-    env="$(get_env "${deployment_json}" )"
-    read_configuration "${config_filename}" \
-        | process_app_env "${app}" "${env}" \
+    read_configuration "$(get_target_config "${deployment_json}")" \
+        | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
         | "$(repo_root)/recipes/join_string_arrays.sh"
 }
 
