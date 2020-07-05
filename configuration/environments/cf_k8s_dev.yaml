@@ -71,7 +71,7 @@ target:
           allocation_method: 'Static'
           action: 'create'
       dns_a_records:
-        - zone: &dnsZone 'dev.atrius-iot.com'
+        - zone: &dnsZone '##env##.atrius-iot.com'
           host: &dnsHost '##app##'
           fqdn: &wafFqdn '##app##.##env##.atrius-iot.com.'
           resource_group: *atriusDnsRG
