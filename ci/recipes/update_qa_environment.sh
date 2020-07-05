@@ -33,4 +33,4 @@ function update_qa_environment () {
     popd
 }
 
-update_qa_environmentw "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
+update_qa_environment "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
