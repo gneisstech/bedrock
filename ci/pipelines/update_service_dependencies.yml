@@ -29,12 +29,6 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: 'cf-admin-web-api-docker'
-      source: 'cf_admin_web_api'
-      trigger:
-        branches:
-          include:
-            - 'master-bytelight'
     - pipeline: 'cf-atrius-objects-api-docker'
       source: 'cf_atrius_objects'
       trigger:

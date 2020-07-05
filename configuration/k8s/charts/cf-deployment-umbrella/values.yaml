@@ -404,38 +404,6 @@ cf-elm-web-api-docker:
       SECRET_KEY_BASE: *secretKeyBaseElm
       CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
-cf-admin-web-api-docker:
-  fullnameOverride: 'cf-admin-web-api-docker'
-  enabled: true
-  config_annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/resource-policy": keep
-    "helm.sh/hook-weight": "-1"
-  migration_annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-delete-policy": hook-succeeded
-    "helm.sh/hook-weight": "1"
-  ingress:
-    enabled: true
-    annotations:
-      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
-      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-admin/$2'
-      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': |
-        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
-        proxy_set_header X-Forwarded-Access-Token $access_token;
-    hosts:
-      - paths:
-          - '/cf-admin(/|$)(.*)'
-  config:
-    environment:
-      <<: *railsEnv
-      CF_AUTHZ_API_URL: *authzApiUrl
-    secrets:
-      DATABASE_URL: *dbUrlAdmin
-      SECRET_KEY_BASE: *secretKeyBaseAdmin
-
 cf-ingest-web-api:
   fullnameOverride: 'cf-ingest-web-api'
   enabled: true

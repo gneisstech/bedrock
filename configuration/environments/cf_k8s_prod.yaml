@@ -1136,25 +1136,6 @@ target:
               DATABASE_URL: *dbUrlElm
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
-        cf-admin-web-api-docker:
-          replicaCount: 3
-          config_annotations:
-            "helm.sh/hook": pre-install,pre-upgrade
-            "helm.sh/resource-policy": keep
-            "helm.sh/hook-weight": "-1"
-          migration_annotations:
-            "helm.sh/hook": pre-install,pre-upgrade
-            "helm.sh/hook-delete-policy": hook-succeeded
-            "helm.sh/hook-weight": "1"
-          config:
-            environment:
-              <<: *railsEnv
-              RAILS_ENV: 'production'
-              RAILS_LOG_TO_STDOUT: 'true'
-              CF_AUTHZ_API_URL: *authzApiUrl
-            secrets:
-              DATABASE_URL: *dbUrlAdmin
-              SECRET_KEY_BASE: *secretKeyBaseAdmin
         cf-ingest-web-api: &configNetworkView
           replicaCount: 3
           config_annotations:

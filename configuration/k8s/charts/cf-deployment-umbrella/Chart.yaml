@@ -42,15 +42,6 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: 'cf-http-https-echo'
-  - name: 'cf-admin-web-api-docker'
-    version: '^1.0.0-0'
-    repository: '@cfdevregistry'
-    condition: 'cf-admin-web-api-docker.enabled'
-    tags:
-      - 'cf-backend-api'
-    enabled: true
-    import-values: [] # (optional)
-    alias: null
   - name: 'cf-atrius-objects-api-docker'
     version: '^1.0.0-0'
     repository: '@cfdevregistry'
