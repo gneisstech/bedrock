@@ -43,13 +43,13 @@ function read_configuration () {
 }
 
 function get_app () {
-    local -r config_filename="${1}"
-    read_configuration "${config_filename}" | jq -r -e '.target.app'
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.app' <<< "${deployment_json}"
 }
 
 function get_env () {
-    local -r config_filename="${1}"
-    read_configuration "${config_filename}" | jq -r -e '.target.env'
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.name' <<< "${deployment_json}"
 }
 
 function process_app_env () {
@@ -65,10 +65,8 @@ function process_app_env () {
 function populate_config_file () {
     local -r deployment_json="${1}"
     local -r new_config_file="${2}"
-    local original_config_file
-    original_config_file="$(get_target_config "${deployment_json}")"
-    read_configuration "${original_config_file}" \
-    | process_app_env "$(get_app "${original_config_file}")" "$(get_env "${original_config_file}")" \
+    read_configuration "$(get_target_config "${deployment_json}")" \
+    | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
     > "${new_config_file}"
 }
 
