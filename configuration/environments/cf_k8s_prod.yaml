@@ -75,13 +75,13 @@ target:
           allocation_method: 'Static'
           action: 'create'
       dns_a_records:
-        - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost '##app-env##'
-          fqdn: &wafFqdn '##app-env##.dev.atrius-iot.com.'
+        - zone: &dnsZone 'atrius.com'
+          host: &dnsHost '##app##'
+          fqdn: &wafFqdn '##app##.atrius.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
-          a_record_public_ip: *wafIP
+          a_record_public_ip: *wafSecondaryIP
           action: 'create'
   paas:
     location: *defaultAzureLocation
@@ -1428,7 +1428,7 @@ target:
                 - '/resourceGroups/'
                 - *cfWafRG
                 - '/providers/Microsoft.Network/publicIPAddresses/'
-                - *wafIP
+                - *wafSecondaryIP
                 - '"}'
                 - '##'
               annotations:
