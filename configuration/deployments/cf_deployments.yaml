@@ -31,6 +31,7 @@ deployments:
       namespace: 'cfk8s'
       context: 'cf-dev-k8s-001-admin'
       tls_secret_name: 'wildcarddevatrius-iotcom'
+      pv_secret_namespace: 'cf-pv'
       dashboard:
         port: 8001
     paas:
@@ -86,6 +87,7 @@ deployments:
       namespace: 'cfk8s'
       context: 'cf-ci-k8s-001-admin'
       tls_secret_name: 'wildcarddevatrius-iotcom'
+      pv_secret_namespace: 'cf-pv'
       dashboard:
         port: 8002
     paas:
@@ -141,6 +143,7 @@ deployments:
       namespace: 'cfk8s'
       context: 'cf-qa-k8s-001-admin'
       tls_secret_name: 'wildcardqaatrius-iotcom'
+      pv_secret_namespace: 'cf-pv'
       dashboard:
         port: 8003
     paas:
@@ -200,6 +203,7 @@ deployments:
       namespace: 'cfk8s'
       context: 'cf-prod-k8s-001-admin'
       tls_secret_name: 'wildcarddevatrius-iotcom'
+      pv_secret_namespace: 'cf-pv'
       dashboard:
         port: 8004
     paas:
@@ -220,6 +224,66 @@ deployments:
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
         version: '^5.0.0-0'
+        values_file: ''
+      storage:
+        account:
+          name: cfprodcmsa001abl
+  - name: 'CF_Legacy_Prod'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'ConnectedFacilities-Prod'
+            id: 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
+          location: 'eastus'
+          tls_subscription:
+            name: 'ConnectedFacilities-Prod'
+            id: 'e331d580-f48b-45d5-85c0-166dc80f3ed3'  # Acuity Brands, Inc. ConnectedFacilities-Prod
+          dns_subscription:
+            name: 'Allspice-Dev'
+            id: '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    external_services:
+      atrius:
+        databases:
+          - db_host_name: 'pltdata01sqls5vysxyq75v'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ATRDEMO01US-CFReader-SQLUserPassword'
+          - db_host_name: 'pltdata01sqlsbb6ahiz252'
+            db_name: 'allspice-mapmanager01db'
+            reader_name: 'CF_Reader'
+            secret_name: 'ATRPROD02US-CFReader-SQLUserPassword'
+        passage:
+          ad_tenant: 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # Acuity Brands, Inc.
+          authn_tenant: 'common'  # allow all AD tenants to authenticate
+          api_host: 'passage.atrius-us.acuitynext.io'
+          api_application_id: 'd9253624-7e87-426c-8132-75858e1dcf0b'  # Acuity Brands Atrius US Passage API
+    k8s:
+      namespace: 'cfk8s-legacy'
+      context: 'cf-prod-k8s-001-admin'
+      tls_secret_name: 'wildcarddevatrius-iotcom'
+      pv_secret_namespace: 'cf-pv'
+      dashboard:
+        port: 8006
+    paas:
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namepsace: 'neuvector'
+    environment:
+      app: 'cf'
+      name: 'prod'
+      config: './configuration/environments/cf_k8s_legacy_prod.yaml'
+    helm:
+      migration_timeout: '4h'
+      umbrella:
+        registry: 'cfprodregistry'
+        name: 'cf-deployment-umbrella'
+        deployment_name: 'cfk8s-legacy'
+        version: '5.4.22-prod'
         values_file: ''
       storage:
         account:
@@ -245,6 +309,7 @@ deployments:
       namespace: 'cfk8s'
       context: 'docker-desktop'
       tls_secret_name: 'wildcarddevatrius-iotcom'
+      pv_secret_namespace: 'cf-pv'
       dashboard:
         port: 8005
     paas:
