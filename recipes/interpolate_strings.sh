@@ -98,7 +98,7 @@ function process_secure_secret () {
     if [[ -z "${secret}" ]]; then
         secret="FAKE_SECRET"
     fi
-    printf '%s' "${secret}" | sed -e 's|\\|\\\\|g'
+    printf '%s' "${secret}" | sed -e 's|\\|\\\\|g' -e 's|"|\\"|g'
 }
 
 function process_ip_address () {
