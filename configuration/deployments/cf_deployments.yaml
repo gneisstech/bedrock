@@ -283,7 +283,8 @@ deployments:
         registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s-legacy'
-        version: '5.4.22-prod'
+        version: '^5.0.0-0'
+#        version: '5.4.22-prod'
         values_file: ''
       storage:
         account:
