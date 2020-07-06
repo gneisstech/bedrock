@@ -1,1 +1,1 @@
-semver: 5.5.4
+semver: 5.5.5
