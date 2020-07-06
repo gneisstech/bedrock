@@ -81,7 +81,7 @@ function get_helm_values () {
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    yq r --tojson "$(repo_root)/$(get_target_config "${deployment_json}")"
+    TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/pre_process_strings.sh"
 }
 
 function connect_to_k8s () {
@@ -104,6 +104,93 @@ function create_k8s_app_namespace () {
     local namespace
     namespace="$(get_kube_namespace "${deployment_json}")"
     kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
+}
+
+function get_sa_name () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.storage.account.name' <<< "${deployment_json}"
+}
+
+function get_sa_key () {
+    local -r sa_name="${1}"
+    az storage account keys list --account-name "${sa_name}" | jq -r -e '.[0].value | @base64'
+}
+
+function get_certbot_state_name () {
+    printf 'certbot-state'
+}
+
+function create_azure_secret_resource () {
+    local -r deployment_json="${1}"
+    local -r sa_name="${2}"
+    local -r sa_key="${3}"
+cat <<EOF
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  annotations:
+  labels:
+    component: cf-az-files-$(get_certbot_state_name)
+    release: $(get_kube_namespace "${deployment_json}")
+  name: cf-az-files-$(get_certbot_state_name)
+  namespace: $(get_kube_namespace "${deployment_json}")
+data:
+  azurestorageaccountname: '$(base64 <<< "${sa_name}")'
+  azurestorageaccountkey: '${sa_key}'
+
+EOF
+}
+
+function create_azure_volume_secret () {
+    local -r deployment_json="${1}"
+    local sa_name sa_key
+    sa_name="$(get_sa_name "${deployment_json}")"
+    sa_key="$(get_sa_key "${sa_name}")"
+
+    kubectl \
+        --context "$(get_kube_context "${deployment_json}")" \
+        --namespace "$(get_kube_namespace "${deployment_json}")" \
+        apply -f <(create_azure_secret_resource "${deployment_json}" "${sa_name}" "${sa_key}")
+}
+
+function create_k8s_persistent_volume_resource () {
+    local -r deployment_json="${1}"
+    local -r sa_key="${2}"
+cat <<EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cf-az-files-$(get_certbot_state_name)-pv
+  labels:
+    usage: cf-az-files-$(get_certbot_state_name)-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 'manual-certbot'
+  mountOptions:
+    - mfsymlinks
+  azureFile:
+    shareName: $(get_certbot_state_name)
+    secretName: cf-az-files-$(get_certbot_state_name)
+    secretNamespace: $(get_kube_namespace "${deployment_json}")
+    readOnly: false
+EOF
+}
+
+function create_k8s_persistent_volume () {
+    local -r deployment_json="${1}"
+    local sa_name sa_key
+    sa_name="$(get_sa_name "${deployment_json}")"
+    sa_key="$(get_sa_key "${sa_name}")"
+
+    kubectl \
+        --context "$(get_kube_context "${deployment_json}")" \
+        --namespace "$(get_kube_namespace "${deployment_json}")" \
+        apply -f <(create_k8s_persistent_volume_resource "${deployment_json}" "${sa_key}")
 }
 
 function update_helm_repo () {
@@ -148,21 +235,12 @@ function update_helm_chart_on_k8s () {
             --install \
             --kube-context "$(get_kube_context "${deployment_json}")" \
             --namespace "$(get_kube_namespace "${deployment_json}")" \
-            "$(get_helm_deployment_name "${deployment_json}" )" \
-            "${registry}/${chart_name}" \
-            --version "$(get_helm_version "${deployment_json}")" \
-            --debug --dry-run \
-            --values <(cat <<< "${helm_values}")
-        helm upgrade \
-            --install \
-            --kube-context "$(get_kube_context "${deployment_json}")" \
-            --namespace "$(get_kube_namespace "${deployment_json}")" \
+            --history-max 200 \
             "$(get_helm_deployment_name "${deployment_json}" )" \
             "${registry}/${chart_name}" \
             --version "$(get_helm_version "${deployment_json}")" \
             --timeout "$(get_migration_timeout "${deployment_json}")" \
             --wait \
-            --debug \
             --values <(cat <<< "${helm_values}")
     fi
 }
@@ -181,6 +259,8 @@ function deployment_helm_update () {
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     connect_to_k8s "${deployment_json}"
     create_k8s_app_namespace "${deployment_json}"
+    create_azure_volume_secret "${deployment_json}"
+    create_k8s_persistent_volume "${deployment_json}" || true
     update_helm_chart_on_k8s "${deployment_json}"
 }
 

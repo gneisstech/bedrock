@@ -1,0 +1,20 @@
+helm upgrade --install test001 . --namespace test-cluster
+kubectl --namespace test-cluster get all
+kubectl --namespace test-cluster port-forward service/test001-nginx-ingress-controller 7443:443
+
+
+curl -k https://localhost:7443/echo/me -X POST -d @payload -H "Test-Header: $(cat payload)"
+
+response:
+<html>
+<head><title>400 Request Header Or Cookie Too Large</title></head>
+<body>
+<center><h1>400 Bad Request</h1></center>
+<center>Request Header Or Cookie Too Large</center>
+<hr><center>nginx/1.17.8</center>
+</body>
+</html>
+
+==> not resolved by       proxy-buffer-size: '32k' (was 8k)
+
+

@@ -50,14 +50,35 @@ function get_target_config () {
     jq -r -e '.environment.config' <<< "${deployment_json}"
 }
 
-function get_environment_suffix () {
+function read_configuration () {
+    local -r config_filename="${1}"
+    yq read --tojson "${config_filename}"
+}
+
+function get_app () {
     local -r deployment_json="${1}"
-    jq -r -e '.environment.suffix' <<< "${deployment_json}"
+    jq -r -e '.environment.app' <<< "${deployment_json}"
+}
+
+function get_env () {
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.name' <<< "${deployment_json}"
+}
+function process_app_env () {
+    local -r app="${1:-cf}"
+    local -r env="${2:-env}"
+    sed -e "s|##app##|${app}|g" \
+        -e "s|##env##|${env}|g" \
+        -e "s|##app-env##|${app}-${env}|g" \
+        -e "s|##app_env##|${app}_${env}|g" \
+        -e "s|##appenv##|${app}${env}|g"
 }
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    yq r --tojson "$(repo_root)/$(get_target_config "${deployment_json}")"
+    read_configuration "$(get_target_config "${deployment_json}")" \
+        | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
+        | "$(repo_root)/recipes/join_string_arrays.sh"
 }
 
 function get_subscription () {
@@ -267,8 +288,8 @@ function rewrite_latest_deployment () {
     origin_chart_name="$(get_helm_chart_name "${origin_deployment_json}" )"
     origin_registry="$(get_helm_registry "${origin_deployment_json}")"
     target_registry="$(get_helm_registry "${target_deployment_json}")"
-    origin_suffix="-$(get_environment_suffix "${origin_deployment_json}")"
-    target_suffix="-$(get_environment_suffix "${target_deployment_json}")"
+    origin_suffix="-$(get_env "${origin_deployment_json}")"
+    target_suffix="-$(get_env "${target_deployment_json}")"
     build_root="$(repo_root)"
     pushd "${tmp_chart_dir}/${origin_chart_name}"
         rm -f "Chart.lock"

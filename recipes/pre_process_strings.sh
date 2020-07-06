@@ -53,8 +53,18 @@ function read_configuration () {
     yq read --tojson "$(target_config)"
 }
 
+function get_app () {
+    read_configuration | jq -r -e '.target.app'
+}
+
+function get_env () {
+    read_configuration | jq -r -e '.target.env'
+}
+
 function pre_process_strings () {
-    read_configuration | "$(repo_root)/recipes/join_string_arrays.sh" | "$(repo_root)/recipes/interpolate_strings.sh"
+    read_configuration \
+    | "$(repo_root)/recipes/join_string_arrays.sh" \
+    | "$(repo_root)/recipes/interpolate_strings.sh" "$(get_app)" "$(get_env)"
 }
 
 pre_process_strings

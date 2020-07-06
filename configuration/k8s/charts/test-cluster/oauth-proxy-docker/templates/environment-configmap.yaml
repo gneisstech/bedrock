@@ -1,0 +1,16 @@
+{{- if .Values.config.environment }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ template "oauth-proxy-docker.name" . }}
+    chart: {{ template "oauth-proxy-docker.chart" . }}
+    component: "{{ template "oauth-proxy-docker.name" . }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "oauth-proxy-docker.fullname" . }}-env
+  annotations:
+    checksum/environment: {{ tpl (toYaml .Values.config.environment) . | sha256sum }}
+data:
+{{ tpl (toYaml .Values.config.environment) . | indent 2 }}
+{{- end }}

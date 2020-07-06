@@ -38,9 +38,30 @@ function read_configuration () {
     yq read --tojson "${config_filename}"
 }
 
+function get_app () {
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.app' <<< "${deployment_json}"
+}
+
+function get_env () {
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.name' <<< "${deployment_json}"
+}
+
+function process_app_env () {
+    local -r app="${1:-cf}"
+    local -r env="${2:-env}"
+    sed -e "s|##app##|${app}|g" \
+        -e "s|##env##|${env}|g" \
+        -e "s|##app-env##|${app}-${env}|g" \
+        -e "s|##app_env##|${app}_${env}|g" \
+        -e "s|##appenv##|${app}${env}|g"
+}
+
 function get_target_cluster_config_json () {
-    local -r config_filename="${1}"
-    read_configuration "${config_filename}" \
+    local -r deployment_json="${1}"
+    read_configuration "$(get_target_config_file_name "${deployment_json}")" \
+        | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
         | "$(repo_root)/recipes/join_string_arrays.sh"
 }
 
@@ -69,10 +90,9 @@ function explore_key_vault_access () {
 
 function check_key_vault_access () {
     local -r deployment_name="${1}"
-    local deployment_json target_config_filename target_cluster_config_json
+    local deployment_json target_cluster_config_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
-    target_config_filename="$(get_target_config_file_name "${deployment_json}")"
-    target_cluster_config_json="$(get_target_cluster_config_json "${target_config_filename}")"
+    target_cluster_config_json="$(get_target_cluster_config_json "${deployment_json}")"
     explore_key_vault_access "${target_cluster_config_json}" "${deployment_json}"
 }
 

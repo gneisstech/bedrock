@@ -41,16 +41,20 @@ deployments:
         enabled: 'true'
         namepsace: 'neuvector'
     environment:
-      suffix: 'dev'
+      app: 'cf'
+      name: 'dev'
       config: './configuration/environments/cf_k8s_dev.yaml'
     helm:
       migration_timeout: '15m'
       umbrella:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         deployment_name: 'cfk8s'
         values_file: ''
+      storage:
+        account:
+          name: cfdevcmsa001abl
   - name: 'CF_CI'
     iaas:
       provider:
@@ -92,7 +96,8 @@ deployments:
         enabled: 'false'
         namepsace: 'neuvector'
     environment:
-      suffix: 'ci'
+      app: 'cf'
+      name: 'ci'
       config: './configuration/environments/cf_k8s_ci.yaml'
     helm:
       migration_timeout: '10m'
@@ -100,8 +105,11 @@ deployments:
         registry: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfcicmsa001abl
   - name: 'CF_QA'
     iaas:
       provider:
@@ -143,7 +151,8 @@ deployments:
         enabled: 'true'
         namepsace: 'neuvector'
     environment:
-      suffix: 'qa'
+      app: 'cf'
+      name: 'qa'
       config: './configuration/environments/cf_k8s_qa.yaml'
     helm:
       migration_timeout: '15m'
@@ -151,8 +160,11 @@ deployments:
         registry: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfqacmsa001abl
   - name: 'CF_Prod'
     iaas:
       provider:
@@ -198,7 +210,8 @@ deployments:
         enabled: 'false'
         namepsace: 'neuvector'
     environment:
-      suffix: 'prod'
+      app: 'cf'
+      name: 'prod'
       config: './configuration/environments/cf_k8s_prod.yaml'
     helm:
       migration_timeout: '4h'
@@ -206,8 +219,11 @@ deployments:
         registry: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfprodcmsa001abl
   - name: 'CF_Local'
     iaas:
       provider:
@@ -239,7 +255,8 @@ deployments:
         enabled: 'false'
         namepsace: 'neuvector'
     environment:
-      suffix: 'local'
+      app: 'cf'
+      name: 'local'
       config: './configuration/environments/cf_k8s_local.yaml'
     helm:
       migration_timeout: '5m'
@@ -247,6 +264,9 @@ deployments:
         registry: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
-        version: '^4.0.0-0'
+        version: '^5.0.0-0'
         values_file: ''
+      storage:
+        account:
+          name: cfdevcmsa001abl
 ---
