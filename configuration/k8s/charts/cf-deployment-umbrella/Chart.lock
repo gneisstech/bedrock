@@ -10,10 +10,10 @@ dependencies:
   version: 1.0.13-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.8-dev
+  version: 1.4.10-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.8-dev
+  version: 1.4.10-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.8-dev
@@ -71,5 +71,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.5-dev
-digest: sha256:8f03b9b9e1e9c57c908296b8861282f6cc2b88b6c527619d9654f0939eb67a2b
-generated: "2020-07-06T17:42:27.403177002Z"
+digest: sha256:9c7b287bcebfe6cd4af6dd317b76a1e440494eec5b011b17991b66a24c79c4d2
+generated: "2020-07-06T21:01:20.851007834Z"
