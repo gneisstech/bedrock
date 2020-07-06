@@ -29,7 +29,7 @@ target:
         secret_name: &cfObjectsDbSecretName_002 'ATRPROD02US-CFReader-SQLUserPassword'
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
-    k8s_namespace: &cfNamespace 'cfk8s'
+    k8s_namespace: &cfNamespace 'cfk8s-legacy'
     tags: &labels 'cf-env=##env## cf-role=##env##'
     tls_secret_name: &tlsSecretName 'wildcarddevatrius-iotcom'
   iaas:
@@ -1279,7 +1279,7 @@ target:
             - &leCertificateDir '/etc/letsencrypt'
           config:
             environment:
-              ACTIVE_TLS_PUBLISH: 'false'
+              ACTIVE_TLS_PUBLISH: 'true'
               CERTIFICATE_CREATED_FLAG:
                 - *leCertificateDir
                 - "/"
