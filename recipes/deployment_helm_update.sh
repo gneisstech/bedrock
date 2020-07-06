@@ -44,6 +44,11 @@ function get_kube_namespace () {
     jq -r -e '.k8s.namespace' <<< "${deployment_json}"
 }
 
+function get_pv_secret_namespace () {
+    local -r deployment_json="${1}"
+    jq -r -e '.k8s.pv_secret_namespace' <<< "${deployment_json}"
+}
+
 function get_helm_deployment_name () {
     local -r deployment_json="${1}"
     jq -r -e '.helm.umbrella.deployment_name' <<< "${deployment_json}"
@@ -106,6 +111,13 @@ function create_k8s_app_namespace () {
     kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
 }
 
+function create_pv_secret_namespace () {
+    local -r deployment_json="${1}"
+    local namespace
+    namespace="$(get_pv_secret_namespace "${deployment_json}")"
+    kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
+}
+
 function get_sa_name () {
     local -r deployment_json="${1}"
     jq -r -e '.helm.storage.account.name' <<< "${deployment_json}"
@@ -134,7 +146,7 @@ metadata:
     component: cf-az-files-$(get_certbot_state_name)
     release: $(get_kube_namespace "${deployment_json}")
   name: cf-az-files-$(get_certbot_state_name)
-  namespace: $(get_kube_namespace "${deployment_json}")
+  namespace: $(get_pv_secret_namespace "${deployment_json}")
 data:
   azurestorageaccountname: '$(base64 <<< "${sa_name}")'
   azurestorageaccountkey: '${sa_key}'
@@ -150,7 +162,7 @@ function create_azure_volume_secret () {
 
     kubectl \
         --context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_kube_namespace "${deployment_json}")" \
+        --namespace "$(get_pv_secret_namespace "${deployment_json}")" \
         apply -f <(create_azure_secret_resource "${deployment_json}" "${sa_name}" "${sa_key}")
 }
 
@@ -161,7 +173,7 @@ cat <<EOF
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: cf-az-files-$(get_certbot_state_name)-pv
+  name: cf-az-files-$(get_certbot_state_name)-$(get_kube_namespace "${deployment_json}")-pv
   labels:
     usage: cf-az-files-$(get_certbot_state_name)-pv
 spec:
@@ -176,7 +188,7 @@ spec:
   azureFile:
     shareName: $(get_certbot_state_name)
     secretName: cf-az-files-$(get_certbot_state_name)
-    secretNamespace: $(get_kube_namespace "${deployment_json}")
+    secretNamespace: $(get_pv_secret_namespace "${deployment_json}")
     readOnly: false
 EOF
 }
@@ -259,6 +271,7 @@ function deployment_helm_update () {
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     connect_to_k8s "${deployment_json}"
     create_k8s_app_namespace "${deployment_json}"
+    create_pv_secret_namespace "${deployment_json}"
     create_azure_volume_secret "${deployment_json}"
     create_k8s_persistent_volume "${deployment_json}" || true
     update_helm_chart_on_k8s "${deployment_json}"
