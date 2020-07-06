@@ -41,7 +41,8 @@ deployments:
         enabled: 'true'
         namepsace: 'neuvector'
     environment:
-      suffix: 'dev'
+      app: 'cf'
+      name: 'dev'
       config: './configuration/environments/cf_k8s_dev.yaml'
     helm:
       migration_timeout: '15m'
@@ -95,7 +96,8 @@ deployments:
         enabled: 'false'
         namepsace: 'neuvector'
     environment:
-      suffix: 'ci'
+      app: 'cf'
+      name: 'ci'
       config: './configuration/environments/cf_k8s_ci.yaml'
     helm:
       migration_timeout: '10m'
@@ -149,7 +151,8 @@ deployments:
         enabled: 'true'
         namepsace: 'neuvector'
     environment:
-      suffix: 'qa'
+      app: 'cf'
+      name: 'qa'
       config: './configuration/environments/cf_k8s_qa.yaml'
     helm:
       migration_timeout: '15m'
@@ -207,7 +210,8 @@ deployments:
         enabled: 'false'
         namepsace: 'neuvector'
     environment:
-      suffix: 'prod'
+      app: 'cf'
+      name: 'prod'
       config: './configuration/environments/cf_k8s_prod.yaml'
     helm:
       migration_timeout: '4h'
@@ -251,7 +255,8 @@ deployments:
         enabled: 'false'
         namepsace: 'neuvector'
     environment:
-      suffix: 'local'
+      app: 'cf'
+      name: 'local'
       config: './configuration/environments/cf_k8s_local.yaml'
     helm:
       migration_timeout: '5m'

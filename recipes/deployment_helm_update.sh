@@ -81,7 +81,7 @@ function get_helm_values () {
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    yq r --tojson "$(repo_root)/$(get_target_config "${deployment_json}")"
+    TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/pre_process_strings.sh"
 }
 
 function connect_to_k8s () {
@@ -235,21 +235,12 @@ function update_helm_chart_on_k8s () {
             --install \
             --kube-context "$(get_kube_context "${deployment_json}")" \
             --namespace "$(get_kube_namespace "${deployment_json}")" \
-            "$(get_helm_deployment_name "${deployment_json}" )" \
-            "${registry}/${chart_name}" \
-            --version "$(get_helm_version "${deployment_json}")" \
-            --debug --dry-run \
-            --values <(cat <<< "${helm_values}")
-        helm upgrade \
-            --install \
-            --kube-context "$(get_kube_context "${deployment_json}")" \
-            --namespace "$(get_kube_namespace "${deployment_json}")" \
+            --history-max 200 \
             "$(get_helm_deployment_name "${deployment_json}" )" \
             "${registry}/${chart_name}" \
             --version "$(get_helm_version "${deployment_json}")" \
             --timeout "$(get_migration_timeout "${deployment_json}")" \
             --wait \
-            --debug \
             --values <(cat <<< "${helm_values}")
     fi
 }

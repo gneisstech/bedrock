@@ -5,6 +5,7 @@
 
 trigger:
   - master-bytelight
+  - azure-pipelines
 
 pr: none
 

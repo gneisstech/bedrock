@@ -42,15 +42,6 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: 'cf-http-https-echo'
-  - name: 'cf-admin-web-api-docker'
-    version: '^1.0.0-0'
-    repository: '@cfdevregistry'
-    condition: 'cf-admin-web-api-docker.enabled'
-    tags:
-      - 'cf-backend-api'
-    enabled: true
-    import-values: [] # (optional)
-    alias: null
   - name: 'cf-atrius-objects-api-docker'
     version: '^1.0.0-0'
     repository: '@cfdevregistry'
@@ -133,7 +124,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'cf-self-healing-ingest-api-docker'
   - name: 'nginx-ingress'
-    version: '1.33.5'
+    version: '1.40.1'
     repository: 'https://kubernetes-charts.storage.googleapis.com'
     condition: 'cf-waf-ingress.enabled'
     tags:
@@ -186,21 +177,30 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
-  - name: 'cf-assets-v2-telemetry-svc-docker'
-    version: '^0.0-0'
-    repository: '@cfdevregistry'
-    condition: 'cf-assets-v2-telemetry-svc-docker.enabled'
-    tags:
-      - 'cf-assets-v2-telemetry-svc-docker'
-    enabled: true
-    import-values: [] # (optional)
-    alias: null
   - name: 'cf-tls-certificate-manager-svc-docker'
     version: '^1.0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-tls-certificate-manager-svc-docker.enabled'
     tags:
       - 'cf-tls-certificate-manager-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-assets-v2-telemetry-tracking-svc-docker'
+    version: '^0.3.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-assets-v2-telemetry-tracking-svc-docker.enabled'
+    tags:
+      - 'cf-assets-v2-telemetry-tracking-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-assets-v2-telemetry-forwarding-svc-docker'
+    version: '^0.2.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-assets-v2-telemetry-forwarding-svc-docker.enabled'
+    tags:
+      - 'cf-assets-v2-telemetry-forwarding-svc-docker'
     enabled: true
     import-values: [] # (optional)
     alias: null
@@ -234,8 +234,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r5.0.3-dev'
+appVersion: 'r5.4.20-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 5.0.3-dev
+version: 5.4.20-dev

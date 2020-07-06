@@ -101,6 +101,22 @@ function database_instance_already_exists () {
         > /dev/null 2>&1
 }
 
+function update_database_instance () {
+    # shellcheck disable=SC2046,SC2086
+    $AZ_TRACE sql db update \
+        --name "$(database_instance_name)" \
+        --resource-group "$(database_instance_resource_group)" \
+        --server "$(database_instance_server)" \
+        --max-size "$(db_attr 'max_size')" \
+        --zone-redundant "$(db_attr 'zone_redundant')" \
+        --capacity "$(db_attr 'capacity')" \
+        --min-capacity "$(db_attr 'min_capacity')" \
+        --auto-pause-delay "$(db_attr "auto_pause_delay")" \
+        --tier "$(db_attr 'tier')" \
+        --service-objective "$(db_attr 'service_objective')" \
+        $(database_instance_option_if_present 'family' 'family')
+}
+
 function deploy_database_instance () {
     # shellcheck disable=SC2046,SC2086
     $AZ_TRACE sql db create \
@@ -113,13 +129,19 @@ function deploy_database_instance () {
         --catalog-collation "$(db_attr 'catalog_collation')" \
         --collation "$(db_attr 'collation')" \
         --capacity "$(db_attr 'capacity')" \
+        --min-capacity "$(db_attr 'min_capacity')" \
+        --auto-pause-delay "$(db_attr "auto_pause_delay")" \
         --tier "$(db_attr 'tier')" \
         --service-objective "$(db_attr 'service_objective')" \
         $(database_instance_option_if_present 'family' 'family')
 }
 
 function create_database_instance_if_needed () {
-    database_instance_already_exists || deploy_database_instance
+    if ! database_instance_already_exists; then
+        deploy_database_instance
+    else
+        update_database_instance
+    fi
 }
 
 create_database_instance_if_needed

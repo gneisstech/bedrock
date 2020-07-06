@@ -1,8 +1,10 @@
 ---
 target:
+  app: 'cf'
+  env: 'ci'
   metadata:
     product_portfolio_name: &productName 'connected-facilities'
-    environment_name: &environmentName 'Ci'
+    environment_name: &environmentName '##env##'
     default_azure_location: &defaultAzureLocation 'eastus'
     default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
     tls_cert_subscription: &subscription_tls '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
@@ -24,7 +26,7 @@ target:
     key_names:
       self_healing_api_key: &cfDefaultSelfHealingApiKeyName 'cf-self-healing-api-key'
     k8s_namespace: &cfNamespace 'cfk8s'
-    tags: &labels 'cf-env=ci cf-role=ci'
+    tags: &labels 'cf-env=##env## cf-role=##env##'
     tls_secret_name: &tlsSecretName 'wildcarddevatrius-iotcom'
   iaas:
     location: *defaultAzureLocation
@@ -33,28 +35,35 @@ target:
       # pre-existing Atrius resource groups with shared configuration state
       - name: &atriusDnsRG 'atriusops-allspicedev'
         action: 'read'
-      # CF Ci resource groups
-      - name: &cfWafRG 'Waf-CfCi'
+      # ##app-env## resource groups
+      - name: &cfWafRG 'Waf-##appenv##'
         action: 'create'
-      - name: &cfDbRG 'Data-CfCi'
+      - name: &cfDbRG 'Data-##appenv##'
         action: 'create'
-      - name: &cfKeysRG 'Kv-CfCi'
+      - name: &cfKeysRG 'Kv-##appenv##'
         action: 'create'
-      - name: &cfAcrRG 'Acr-CfCi'
+      - name: &cfAcrRG 'Acr-##appenv##'
         action: 'create'
-      - name: &cfK8sRG 'K8S-CfCi'
+      - name: &cfK8sRG 'K8S-##appenv##'
         action: 'create'
-      - name: &cfIotEhRG 'Iot-Eh-CfCi'
+      - name: &cfIotEhRG 'Iot-Eh-##appenv##'
         action: 'create'
-      - name: &cfIotDlRG 'Iot-Dl-CfCi'
+      - name: &cfIotDlRG 'Iot-Dl-##appenv##'
         action: 'create'
-      - name: &cfAtEhRG 'AssetTag-Eh-CfCi'
+      - name: &cfAtEhRG 'AssetTag-Eh-##appenv##'
         action: 'create'
-      - name: &cfAtDlRG 'AssetTag-Dl-CfCi'
+      - name: &cfAtDlRG 'AssetTag-Dl-##appenv##'
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP 'cf-ci-waf-k8s-pip'
+        - name: &wafIP '##app-env##-waf-k8s-pip'
+          resource_group: *cfWafRG
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.Network/publicIPAddresses'
+          sku: 'Standard'
+          allocation_method: 'Static'
+          action: 'create'
+        - name: &wafSecondaryIP '##app-env##-waf-k8s-002-pip'
           resource_group: *cfWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
@@ -63,8 +72,8 @@ target:
           action: 'create'
       dns_a_records:
         - zone: &dnsZone 'dev.atrius-iot.com'
-          host: &dnsHost 'cf-ci'
-          fqdn: &wafFqdn 'cf-ci.dev.atrius-iot.com.'
+          host: &dnsHost '##app##-##env##'
+          fqdn: &wafFqdn '##app-env##.dev.atrius-iot.com.'
           resource_group: *atriusDnsRG
           subscription: *subscription_dns
           a_record_ttl: 3600
@@ -77,17 +86,17 @@ target:
       - name: &atriusKVName 'atrius01kvbxkbdsepg6'
         action: 'read'
       # pre-existing CF Dev key vault with shared configuration state such as TLS certificate
-      - name: &tlsKvName 'cf-dev-master-kv'
+      - name: &tlsKvName '##app##-dev-master-kv'
         action: 'read'
-      # CF Ci Key Vault
-      - name: &kvName 'cf-ci-master-kv'
+      # ##app-env## Key Vault
+      - name: &kvName '##app-env##-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         soft_delete: 'false'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
-      - name: &spK8S 'cf-ci-k8s-sp'
+      - name: &spK8S '##app-env##-k8s-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
@@ -104,8 +113,8 @@ target:
           - '/resourceGroups/'
           - *cfWafRG
         action: 'create'
-      # for private calls to Atrius Objects Service
-      - name: &spAtriusObjects 'cf-ci-atrius-objects-sp'
+      # SP identity for Atrius Objects Service to call ELM and other services
+      - name: &spAtriusObjects '##app-env##-atrius-objects-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
@@ -117,12 +126,25 @@ target:
           - '/resourceGroups/'
           - *cfK8sRG
         action: 'create'
-      # for calls to Passage API from ELM
-      - name: &spElmServiceSpName 'cf-ci-elm-service-sp'
+      # SP identity for ELM Service to call Atrius Objects, Passage API, and other services
+      - name: &spElmAtrius '##app-env##-elm-atrius-sp'
         key_vault:
           vault: *kvName
           resource_group: *cfKeysRG
-          secret_name: *spElmServiceSpName
+          secret_name: *spElmAtrius
+        role: 'Contributor'
+        scopes:
+          - '/subscriptions/'
+          - *defaultAzureSubscription
+          - '/resourceGroups/'
+          - *cfK8sRG
+        action: 'create'
+      # SP identity for ELM Service to call Atrius Objects, Passage API, and other services
+      - name: &spAtV1FeedWriter '##app-env##-atv1-feed-writer-sp'
+        key_vault:
+          vault: *kvName
+          resource_group: *cfKeysRG
+          secret_name: *spAtV1FeedWriter
         role: 'Contributor'
         scopes:
           - '/subscriptions/'
@@ -132,15 +154,15 @@ target:
         action: 'create'
     databases:
       servers:
-        - name: &cfDefaultDbServer 'cf-ci-sqls'
+        - name: &cfDefaultDbServer '##app-env##-sqls'
           arm_type: 'Microsoft.Sql/servers'
           subscription: *defaultAzureSubscription
           resource_group: *cfDbRG
-          admin_name: &cfDefaultDBAdminName 'cf-ci-sqls-admin-user'
+          admin_name: &cfDefaultDBAdminName '##app-env##-sqls-admin-user'
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
-            secret_name: &cfDefaultDBSecretName 'cf-ci-sqls-admin-pw'
+            secret_name: &cfDefaultDBSecretName '##app-env##-sqls-admin-pw'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
@@ -162,108 +184,121 @@ target:
         service_objective: 'GP_S_Gen5'
         action: 'preserve'
       instances:
-        - name: &selfHealingSchema 'cf-ci-self-healing'
+        # https://docs.microsoft.com/en-us/azure/azure-sql/database/resource-limits-vcore-single-databases
+        - name: &selfHealingSchema '##app-env##-self-healing'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 2
+          min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &authzSchema 'cf-ci-authz-db'
+        - name: &authzSchema '##app-env##-authz-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 2
+          min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &netWorkViewSchema 'cf-ci-network-view-db'
+        - name: &netWorkViewSchema '##app-env##-network-view-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 8
+          min_capacity: 1
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &elmSchema 'cf-ci-elm-db'
+        - name: &elmSchema '##app-env##-elm-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 8
+          min_capacity: 1
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &adminSchema 'cf-ci-admin-db'
+        - name: &adminSchema '##app-env##-admin-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 2
+          min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &assetTagSchema 'cf-ci-asset-tag-db'
+        - name: &assetTelemetrySchema '##app-env##-asset-tag-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
           max_size: '250GB'
+          auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
-          capacity: 14
+          capacity: 4
+          min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
     container_registries:
-      - name: &primaryACR 'cfciregistry'
+      - name: &primaryACR '##appenv##registry'
         arm_type: 'Microsoft.ContainerRegistry/registries'
         resource_group: *cfAcrRG
-        uri: &uriPrimaryACR 'https://cfciregistry.azurecr.io'
+        uri: &uriPrimaryACR 'https://##appenv##registry.azurecr.io'
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
     # storage accounts - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
     storage:
       accounts:
-        - name: &sa001name 'cfcicmsa001abl'
+        - name: &sa001name '##appenv##cmsa001abl'
           resource_group: *cfDbRG
           location: *defaultAzureLocation
           encryption_services: 'file'
@@ -278,7 +313,7 @@ target:
         - name: &certbotState 'certbot-state'
           quota: '10'
           storage_account_name: *sa001name
-          metadata: 'cfenv=ci cfrole=ci'
+          metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
     event_hub_namespaces:
@@ -337,7 +372,7 @@ target:
                 roles:
                   - 'fixme-role-writer'
       instances:
-        - name: &cfIotEhNamespace 'cf-ci-iot-eh-namespace'
+        - name: &cfIotEhNamespace '##app-env##-iot-eh-namespace'
           <<: *eh_namespace_template
           resource_group: *cfIotEhRG
           capacity: '1'
@@ -351,7 +386,7 @@ target:
           arm_type: 'Microsoft.EventHub/Namespaces'
           action: 'create'
           topics:
-            - name: &cfIotEhTopic 'cf-ci-iot-eh-topic'
+            - name: &cfIotEhTopic '##app-env##-iot-eh-topic'
               namespace: *cfIotEhNamespace
               resource_group: *cfIotEhRG
               enable_capture: 'false'
@@ -369,30 +404,35 @@ target:
                 destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
                 storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
               consumer_groups:
-                - name: &iot_eh_asset_tags_consumer_group 'cf-ci-iot-eventhub-asset-tags-cg'
+                - name: &iot_eh_asset_tags_telemetry_tracking_consumer_group '##app-env##-iot-eh-asset-tags-telemetry-tracking-cg'
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
-                  user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for assets tag consumers'
+                  user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for tracking assets'
+                - name: &iot_eh_asset_tags_telemetry_forwarding-consumer_group '##app-env##-iot-eh-asset-tags-telemetry-forwarding-cg'
+                  topic_name: *cfIotEhTopic
+                  namespace: *cfIotEhNamespace
+                  resource_group: *cfIotEhRG
+                  user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for forwarding asset telemetry'
               authorization_rules:
-                - name: &cf_iot_eh_producer_rule 'cf-ci-iot-eventhub-producer'
+                - name: &cf_iot_eh_producer_rule '##app-env##-iot-eventhub-producer'
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
                   rights: 'Send'
                   key_store:
                     vault: *kvName
-                    secret_name_001: &cf_iot_eh_producer_key_001 'cf-ci-iot-eventhub-producer-key-001'
-                    secret_name_002: &cf_iot_eh_producer_key_002 'cf-ci-iot-eventhub-producer-key-002'
-                - name: &cf_iot_eh_consumer_rule 'cf-ci-iot-eventhub-consumer'
+                    secret_name_001: &cf_iot_eh_producer_key_001 '##app-env##-iot-eventhub-producer-key-001'
+                    secret_name_002: &cf_iot_eh_producer_key_002 '##app-env##-iot-eventhub-producer-key-002'
+                - name: &cf_iot_eh_consumer_rule '##app-env##-iot-eventhub-consumer'
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
                   rights: 'Listen'
                   key_store:
                     vault: *kvName
-                    secret_name_001: &cf_iot_eh_consumer_key_001 'cf-ci-iot-eventhub-consumer-key-001'
-                    secret_name_002: &cf_iot_eh_consumer_key_002 'cf-ci-iot-eventhub-consumer-key-002'
+                    secret_name_001: &cf_iot_eh_consumer_key_001 '##app-env##-iot-eventhub-consumer-key-001'
+                    secret_name_002: &cf_iot_eh_consumer_key_002 '##app-env##-iot-eventhub-consumer-key-002'
               authorized_managed_identities:
                 - id: 'fixme-authorized-managed-identity-001'
                   roles:
@@ -400,7 +440,7 @@ target:
                 - id: 'fixme-authorized-managed-identity-002'
                   roles:
                     - 'fixme-role-reader'
-        - name: &cfAtEhNamespace 'cf-ci-asset-tag-eh-namespace'
+        - name: &cfAtEhNamespace '##app-env##-asset-tag-eh-namespace'
           <<: *eh_namespace_template
           resource_group: *cfAtEhRG
           capacity: '1'
@@ -414,7 +454,7 @@ target:
           arm_type: 'Microsoft.EventHub/Namespaces'
           action: 'create'
           topics:
-            - name: &cfAtEhTopic 'cf-ci-asset-tag-eh-topic'
+            - name: &cfAtEhTopic '##app-env##-asset-tag-eh-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
               enable_capture: 'false'
@@ -432,21 +472,21 @@ target:
                 destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
                 storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
               consumer_groups:
-                - name: &asset_tag_eh_assets_consumer_group 'cf-ci-asset-tag-eventhub-asset-tags-cg'
+                - name: &asset_tag_eh_assets_consumer_group '##app-env##-asset-tag-eventhub-asset-tags-cg'
                   topic_name: *cfAtEhTopic
                   namespace: *cfAtEhNamespace
                   resource_group: *cfAtEhRG
                   user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag consumers'
               authorization_rules:
-                - name: &cf_asset_tag_eh_producer_rule 'cf-ci-asset-tag-eventhub-producer'
+                - name: &cf_asset_tag_eh_producer_rule '##app-env##-asset-tag-eventhub-producer'
                   topic_name: *cfAtEhTopic
                   namespace: *cfAtEhNamespace
                   resource_group: *cfAtEhRG
                   rights: 'Send'
                   key_store:
                     vault: *kvName
-                    secret_name_001: &cf_asset_tag_eh_producer_key_001 'cf-ci-asset-tag-eventhub-producer-key-001'
-                    secret_name_002: &cf_asset_tag_eh_producer_key_002 'cf-ci-asset-tag-eventhub-producer-key-002'
+                    secret_name_001: &cf_asset_tag_eh_producer_key_001 '##app-env##-asset-tag-eventhub-producer-key-001'
+                    secret_name_002: &cf_asset_tag_eh_producer_key_002 '##app-env##-asset-tag-eventhub-producer-key-002'
               authorized_managed_identities:
                 - id: 'fixme-authorized-managed-identity-001'
                   roles:
@@ -456,7 +496,7 @@ target:
                     - 'fixme-role-reader'
     k8s:
       clusters:
-        - name: 'cf-ci-k8s-001'
+        - name: '##app-env##-k8s-001'
           resource_group: *cfK8sRG
           location: *defaultAzureLocation
           # aad_client_app_id:
@@ -499,7 +539,7 @@ target:
             - '-app-id'
             - '"}'
             - '##'
-          ssh_key_value: '~/.ssh/id_cf_ci_k8s.pub'
+          ssh_key_value: '~/.ssh/id_##app_env##_k8s.pub'
           tags: *labels
           vm_set_type: 'VirtualMachineScaleSets'
           zones: '1 2 3'
@@ -507,8 +547,8 @@ target:
           action: 'create'
       secrets:
         names:
-          - &dataDogApiKeySecretName 'cf-ci-datadog-api-key'
-          - &neuvectorLicenseKeyName 'cf-ci-neuvector-license-key'
+          - &dataDogApiKeySecretName '##app-env##-datadog-api-key'
+          - &neuvectorLicenseKeyName '##app-env##-neuvector-license-key'
         values:
           datadog_api_key: &datadogApiKey
             - '##secure_secret={"vault":"'
@@ -605,6 +645,10 @@ target:
           issuers: &trustedIdProviders
             - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
             - '='
+            - *passageApiApplicationID
+            - ','
+            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
             - 'https://management.core.windows.net/'
             - ','
             - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
@@ -626,20 +670,44 @@ target:
             - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
             - '='
             - 'https://graph.windows.net'
-            - ','
-            - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+          issuers_go: &trustedIdProvidersGo
+            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
             - '='
             - *passageApiApplicationID
+            - ','
+            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://management.core.windows.net/'
+            - ','
+            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+            - '='
+            - 'https://graph.windows.net'
+            - ','
+            - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+            - '='
+            - 'https://graph.windows.net'
         secrets:
           names:
-            - &atriusObjectsApiKeySecretName 'cf-ci-atrius-objects-api-key'
-            - &secretKeyBaseAdminSecretName 'cf-ci-admin-api-secret-key-base'
-            - &secretKeyBaseAuthZSecretName 'cf-ci-authz-api-secret-key-base'
-            - &secretKeyBaseElmSecretName 'cf-ci-elm-api-secret-key-base'
-            - &secretKeyBaseNetworkViewSecretName 'cf-ci-network-view-api-secret-key-base'
-            - &selfHealingApiKeyName 'cf-ci-self-healing-api-key'
-            - &oauth2ProxyClientSecretName 'cf-ci-oauth2-proxy-client-secret'
-            - &oauth2ProxyCookieSecretName 'cf-ci-oauth2-proxy-cookie-secret'
+            - &atriusObjectsApiKeySecretName '##app-env##-atrius-objects-api-key'
+            - &secretKeyBaseAdminSecretName '##app-env##-admin-api-secret-key-base'
+            - &secretKeyBaseAuthZSecretName '##app-env##-authz-api-secret-key-base'
+            - &secretKeyBaseElmSecretName '##app-env##-elm-api-secret-key-base'
+            - &secretKeyBaseNetworkViewSecretName '##app-env##-network-view-api-secret-key-base'
+            - &selfHealingApiKeyName '##app-env##-self-healing-api-key'
+            - &oauth2ProxyClientSecretName '##app-env##-oauth2-proxy-client-secret'
+            - &oauth2ProxyCookieSecretName '##app-env##-oauth2-proxy-cookie-secret'
             - &wafTLSSecret 'waf-tls-secret'
           values:
             atrius_objects_api_key: &atriusObjectsApiKey
@@ -700,27 +768,27 @@ target:
               - '##'
           seed_values:
             - source:
-                secret_name: 'cf-dev-self-healing-api-key'
-                vault_name: &persistentKVName 'cf-dev-master-kv'
+                secret_name: '##app-env##-self-healing-api-key'
+                vault_name: &persistentKVName '##app-env##-master-kv'
                 subscription: *defaultAzureSubscription
               dest: *selfHealingApiKeyName
             - source:
-                secret_name: 'cf-dev-oauth2-proxy-client-secret'
+                secret_name: '##app-env##-oauth2-proxy-client-secret'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *oauth2ProxyClientSecretName
             - source:
-                secret_name: 'cf-dev-lights-map-api-key'
+                secret_name: '##app-env##-lights-map-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *atriusObjectsApiKeySecretName
             - source:
-                secret_name: 'cf-dev-datadog-api-key'
+                secret_name: '##app-env##-datadog-api-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *dataDogApiKeySecretName
             - source:
-                secret_name: 'cf-dev-neuvector-license-key'
+                secret_name: '##app-env##-neuvector-license-key'
                 vault_name: *persistentKVName
                 subscription: *defaultAzureSubscription
               dest: *neuvectorLicenseKeyName
@@ -731,7 +799,7 @@ target:
               dest: *cfObjectsDbSecretName_001
         service_principals:
           atrius_objects:
-            sp_name: &atriusObjectsSpName 'cf-ci-atrius-objects-sp'
+            sp_name: &atriusObjectsSpName '##app-env##-atrius-objects-sp'
             sp_app_id: &atriusObjectsSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
@@ -749,12 +817,12 @@ target:
               - '"}'
               - '##'
           elm:
-            sp_name: *spElmServiceSpName
+            sp_name: &elmSpName '##app-env##-elm-web-sp'
             sp_app_id: &elmSpAppId
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - *spElmServiceSpName
+              - *elmSpName
               - '-app-id'
               - '"}'
               - '##'
@@ -762,7 +830,7 @@ target:
               - '##secure_secret={"vault":"'
               - *kvName
               - '","secret_name":"'
-              - *spElmServiceSpName
+              - *elmSpName
               - '-secret'
               - '"}'
               - '##'
@@ -880,6 +948,19 @@ target:
               - *dbLinuxPassword
               - ';'
               - 'PORT=1433'
+            asset_telemery_tracking: &dbAssetTelemetryTracking
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '?'
+              - 'database='
+              - *assetTelemetrySchema
         authz:
           api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
         elm:
@@ -890,7 +971,7 @@ target:
               passage: *passageApiUrl
               relay: *relayApiUrl
             partner_env: *passagePartnerEnv
-            referer: &passageReferer 'https://cf.us.atrius-iot.com'
+            referer: &passageReferer 'https://##app##.us.atrius-iot.com'
             host: *passageHost
           service_principal:
             client_id: *elmSpAppId
@@ -1018,24 +1099,6 @@ target:
               DATABASE_URL: *dbUrlElm
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
-        cf-admin-web-api-docker:
-          config_annotations:
-            "helm.sh/hook": pre-install,pre-upgrade
-            "helm.sh/resource-policy": keep
-            "helm.sh/hook-weight": "-1"
-          migration_annotations:
-            "helm.sh/hook": pre-install,pre-upgrade
-            "helm.sh/hook-delete-policy": hook-succeeded
-            "helm.sh/hook-weight": "1"
-          config:
-            environment:
-              <<: *railsEnv
-              RAILS_ENV: 'production'
-              RAILS_LOG_TO_STDOUT: 'true'
-              CF_AUTHZ_API_URL: *authzApiUrl
-            secrets:
-              DATABASE_URL: *dbUrlAdmin
-              SECRET_KEY_BASE: *secretKeyBaseAdmin
         cf-ingest-web-api: &configNetworkView
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
@@ -1087,10 +1150,91 @@ target:
               CF_SELF_HEALING_API_KEY: *selfHealingApiKey
               JWT_AUTH_TOKEN: ''
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
-        cf-assets-v2-telemetry-svc-docker:
+        cf-assets-v2-telemetry-tracking-svc-docker:
           enabled: true
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
+            # placeholder values should allow the service to install and minimally respond
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT:
+                - *cfIotEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME:
+                - *iot_eh_asset_tags_telemetry_tracking_consumer_group
+            secrets:
+              DATABASE_URL: *dbAssetTelemetryTracking
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfIotEhRG
+                - '","namespace_name":"'
+                - *cfIotEhNamespace
+                - '","eventhub_name":"'
+                - *cfIotEhTopic
+                - '","policy_name":"'
+                - *cf_iot_eh_consumer_rule
+                - '"}'
+                - '##'
+        cf-assets-v2-telemetry-forwarding-svc-docker:
+          enabled: true
+          config:
+            # placeholder values should allow the service to install and minimally respond
+            environment:
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              JWT_ISSUERS: *trustedIdProviders
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
+                - *cfIotEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME:
+                - *iot_eh_asset_tags_telemetry_forwarding-consumer_group
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT:
+                - *cfAtEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME:
+                - *cfAtEhTopic
+            secrets:
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfIotEhRG
+                - '","namespace_name":"'
+                - *cfIotEhNamespace
+                - '","eventhub_name":"'
+                - *cfIotEhTopic
+                - '","policy_name":"'
+                - *cf_iot_eh_consumer_rule
+                - '"}'
+                - '##'
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAtEhRG
+                - '","namespace_name":"'
+                - *cfAtEhNamespace
+                - '","eventhub_name":"'
+                - *cfAtEhTopic
+                - '","policy_name":"'
+                - *cf_asset_tag_eh_producer_rule
+                - '"}'
+                - '##'
         cf-tls-certificate-manager-svc-docker:
           enabled: true
+          replicaCount: 1
           yaml_values:
             - &leCertificateDir '/etc/letsencrypt'
           config:
@@ -1132,7 +1276,7 @@ target:
                 - '"}'
                 - '##'
         cf-coordinate-transforms-svc-docker:
-          enabled: false
+          enabled: true
         cf-city-state-zip-svc-docker:
           enabled: true
         cf-ecy-ingest-svc-docker:
@@ -1143,7 +1287,7 @@ target:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
               OAUTH2_PROXY_CLIENT_ID: *passageApiApplicationID
               OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
-              OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev__utm'
+              OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_##app_env##_v2__utm'
               OAUTH2_PROXY_COOKIE_PATH: '/'
               OAUTH2_PROXY_COOKIE_REFRESH: '1h'
               OAUTH2_PROXY_EMAIL_DOMAINS: '*'
@@ -1175,11 +1319,35 @@ target:
           enabled: true
           controller:
             config:
-              # enable-modsecurity: 'true'
-              # modsecurity-snippet: ''
-              # enable-owasp-modsecurity-cr: 'true'
+              # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
+              # nginx.ingress.kubernetes.io/affinity: 'cookie'
+              enable-modsecurity: "true"
+              enable-owasp-core-rules: "false"
+              modsecurity-snippet: |
+                SecRuleEngine On
+                SecRequestBodyAccess On
+                SecAuditEngine RelevantOnly
+                SecAuditLogParts ABIJDEFHZ
+                SecAuditLog /dev/stderr
+                Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+                SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+                SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000002,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+                SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
+                SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+                SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
+                SecRequestBodyAccess On
+                SecRequestBodyLimit 134217728
+                SecRequestBodyNoFilesLimit 2097152
+                SecRequestBodyLimitAction ProcessPartial
+                SecResponseBodyAccess On
+                SecResponseBodyLimit 2097152
+                SecResponseBodyLimitAction ProcessPartial
               enable-underscores-in-headers: 'true'
-              proxy-buffer-size: '8k'
+              use-http2: 'false'
+              proxy-body-size: '32k'
+              proxy-buffer-size: '32k'
+              client-header-buffer-size: '32k'
+              client-body-buffer-size: '2m'
               ssl-ciphers:
                 - 'ECDHE-ECDSA-AES128-GCM-SHA256'
                 - ':'

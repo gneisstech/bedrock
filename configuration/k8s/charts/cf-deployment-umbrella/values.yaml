@@ -17,34 +17,62 @@ default_values:
     partner:
       env: &passagePartnerEnv 'DEV'
   jwt:
-    issuers: &trustedIdProviders "\
-      https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-      =\
-      https://management.core.windows.net/\
-      ,\
-      https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
-      =\
-      https://management.core.windows.net/\
-      ,\
-      https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
-      =\
-      https://management.core.windows.net/\
-      ,\
-      https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-      =\
-      https://graph.windows.net\
-      ,\
-      https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/\
-      =\
-      https://graph.windows.net\
-      ,\
-      https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/\
-      =\
-      https://graph.windows.net\
-      ,\
-      https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/\
-      =\
-      24b765b5-8108-4374-8141-1a65c0fc42ab"
+    issuers: &trustedIdProviders
+      - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+      - '='
+      - *passageApiApplicationID
+      - ','
+      - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+      - '='
+      - 'https://management.core.windows.net/'
+      - ','
+      - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+      - '='
+      - 'https://management.core.windows.net/'
+      - ','
+      - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+      - '='
+      - 'https://management.core.windows.net/'
+      - ','
+      - 'https://sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+      - '='
+      - 'https://graph.windows.net'
+      - ','
+      - 'https://sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+      - '='
+      - 'https://graph.windows.net'
+      - ','
+      - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+      - '='
+      - 'https://graph.windows.net'
+    issuers_go: &trustedIdProvidersGo
+      - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+      - '='
+      - *passageApiApplicationID
+      - ','
+      - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+      - '='
+      - 'https://management.core.windows.net/'
+      - ','
+      - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+      - '='
+      - 'https://management.core.windows.net/'
+      - ','
+      - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+      - '='
+      - 'https://management.core.windows.net/'
+      - ','
+      - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
+      - '='
+      - 'https://graph.windows.net'
+      - ','
+      - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
+      - '='
+      - 'https://graph.windows.net'
+      - ','
+      - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
+      - '='
+      - 'https://graph.windows.net'
   atrius_objects:
     api_key: &atriusObjectsApiKey 'fixme-dummy-developer-key'
     authorized_users: &atriusObjectsAuthorizedUsers "\
@@ -103,10 +131,17 @@ cf-http-https-echo:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-echo/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $name_upstream_1 $upstream_cookie_name_1;
+        access_by_lua_block {
+          if ngx.var.name_upstream_1 ~= "" then
+            ngx.header["Set-Cookie"] = "name_1=" .. ngx.var.name_upstream_1 .. ngx.var.auth_cookie:match("(; .*)")
+          end
+        }
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
@@ -120,6 +155,7 @@ cf-oauth-proxy-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/oauth2/$2'
     hosts:
       - paths:
@@ -129,7 +165,7 @@ cf-oauth-proxy-docker:
       OAUTH2_PROXY_AZURE_TENANT: 'common'
       OAUTH2_PROXY_CLIENT_ID: 'fixme-oauth-sp-client-id'
       OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
-      OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_Dev__utm'
+      OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_auth__utm'
       OAUTH2_PROXY_COOKIE_PATH: '/'
       OAUTH2_PROXY_COOKIE_REFRESH: '1h'
       OAUTH2_PROXY_EMAIL_DOMAINS: '*'
@@ -138,6 +174,7 @@ cf-oauth-proxy-docker:
       OAUTH2_PROXY_PASS_ACCESS_TOKEN: 'true'
       OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
       OAUTH2_PROXY_PING_PATH: '/'
+      OAUTH2_PROXY_PROFILE_URL: 'https://graph.windows.net/me?api-version=1.6'
       OAUTH2_PROXY_PROVIDER: 'azure'
       OAUTH2_PROXY_REDIRECT_URL: 'fixme-oauth-redirect-url'
       OAUTH2_PROXY_RESOURCE: 'fixme-oauth-proxy-resource'
@@ -157,9 +194,10 @@ cf-react-app-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-app/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -174,9 +212,10 @@ cf-self-healing-app-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -191,9 +230,10 @@ cf-atrius-objects-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-atrius-objects/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -219,6 +259,7 @@ cf-lights-map-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-lights-map/$2'
     hosts:
       - paths:
@@ -242,9 +283,10 @@ cf-self-healing-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -270,6 +312,7 @@ cf-self-healing-ingest-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
@@ -298,9 +341,10 @@ cf-authz-web-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-authz/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -332,9 +376,10 @@ cf-elm-web-api-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-elm/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -344,6 +389,8 @@ cf-elm-web-api-docker:
   config:
     environment:
       <<: *railsEnv
+      RELAY_API_BATCH_SIZE: '1000'
+      RELAY_API_TIMEOUT: '179'
       RELAY_API_URL: *relayApiUrl
       PASSAGE_API_URL: *passageApiUrl
       PASSAGE_REFERER: *passageReferer
@@ -356,37 +403,6 @@ cf-elm-web-api-docker:
       DATABASE_URL: *dbUrlElm
       SECRET_KEY_BASE: *secretKeyBaseElm
       CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
-
-cf-admin-web-api-docker:
-  fullnameOverride: 'cf-admin-web-api-docker'
-  enabled: true
-  config_annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/resource-policy": keep
-    "helm.sh/hook-weight": "-1"
-  migration_annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-delete-policy": hook-succeeded
-    "helm.sh/hook-weight": "1"
-  ingress:
-    enabled: true
-    annotations:
-      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-admin/$2'
-      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
-      'nginx.ingress.kubernetes.io/configuration-snippet': |
-        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
-        proxy_set_header X-Forwarded-Access-Token $access_token;
-    hosts:
-      - paths:
-          - '/cf-admin(/|$)(.*)'
-  config:
-    environment:
-      <<: *railsEnv
-      CF_AUTHZ_API_URL: *authzApiUrl
-    secrets:
-      DATABASE_URL: *dbUrlAdmin
-      SECRET_KEY_BASE: *secretKeyBaseAdmin
 
 cf-ingest-web-api:
   fullnameOverride: 'cf-ingest-web-api'
@@ -402,9 +418,10 @@ cf-ingest-web-api:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-ingest/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -435,9 +452,10 @@ cf-health-web-api:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-health/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -486,20 +504,59 @@ cf-smoketest-svc-docker:
       CF_SELF_HEALING_API_KEY: *selfHealingApiKey
       SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
-cf-assets-v2-telemetry-svc-docker:
-  fullnameOverride: 'cf-assets-v2-telemetry-svc-docker'
+cf-assets-v2-telemetry-tracking-svc-docker:
+  fullnameOverride: 'cf-assets-v2-telemetry-tracking-svc-docker'
+  enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-asset-tracking/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
+          - '/cf-asset-tracking(/|$)(.*)'
+
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+      AUTHORIZED_USERS: ''
+      JWT_ISSUERS: *trustedIdProviders
+      TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT: ''
+      TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME: ''
+    secrets:
+      DATABASE_URL: ''
+      TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONNECTION_STRING: ''
+
+cf-assets-v2-telemetry-forwarding-svc-docker:
+  fullnameOverride: 'cf-assets-v2-telemetry-forwarding-svc-docker'
   enabled: true
   config:
     # placeholder values should allow the service to install and minimally respond
     environment:
-      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
-      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
-      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
       APP_VERSION: '{{ .Chart.AppVersion }}'
+      AUTHORIZED_USERS: ''
+      JWT_ISSUERS: *trustedIdProviders
+      TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT: ''
+      TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: ''
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: ''
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: ''
     secrets:
-      SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
-      TELEMETRY_EH_CG_ASSETS_V2_INGEST_CONNECTION_STRING: ''
-      TELEMETRY_EH_BAKED_ASSETS_V2_PUBLISH_CONNECTION_STRING: ''
+      TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING: ''
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING: ''
 
 cf-tls-certificate-manager-svc-docker:
   fullnameOverride: 'cf-tls-certificate-manager-svc-docker'
@@ -509,8 +566,8 @@ cf-tls-certificate-manager-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'false'
       'nginx.ingress.kubernetes.io/rewrite-target': '/.well-known/$2'
-      'nginx.ingress.kubernetes.io/ssl-redirect': "false"
     hosts:
       - paths:
           - '/.well-known(/|$)(.*)'
@@ -544,9 +601,10 @@ cf-coordinate-transforms-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-coordinate-transforms/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -564,9 +622,10 @@ cf-city-state-zip-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-city-state-zip/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
@@ -584,9 +643,10 @@ cf-ecy-ingest-svc-docker:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-ecy-ingest/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
-      'nginx.ingress.kubernetes.io/auth-signin': "https://$host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
