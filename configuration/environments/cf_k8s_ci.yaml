@@ -998,6 +998,8 @@ target:
               - '"}'
               - '##'
         cf-atrius-objects-api-docker:
+          enabled: false
+          replicaCount: 0
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1015,6 +1017,8 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
+          enabled: false
+          replicaCount: 0
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
