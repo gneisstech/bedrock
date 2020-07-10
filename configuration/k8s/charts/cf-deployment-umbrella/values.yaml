@@ -425,6 +425,7 @@ cf-ingest-web-api:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': 'false'  # @@ TODO investigate
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
     hosts:
