@@ -42,7 +42,12 @@ deployments:
         namespace: 'datadog'
       neuvector:
         enabled: 'true'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfdevregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'dev'
@@ -100,7 +105,12 @@ deployments:
         namespace: 'datadog'
       neuvector:
         enabled: 'false'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfdevregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'ci'
@@ -158,7 +168,12 @@ deployments:
         namespace: 'datadog'
       neuvector:
         enabled: 'true'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfqaregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'qa'
@@ -219,8 +234,13 @@ deployments:
         enabled: 'true'
         namespace: 'datadog'
       neuvector:
-        enabled: 'false'
-        namepsace: 'neuvector'
+        enabled: 'true'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfprodregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'prod'
@@ -282,7 +302,12 @@ deployments:
         namespace: 'datadog'
       neuvector:
         enabled: 'false'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfprodregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'prod'
@@ -331,7 +356,12 @@ deployments:
         namespace: 'datadog'
       neuvector:
         enabled: 'false'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfdevregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'local'
