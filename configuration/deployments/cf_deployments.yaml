@@ -32,15 +32,22 @@ deployments:
       context: 'cf-dev-k8s-001-admin'
       tls_secret_name: 'wildcarddevatrius-iotcom'
       pv_secret_namespace: 'cf-pv'
-      dashboard:
-        port: 8001
     paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8001
       datadog:
         enabled: 'true'
         namespace: 'datadog'
       neuvector:
         enabled: 'true'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfdevregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'dev'
@@ -88,15 +95,22 @@ deployments:
       context: 'cf-ci-k8s-001-admin'
       tls_secret_name: 'wildcarddevatrius-iotcom'
       pv_secret_namespace: 'cf-pv'
-      dashboard:
-        port: 8002
     paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8002
       datadog:
         enabled: 'false'
         namespace: 'datadog'
       neuvector:
         enabled: 'false'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfdevregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'ci'
@@ -144,15 +158,22 @@ deployments:
       context: 'cf-qa-k8s-001-admin'
       tls_secret_name: 'wildcardqaatrius-iotcom'
       pv_secret_namespace: 'cf-pv'
-      dashboard:
-        port: 8003
     paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8003
       datadog:
         enabled: 'true'
         namespace: 'datadog'
       neuvector:
         enabled: 'true'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfqaregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'qa'
@@ -204,15 +225,22 @@ deployments:
       context: 'cf-prod-k8s-001-admin'
       tls_secret_name: 'wildcarddevatrius-iotcom'
       pv_secret_namespace: 'cf-pv'
-      dashboard:
-        port: 8004
     paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8004
       datadog:
         enabled: 'true'
         namespace: 'datadog'
       neuvector:
-        enabled: 'false'
-        namepsace: 'neuvector'
+        enabled: 'true'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfprodregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'prod'
@@ -264,15 +292,22 @@ deployments:
       context: 'cf-prod-k8s-001-admin'
       tls_secret_name: 'wildcarddevatrius-iotcom'
       pv_secret_namespace: 'cf-pv'
-      dashboard:
-        port: 8006
     paas:
+      dashboard:
+        enabled: 'false'
+        namespace: 'dashboard'
+        port: 8006
       datadog:
-        enabled: 'true'
+        enabled: 'false'
         namespace: 'datadog'
       neuvector:
         enabled: 'false'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfprodregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'prod'
@@ -311,15 +346,22 @@ deployments:
       context: 'docker-desktop'
       tls_secret_name: 'wildcarddevatrius-iotcom'
       pv_secret_namespace: 'cf-pv'
-      dashboard:
-        port: 8005
     paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8005
       datadog:
         enabled: 'false'
         namespace: 'datadog'
       neuvector:
         enabled: 'false'
-        namepsace: 'neuvector'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'cfdevregistry.azurecr.io'
     environment:
       app: 'cf'
       name: 'local'

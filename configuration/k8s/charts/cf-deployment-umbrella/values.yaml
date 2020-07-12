@@ -425,6 +425,7 @@ cf-ingest-web-api:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': 'false'  # @@ TODO investigate
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
     hosts:
@@ -528,15 +529,19 @@ cf-assets-v2-telemetry-tracking-svc-docker:
     hosts:
       - paths:
           - '/cf-asset-tracking(/|$)(.*)'
-
   config:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
+      ASSET_TRACKING_HISTORY_ROWS: '5'
+      ASSET_TRACKING_PROCESSOR: '002'  # test 001, 002; db_parse; db_post
+      ASSET_TRACKING_PROGRESS_COMMITS: 'false'
+      ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
       TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME: ''
+      TELEMETRY_EH_CG_ASSETS_V2_TRACKING_TOPIC: ''
     secrets:
       DATABASE_URL: ''
       TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONNECTION_STRING: ''
