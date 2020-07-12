@@ -1176,9 +1176,9 @@ target:
               JWT_ISSUERS: *trustedIdProviders
               ASSET_TRACKING_HISTORY_ROWS: '5'
               ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post
-              ASSET_TRACKING_PROGRESS_COMMITS: 'true'
+              ASSET_TRACKING_PROGRESS_COMMITS: 'false'
               ASSET_TRACKING_PURGE_INTERVAL: '60'  # seconds
-              ASSET_TRACKING_REWIND_OFFSET: 'false'  # true for replay each launch
+              ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
               TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT:
                 - *cfIotEhNamespace
                 - '.servicebus.windows.net'
