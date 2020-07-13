@@ -1204,7 +1204,7 @@ target:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
               ASSET_TRACKING_HISTORY_ROWS: '5'
-              ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post
+              ASSET_TRACKING_PROCESSOR: 'info'  # test 001, 002; db_parse; db_post; info
               ASSET_TRACKING_PROGRESS_COMMITS: 'true'
               ASSET_TRACKING_PURGE_INTERVAL: '60'  # seconds
               ASSET_TRACKING_REWIND_OFFSET: 'false'  # true for replay each launch
