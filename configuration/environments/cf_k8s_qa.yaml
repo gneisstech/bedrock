@@ -518,7 +518,7 @@ target:
           enable_managed_identity: 'false'
           enable_private_cluster: 'false'
           generate_ssh_keys: 'true'
-          kubernetes_version: '1.16.9'
+          kubernetes_version: '1.17.7'
           load_balancer_sku: 'standard'
           max_count: 100
           max_pods: 30
