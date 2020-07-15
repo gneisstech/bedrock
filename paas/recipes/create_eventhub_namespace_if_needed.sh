@@ -370,8 +370,8 @@ function create_or_update_eventhub_namespace () {
     else
         update_eventhub_namespace "${namespace_json}"
     fi
-    update_eventhub_namespace_firewall_policy "${namespace_json}"
     create_or_update_topics "${namespace_json}"
+    update_eventhub_namespace_firewall_policy "${namespace_json}"
 }
 
 function create_eventhub_namespace_if_needed () {
