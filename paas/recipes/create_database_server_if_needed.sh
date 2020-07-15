@@ -88,7 +88,7 @@ function fetch_kv_database_server_admin_password () {
 }
 
 function random_key () {
-    hexdump -n 27 -e '"%02X"'  /dev/urandom
+    hexdump -n 27 -e '27/1 "%02.2X"' /dev/urandom
 }
 
 function create_kv_database_server_admin_password () {
