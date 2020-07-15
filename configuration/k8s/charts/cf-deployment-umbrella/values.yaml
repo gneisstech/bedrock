@@ -1,3 +1,4 @@
+---
 # Default values for cf-deployment-umbrella.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -627,7 +628,7 @@ cf-coordinate-transforms-svc-docker:
       APP_VERSION: '{{ .Chart.AppVersion }}'
 
 cf-city-state-zip-svc-docker:
-  fullnameOverride:  'cf-city-state-zip-svc-docker'
+  fullnameOverride: 'cf-city-state-zip-svc-docker'
   enabled: true
   ingress:
     enabled: true
@@ -755,26 +756,23 @@ cf-waf-ingress:
       proxy-buffer-size: '32k'
       client-header-buffer-size: '32k'
       client-body-buffer-size: '2m'
-      ssl-ciphers:
-        - 'ECDHE-ECDSA-AES128-GCM-SHA256'
-        - ':'
-        - 'ECDHE-RSA-AES128-GCM-SHA256'
-        - ':'
-        - 'ECDHE-ECDSA-AES256-GCM-SHA384'
-        - ':'
-        - 'ECDHE-RSA-AES256-GCM-SHA384'
-        - ':'
-        - 'ECDHE-ECDSA-CHACHA20-POLY1305'
-        - ':'
-        - 'ECDHE-RSA-CHACHA20-POLY1305'
-        - ':'
-        - 'DHE-RSA-AES128-GCM-SHA256'
-        - ':'
-        - 'DHE-RSA-AES256-GCM-SHA384'
-      ssl-protocols:
-        - 'TLSv1.2'
-        - ' '
-        - 'TLSv1.3'
+      ssl-ciphers: >-
+        ECDHE-ECDSA-AES128-GCM-SHA256
+        :
+        ECDHE-RSA-AES128-GCM-SHA256
+        :
+        ECDHE-ECDSA-AES256-GCM-SHA384
+        :
+        ECDHE-RSA-AES256-GCM-SHA384
+        :
+        ECDHE-ECDSA-CHACHA20-POLY1305
+        :
+        ECDHE-RSA-CHACHA20-POLY1305
+        :
+        DHE-RSA-AES128-GCM-SHA256
+        :
+        DHE-RSA-AES256-GCM-SHA384
+      ssl-protocols: 'TLSv1.2 TLSv1.3'
     extraArgs:
       'default-ssl-certificate':
         - 'fixme/waf-tls-secret'
