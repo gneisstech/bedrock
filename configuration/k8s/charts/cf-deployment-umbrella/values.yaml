@@ -554,10 +554,14 @@ cf-assets-v2-telemetry-forwarding-svc-docker:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
+      ASSET_FORWARDING_PROCESSOR: 'info'
+      ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
+      ASSET_FORWARDING_REWIND_OFFSET: 'true'
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: ''
+      TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC: ''
       TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: ''
       TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: ''
     secrets:

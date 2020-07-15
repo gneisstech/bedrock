@@ -41,10 +41,10 @@ declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
-declare -rx kubernetes_cluster_NAME="${1}"
+declare -rx kubernetes_cluster_name="${1}"
 
 function kubernetes_cluster_name (){
-    echo "${kubernetes_cluster_NAME}"
+    echo "${kubernetes_cluster_name}"
 }
 
 function repo_root () {
@@ -72,7 +72,7 @@ function eventhub_namespace_json () {
 }
 
 function eventhub_topics () {
-    local namespace_json="${1}"
+    local -r namespace_json="${1}"
     jq -r -e '[.topics[]? | select(.action == "create") | .name ] | @tsv' <<< "${namespace_json}"
 }
 
@@ -82,7 +82,7 @@ function eventhub_topic () {
 }
 
 function eventhub_topic_exists () {
-    local topic_json="${1}"
+    local -r topic_json="${1}"
     az eventhubs eventhub show \
         --name "$(jq -r -e '.name' <<< "${topic_json}" )" \
         --namespace-name "$(jq -r -e '.namespace' <<< "${topic_json}" )"\
@@ -121,7 +121,7 @@ function update_eventhub_topic () {
 }
 
 function create_eventhub_topic () {
-    local topic_json="${1}"
+    local -r topic_json="${1}"
     if [[ 'true' == "$(jq -r -e '.enable_capture' <<< "${topic_json}" )" ]]; then
         $AZ_TRACE eventhubs eventhub create \
             --name "$(jq -r -e '.name' <<< "${topic_json}" )" \
@@ -151,7 +151,7 @@ function create_eventhub_topic () {
 }
 
 function eventhub_topic_consumer_groups () {
-    local topic_json="${1}"
+    local -r topic_json="${1}"
     jq -r -e '[.consumer_groups[]? | .name ] | @tsv' <<< "${topic_json}"
 }
 
@@ -161,7 +161,7 @@ function eventhub_topic_consumer_group () {
 }
 
 function consumer_group_exists () {
-    local consumer_group_json="${1}"
+    local -r consumer_group_json="${1}"
     az eventhubs eventhub consumer-group show \
         --name "$(jq -r -e '.name' <<< "${consumer_group_json}" )" \
         --eventhub-name "$(jq -r -e '.topic_name' <<< "${consumer_group_json}" )" \
@@ -171,7 +171,7 @@ function consumer_group_exists () {
 }
 
 function update_consumer_group () {
-    local consumer_group_json="${1}"
+    local -r consumer_group_json="${1}"
     $AZ_TRACE eventhubs eventhub consumer-group update \
         --name "$(jq -r -e '.name' <<< "${consumer_group_json}" )" \
         --eventhub-name "$(jq -r -e '.topic_name' <<< "${consumer_group_json}" )" \
@@ -181,7 +181,7 @@ function update_consumer_group () {
 }
 
 function create_consumer_group () {
-    local consumer_group_json="${1}"
+    local -r consumer_group_json="${1}"
     $AZ_TRACE eventhubs eventhub consumer-group create \
         --name "$(jq -r -e '.name' <<< "${consumer_group_json}" )" \
         --eventhub-name "$(jq -r -e '.topic_name' <<< "${consumer_group_json}" )" \
@@ -200,14 +200,14 @@ function create_or_update_consumer_group () {
 }
 
 function create_or_update_consumer_groups () {
-    local topic_json="${1}"
+    local -r topic_json="${1}"
     for consumer_group in $(eventhub_topic_consumer_groups "${topic_json}" ); do
         create_or_update_consumer_group "$(eventhub_topic_consumer_group "${consumer_group}" <<< "${topic_json}" )"
     done
 }
 
 function eventhub_topic_authorization_rules () {
-    local topic_json="${1}"
+    local -r topic_json="${1}"
     jq -r -e '[.authorization_rules[]? | .name ] | @tsv' <<< "${topic_json}"
 }
 
@@ -217,7 +217,7 @@ function eventhub_topic_authorization_rule () {
 }
 
 function authorization_rule_exists () {
-    local authorization_rule_json="${1}"
+    local -r authorization_rule_json="${1}"
     az eventhubs eventhub authorization-rule show \
         --name "$(jq -r -e '.name' <<< "${authorization_rule_json}" )" \
         --eventhub-name "$(jq -r -e '.topic_name' <<< "${authorization_rule_json}" )" \
@@ -227,7 +227,7 @@ function authorization_rule_exists () {
 }
 
 function update_authorization_rule () {
-    local authorization_rule_json="${1}"
+    local -r authorization_rule_json="${1}"
     # shellcheck disable=2046
     $AZ_TRACE eventhubs eventhub authorization-rule update \
         --name "$(jq -r -e '.name' <<< "${authorization_rule_json}" )" \
@@ -238,7 +238,7 @@ function update_authorization_rule () {
 }
 
 function create_authorization_rule () {
-    local authorization_rule_json="${1}"
+    local -r authorization_rule_json="${1}"
     # shellcheck disable=2046
     $AZ_TRACE eventhubs eventhub authorization-rule  create \
         --name "$(jq -r -e '.name' <<< "${authorization_rule_json}" )" \
@@ -277,26 +277,26 @@ function create_or_update_topic () {
 }
 
 function create_or_update_topics () {
-    local namespace_json="${1}"
+    local -r namespace_json="${1}"
     for topic in $(eventhub_topics "${namespace_json}" ); do
         create_or_update_topic "$(eventhub_topic "${topic}" <<< "${namespace_json}" )"
     done
 }
 
 function authorize_managed_identities () {
-    local namespace_json="${1}"
+    local -r namespace_json="${1}"
     printf '# UNIMPLEMENTED [%s]\n' "${FUNCNAME[0]}" > /dev/stderr
 }
 
 function eventhub_namespace_available () {
-    local namespace_json="${1}"
+    local -r namespace_json="${1}"
     az eventhubs namespace exists \
         --name "$(jq -r -e '.name' <<< "${namespace_json}" )" \
     | jq -r -e '.nameAvailable'
 }
 
 function update_eventhub_namespace () {
-    local namespace_json="${1}"
+    local -r namespace_json="${1}"
     # shellcheck disable=2046
     $AZ_TRACE eventhubs namespace update \
         --name "$(jq -r -e '.name' <<< "${namespace_json}" )" \
@@ -311,7 +311,7 @@ function update_eventhub_namespace () {
 }
 
 function create_eventhub_namespace () {
-    local namespace_json="${1}"
+    local -r namespace_json="${1}"
     # shellcheck disable=2046
     $AZ_TRACE eventhubs namespace create \
         --name "$(jq -r -e '.name' <<< "${namespace_json}" )" \
@@ -326,13 +326,51 @@ function create_eventhub_namespace () {
         --tags $(jq -r -e '.tags' <<< "${namespace_json}" )
 }
 
+function eventhub_namespace_firewall_policy () {
+    local -r namespace_json="${1}"
+    local rg location ns subscription
+    rg="$(jq -r -e '.resource_group' <<< "${namespace_json}")"
+    location="$(jq -r -e '.location' <<< "${namespace_json}" )"
+    ns="$(jq -r -e '.name' <<< "${namespace_json}")"
+    subscription="$(jq -r -e '.subscription' <<< "${namespace_json}")"
+cat <<NAMESPACE_FIREWALL_POLICY
+{
+    "\$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+        {
+            "type": "Microsoft.EventHub/namespaces/networkRuleSets",
+            "apiVersion": "2018-01-01-preview",
+            "id": "/subscriptions/${subscription}/resourceGroups/${rg}/providers/Microsoft.EventHub/namespaces/${ns}/networkRuleSets/default",
+            "name": "${ns}/default",
+            "location": "${location}",
+            "properties": {
+                "defaultAction": "Allow",
+                "virtualNetworkRules": [],
+                "ipRules": []
+            }
+        }
+    ]
+}
+NAMESPACE_FIREWALL_POLICY
+}
+
+function update_eventhub_namespace_firewall_policy () {
+    local -r namespace_json="${1}"
+    $AZ_TRACE deployment group create \
+        --resource-group "$(jq -r -e '.resource_group' <<< "${namespace_json}" )" \
+        --template-file <(eventhub_namespace_firewall_policy "${namespace_json}" )
+}
+
+
 function create_or_update_eventhub_namespace () {
-    local namespace_json="${1}"
+    local -r namespace_json="${1}"
     if [[ "$(eventhub_namespace_available "${namespace_json}" )" == 'true' ]]; then
         create_eventhub_namespace "${namespace_json}"
     else
         update_eventhub_namespace "${namespace_json}"
     fi
+    update_eventhub_namespace_firewall_policy "${namespace_json}"
     create_or_update_topics "${namespace_json}"
 }
 
