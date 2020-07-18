@@ -81,7 +81,7 @@ function application_gateway_resource_group () {
 }
 
 function random_key () {
-    hexdump -n 27 -e '"%02X"'  /dev/urandom
+    hexdump -n 27 -e '27/1 "%02.2X"' /dev/urandom
 }
 
 function application_gateway_already_exists () {

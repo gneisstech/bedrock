@@ -81,7 +81,7 @@ function fetch_kv_virtual_machine_admin_password () {
 }
 
 function random_key () {
-    hexdump -n 27 -e '"%02X"'  /dev/urandom
+    hexdump -n 27 -e '27/1 "%02.2X"' /dev/urandom
 }
 
 function create_kv_virtual_machine_admin_password () {

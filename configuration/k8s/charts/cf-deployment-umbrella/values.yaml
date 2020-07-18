@@ -1,3 +1,4 @@
+---
 # Default values for cf-deployment-umbrella.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
@@ -145,6 +146,23 @@ cf-http-https-echo:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-echo(/|$)(.*)'
@@ -202,6 +220,23 @@ cf-react-app-docker:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-app(/|$)(.*)'
@@ -220,6 +255,23 @@ cf-self-healing-app-docker:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-self-healing(/|$)(.*)'
@@ -237,6 +289,23 @@ cf-atrius-objects-api-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-atrius-objects(/|$)(.*)'
@@ -261,6 +330,23 @@ cf-lights-map-api-docker:
     annotations:
       'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-lights-map/$2'
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-lights-map(/|$)(.*)'
@@ -290,6 +376,23 @@ cf-self-healing-api-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 4194304
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-self-healing-api(/|$)(api/v1/update_app_settings.*)'
@@ -316,6 +419,23 @@ cf-self-healing-ingest-api-docker:
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-self-healing-api/$2'
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-self-healing-api(/|$)(api/v1/process.*)'
@@ -348,6 +468,23 @@ cf-authz-web-api-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-authz(/|$)(.*)'
@@ -383,6 +520,23 @@ cf-elm-web-api-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-elm(/|$)(.*)'
@@ -428,6 +582,22 @@ cf-ingest-web-api:
       'nginx.ingress.kubernetes.io/enable-modsecurity': 'false'  # @@ TODO investigate
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-ingest(/|$)(.*)'
@@ -460,6 +630,23 @@ cf-health-web-api:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-health(/|$)(.*)'
@@ -526,6 +713,23 @@ cf-assets-v2-telemetry-tracking-svc-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-asset-tracking(/|$)(.*)'
@@ -554,10 +758,14 @@ cf-assets-v2-telemetry-forwarding-svc-docker:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
+      ASSET_FORWARDING_PROCESSOR: 'info'
+      ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
+      ASSET_FORWARDING_REWIND_OFFSET: 'true'
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: ''
+      TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC: ''
       TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: ''
       TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: ''
     secrets:
@@ -574,6 +782,23 @@ cf-tls-certificate-manager-svc-docker:
     annotations:
       'nginx.ingress.kubernetes.io/force-ssl-redirect': 'false'
       'nginx.ingress.kubernetes.io/rewrite-target': '/.well-known/$2'
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/.well-known(/|$)(.*)'
@@ -614,6 +839,23 @@ cf-coordinate-transforms-svc-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-coordinate-transforms(/|$)(.*)'
@@ -623,7 +865,7 @@ cf-coordinate-transforms-svc-docker:
       APP_VERSION: '{{ .Chart.AppVersion }}'
 
 cf-city-state-zip-svc-docker:
-  fullnameOverride:  'cf-city-state-zip-svc-docker'
+  fullnameOverride: 'cf-city-state-zip-svc-docker'
   enabled: true
   ingress:
     enabled: true
@@ -635,6 +877,23 @@ cf-city-state-zip-svc-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-city-state-zip(/|$)(.*)'
@@ -656,6 +915,23 @@ cf-ecy-ingest-svc-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/enable-modsecurity': "true"
+      'nginx.ingress.kubernetes.io/enable-owasp-core-rules': "false"
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 134217728
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
           - '/cf-ecy-ingest(/|$)(.*)'
@@ -721,3 +997,49 @@ cf-waf-ingress:
       'X-Content-Type-Options': 'nosniff'
       'Server': ''  # TODO: delete server header from upstream
       'Access-Control-Allow-Origin': 'https://login.microsoftonline.com'
+    config:
+      # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
+      # nginx.ingress.kubernetes.io/affinity: 'cookie'
+      enable-modsecurity: "true"
+      enable-owasp-core-rules: "false"
+      modsecurity-snippet: |
+        SecRuleEngine Off
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000002,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+        SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
+        SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+        SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
+      enable-underscores-in-headers: 'true'
+      use-http2: 'false'
+      proxy-body-size: '32k'
+      proxy-buffer-size: '32k'
+      client-header-buffer-size: '32k'
+      client-body-buffer-size: '2m'
+      ssl-ciphers: >-
+        ECDHE-ECDSA-AES128-GCM-SHA256
+        :
+        ECDHE-RSA-AES128-GCM-SHA256
+        :
+        ECDHE-ECDSA-AES256-GCM-SHA384
+        :
+        ECDHE-RSA-AES256-GCM-SHA384
+        :
+        ECDHE-ECDSA-CHACHA20-POLY1305
+        :
+        ECDHE-RSA-CHACHA20-POLY1305
+        :
+        DHE-RSA-AES128-GCM-SHA256
+        :
+        DHE-RSA-AES256-GCM-SHA384
+      ssl-protocols: 'TLSv1.2 TLSv1.3'
+    extraArgs:
+      'default-ssl-certificate':
+        - 'fixme/waf-tls-secret'
+    service:
+      enableHttp: true
+      loadBalancerIP:
+        - 'fixme-waf-lb-ip'
+      annotations:
+        'service.beta.kubernetes.io/azure-load-balancer-resource-group': 'fixme-waf-resource-group'

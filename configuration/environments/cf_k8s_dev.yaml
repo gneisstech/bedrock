@@ -324,7 +324,8 @@ target:
         maximum_throughput_units: '0'  # 0 when auto_inflate is 'false'
         sku: 'Standard'
         tags: *labels
-        network_rules_default_action: 'Deny'
+        network_rules_default_action: 'Allow'
+        subscription: *defaultAzureSubscription
         arm_type: 'Microsoft.EventHub/Namespaces'
         action: 'Preserve'
         topics:
@@ -379,7 +380,8 @@ target:
           maximum_throughput_units: '20'
           sku: 'Standard'
           tags: *labels
-          network_rules_default_action: 'Deny'
+          network_rules_default_action: 'Allow'
+          subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.EventHub/Namespaces'
           action: 'create'
           topics:
@@ -406,7 +408,7 @@ target:
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
                   user_metadata: 'Connected Facilities -- message stream from Eclypse site controllers via IOTHub for tracking assets'
-                - name: &iot_eh_asset_tags_telemetry_forwarding-consumer_group '##app-env##-iot-eh-asset-tags-telemetry-forwarding-cg'
+                - name: &iot_eh_asset_tags_telemetry_forwarding_consumer_group '##app-env##-iot-eh-asset-tags-telemetry-forwarding-cg'
                   topic_name: *cfIotEhTopic
                   namespace: *cfIotEhNamespace
                   resource_group: *cfIotEhRG
@@ -447,7 +449,8 @@ target:
           maximum_throughput_units: '20'
           sku: 'Standard'
           tags: *labels
-          network_rules_default_action: 'Deny'
+          network_rules_default_action: 'Allow'
+          subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.EventHub/Namespaces'
           action: 'create'
           topics:
@@ -1195,6 +1198,10 @@ target:
           config:
             # placeholder values should allow the service to install and minimally respond
             environment:
+              APP_VERSION: '{{ .Chart.AppVersion }}'
+              ASSET_FORWARDING_PROCESSOR: 'info'
+              ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
+              ASSET_FORWARDING_REWIND_OFFSET: 'true'
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
               JWT_ISSUERS: *trustedIdProviders
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
@@ -1203,7 +1210,9 @@ target:
                 - ':'
                 - '9093'
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME:
-                - *iot_eh_asset_tags_telemetry_forwarding-consumer_group
+                - *iot_eh_asset_tags_telemetry_forwarding_consumer_group
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC:
+                - *cfIotEhTopic
               TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
@@ -1342,63 +1351,12 @@ target:
         cf-waf-ingress:
           enabled: true
           controller:
-            config:
-              # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
-              # nginx.ingress.kubernetes.io/affinity: 'cookie'
-              enable-modsecurity: "true"
-              enable-owasp-core-rules: "false"
-              modsecurity-snippet: |
-                SecRuleEngine On
-                SecRequestBodyAccess On
-                SecAuditEngine RelevantOnly
-                SecAuditLogParts ABIJDEFHZ
-                SecAuditLog /dev/stderr
-                Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf
-                SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
-                SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000002,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
-                SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
-                SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
-                SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
-                SecRequestBodyAccess On
-                SecRequestBodyLimit 134217728
-                SecRequestBodyNoFilesLimit 2097152
-                SecRequestBodyLimitAction ProcessPartial
-                SecResponseBodyAccess On
-                SecResponseBodyLimit 2097152
-                SecResponseBodyLimitAction ProcessPartial
-              enable-underscores-in-headers: 'true'
-              use-http2: 'false'
-              proxy-body-size: '32k'
-              proxy-buffer-size: '32k'
-              client-header-buffer-size: '32k'
-              client-body-buffer-size: '2m'
-              ssl-ciphers:
-                - 'ECDHE-ECDSA-AES128-GCM-SHA256'
-                - ':'
-                - 'ECDHE-RSA-AES128-GCM-SHA256'
-                - ':'
-                - 'ECDHE-ECDSA-AES256-GCM-SHA384'
-                - ':'
-                - 'ECDHE-RSA-AES256-GCM-SHA384'
-                - ':'
-                - 'ECDHE-ECDSA-CHACHA20-POLY1305'
-                - ':'
-                - 'ECDHE-RSA-CHACHA20-POLY1305'
-                - ':'
-                - 'DHE-RSA-AES128-GCM-SHA256'
-                - ':'
-                - 'DHE-RSA-AES256-GCM-SHA384'
-              ssl-protocols:
-                - 'TLSv1.2'
-                - ' '
-                - 'TLSv1.3'
             extraArgs:
               'default-ssl-certificate':
                 - *cfNamespace
                 - '/'
                 - *wafTLSSecret
             service:
-              enableHttp: true
               loadBalancerIP:
                 - '##ip_address={"ip_resource_id":"'
                 - '/subscriptions/'
