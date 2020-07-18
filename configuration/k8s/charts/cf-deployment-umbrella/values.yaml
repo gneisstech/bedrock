@@ -391,7 +391,7 @@ cf-self-healing-api-docker:
         SecRequestBodyNoFilesLimit 2097152
         SecRequestBodyLimitAction ProcessPartial
         SecResponseBodyAccess On
-        SecResponseBodyLimit 2097152
+        SecResponseBodyLimit 4194304
         SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:

@@ -1393,12 +1393,12 @@ target:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
         cf-waf-ingress-default-backend:
-          replicaCount: 3
+          replicaCount: 6
           enabled: true
         cf-waf-ingress:
           enabled: true
           controller:
-            replicaCount: 3
+            replicaCount: 6
             extraArgs:
               'default-ssl-certificate':
                 - *cfNamespace
