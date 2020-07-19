@@ -738,7 +738,7 @@ cf-assets-v2-telemetry-tracking-svc-docker:
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
       ASSET_TRACKING_HISTORY_ROWS: '5'
-      ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post
+      ASSET_TRACKING_PROCESSOR: 'info'  # test 001, 002; db_parse; db_post
       ASSET_TRACKING_PROGRESS_COMMITS: 'false'
       ASSET_TRACKING_PURGE_INTERVAL: '60'  # seconds
       ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
