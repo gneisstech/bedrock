@@ -1192,7 +1192,7 @@ target:
               JWT_AUTH_TOKEN: ''
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-tracking-svc-docker:
-          enabled: true
+          enabled: false
           replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
