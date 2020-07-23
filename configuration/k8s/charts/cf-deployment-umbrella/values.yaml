@@ -404,7 +404,7 @@ cf-self-healing-api-docker:
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
-      LOG_LEVEL: 'info'
+      LOG_LEVEL: 'INFO'
       URL_PREFIX: *urlPrefixSelfHealing
     secrets:
       DATABASE_CONN_STRING: *dbUrlSelfHealing
@@ -443,7 +443,7 @@ cf-self-healing-ingest-api-docker:
   config:
     environment:
       JWT_ISSUERS: *trustedIdProviders
-      LOG_LEVEL: 'info'
+      LOG_LEVEL: 'INFO'
       URL_PREFIX: *urlPrefixSelfHealing
     secrets:
       DATABASE_CONN_STRING: *dbUrlSelfHealing
