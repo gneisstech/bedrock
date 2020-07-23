@@ -1074,6 +1074,7 @@ target:
           config:
             environment:
               JWT_ISSUERS: *trustedIdProviders
+              LOG_LEVEL: 'INFO'
               URL_PREFIX: *urlPrefixSelfHealing
             secrets:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
@@ -1083,6 +1084,7 @@ target:
           config:
             environment:
               JWT_ISSUERS: *trustedIdProviders
+              LOG_LEVEL: 'INFO'
               URL_PREFIX: *urlPrefixSelfHealing
             secrets:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
