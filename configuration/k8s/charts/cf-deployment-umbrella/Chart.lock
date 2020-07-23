@@ -22,10 +22,10 @@ dependencies:
   version: 2.0.48-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.24-dev
+  version: 1.0.25-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.24-dev
+  version: 1.0.25-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.1-dev
@@ -71,5 +71,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.5-dev
-digest: sha256:85baa5396a6212d274ebfc1f6894cc4b3fcf79ddad8d92382736cbbe2be6b1ba
-generated: "2020-07-22T17:03:37.639540674Z"
+digest: sha256:6d9f9e97d2a64e239accb167cd932f9b7d96e280e3c2ab993c37bac91704f485
+generated: "2020-07-23T05:12:40.265043909Z"
