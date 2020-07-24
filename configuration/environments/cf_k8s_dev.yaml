@@ -17,6 +17,7 @@ target:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
       passage_api_application_id: &passageApiApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
+      passage_api_environment: &passageApiEnvironment "ASP_DEV_US"
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
     atriusObjectsDatabases:
       - db_host_name: &cfObjectsDbHostName_001 'pltdata01sqlsep2ftp3b7r'
@@ -635,7 +636,7 @@ target:
         passage:
           api:
             application_id: *passageApiApplicationID
-            fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
+            fqdn: *passageApiFqdn
             url: &passageApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1'
             relayUrl: &relayApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1/Devices'
             host: &passageHost 'passage.atrius-dev.acuitynext.io'
@@ -1314,6 +1315,36 @@ target:
           enabled: true
         cf-ecy-ingest-svc-docker:
           enabled: true
+          config:
+            environment:
+              ATRIUS_OBJECTS_HOST: *wafFqdn
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              HEALTH_API_HOST: *wafFqdn
+              HEALTH_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              HEALTH_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              HEALTH_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              INGEST_API_HOST: *wafFqdn
+              INGEST_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              INGEST_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              INGEST_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              JWT_ISSUERS: *trustedIdProviders
+              PASSAGE_API_ENV: *passageApiEnvironment
+              PASSAGE_API_HOST: *passageHost
+              PASSAGE_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              PASSAGE_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              PASSAGE_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+            secrets:
+              ATRIUS_OBJECTS_JWT_AUTH_TOKEN: ''
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              HEALTH_API_JWT_AUTH_TOKEN: ''
+              HEALTH_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              INGEST_API_JWT_AUTH_TOKEN: ''
+              INGEST_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              PASSAGE_API_JWT_AUTH_TOKEN: ''
+              PASSAGE_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-oauth-proxy-docker:
           config:
             environment:
