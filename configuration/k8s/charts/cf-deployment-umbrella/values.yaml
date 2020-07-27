@@ -204,6 +204,7 @@ cf-react-app-docker:
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
     hosts:
@@ -225,6 +226,7 @@ cf-self-healing-app-docker:
         proxy_set_header X-Forwarded-Access-Token $access_token;
         more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
     hosts:
@@ -245,6 +247,7 @@ cf-atrius-objects-api-docker:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
     hosts:
@@ -272,6 +275,7 @@ cf-lights-map-api-docker:
       'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/cf-lights-map/$2'
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
     hosts:
@@ -331,6 +335,7 @@ cf-self-healing-ingest-api-docker:
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecRequestBodyLimit 2097152
         SecRequestBodyNoFilesLimit 2097152
         SecRequestBodyLimitAction ProcessPartial
@@ -405,6 +410,7 @@ cf-elm-web-api-docker:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecRequestBodyLimit 2097152
         SecRequestBodyNoFilesLimit 2097152
         SecRequestBodyLimitAction ProcessPartial
@@ -455,6 +461,7 @@ cf-ingest-web-api:
       'nginx.ingress.kubernetes.io/client-body-buffer-size': '2M'
       'nginx.ingress.kubernetes.io/proxy-body-size': '2M'
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecRequestBodyLimit 2097152
         SecRequestBodyNoFilesLimit 2097152
         SecRequestBodyLimitAction ProcessPartial
@@ -493,6 +500,7 @@ cf-health-web-api:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
     hosts:
@@ -562,6 +570,7 @@ cf-assets-v2-telemetry-tracking-svc-docker:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
     hosts:
@@ -699,6 +708,7 @@ cf-ecy-ingest-svc-docker:
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
       'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
         SecRequestBodyLimit 2097152
         SecRequestBodyNoFilesLimit 2097152
         SecRequestBodyLimitAction ProcessPartial
