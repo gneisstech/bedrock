@@ -70,6 +70,6 @@ dependencies:
   version: 1.0.3-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.2.10-dev
-digest: sha256:46e7f09407d3e34a708b3bb9c47c824a55a3ed5159b9040ff413f1461c4b8cd5
-generated: "2020-07-27T04:57:29.375404472Z"
+  version: 0.2.11-dev
+digest: sha256:5726b6b8f9fbd1a37eb609bf182066fea227b459badbcbbf5c5fea96c4e715f9
+generated: "2020-07-27T05:37:20.115736358Z"
