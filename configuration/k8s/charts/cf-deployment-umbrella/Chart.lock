@@ -10,31 +10,31 @@ dependencies:
   version: 1.0.13-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.15-dev
+  version: 1.4.18-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.15-dev
+  version: 1.4.18-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.9-dev
+  version: 1.2.10-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.46-dev
+  version: 2.0.48-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.24-dev
+  version: 1.0.25-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.24-dev
+  version: 1.0.25-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.1-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.3-dev
+  version: 1.1.6-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.3-dev
+  version: 1.1.6-dev
 - name: nginx-ingress
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 1.40.1
@@ -52,7 +52,7 @@ dependencies:
   version: 1.0.0-dev
 - name: cf-smoketest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.8-dev
+  version: 1.2.0-dev
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.1.1-dev
@@ -70,6 +70,6 @@ dependencies:
   version: 1.0.3-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.5-dev
-digest: sha256:654affaa3c40ede13de5a18d646978b1b9367c9ad1dd6e1132ea1be60548bf09
-generated: "2020-07-21T18:15:23.174189261Z"
+  version: 0.2.11-dev
+digest: sha256:5726b6b8f9fbd1a37eb609bf182066fea227b459badbcbbf5c5fea96c4e715f9
+generated: "2020-07-27T17:33:16.471632931Z"
