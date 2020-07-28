@@ -61,7 +61,7 @@ dependencies:
   version: 0.3.40-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.2.7-dev
+  version: 0.2.8-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.5-dev
@@ -71,5 +71,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.2.16-dev
-digest: sha256:c995210c7947108f414e9d547da6c66090a26f3d2059b65a42d0018a0668e144
-generated: "2020-07-28T15:17:17.948457604Z"
+digest: sha256:58174b663d4f22855ec1b83b2d58bde35a39d2420e35e6250911353fcc0719e2
+generated: "2020-07-28T15:22:49.980299489Z"
