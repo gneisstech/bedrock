@@ -1,0 +1,65 @@
+@startuml
+title RFC - Connected Facilities AuthZ as of 20200722
+
+hide circle
+hide empty members
+
+Note top of CfMicroService : \n\
+  1) Services shall only use Grant assertions and internally generated\n\
+   [Paths & Actions] to query the AuthZ service\n\n\
+  2) Services may persist other properly signed AuthN claims and\n\
+  services shall not use those claims to implement functional logic\n\n\
+  3) AuthZ Failures shall wait a random interval\n\
+   before reporting failure to avoid information leakage side-channel timing attacks
+CfMicroService ||..> CfAuthZ : \n\
+  a) Register [Paths, Actions, Roles, Grants]\n\
+  b) Query [Paths, Actions, Roles, Grants]\n\
+   using AuthZPublicKeySet;\n
+
+CfMicroService ||--o{ Paths : FK
+CfMicroService ||--o{ Actions : FK
+CfMicroService ||--o{ MicroServicesCustomActions : FK
+
+Note top of CfAuthZ : \n\
+  1) needs API for Services to register/query\n\
+  [CRUD for: Paths, Actions, Roles, Grants]\n\n\
+  2) needs API/UI to associate [AuthNGroup, AuthNIdentity] with Roles\n\n\
+  3) needs API/UI to associate Roles with Grants
+
+CfAuthZ ||--o{ Roles
+CfAuthZ ||--o{ Actions
+CfAuthZ ||--o{ Paths
+CfAuthZ ||--|{ AuthZPublicKeys
+CfAuthZ ||--|| AuditorService
+
+AuthNGroup }o--|| Roles : FK
+AuthNIdentity }o--|| Roles : FK
+
+Actions ||--|| Create
+Actions ||--|| Read
+Actions ||--|| Update
+Actions ||--|| Delete
+Actions ||--o{ MicroServicesCustomActions
+
+Note top of MicroServicesCustomActions : \n\
+1) Provide API to allow MicroServices full CRUD access to CustomAction\n\
+2) Need to maintain relation between each MicroService\n\
+    using a CustomAction and that CustomAction\n\
+3) MicroService shall not be able to modify CustomAction\n\
+    created by a different MicroService (scope)
+
+Note top of Paths : \n\
+1) Provide API to allow MicroServices full CRUD access to Paths\n\
+2) Need to maintain relation between each MicroService\n\
+    using a Path and that Path\n\
+3) MicroService shall not be able to modify Path\n\
+    created by a different MicroService (scope)\n\
+4) Paths shall be in the form of a hierarchical taxonomy
+
+CfAuthZ ||--o{ Grants
+Roles ||--o{ Grants
+Grants ||--|| Paths
+Grants ||--|| Actions
+
+@enduml
+
