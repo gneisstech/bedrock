@@ -67,9 +67,9 @@ dependencies:
   version: 0.0.4-dev
 - name: cf-city-state-zip-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.3-dev
+  version: 1.0.4-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.2.16-dev
-digest: sha256:b3168cdce77dcbfe7ab56936642fdf6fbe254d23e2526e8827b3a0a7398899ba
-generated: "2020-07-28T06:37:23.068785276Z"
+digest: sha256:b798601b85b1323e13a8faeb5fb8102a1841c4e1511c0cdb1555ba9f739f3137
+generated: "2020-07-28T15:12:04.60649167Z"
