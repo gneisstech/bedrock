@@ -17,6 +17,7 @@ target:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '6d566d2d-acfa-4fb0-a56b-c48ccc07cc53'  # Acuity Brands Atrius US UI
       passage_api_application_id: &passageApiApplicationID 'd9253624-7e87-426c-8132-75858e1dcf0b'  # Acuity Brands Atrius US Passage API
+      passage_api_environment: &passageApiEnvironment "ASP_PROD_US"
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
     atriusObjectsDatabases:
       - db_host_name: &cfObjectsDbHostName_001 'pltdata01sqls5vysxyq75v'
@@ -1361,6 +1362,37 @@ target:
         cf-ecy-ingest-svc-docker:
           enabled: true
           replicaCount: 3
+          config:
+            environment:
+              ATRIUS_OBJECTS_HOST: *wafFqdn
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              HARVEST_STRATEGY: 'SAFE'  # "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
+              HEALTH_API_HOST: *wafFqdn
+              HEALTH_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              HEALTH_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              HEALTH_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              INGEST_API_HOST: *wafFqdn
+              INGEST_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              INGEST_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              INGEST_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              JWT_ISSUERS: *trustedIdProviders
+              PASSAGE_API_ENV: *passageApiEnvironment
+              PASSAGE_API_HOST: *passageHost
+              PASSAGE_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              PASSAGE_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              PASSAGE_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+            secrets:
+              ATRIUS_OBJECTS_JWT_AUTH_TOKEN: ''
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              HEALTH_API_JWT_AUTH_TOKEN: ''
+              HEALTH_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              INGEST_API_JWT_AUTH_TOKEN: ''
+              INGEST_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              PASSAGE_API_JWT_AUTH_TOKEN: ''
+              PASSAGE_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-oauth-proxy-docker:
           replicaCount: 3
           config:
