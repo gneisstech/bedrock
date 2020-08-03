@@ -1,7 +1,7 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.6-dev
+  version: 1.2.7-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.0-dev
@@ -71,5 +71,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.12-dev
-digest: sha256:6c104dda2d371a04fda65768e2a5f2a529725c11430288582947346d9b20ebb7
-generated: "2020-08-03T17:32:49.806556701Z"
+digest: sha256:451ec88593885f404adfc5713cbeabc47cf7a02d597c726f32d912c54ad869c3
+generated: "2020-08-03T17:45:52.779644212Z"
