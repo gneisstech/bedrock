@@ -450,7 +450,12 @@ cf-ingest-web-api:
     environment:
       <<: *railsEnv
       CF_AUTHZ_API_URL: *authzApiUrl
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
+      CF_OBJECTS_API_URL: *objectsApiUrl
     secrets:
+      CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
       DATABASE_URL: *dbUrlNetworkView
       SECRET_KEY_BASE: *secretKeyBaseNetworkView
 
