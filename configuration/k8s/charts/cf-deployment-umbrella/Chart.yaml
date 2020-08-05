@@ -231,6 +231,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: 'cf-audit-log-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-audit-log-svc-docker.enabled'
+    tags:
+      - 'cf-audit-log-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.

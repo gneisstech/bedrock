@@ -711,6 +711,38 @@ cf-ecy-ingest-svc-docker:
       JWT_AUTH_TOKEN: ''
       SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
 
+cf-audit-log-svc-docker:
+  fullnameOverride: 'cf-audit-log-svc-docker'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-audit-log/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyLimit 2097152
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
+    hosts:
+      - paths:
+          - '/cf-audit-log(/|$)(.*)'
+  config:
+    # placeholder values should allow the service to install and minimally respond
+    environment:
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: 'fixme-umbrella-values'
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: 'fixme'
+    secrets:
+      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING: 'fixme-umbrella-values'
+
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
   enabled: true
