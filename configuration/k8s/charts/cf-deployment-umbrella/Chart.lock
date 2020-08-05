@@ -16,7 +16,7 @@ dependencies:
   version: 1.4.21-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.11-dev
+  version: 1.2.12-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 2.0.51-dev
@@ -71,5 +71,5 @@ dependencies:
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.12-dev
-digest: sha256:62cbec62b54bf5bfa9c80485614c7b5603ab7e9d0f96025db1f9cba8e789ea1b
-generated: "2020-08-05T00:03:29.929501704Z"
+digest: sha256:b072c8d7c80b502d055308b39de38af197c159d4771818013f7e6996dae48ca1
+generated: "2020-08-05T00:15:39.849162397Z"
