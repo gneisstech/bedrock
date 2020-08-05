@@ -1,0 +1,86 @@
+@startuml
+title "RFC (Charlton) - Straw Man - Green Field Architecture - ABL - 202020731"
+
+Entity Sensors
+Entity Settings
+Entity LightingDriver
+Entity LightingNetworkNode
+
+Entity WiredNetwork
+Entity MeshNetwork
+Entity RelayNode
+
+Entity RadioReceiver
+Entity FogGateway #white
+
+Entity CloudNetwork
+Entity CloudQueues
+Entity CloudRawTimeSeriesPersistence
+
+Note top of Sensors : >100 million\nPhysical_ID\nLogical_ID\nUnitOfMeasure\nSampleInterval
+Note top of LightingDriver : ">10 million physical instances\n>500 types"
+Note top of LightingDriver : "Crawl: ~3 million Physical Instances\nWalk 10 million\nRun >15 million"
+Note top of LightingNetworkNode : ">10 million"
+Note top of FogGateway : ">10,000\nRun, Walk:Kubernetes\nCrawl: ECY"
+Note top of FogGateway : "Time Series (Deduplication; Filtering; Compression)"
+Note top of FogGateway : "Deliver Settings and Profiles\nDeliver Firmware updates"
+Note top of FogGateway : "Run FogModels"
+
+FogGateway ||--o{ TimeSeriesFilterSettings
+FogModels ||--o{ FogGateway
+
+Sensors }o--|| LightingDriver
+LightingDriver }o--|| LightingNetworkNode
+Sensors }o--|| LightingNetworkNode
+LightingDriver ||--|{ LightingDriverSettings : Profiles
+
+LightingNetworkNode }o--|| MeshNetwork
+LightingNetworkNode }o--|| WiredNetwork
+MeshNetwork }o--o{ RelayNode
+RelayNode }o--|| RadioReceiver
+LightingNetworkNode }o--|| RadioReceiver
+
+RadioReceiver }o--|| FogGateway
+WiredNetwork }o--|| FogGateway
+
+FogGateway }|--||CloudNetwork
+
+CloudNetwork ||--|{ CloudQueues
+CloudQueues ||--|| CloudRawTimeSeriesPersistence
+CloudQueues ||--o{ MachineLearning
+MachineLearning ||--o{ BusinessInsights : Hypothesis, Models
+MachineLearning ||--o{ Models
+MachineLearning ||--o{ FogModels
+MachineLearning ||--o{ CloudModels
+CloudModels ||--o{ MachineLearning
+CloudModels ||--o{ Visualization
+Visualization ||--o{ Human
+Human ||--o{ OKR
+Human ||--o{ KPI
+Human ||--o{ Hypothesis
+Human ||--o{ Insight
+CloudRawTimeSeriesPersistence ||--o{ MachineLearning
+CloudDigitalTwin ||--o{ Settings
+
+ThirdPartyBMS ||--o{ FogGateway
+CloudQueues ||--o{ CloudServices
+CloudServices ||--o{ LifeSafety
+CloudServices ||--o{ Inventory
+CloudServices ||--o{ CloudDigitalTwin
+CloudServices ||--o{ Maps
+CloudServices ||--o{ Provisioning
+CloudServices ||--o{ ChangeManagement
+CloudServices ||--o{ Auditing
+CloudServices ||--o{ PositionTracking
+
+BLE_Beacon }|--|{ LightingNetworkNode
+MobileDeviceSdk }|--|{ LightingNetworkNode
+MobileDeviceSdk }|--|{ CloudQueues
+LightingDriver ||--|| Lighting
+Lighting ||--o{ MobileDeviceSdk
+
+Note top of BLE_Beacon : ">100 million"
+Note top of MobileDeviceSdk : ">100 million"
+Note top of PositionTracking : "Contextual Indoor PositionData\nRun: less than 50ms latency from BLE_Beacon/MobileDeviceSdk\nWalk: 1 second latency from BLE_Beacon/MobileDeviceSdk\nCrawl: >5 second latency from BLE_Beacon/MobileDeviceSdk"
+
+@enduml
