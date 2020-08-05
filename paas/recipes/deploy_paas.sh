@@ -191,6 +191,17 @@ function deploy_azure_file_shares () {
     done
 }
 
+function az_blob_stores () {
+    paas_configuration | jq -r -e '[.storage.blob_store[]? | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_azure_blob_stores () {
+    local blob_store_name
+    for blob_store_name in $(az_blob_stores); do
+        invoke_layer 'paas' 'create_azure_blob_store_if_needed' "${blob_store_name}"
+    done
+}
+
 function kubernetes_cluster_names () {
     paas_configuration | jq -r -e '[.k8s.clusters[]? | select(.action == "create") | .name ] | @tsv'
 }
@@ -208,6 +219,7 @@ function deploy_paas () {
     deploy_databases
     deploy_storage_accounts
     deploy_azure_file_shares
+    deploy_azure_blob_stores
     seed_secrets
     deploy_server_farms
     deploy_container_registries
