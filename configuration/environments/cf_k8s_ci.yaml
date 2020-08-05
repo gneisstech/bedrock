@@ -1097,7 +1097,16 @@ target:
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
+              CF_OBJECTS_API_URL: *objectsApiUrl
+              ELM_API_URL:
+                - 'https://'
+                - *wafFqdn
+                - *urlPrefixElm
+              SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
             secrets:
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
               DATABASE_URL: *dbUrlNetworkView
               SECRET_KEY_BASE: *secretKeyBaseNetworkView
         cf-health-web-api: *configNetworkView

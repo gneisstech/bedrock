@@ -55,6 +55,8 @@ target:
         action: 'create'
       - name: &cfAtDlRG 'AssetTag-Dl-##appenv##'
         action: 'create'
+      - name: &cfAuditLogEhRG 'AuditLog-Eh-##appenv##'
+        action: 'create'
     networking:
       public_ip:
         - name: &wafIP '##app-env##-waf-k8s-pip'
@@ -306,11 +308,27 @@ target:
           tags: *labels
           arm_type: 'Microsoft.Storage/storageAccounts'
           action: 'create'
+        - name: &auditsa001name '##appenv##auditsa001abl'
+          resource_group: *cfAuditLogEhRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_GRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
         - name: &certbotState 'certbot-state'
           quota: '10'
           storage_account_name: *sa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+      # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+      blob_store:
+        - name: &auditLogBlobContainerName 'audit-log-history'
+          storage_account_name: *auditsa001name
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
@@ -488,6 +506,61 @@ target:
                     vault: *kvName
                     secret_name_001: &cf_asset_tag_eh_producer_key_001 '##app-env##-asset-tag-eventhub-producer-key-001'
                     secret_name_002: &cf_asset_tag_eh_producer_key_002 '##app-env##-asset-tag-eventhub-producer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
+        - name: &cfAuditEhNamespace '##app-env##-audit-log-eh-namespace'
+          <<: *eh_namespace_template
+          resource_group: *cfAuditLogEhRG
+          capacity: '1'
+          auto_inflate: 'true'
+          enable_kafka: 'true'
+          location: *defaultAzureLocation
+          maximum_throughput_units: '20'
+          sku: 'Standard'
+          tags: *labels
+          network_rules_default_action: 'Allow'
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.EventHub/Namespaces'
+          action: 'create'
+          topics:
+            - name: &cfAuditEhTopic '##app-env##-audit-log-eh-topic'
+              namespace: *cfAuditEhNamespace
+              resource_group: *cfAuditLogEhRG
+              enable_capture: 'true'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: *auditLogBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *auditsa001name  # name or ARM resource id
+              consumer_groups:
+                - name: &audit_log_eh_assets_consumer_group '##app-env##-audit-log-eventhub-audit-logs-cg'
+                  topic_name: *cfAuditEhTopic
+                  namespace: *cfAuditEhNamespace
+                  resource_group: *cfAuditLogEhRG
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag consumers'
+              authorization_rules:
+                - name: &cf_audit_log_eh_producer_rule '##app-env##-audit-log-eventhub-producer'
+                  topic_name: *cfAuditEhTopic
+                  namespace: *cfAuditEhNamespace
+                  resource_group: *cfAuditLogEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_audit_log_eh_producer_key_001 '##app-env##-audit-log-eventhub-producer-key-001'
+                    secret_name_002: &cf_audit_log_eh_producer_key_002 '##app-env##-audit-log-eventhub-producer-key-002'
               authorized_managed_identities:
                 - id: 'fixme-authorized-managed-identity-001'
                   roles:
@@ -1091,7 +1164,16 @@ target:
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
+              CF_OBJECTS_API_URL: *objectsApiUrl
+              ELM_API_URL:
+                - 'https://'
+                - *wafFqdn
+                - *urlPrefixElm
+              SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
             secrets:
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
               DATABASE_URL: *dbUrlNetworkView
               SECRET_KEY_BASE: *secretKeyBaseNetworkView
         cf-health-web-api: *configNetworkView

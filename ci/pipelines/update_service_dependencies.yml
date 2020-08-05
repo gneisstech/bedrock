@@ -125,6 +125,12 @@ resources:
         branches:
           include:
             - 'master-bytelight'
+    - pipeline: 'cf-audit-log-svc-docker'
+      source: 'cf_audit_log'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
 
 pool:
   vmImage: 'ubuntu-latest'
