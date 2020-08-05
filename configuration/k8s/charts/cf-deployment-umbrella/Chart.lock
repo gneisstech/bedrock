@@ -1,7 +1,7 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.9-dev
+  version: 1.2.10-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.0-dev
@@ -22,10 +22,10 @@ dependencies:
   version: 2.0.51-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.31-dev
+  version: 1.0.32-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.31-dev
+  version: 1.0.32-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.1-dev
@@ -74,5 +74,5 @@ dependencies:
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:9a134c40a6adcc178a521dd1a90fbdb46372af1ef45d6da579551b4254fc99f1
-generated: "2020-08-05T16:44:43.863471097Z"
+digest: sha256:7a465532659facc05e6f039439c55c0b25718eaf1e4b84884a702c5c2f2d1fef
+generated: "2020-08-05T17:36:10.11034227Z"
