@@ -254,22 +254,22 @@ target:
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
         - name: &assetsInventorySchema '##app-env##-cf-assets-inventory-db'
-            <<: *dbTemplate
-            arm_type: 'Microsoft.Sql/servers/databases'
-            resource_group: *cfDbRG
-            server: *cfDefaultDbServer
-            license_type: 'LicenseIncluded'
-            max_size: '250GB'
-            auto_pause_delay: -1
-            zone_redundant: false
-            catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
-            collation: 'SQL_Latin1_General_CP1_CI_AS'
-            capacity: 2
-            min_capacity: 0.5
-            tier: 'GeneralPurpose'
-            family: 'Gen5'
-            service_objective: 'GP_S_Gen5'
-            action: 'preserve'
+          <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          auto_pause_delay: -1
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          min_capacity: 0.5
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
         - name: &adminSchema '##app-env##-admin-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
