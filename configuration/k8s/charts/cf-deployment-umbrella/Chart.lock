@@ -68,11 +68,14 @@ dependencies:
 - name: cf-city-state-zip-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.5-dev
+- name: cf-assets-inventory-api-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.2-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.13-dev
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.4-dev
-digest: sha256:bf4df10ba9ceb9381fc8318ae080a43f369a2ce0d6f5e6cb570d4ef96d9c63c7
-generated: "2020-08-06T19:03:54.0982595Z"
+digest: sha256:97cce2f35616d29de8fdf86bc5c89f2ad4960886c8db6061b87d4e40d9a79773
+generated: "2020-08-06T19:25:58.733998805Z"
