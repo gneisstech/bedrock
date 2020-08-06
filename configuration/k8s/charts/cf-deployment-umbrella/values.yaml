@@ -68,6 +68,7 @@ default_values:
       atrius: &dbUrlAtrius 'sqlserver://sa:too2Simple@cf-mssql-atrius:1433/allspice-mapmanager01db?encrypt=disable'
       authz: &dbUrlAuthZ 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-authz-db?azure='
       elm: &dbUrlElm 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-elm-db?azure='
+      assets_inventory: &dbUrlAssetsInventory 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-assets-inventory-db?azure='
       network_view: &dbUrlNetworkView 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-network-view-db?azure='
       self_healing: &dbUrlSelfHealing "\
         DRIVER={FreeTDS};\
@@ -81,6 +82,7 @@ default_values:
     authz: &secretKeyBaseAuthZ 'fixme-secret2'
     elm: &secretKeyBaseElm 'fixme-secret3'
     network_view: &secretKeyBaseNetworkView 'fixme-secret4'
+    assets_inventory: &secretKeyBaseAssetsInventory 'fixme-secret5'
   authz:
     api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
   elm:
@@ -676,6 +678,43 @@ cf-city-state-zip-svc-docker:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
+
+cf-assets-inventory-api-docker:
+  fullnameOverride: 'cf-assets-inventory-api-docker'
+  enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-assets-inventory/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecRequestBodyLimit 2097152
+        SecRequestBodyNoFilesLimit 2097152
+        SecRequestBodyLimitAction ProcessPartial
+    hosts:
+      - paths:
+          - '/cf-assets-inventory(/|$)(.*)'
+  config:
+    environment:
+      <<: *railsEnv
+      CF_AUTHZ_API_URL: *authzApiUrl
+    secrets:
+      DATABASE_URL: *dbUrlAssetsInventory
+      SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
 
 cf-ecy-ingest-svc-docker:
   fullnameOverride: 'cf-ecy-ingest-svc-docker'

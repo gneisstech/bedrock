@@ -1344,6 +1344,9 @@ target:
         cf-city-state-zip-svc-docker:
           enabled: true
           replicaCount: 3
+        cf-assets-inventory-api-docker:
+          enabled: false
+          replicaCount: 3
         cf-ecy-ingest-svc-docker:
           enabled: true
           replicaCount: 3
