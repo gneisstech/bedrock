@@ -253,6 +253,23 @@ target:
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
+        - name: &assetsInventorySchema '##app-env##-cf-assets-inventory-db'
+          <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          auto_pause_delay: -1
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
+          min_capacity: 0.5
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
         - name: &adminSchema '##app-env##-admin-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
@@ -683,6 +700,7 @@ target:
             - &secretKeyBaseAdminSecretName '##app-env##-admin-api-secret-key-base'
             - &secretKeyBaseAuthZSecretName '##app-env##-authz-api-secret-key-base'
             - &secretKeyBaseElmSecretName '##app-env##-elm-api-secret-key-base'
+            - &secretKeyBaseAssetsInventorySecretName '##app-env##-cf-assets-inventory-api-secret-key-base'
             - &secretKeyBaseNetworkViewSecretName '##app-env##-network-view-api-secret-key-base'
             - &selfHealingApiKeyName '##app-env##-self-healing-api-key'
             - &oauth2ProxyClientSecretName '##app-env##-oauth2-proxy-client-secret'
@@ -715,6 +733,13 @@ target:
               - *kvName
               - '","secret_name":"'
               - *secretKeyBaseElmSecretName
+              - '"}'
+              - '##'
+            assets_inventory: &secretKeyBaseAssetsInventory
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *secretKeyBaseAssetsInventorySecretName
               - '"}'
               - '##'
             network_view: &secretKeyBaseNetworkView
@@ -899,6 +924,18 @@ target:
               - 1433
               - '/'
               - *elmSchema
+            assets_inventory: &dbUrlAssetsInventory
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *assetsInventorySchema
             network_view: &dbUrlNetworkView
               - 'sqlserver://'
               - *cfDefaultDBAdminName
@@ -1304,6 +1341,26 @@ target:
           enabled: true
         cf-city-state-zip-svc-docker:
           enabled: true
+        cf-assets-inventory-api-docker:
+          enabled: true
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
+            environment:
+              <<: *railsEnv
+              AZURE_DB: 'true'
+              CF_AUTHZ_API_URL: *authzApiUrl
+              RAILS_ENV: 'production'
+              RAILS_LOG_TO_STDOUT: 'true'
+            secrets:
+              DATABASE_URL: *dbUrlAssetsInventory
+              SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
         cf-ecy-ingest-svc-docker:
           enabled: true
         cf-oauth-proxy-docker:
