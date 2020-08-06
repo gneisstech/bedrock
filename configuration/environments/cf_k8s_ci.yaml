@@ -253,7 +253,7 @@ target:
           family: 'Gen5'
           service_objective: 'GP_S_Gen5'
           action: 'preserve'
-        - name: &assetsInventorySchema '##app-env##-cf-assets-inventory-db'
+        - name: &assetsInventorySchema '##app-env##-assets-inventory-db'
           <<: *dbTemplate
           arm_type: 'Microsoft.Sql/servers/databases'
           resource_group: *cfDbRG
@@ -700,7 +700,7 @@ target:
             - &secretKeyBaseAdminSecretName '##app-env##-admin-api-secret-key-base'
             - &secretKeyBaseAuthZSecretName '##app-env##-authz-api-secret-key-base'
             - &secretKeyBaseElmSecretName '##app-env##-elm-api-secret-key-base'
-            - &secretKeyBaseAssetsInventorySecretName '##app-env##-cf-assets-inventory-api-secret-key-base'
+            - &secretKeyBaseAssetsInventorySecretName '##app-env##-assets-inventory-api-secret-key-base'
             - &secretKeyBaseNetworkViewSecretName '##app-env##-network-view-api-secret-key-base'
             - &selfHealingApiKeyName '##app-env##-self-healing-api-key'
             - &oauth2ProxyClientSecretName '##app-env##-oauth2-proxy-client-secret'
