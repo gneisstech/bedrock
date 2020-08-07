@@ -113,6 +113,12 @@ resources:
         branches:
           include:
             - 'master-bytelight'
+    - pipeline: 'cf-assets-inventory-api-docker'
+      source: 'cf_assets_inventory'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
     - pipeline: 'cf-coordinate-transforms-svc-docker'
       source: 'cf_coordinate_transforms'
       trigger:
