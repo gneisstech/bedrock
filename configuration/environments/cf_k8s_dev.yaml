@@ -162,7 +162,7 @@ target:
           admin_password_kv:
             vault: *kvName
             resource_group: *cfKeysRG
-            secret_name: &cfDefaultDBSecretName '##app-env##-sqls-admin-pw:'
+            secret_name: &cfDefaultDBSecretName '##app-env##-sqls-admin-pw'
           default_firewall_rule:
             name: 'AllowAllWindowsAzureIps'
             arm_type: 'Microsoft.Sql/servers/firewallRules'
