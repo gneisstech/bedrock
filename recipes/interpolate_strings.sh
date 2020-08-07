@@ -96,6 +96,7 @@ function process_secure_secret () {
         secret="$(get_vault_secret "${vault}" "${secret_name}")"
     fi
     if [[ -z "${secret}" ]]; then
+        printf 'ERROR: blank secret: %s %s %s %s\n' "$theMessage" "$vault" "$secret_name" "$secret" > /dev/stderr
         secret="FAKE_SECRET"
     fi
     printf '%s' "${secret}" | sed -e 's|\\|\\\\|g' -e 's|"|\\"|g'
