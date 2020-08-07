@@ -1461,6 +1461,31 @@ target:
               INGEST_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
               PASSAGE_API_JWT_AUTH_TOKEN: ''
               PASSAGE_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+        cf-audit-log-svc-docker:
+          enabled: true
+          config:
+            environment:
+              APP_VERSION: '{{ .Chart.AppVersion }}'
+              AUDIT_WRITER_EH_HOST_PORT:
+                - *cfAuditEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              AUDIT_WRITER_EH_PUBLISHING_NAME:
+                - *cfAuditEhTopic
+            secrets:
+              AUDIT_WRITER_EH_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAuditLogEhRG
+                - '","namespace_name":"'
+                - *cfAuditEhNamespace
+                - '","eventhub_name":"'
+                - *cfAuditEhTopic
+                - '","policy_name":"'
+                - *cf_audit_log_eh_producer_rule
+                - '"}'
+                - '##'
         cf-oauth-proxy-docker:
           config:
             environment:

@@ -777,10 +777,10 @@ cf-audit-log-svc-docker:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: 'fixme-umbrella-values'
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: 'fixme'
+      AUDIT_WRITER_EH_HOST_PORT: 'fixme-umbrella-values'
+      AUDIT_WRITER_EH_PUBLISHING_NAME: 'fixme'
     secrets:
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING: 'fixme-umbrella-values'
+      AUDIT_WRITER_EH_CONNECTION_STRING: 'fixme-umbrella-values'
 
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
