@@ -675,38 +675,6 @@ target:
             - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
             - '='
             - 'https://graph.windows.net'
-          issuers_go: &trustedIdProvidersGo
-            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
-            - '='
-            - *passageApiApplicationID
-            - ','
-            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
-            - '='
-            - 'https://management.core.windows.net/'
-            - ','
-            - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
-            - '='
-            - 'https://management.core.windows.net/'
-            - ','
-            - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
-            - '='
-            - 'https://management.core.windows.net/'
-            - ','
-            - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
-            - '='
-            - 'd9253624-7e87-426c-8132-75858e1dcf0b'
-            - ','
-            - 'sts.windows.net/caadbe96-024e-4f67-82ec-fb28ff53d16d/'
-            - '='
-            - 'https://graph.windows.net'
-            - ','
-            - 'sts.windows.net/db566806-bf04-4296-98cc-ba6d2d950788/'
-            - '='
-            - 'https://graph.windows.net'
-            - ','
-            - 'sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
-            - '='
-            - 'https://graph.windows.net'
         secrets:
           names:
             - &atriusObjectsApiKeySecretName '##app-env##-atrius-objects-api-key'
@@ -1134,7 +1102,16 @@ target:
               RAILS_ENV: 'production'
               RAILS_LOG_TO_STDOUT: 'true'
               CF_AUTHZ_API_URL: *authzApiUrl
+              CF_OBJECTS_API_URL: *objectsApiUrl
+              ELM_API_URL:
+                - 'https://'
+                - *wafFqdn
+                - *urlPrefixElm
+              SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              SERVICE_PRINCIPAL_RESOURCE: *passageApiApplicationID
             secrets:
+              CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
               DATABASE_URL: *dbUrlNetworkView
               SECRET_KEY_BASE: *secretKeyBaseNetworkView
         cf-health-web-api: *configNetworkView
@@ -1335,6 +1312,9 @@ target:
         cf-city-state-zip-svc-docker:
           enabled: true
           replicaCount: 3
+        cf-assets-inventory-api-docker:
+          enabled: false
+          replicaCount: 3
         cf-ecy-ingest-svc-docker:
           enabled: true
           replicaCount: 3
@@ -1345,7 +1325,7 @@ target:
               ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
               ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
-              HARVEST_STRATEGY: 'PARALLEL_ATTRIBUTES'  # "SAFE", "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
+              HARVEST_STRATEGY: 'NOOP'  # "NOOP", "SAFE", "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
               HEALTH_API_HOST: *wafFqdn
               HEALTH_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
               HEALTH_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant

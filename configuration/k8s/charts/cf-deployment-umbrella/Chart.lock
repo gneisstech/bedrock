@@ -1,7 +1,7 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.5-dev
+  version: 1.2.14-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.0-dev
@@ -10,22 +10,22 @@ dependencies:
   version: 1.0.13-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.19-dev
+  version: 1.4.21-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.19-dev
+  version: 1.4.21-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.11-dev
+  version: 1.2.12-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.49-dev
+  version: 2.0.53-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.25-dev
+  version: 1.0.32-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.25-dev
+  version: 1.0.32-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.1-dev
@@ -58,18 +58,24 @@ dependencies:
   version: 1.1.1-dev
 - name: cf-assets-v2-telemetry-tracking-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.40-dev
+  version: 0.3.42-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.2.8-dev
+  version: 0.2.10-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.5-dev
+  version: 0.0.6-dev
 - name: cf-city-state-zip-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.4-dev
+  version: 1.0.5-dev
+- name: cf-assets-inventory-api-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.2-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.5-dev
-digest: sha256:def9b0891e2fb004d6e34fe877696edf6d4d03070c481814cf5628d36003bb9f
-generated: "2020-07-29T20:58:05.923139829Z"
+  version: 1.0.13-dev
+- name: cf-audit-log-svc-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.4-dev
+digest: sha256:ab5bcbc15eb3231e0c167f718b659ce44b76b21ff1ebf27ef7ee4c38f9995e52
+generated: "2020-08-07T01:08:48.260318748Z"
