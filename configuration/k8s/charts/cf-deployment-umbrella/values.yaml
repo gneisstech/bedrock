@@ -572,7 +572,7 @@ cf-assets-v2-telemetry-tracking-svc-docker:
       ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
-      TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT: ''
+      TELEMETRY_EH_CG_ASSETS_V2_TRACKING_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME: ''
       TELEMETRY_EH_CG_ASSETS_V2_TRACKING_TOPIC: ''
     secrets:
