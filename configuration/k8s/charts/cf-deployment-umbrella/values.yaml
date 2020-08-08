@@ -776,7 +776,7 @@ cf-audit-log-svc-docker:
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
       AUDIT_WRITER_EH_HOST_PORT: 'fixme-umbrella-values'
-      AUDIT_WRITER_EH_PUBLISHING_NAME: 'fixme'
+      AUDIT_WRITER_EH_TOPIC_NAME: 'fixme'
     secrets:
       AUDIT_WRITER_EH_CONNECTION_STRING: 'fixme-umbrella-values'
 

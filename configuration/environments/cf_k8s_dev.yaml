@@ -1469,7 +1469,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              AUDIT_WRITER_EH_PUBLISHING_NAME:
+              AUDIT_WRITER_EH_TOPIC_NAME:
                 - *cfAuditEhTopic
             secrets:
               AUDIT_WRITER_EH_CONNECTION_STRING:
