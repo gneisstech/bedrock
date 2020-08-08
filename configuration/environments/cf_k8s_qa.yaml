@@ -1214,7 +1214,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME:
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_TOPIC_NAME:
                 - *cfAtEhTopic
             secrets:
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
