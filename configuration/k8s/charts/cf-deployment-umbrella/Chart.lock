@@ -19,7 +19,7 @@ dependencies:
   version: 1.2.12-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.54-dev
+  version: 2.0.55-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.32-dev
@@ -77,5 +77,5 @@ dependencies:
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.6-dev
-digest: sha256:1556c6cd93c815a13dcd8419b575a261a2aec28dd40b747659949f8f73dad34f
-generated: "2020-08-08T20:39:44.382308847Z"
+digest: sha256:334db7664fd64739232c49d0e8ff6ed718acde9a372d8cf968b0b14416cab953
+generated: "2020-08-08T20:42:03.889713475Z"
