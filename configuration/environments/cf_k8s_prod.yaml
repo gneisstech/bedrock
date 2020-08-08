@@ -1232,8 +1232,6 @@ target:
               ASSET_FORWARDING_PROCESSOR: 'info'
               ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
               ASSET_FORWARDING_REWIND_OFFSET: 'true'
-              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
-              JWT_ISSUERS: *trustedIdProviders
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
                 - *cfIotEhNamespace
                 - '.servicebus.windows.net'
