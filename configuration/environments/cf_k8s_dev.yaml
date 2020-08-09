@@ -490,7 +490,7 @@ target:
           arm_type: 'Microsoft.EventHub/Namespaces'
           action: 'create'
           topics:
-            - name: &cfAtEhTopic '##app-env##-asset-tag-eh-topic'
+            - name: &cfAtEhAssetPositionsTopic '##app-env##-asset-tag-eh-asset-positions-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
               enable_capture: 'false'
@@ -508,21 +508,101 @@ target:
                 destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
                 storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
               consumer_groups:
-                - name: &asset_tag_eh_assets_consumer_group '##app-env##-asset-tag-eventhub-asset-tags-cg'
-                  topic_name: *cfAtEhTopic
+                - name: &asset_tag_eh_asset_positions_consumer_group '##app-env##-asset-tag-eventhub-asset-positions-cg'
+                  topic_name: *cfAtEhAssetPositionsTopic
                   namespace: *cfAtEhNamespace
                   resource_group: *cfAtEhRG
-                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag consumers'
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag position consumers'
               authorization_rules:
-                - name: &cf_asset_tag_eh_producer_rule '##app-env##-asset-tag-eventhub-producer'
-                  topic_name: *cfAtEhTopic
+                - name: &cf_asset_tag_eh_asset_positions_producer_rule '##app-env##-asset-tag-eventhub-asset-positions-producer'
+                  topic_name: *cfAtEhAssetPositionsTopic
                   namespace: *cfAtEhNamespace
                   resource_group: *cfAtEhRG
                   rights: 'Send'
                   key_store:
                     vault: *kvName
-                    secret_name_001: &cf_asset_tag_eh_producer_key_001 '##app-env##-asset-tag-eventhub-producer-key-001'
-                    secret_name_002: &cf_asset_tag_eh_producer_key_002 '##app-env##-asset-tag-eventhub-producer-key-002'
+                    secret_name_001: &cf_asset_tag_eh_asset_positions_producer_key_001 '##app-env##-asset-tag-eventhub-asset-positions-producer-key-001'
+                    secret_name_002: &cf_asset_tag_eh_asset_positions_producer_key_002 '##app-env##-asset-tag-eventhub-asset-positions-producer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
+            - name: &cfAtEhAssetStatusTopic '##app-env##-asset-tag-eh-asset-status-topic'
+              namespace: *cfAtEhNamespace
+              resource_group: *cfAtEhRG
+              enable_capture: 'false'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
+                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
+                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+              consumer_groups:
+                - name: &asset_tag_eh_asset_status_consumer_group '##app-env##-asset-tag-eventhub-asset-status-cg'
+                  topic_name: *cfAtEhAssetStatusTopic
+                  namespace: *cfAtEhNamespace
+                  resource_group: *cfAtEhRG
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag status consumers'
+              authorization_rules:
+                - name: &cf_asset_tag_eh_asset_status_producer_rule '##app-env##-asset-tag-eventhub-asset-status-producer'
+                  topic_name: *cfAtEhAssetStatusTopic
+                  namespace: *cfAtEhNamespace
+                  resource_group: *cfAtEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_asset_tag_eh_asset_status_producer_key_001 '##app-env##-asset-tag-eventhub-asset-status-producer-key-001'
+                    secret_name_002: &cf_asset_tag_eh_asset_status_producer_key_002 '##app-env##-asset-tag-eventhub-asset-status-producer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
+            - name: &cfAtEhEdgarStatusTopic '##app-env##-asset-tag-eh-edgar-status-topic'
+              namespace: *cfAtEhNamespace
+              resource_group: *cfAtEhRG
+              enable_capture: 'false'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
+                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
+                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+              consumer_groups:
+                - name: &asset_tag_eh_edgar_status_consumer_group '##app-env##-asset-tag-eventhub-edgar-status-cg'
+                  topic_name: *cfAtEhEdgarStatusTopic
+                  namespace: *cfAtEhNamespace
+                  resource_group: *cfAtEhRG
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag status consumers'
+              authorization_rules:
+                - name: &cf_asset_tag_eh_edgar_status_producer_rule '##app-env##-asset-tag-eventhub-edgar-status-producer'
+                  topic_name: *cfAtEhEdgarStatusTopic
+                  namespace: *cfAtEhNamespace
+                  resource_group: *cfAtEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_asset_tag_eh_edgar_status_producer_key_001 '##app-env##-asset-tag-eventhub-edgar-status-producer-key-001'
+                    secret_name_002: &cf_asset_tag_eh_edgar_status_producer_key_002 '##app-env##-asset-tag-eventhub-edgar-status-producer-key-002'
               authorized_managed_identities:
                 - id: 'fixme-authorized-managed-identity-001'
                   roles:
@@ -1307,13 +1387,27 @@ target:
                 - *iot_eh_asset_tags_telemetry_forwarding_consumer_group
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC:
                 - *cfIotEhTopic
-              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT:
+              ASSET_POSITIONS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_TOPIC_NAME:
-                - *cfAtEhTopic
+              ASSET_POSITIONS_V1_PUBLISHING_TOPIC_NAME:
+                - *cfAtEhAssetPositionsTopic
+              ASSET_STATUS_V1_PUBLISHING_HOST_PORT:
+                - *cfAtEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              ASSET_STATUS_V1_PUBLISHING_TOPIC_NAME:
+                - *cfAtEhAssetStatusTopic
+              EDGAR_STATUS_V1_PUBLISHING_HOST_PORT:
+                - *cfAtEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              EDGAR_STATUS_V1_PUBLISHING_TOPIC_NAME:
+                - *cfAtEhEdgarStatusTopic
             secrets:
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
                 - '##eventhub_connection_string={'
@@ -1327,16 +1421,40 @@ target:
                 - *cf_iot_eh_consumer_rule
                 - '"}'
                 - '##'
-              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING:
+              ASSET_POSITIONS_V1_PUBLISHING_CONNECTION_STRING:
                 - '##eventhub_connection_string={'
                 - '"resource_group":"'
                 - *cfAtEhRG
                 - '","namespace_name":"'
                 - *cfAtEhNamespace
                 - '","eventhub_name":"'
-                - *cfAtEhTopic
+                - *cfAtEhAssetPositionsTopic
                 - '","policy_name":"'
-                - *cf_asset_tag_eh_producer_rule
+                - *cf_asset_tag_eh_asset_positions_producer_rule
+                - '"}'
+                - '##'
+              ASSET_STATUS_V1_PUBLISHING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAtEhRG
+                - '","namespace_name":"'
+                - *cfAtEhNamespace
+                - '","eventhub_name":"'
+                - *cfAtEhAssetStatusTopic
+                - '","policy_name":"'
+                - *cf_asset_tag_eh_asset_status_producer_rule
+                - '"}'
+                - '##'
+              EDGAR_STATUS_V1_PUBLISHING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAtEhRG
+                - '","namespace_name":"'
+                - *cfAtEhNamespace
+                - '","eventhub_name":"'
+                - *cfAtEhEdgarStatusTopic
+                - '","policy_name":"'
+                - *cf_asset_tag_eh_edgar_status_producer_rule
                 - '"}'
                 - '##'
         cf-tls-certificate-manager-svc-docker:
