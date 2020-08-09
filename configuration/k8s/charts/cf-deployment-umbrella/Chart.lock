@@ -76,6 +76,6 @@ dependencies:
   version: 1.0.13-dev
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.10-dev
-digest: sha256:39b6c3526d9d0a096da644e336249958416f689869204424c2fa9adb94e3fab0
-generated: "2020-08-09T14:29:55.055458791Z"
+  version: 0.0.11-dev
+digest: sha256:96f4ffe1570db8438900465511311c37b043cb8d3db8172f94d4f8f501b5cf2c
+generated: "2020-08-09T15:02:17.338292566Z"
