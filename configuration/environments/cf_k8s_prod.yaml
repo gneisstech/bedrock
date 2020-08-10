@@ -53,11 +53,7 @@ target:
         action: 'create'
       - name: &cfIotEhRG 'Iot-Eh-##appenv##'
         action: 'create'
-      - name: &cfIotDlRG 'Iot-Dl-##appenv##'
-        action: 'create'
       - name: &cfAtEhRG 'AssetTag-Eh-##appenv##'
-        action: 'create'
-      - name: &cfAtDlRG 'AssetTag-Dl-##appenv##'
         action: 'create'
       - name: &cfAuditLogEhRG 'AuditLog-Eh-##appenv##'
         action: 'create'
@@ -340,7 +336,7 @@ target:
           arm_type: 'Microsoft.Storage/storageAccounts'
           action: 'create'
         - name: &assetsa001name '##appenv##assetssa001abl'
-          resource_group: *cfAtDlRG
+          resource_group: *cfAtEhRG
           location: *defaultAzureLocation
           encryption_services: 'file'
           https_only: true
@@ -1218,6 +1214,7 @@ target:
           replicaCount: 3
         cf-atrius-objects-api-docker:
           replicaCount: 3
+          enabled: true
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1239,6 +1236,7 @@ target:
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
           replicaCount: 3
+          enabled: true
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1375,6 +1373,7 @@ target:
             protocol: 'TCP'
             portName: 'mssql'
         cf-smoketest-svc-docker:
+          replicaCount: 1
           enabled: true
           config:
             environment:
