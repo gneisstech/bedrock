@@ -1593,7 +1593,7 @@ target:
           enabled: true
           replicaCount: 3
         cf-assets-inventory-api-docker:
-          enabled: false
+          enabled: true
           replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
