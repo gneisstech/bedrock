@@ -17,6 +17,7 @@ target:
       tenant: &appRegistrationTenant 'db566806-bf04-4296-98cc-ba6d2d950788'  # Acuity Brands Technical Services, INC
       application_id: &appRegistrationID '3a6085d9-676a-473c-832f-b73b2b7f7561'  # Acuity Brands Atrius Dev UI
       passage_api_application_id: &passageApiApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands Atrius Passage API
+      passage_api_environment: &passageApiEnvironment "ASP_DEV_US"
       # application_id: &appRegistrationID 'ca8318ee-a3f8-45d4-b284-0ec0ce809789'  # @@ TODO - manual setup due to insufficient permissions in AZ CLI
     atriusObjectsDatabases:
       - db_host_name: &cfObjectsDbHostName_001 'pltdata01sqlsep2ftp3b7r'
@@ -53,6 +54,8 @@ target:
       - name: &cfAtEhRG 'AssetTag-Eh-##appenv##'
         action: 'create'
       - name: &cfAtDlRG 'AssetTag-Dl-##appenv##'
+        action: 'create'
+      - name: &cfAuditLogEhRG 'AuditLog-Eh-##appenv##'
         action: 'create'
     networking:
       public_ip:
@@ -325,11 +328,27 @@ target:
           tags: *labels
           arm_type: 'Microsoft.Storage/storageAccounts'
           action: 'create'
+        - name: &auditsa001name '##appenv##auditsa001abl'
+          resource_group: *cfAuditLogEhRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_GRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
         - name: &certbotState 'certbot-state'
           quota: '10'
           storage_account_name: *sa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+      # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+      blob_store:
+        - name: &auditLogBlobContainerName 'audit-log-history'
+          storage_account_name: *auditsa001name
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
@@ -514,6 +533,61 @@ target:
                 - id: 'fixme-authorized-managed-identity-002'
                   roles:
                     - 'fixme-role-reader'
+        - name: &cfAuditEhNamespace '##app-env##-audit-log-eh-namespace'
+          <<: *eh_namespace_template
+          resource_group: *cfAuditLogEhRG
+          capacity: '1'
+          auto_inflate: 'true'
+          enable_kafka: 'true'
+          location: *defaultAzureLocation
+          maximum_throughput_units: '20'
+          sku: 'Standard'
+          tags: *labels
+          network_rules_default_action: 'Allow'
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.EventHub/Namespaces'
+          action: 'create'
+          topics:
+            - name: &cfAuditEhTopic '##app-env##-audit-log-eh-topic'
+              namespace: *cfAuditEhNamespace
+              resource_group: *cfAuditLogEhRG
+              enable_capture: 'true'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: *auditLogBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *auditsa001name  # name or ARM resource id
+              consumer_groups:
+                - name: &audit_log_eh_assets_consumer_group '##app-env##-audit-log-eventhub-audit-logs-cg'
+                  topic_name: *cfAuditEhTopic
+                  namespace: *cfAuditEhNamespace
+                  resource_group: *cfAuditLogEhRG
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for assets tag consumers'
+              authorization_rules:
+                - name: &cf_audit_log_eh_producer_rule '##app-env##-audit-log-eventhub-producer'
+                  topic_name: *cfAuditEhTopic
+                  namespace: *cfAuditEhNamespace
+                  resource_group: *cfAuditLogEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_audit_log_eh_producer_key_001 '##app-env##-audit-log-eventhub-producer-key-001'
+                    secret_name_002: &cf_audit_log_eh_producer_key_002 '##app-env##-audit-log-eventhub-producer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
     k8s:
       clusters:
         - name: '##app-env##-k8s-001'
@@ -655,7 +729,7 @@ target:
         passage:
           api:
             application_id: *passageApiApplicationID
-            fqdn: &passageApiFqdn 'passage.atrius-dev.acuitynext.io.'
+            fqdn: *passageApiFqdn
             url: &passageApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1'
             relayUrl: &relayApiUrl 'https://passage.atrius-dev.acuitynext.io/api/v1/Devices'
             host: &passageHost 'passage.atrius-dev.acuitynext.io'
@@ -1015,7 +1089,6 @@ target:
               - '##'
         cf-atrius-objects-api-docker:
           enabled: false
-          replicaCount: 0
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1034,7 +1107,6 @@ target:
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
           enabled: false
-          replicaCount: 0
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1195,11 +1267,11 @@ target:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
               ASSET_TRACKING_HISTORY_ROWS: '5'
               ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post
-              ASSET_TRACKING_PROGRESS_COMMITS: 'false'
+              ASSET_TRACKING_PROGRESS_COMMITS: 'false'  # permanently consumes events from eventhub if true
               ASSET_TRACKING_PURGE_INTERVAL: '60'  # seconds
               ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
               JWT_ISSUERS: *trustedIdProviders
-              TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT:
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_HOST_PORT:
                 - *cfIotEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
@@ -1228,11 +1300,9 @@ target:
             # placeholder values should allow the service to install and minimally respond
             environment:
               APP_VERSION: '{{ .Chart.AppVersion }}'
-              ASSET_FORWARDING_PROCESSOR: 'info'
+              ASSET_FORWARDING_PROCESSOR: 'fwd_parse'  # test 001, 002; fwd_parse; fwd_post; info
               ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
               ASSET_FORWARDING_REWIND_OFFSET: 'true'
-              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
-              JWT_ISSUERS: *trustedIdProviders
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
                 - *cfIotEhNamespace
                 - '.servicebus.windows.net'
@@ -1247,7 +1317,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME:
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_TOPIC_NAME:
                 - *cfAtEhTopic
             secrets:
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
@@ -1363,6 +1433,62 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
         cf-ecy-ingest-svc-docker:
           enabled: true
+          config:
+            environment:
+              ATRIUS_OBJECTS_HOST: *wafFqdn
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              HARVEST_STRATEGY: 'PARALLEL_ATTRIBUTES'  # "SAFE", "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
+              HEALTH_API_HOST: *wafFqdn
+              HEALTH_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              HEALTH_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              HEALTH_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              INGEST_API_HOST: *wafFqdn
+              INGEST_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              INGEST_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              INGEST_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              JWT_ISSUERS: *trustedIdProviders
+              PASSAGE_API_ENV: *passageApiEnvironment
+              PASSAGE_API_HOST: *passageHost
+              PASSAGE_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              PASSAGE_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              PASSAGE_API_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+            secrets:
+              ATRIUS_OBJECTS_JWT_AUTH_TOKEN: ''
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              HEALTH_API_JWT_AUTH_TOKEN: ''
+              HEALTH_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              INGEST_API_JWT_AUTH_TOKEN: ''
+              INGEST_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              PASSAGE_API_JWT_AUTH_TOKEN: ''
+              PASSAGE_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+        cf-audit-log-svc-docker:
+          enabled: true
+          config:
+            environment:
+              APP_VERSION: '{{ .Chart.AppVersion }}'
+              AUDIT_WRITER_EH_HOST_PORT:
+                - *cfAuditEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              AUDIT_WRITER_EH_TOPIC_NAME:
+                - *cfAuditEhTopic
+            secrets:
+              AUDIT_WRITER_EH_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAuditLogEhRG
+                - '","namespace_name":"'
+                - *cfAuditEhNamespace
+                - '","eventhub_name":"'
+                - *cfAuditEhTopic
+                - '","policy_name":"'
+                - *cf_audit_log_eh_producer_rule
+                - '"}'
+                - '##'
         cf-oauth-proxy-docker:
           config:
             environment:

@@ -1197,7 +1197,7 @@ target:
               ASSET_TRACKING_PURGE_INTERVAL: '60'  # seconds
               ASSET_TRACKING_REWIND_OFFSET: 'false'  # true for replay each launch
               JWT_ISSUERS: *trustedIdProviders
-              TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT:
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_HOST_PORT:
                 - *cfIotEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
@@ -1226,11 +1226,9 @@ target:
             # placeholder values should allow the service to install and minimally respond
             environment:
               APP_VERSION: '{{ .Chart.AppVersion }}'
-              ASSET_FORWARDING_PROCESSOR: 'info'
+              ASSET_FORWARDING_PROCESSOR: 'fwd_parse'  # test 001, 002; fwd_parse; fwd_post; info
               ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
               ASSET_FORWARDING_REWIND_OFFSET: 'true'
-              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
-              JWT_ISSUERS: *trustedIdProviders
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
                 - *cfIotEhNamespace
                 - '.servicebus.windows.net'
@@ -1245,7 +1243,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME:
+              TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_TOPIC_NAME:
                 - *cfAtEhTopic
             secrets:
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
