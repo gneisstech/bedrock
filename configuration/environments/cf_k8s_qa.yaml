@@ -1194,6 +1194,7 @@ target:
           replicaCount: 3
         cf-atrius-objects-api-docker:
           replicaCount: 3
+          enabled: true
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1212,6 +1213,7 @@ target:
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
           replicaCount: 3
+          enabled: true
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1343,6 +1345,7 @@ target:
             protocol: 'TCP'
             portName: 'mssql'
         cf-smoketest-svc-docker:
+          replicaCount: 1
           enabled: true
           config:
             environment:

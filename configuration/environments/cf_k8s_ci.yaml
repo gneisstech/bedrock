@@ -1189,7 +1189,14 @@ target:
               - *subscription_tls
               - '"}'
               - '##'
+        cf-http-https-echo:
+          replicaCount: 1
+        cf-self-healing-app-docker:
+          replicaCount: 1
+        cf-react-app-docker:
+          replicaCount: 1
         cf-atrius-objects-api-docker:
+          replicaCount: 1
           enabled: false
           config:
             environment:
@@ -1208,6 +1215,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
+          replicaCount: 1
           enabled: false
           config:
             environment:
@@ -1226,6 +1234,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
+          replicaCount: 1
           config:
             environment:
               DEBUG_REQUEST_HEADERS: 'true'
@@ -1235,6 +1244,7 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-self-healing-ingest-api-docker:
+          replicaCount: 1
           config:
             environment:
               DEBUG_REQUEST_HEADERS: 'true'
@@ -1244,6 +1254,7 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1266,6 +1277,7 @@ target:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
         cf-elm-web-api-docker:
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1294,6 +1306,7 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-ingest-web-api: &configNetworkView
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1337,6 +1350,7 @@ target:
             protocol: 'TCP'
             portName: 'mssql'
         cf-smoketest-svc-docker:
+          replicaCount: 1
           enabled: false
           config:
             environment:
@@ -1355,6 +1369,7 @@ target:
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-tracking-svc-docker:
           enabled: true
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1549,10 +1564,13 @@ target:
                 - '##'
         cf-coordinate-transforms-svc-docker:
           enabled: true
+          replicaCount: 1
         cf-city-state-zip-svc-docker:
           enabled: true
+          replicaCount: 1
         cf-assets-inventory-api-docker:
           enabled: true
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1573,6 +1591,7 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
         cf-ecy-ingest-svc-docker:
           enabled: true
+          replicaCount: 1
           config:
             environment:
               ATRIUS_OBJECTS_HOST: *wafFqdn
@@ -1606,6 +1625,7 @@ target:
               PASSAGE_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-audit-log-svc-docker:
           enabled: true
+          replicaCount: 1
           config:
             environment:
               APP_VERSION: '{{ .Chart.AppVersion }}'
@@ -1630,6 +1650,7 @@ target:
                 - '"}'
                 - '##'
         cf-oauth-proxy-docker:
+          replicaCount: 1
           config:
             environment:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
@@ -1662,10 +1683,12 @@ target:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
         cf-waf-ingress-default-backend:
+          replicaCount: 1
           enabled: true
         cf-waf-ingress:
           enabled: true
           controller:
+            replicaCount: 1
             extraArgs:
               'default-ssl-certificate':
                 - *cfNamespace
@@ -1685,3 +1708,5 @@ target:
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
+          defaultBackend:
+            replicaCount: 1
