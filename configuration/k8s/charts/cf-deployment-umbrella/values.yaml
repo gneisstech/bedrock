@@ -572,7 +572,7 @@ cf-assets-v2-telemetry-tracking-svc-docker:
       ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
       AUTHORIZED_USERS: ''
       JWT_ISSUERS: *trustedIdProviders
-      TELEMETRY_EH_CG_ASSETS_V2_HOST_PORT: ''
+      TELEMETRY_EH_CG_ASSETS_V2_TRACKING_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME: ''
       TELEMETRY_EH_CG_ASSETS_V2_TRACKING_TOPIC: ''
     secrets:
@@ -586,19 +586,23 @@ cf-assets-v2-telemetry-forwarding-svc-docker:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
-      ASSET_FORWARDING_PROCESSOR: 'info'
+      ASSET_FORWARDING_PROCESSOR: 'fwd_parse'  # test 001, 002; fwd_parse; fwd_post; info
       ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
       ASSET_FORWARDING_REWIND_OFFSET: 'true'
-      AUTHORIZED_USERS: ''
-      JWT_ISSUERS: *trustedIdProviders
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT: ''
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: ''
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC: ''
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: ''
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: ''
+      ASSET_POSITIONS_V1_PUBLISHING_HOST_PORT: ''
+      ASSET_POSITIONS_V1_PUBLISHING_TOPIC_NAME: ''
+      ASSET_STATUS_V1_PUBLISHING_HOST_PORT: ''
+      ASSET_STATUS_V1_PUBLISHING_TOPIC_NAME: ''
+      EDGAR_STATUS_V1_PUBLISHING_HOST_PORT: ''
+      EDGAR_STATUS_V1_PUBLISHING_TOPIC_NAME: ''
     secrets:
       TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING: ''
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING: ''
+      ASSET_POSITIONS_V1_PUBLISHING_CONNECTION_STRING: ''
+      ASSET_STATUS_V1_PUBLISHING_CONNECTION_STRING: ''
+      EDGAR_STATUS_V1_PUBLISHING_CONNECTION_STRING: ''
 
 cf-tls-certificate-manager-svc-docker:
   fullnameOverride: 'cf-tls-certificate-manager-svc-docker'
@@ -777,10 +781,10 @@ cf-audit-log-svc-docker:
     # placeholder values should allow the service to install and minimally respond
     environment:
       APP_VERSION: '{{ .Chart.AppVersion }}'
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_HOST_PORT: 'fixme-umbrella-values'
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_NAME: 'fixme'
+      AUDIT_WRITER_EH_HOST_PORT: 'fixme-umbrella-values'
+      AUDIT_WRITER_EH_TOPIC_NAME: 'fixme'
     secrets:
-      TELEMETRY_EH_TOPIC_ASSETS_V1_PUBLISHING_CONNECTION_STRING: 'fixme-umbrella-values'
+      AUDIT_WRITER_EH_CONNECTION_STRING: 'fixme-umbrella-values'
 
 cf-waf-ingress:
   fullnameOverride: 'cf-waf-ingress'
