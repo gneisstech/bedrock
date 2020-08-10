@@ -335,6 +335,16 @@ target:
           tags: *labels
           arm_type: 'Microsoft.Storage/storageAccounts'
           action: 'create'
+        - name: &assetsa001name '##appenv##assetssa001abl'
+          resource_group: *cfAtDlRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_GRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
         - name: &certbotState 'certbot-state'
@@ -346,6 +356,18 @@ target:
       blob_store:
         - name: &auditLogBlobContainerName 'audit-log-history'
           storage_account_name: *auditsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+        - name: &assetPositionsBlobContainerName 'asset-position-history'
+          storage_account_name: *assetsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+        - name: &assetStatusBlobContainerName 'asset-status-history'
+          storage_account_name: *assetsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+        - name: &edgarStatusBlobContainerName 'edgar-status-history'
+          storage_account_name: *assetsa001name
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
@@ -493,7 +515,7 @@ target:
             - name: &cfAtEhAssetPositionsTopic '##app-env##-asset-tag-eh-asset-positions-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
-              enable_capture: 'false'
+              enable_capture: 'true'
               message_retention: 7
               partition_count: 32
               status: 'Active'
@@ -504,9 +526,9 @@ target:
                 capture_interval: 60
                 capture_size_limit: 524288000
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
-                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
-                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
-                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+                blob_container: *assetPositionsBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
               consumer_groups:
                 - name: &asset_tag_eh_asset_positions_consumer_group '##app-env##-asset-tag-eventhub-asset-positions-cg'
                   topic_name: *cfAtEhAssetPositionsTopic
@@ -533,7 +555,7 @@ target:
             - name: &cfAtEhAssetStatusTopic '##app-env##-asset-tag-eh-asset-status-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
-              enable_capture: 'false'
+              enable_capture: 'true'
               message_retention: 7
               partition_count: 32
               status: 'Active'
@@ -544,9 +566,9 @@ target:
                 capture_interval: 60
                 capture_size_limit: 524288000
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
-                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
-                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
-                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+                blob_container: *assetStatusBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
               consumer_groups:
                 - name: &asset_tag_eh_asset_status_consumer_group '##app-env##-asset-tag-eventhub-asset-status-cg'
                   topic_name: *cfAtEhAssetStatusTopic
@@ -573,7 +595,7 @@ target:
             - name: &cfAtEhEdgarStatusTopic '##app-env##-asset-tag-eh-edgar-status-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
-              enable_capture: 'false'
+              enable_capture: 'true'
               message_retention: 7
               partition_count: 32
               status: 'Active'
@@ -584,9 +606,9 @@ target:
                 capture_interval: 60
                 capture_size_limit: 524288000
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
-                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
-                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
-                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+                blob_container: *edgarStatusBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
               consumer_groups:
                 - name: &asset_tag_eh_edgar_status_consumer_group '##app-env##-asset-tag-eventhub-edgar-status-cg'
                   topic_name: *cfAtEhEdgarStatusTopic
@@ -1341,7 +1363,7 @@ target:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
               ASSET_TRACKING_HISTORY_ROWS: '5'
-              ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post
+              ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post; info
               ASSET_TRACKING_PROGRESS_COMMITS: 'false'  # permanently consumes events from eventhub if true
               ASSET_TRACKING_PURGE_INTERVAL: '60'  # seconds
               ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
