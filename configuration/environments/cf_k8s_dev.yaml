@@ -1410,7 +1410,7 @@ target:
             # placeholder values should allow the service to install and minimally respond
             environment:
               APP_VERSION: '{{ .Chart.AppVersion }}'
-              ASSET_FORWARDING_PROCESSOR: 'fwd_parse'  # test 001, 002; fwd_parse; fwd_post; info
+              ASSET_FORWARDING_PROCESSOR: 'fwd_post'  # test 001, 002; fwd_parse; fwd_post; info
               ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
               ASSET_FORWARDING_REWIND_OFFSET: 'true'
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
