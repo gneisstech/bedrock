@@ -58,10 +58,10 @@ dependencies:
   version: 1.1.1-dev
 - name: cf-assets-v2-telemetry-tracking-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.45-dev
+  version: 1.0.0-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.4-dev
+  version: 1.0.0-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.6-dev
@@ -77,5 +77,8 @@ dependencies:
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.0-dev
-digest: sha256:3e439d325e838a58ae248aaf736914b8bd28888a3b6f9a2156a8502bdfdf43be
-generated: "2020-08-11T16:10:37.782555824Z"
+- name: prometheus-operator
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 9.3.1
+digest: sha256:aa05aeca90f25bf81153aa14c08977d2ff18a64187bfb0f1e87e9180a3d0be59
+generated: "2020-08-11T17:56:06.428534028Z"
