@@ -49,11 +49,7 @@ target:
         action: 'create'
       - name: &cfIotEhRG 'Iot-Eh-##appenv##'
         action: 'create'
-      - name: &cfIotDlRG 'Iot-Dl-##appenv##'
-        action: 'create'
       - name: &cfAtEhRG 'AssetTag-Eh-##appenv##'
-        action: 'create'
-      - name: &cfAtDlRG 'AssetTag-Dl-##appenv##'
         action: 'create'
       - name: &cfAuditLogEhRG 'AuditLog-Eh-##appenv##'
         action: 'create'
@@ -335,6 +331,16 @@ target:
           tags: *labels
           arm_type: 'Microsoft.Storage/storageAccounts'
           action: 'create'
+        - name: &assetsa001name '##appenv##assetssa001abl'
+          resource_group: *cfAtEhRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_GRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
         - name: &certbotState 'certbot-state'
@@ -346,6 +352,18 @@ target:
       blob_store:
         - name: &auditLogBlobContainerName 'audit-log-history'
           storage_account_name: *auditsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+        - name: &assetPositionsBlobContainerName 'asset-position-history'
+          storage_account_name: *assetsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+        - name: &assetStatusBlobContainerName 'asset-status-history'
+          storage_account_name: *assetsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+        - name: &edgarStatusBlobContainerName 'edgar-status-history'
+          storage_account_name: *assetsa001name
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
@@ -493,7 +511,7 @@ target:
             - name: &cfAtEhAssetPositionsTopic '##app-env##-asset-tag-eh-asset-positions-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
-              enable_capture: 'false'
+              enable_capture: 'true'
               message_retention: 7
               partition_count: 32
               status: 'Active'
@@ -504,9 +522,9 @@ target:
                 capture_interval: 60
                 capture_size_limit: 524288000
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
-                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
-                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
-                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+                blob_container: *assetPositionsBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
               consumer_groups:
                 - name: &asset_tag_eh_asset_positions_consumer_group '##app-env##-asset-tag-eventhub-asset-positions-cg'
                   topic_name: *cfAtEhAssetPositionsTopic
@@ -533,7 +551,7 @@ target:
             - name: &cfAtEhAssetStatusTopic '##app-env##-asset-tag-eh-asset-status-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
-              enable_capture: 'false'
+              enable_capture: 'true'
               message_retention: 7
               partition_count: 32
               status: 'Active'
@@ -544,9 +562,9 @@ target:
                 capture_interval: 60
                 capture_size_limit: 524288000
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
-                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
-                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
-                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+                blob_container: *assetStatusBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
               consumer_groups:
                 - name: &asset_tag_eh_asset_status_consumer_group '##app-env##-asset-tag-eventhub-asset-status-cg'
                   topic_name: *cfAtEhAssetStatusTopic
@@ -573,7 +591,7 @@ target:
             - name: &cfAtEhEdgarStatusTopic '##app-env##-asset-tag-eh-edgar-status-topic'
               namespace: *cfAtEhNamespace
               resource_group: *cfAtEhRG
-              enable_capture: 'false'
+              enable_capture: 'true'
               message_retention: 7
               partition_count: 32
               status: 'Active'
@@ -584,9 +602,9 @@ target:
                 capture_interval: 60
                 capture_size_limit: 524288000
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
-                blob_container: 'fixme-eh-topic-blob-container-name'  # Blob container Name
-                destination_name: 'fixme-eh-topic-destination-name'  # Name for capture destination.
-                storage_account: 'fixme-eh-topic-storage-account'  # name or ARM resource id
+                blob_container: *edgarStatusBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
               consumer_groups:
                 - name: &asset_tag_eh_edgar_status_consumer_group '##app-env##-asset-tag-eventhub-edgar-status-cg'
                   topic_name: *cfAtEhEdgarStatusTopic
@@ -1164,7 +1182,15 @@ target:
               - *subscription_tls
               - '"}'
               - '##'
+        cf-http-https-echo:
+          replicaCount: 1
+        cf-self-healing-app-docker:
+          replicaCount: 1
+        cf-react-app-docker:
+          replicaCount: 1
         cf-atrius-objects-api-docker:
+          replicaCount: 1
+          enabled: true
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1182,6 +1208,8 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-lights-map-api-docker:
+          replicaCount: 1
+          enabled: true
           config:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
@@ -1199,6 +1227,7 @@ target:
               CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *atriusObjectsSpSecret
         cf-self-healing-api-docker:
+          replicaCount: 1
           config:
             environment:
               DEBUG_REQUEST_HEADERS: 'true'
@@ -1208,6 +1237,7 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-self-healing-ingest-api-docker:
+          replicaCount: 1
           config:
             environment:
               DEBUG_REQUEST_HEADERS: 'true'
@@ -1217,6 +1247,7 @@ target:
               DATABASE_CONN_STRING: *dbUrlSelfHealing
               API_KEY: *selfHealingApiKey
         cf-authz-web-api-docker:
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1239,6 +1270,7 @@ target:
               DATABASE_URL: *dbUrlAuthZ
               SECRET_KEY_BASE: *secretKeyBaseAuthZ
         cf-elm-web-api-docker:
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1267,6 +1299,7 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseElm
               CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-ingest-web-api: &configNetworkView
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1310,6 +1343,7 @@ target:
             protocol: 'TCP'
             portName: 'mssql'
         cf-smoketest-svc-docker:
+          replicaCount: 1
           enabled: true
           config:
             environment:
@@ -1328,6 +1362,7 @@ target:
               SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-assets-v2-telemetry-tracking-svc-docker:
           enabled: true
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1341,7 +1376,7 @@ target:
             environment:
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
               ASSET_TRACKING_HISTORY_ROWS: '5'
-              ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post
+              ASSET_TRACKING_PROCESSOR: 'db_post'  # test 001, 002; db_parse; db_post; info
               ASSET_TRACKING_PROGRESS_COMMITS: 'false'  # permanently consumes events from eventhub if true
               ASSET_TRACKING_PURGE_INTERVAL: '60'  # seconds
               ASSET_TRACKING_REWIND_OFFSET: 'true'  # true for replay each launch
@@ -1375,7 +1410,7 @@ target:
             # placeholder values should allow the service to install and minimally respond
             environment:
               APP_VERSION: '{{ .Chart.AppVersion }}'
-              ASSET_FORWARDING_PROCESSOR: 'fwd_parse'  # test 001, 002; fwd_parse; fwd_post; info
+              ASSET_FORWARDING_PROCESSOR: 'fwd_post'  # test 001, 002; fwd_parse; fwd_post; info
               ASSET_FORWARDING_PROGRESS_COMMITS: 'false'
               ASSET_FORWARDING_REWIND_OFFSET: 'true'
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_HOST_PORT:
@@ -1522,10 +1557,13 @@ target:
                 - '##'
         cf-coordinate-transforms-svc-docker:
           enabled: true
+          replicaCount: 1
         cf-city-state-zip-svc-docker:
           enabled: true
+          replicaCount: 1
         cf-assets-inventory-api-docker:
           enabled: true
+          replicaCount: 1
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
@@ -1546,6 +1584,7 @@ target:
               SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
         cf-ecy-ingest-svc-docker:
           enabled: true
+          replicaCount: 1
           config:
             environment:
               ATRIUS_OBJECTS_HOST: *wafFqdn
@@ -1579,6 +1618,7 @@ target:
               PASSAGE_API_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
         cf-audit-log-svc-docker:
           enabled: true
+          replicaCount: 1
           config:
             environment:
               APP_VERSION: '{{ .Chart.AppVersion }}'
@@ -1603,6 +1643,7 @@ target:
                 - '"}'
                 - '##'
         cf-oauth-proxy-docker:
+          replicaCount: 1
           config:
             environment:
               OAUTH2_PROXY_AZURE_TENANT: 'common'
@@ -1635,10 +1676,12 @@ target:
               OAUTH2_PROXY_CLIENT_SECRET: *oauth2ProxyClientSecret
               OAUTH2_PROXY_COOKIE_SECRET: *oauth2ProxyCookieSecret
         cf-waf-ingress-default-backend:
+          replicaCount: 1
           enabled: true
         cf-waf-ingress:
           enabled: true
           controller:
+            replicaCount: 1
             extraArgs:
               'default-ssl-certificate':
                 - *cfNamespace
@@ -1658,3 +1701,5 @@ target:
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *cfWafRG
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
+          defaultBackend:
+            replicaCount: 1
