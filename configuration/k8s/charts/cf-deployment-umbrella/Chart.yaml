@@ -187,7 +187,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-assets-v2-telemetry-tracking-svc-docker'
-    version: '^0.3.0-0'
+    version: '^1.0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-assets-v2-telemetry-tracking-svc-docker.enabled'
     tags:
@@ -196,7 +196,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: null
   - name: 'cf-assets-v2-telemetry-forwarding-svc-docker'
-    version: '^0.3.0-0'
+    version: '^1.0.0-0'
     repository: '@cfdevregistry'
     condition: 'cf-assets-v2-telemetry-forwarding-svc-docker.enabled'
     tags:
@@ -249,6 +249,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: prometheus-operator
+    version: 9.3.1
+    repository: https://kubernetes-charts.storage.googleapis.com
+    condition: 'cf-prometheus-operator.enabled'
+    tags:
+      - 'cf-prometheus-operator'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-prometheus-operator'
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
