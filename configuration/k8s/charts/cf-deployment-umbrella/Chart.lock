@@ -1,7 +1,7 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.15-dev
+  version: 1.2.16-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.0-dev
@@ -19,7 +19,7 @@ dependencies:
   version: 1.2.12-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.0.57-dev
+  version: 2.0.58-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.32-dev
@@ -58,10 +58,10 @@ dependencies:
   version: 1.1.1-dev
 - name: cf-assets-v2-telemetry-tracking-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.44-dev
+  version: 1.0.0-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.3-dev
+  version: 1.0.0-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.6-dev
@@ -77,5 +77,8 @@ dependencies:
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.0-dev
-digest: sha256:86241424d46a19af1e15c8bea7830094e93b360efff8e506c6ff29f896c70885
-generated: "2020-08-10T23:57:40.644152188Z"
+- name: prometheus-operator
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 9.3.1
+digest: sha256:9cd1805eeeb05a9d5c23c500af4ca2cbbb672f9acd5f0141bb2e2328e295104b
+generated: "2020-08-12T18:42:21.949248905Z"

@@ -891,3 +891,7 @@ cf-waf-ingress:
         - 'fixme-waf-lb-ip'
       annotations:
         'service.beta.kubernetes.io/azure-load-balancer-resource-group': 'fixme-waf-resource-group'
+
+cf-prometheus-operator:
+  fullnameOverride: 'cf-prometheus-operator'
+  enabled: false
