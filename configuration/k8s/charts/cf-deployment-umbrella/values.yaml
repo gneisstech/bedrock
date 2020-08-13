@@ -50,6 +50,10 @@ default_values:
       - 'https://sts.windows.net/f687c0f3-9126-45bd-b994-b96df8a19c91/'
       - '='
       - 'https://graph.windows.net'
+      - ','
+      - 'https://sts.windows.net/4941060e-a9e4-40d6-be4b-94940609901e/'
+      - '='
+      - *passageApiApplicationID
   atrius_objects:
     api_key: &atriusObjectsApiKey 'fixme-dummy-developer-key'
     authorized_users: &atriusObjectsAuthorizedUsers "\
