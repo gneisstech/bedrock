@@ -19,7 +19,7 @@ dependencies:
   version: 1.2.12-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.1.1-dev
+  version: 2.1.2-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.32-dev
@@ -80,5 +80,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:913a8db4b4b110a5990b1a4a826803972d17146ad22d25e9f9939126f6e2a79b
-generated: "2020-08-17T16:33:24.07618184Z"
+digest: sha256:813b3f115f2881f42c71d641ee76394d0c425fb617e230da98aa7b2d62255871
+generated: "2020-08-17T22:01:31.661739442Z"
