@@ -16,7 +16,7 @@ dependencies:
   version: 1.4.21-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.13-dev
+  version: 1.2.14-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 2.1.4-dev
@@ -80,5 +80,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:f4ff02e25afee5eb6cfc4aeb0327a6302b05cd0c48e8bc1c67db2c060fc5592c
-generated: "2020-08-20T19:20:06.623151404Z"
+digest: sha256:73c62dc414926b77ce5fdf4d800bb02165b2e41a20c6186922b6f3de0231e1de
+generated: "2020-08-20T19:28:34.121963336Z"
