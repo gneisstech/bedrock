@@ -1,10 +1,10 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.19-dev
+  version: 1.2.20-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.0-dev
+  version: 1.2.1-dev
 - name: cf-http-https-echo
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.13-dev
@@ -16,10 +16,10 @@ dependencies:
   version: 1.4.21-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.12-dev
+  version: 1.2.15-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 2.1.2-dev
+  version: 2.1.5-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.32-dev
@@ -31,10 +31,10 @@ dependencies:
   version: 1.2.1-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.7-dev
+  version: 1.1.8-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.7-dev
+  version: 1.1.8-dev
 - name: nginx-ingress
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 1.41.2
@@ -61,7 +61,7 @@ dependencies:
   version: 1.0.0-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.0-dev
+  version: 1.0.1-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.6-dev
@@ -80,5 +80,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:813b3f115f2881f42c71d641ee76394d0c425fb617e230da98aa7b2d62255871
-generated: "2020-08-17T22:01:31.661739442Z"
+digest: sha256:12d0f643a0c6a7cb8ebc6fe145d1547d4d6b6691c3ec6a7c202cd5ca3a56800a
+generated: "2020-08-21T03:41:36.939320078Z"
