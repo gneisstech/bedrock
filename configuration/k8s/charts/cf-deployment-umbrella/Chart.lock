@@ -71,6 +71,9 @@ dependencies:
 - name: cf-assets-inventory-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.6-dev
+- name: cf-assets-inventory-api-docker
+  repository: https://cfdevregistry.azurecr.io/helm/v1/repo
+  version: 0.0.6-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.13-dev
@@ -80,5 +83,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:a8c1f8d83e9b625b9f8b5f083dac934c93d1ec7615529be02df58650d27f0a30
-generated: "2020-08-27T20:14:53.5274407Z"
+digest: sha256:c565df722116625e4c7380bc642f9c58a3864aaf4612c1ce8b97d496f98b891c
+generated: "2020-08-27T21:53:29.604862426Z"
