@@ -230,7 +230,16 @@ dependencies: # A list of the chart requirements (optional)
       - 'cf-assets-inventory-api-docker'
     enabled: true
     import-values: [] # (optional)
-    alias: null
+    alias: 'cf-assets-inventory-api-docker'
+  - name: 'cf-assets-inventory-api-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-assets-inventory-ingest-api-docker'
+    tags:
+      - 'cf-assets-inventory-ingest-api-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-assets-inventory-ingest-api-docker'
   - name: 'cf-ecy-ingest-svc-docker'
     version: '^1.0.0-0'
     repository: '@cfdevregistry'
