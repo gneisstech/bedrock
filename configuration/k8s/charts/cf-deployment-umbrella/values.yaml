@@ -725,7 +725,7 @@ cf-assets-inventory-api-docker:
       SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
 
 cf-assets-inventory-ingest-api-docker:
-  fullnameOverride: 'cf-assets-inventory-api-docker'
+  fullnameOverride: 'cf-assets-inventory-ingest-api-docker'
   enabled: true
   config_annotations:
     "helm.sh/hook": pre-install,pre-upgrade
