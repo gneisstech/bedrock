@@ -739,7 +739,7 @@ cf-assets-inventory-ingest-api-docker:
     enabled: true
     annotations:
       'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
-      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-assets-inventory-ingest/orders/$2'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/cf-assets-inventory-ingest/api/v1/orders/$2'
       'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
       'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/configuration-snippet': |
@@ -756,7 +756,7 @@ cf-assets-inventory-ingest-api-docker:
         SecResponseBodyLimitAction ProcessPartial
     hosts:
       - paths:
-          - '/cf-assets-inventory-ingest/orders(/|$)(.*)'
+          - '/cf-assets-inventory-ingest/api/v1/orders(/|$)(.*)'
   config:
     environment:
       <<: *railsEnv
