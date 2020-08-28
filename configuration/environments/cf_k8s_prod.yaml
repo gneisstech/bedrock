@@ -1595,7 +1595,7 @@ target:
         cf-city-state-zip-svc-docker:
           enabled: true
           replicaCount: 3
-        cf-assets-inventory-api-docker:
+        cf-assets-inventory-api-docker: &configAssetsInventory
           enabled: true
           replicaCount: 3
           config_annotations:
@@ -1616,27 +1616,7 @@ target:
             secrets:
               DATABASE_URL: *dbUrlAssetsInventory
               SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
-        cf-assets-inventory-ingest-api-docker:
-          enabled: true
-          replicaCount: 3
-          config_annotations:
-            "helm.sh/hook": pre-install,pre-upgrade
-            "helm.sh/resource-policy": keep
-            "helm.sh/hook-weight": "-1"
-          migration_annotations:
-            "helm.sh/hook": pre-install,pre-upgrade
-            "helm.sh/hook-delete-policy": hook-succeeded
-            "helm.sh/hook-weight": "1"
-          config:
-            environment:
-              <<: *railsEnv
-              AZURE_DB: 'true'
-              CF_AUTHZ_API_URL: *authzApiUrl
-              RAILS_ENV: 'production'
-              RAILS_LOG_TO_STDOUT: 'true'
-            secrets:
-              DATABASE_URL: *dbUrlAssetsInventory
-              SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
+        cf-assets-inventory-ingest-api-docker: *configAssetsInventory
         cf-ecy-ingest-svc-docker:
           enabled: true
           replicaCount: 3
