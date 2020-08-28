@@ -1595,7 +1595,7 @@ target:
         cf-city-state-zip-svc-docker:
           enabled: true
           replicaCount: 3
-        cf-assets-inventory-api-docker:
+        cf-assets-inventory-api-docker: &configAssetsInventory
           enabled: true
           replicaCount: 3
           config_annotations:
@@ -1616,6 +1616,7 @@ target:
             secrets:
               DATABASE_URL: *dbUrlAssetsInventory
               SECRET_KEY_BASE: *secretKeyBaseAssetsInventory
+        cf-assets-inventory-ingest-api-docker: *configAssetsInventory
         cf-ecy-ingest-svc-docker:
           enabled: true
           replicaCount: 3

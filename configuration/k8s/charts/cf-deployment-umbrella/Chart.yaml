@@ -230,7 +230,16 @@ dependencies: # A list of the chart requirements (optional)
       - 'cf-assets-inventory-api-docker'
     enabled: true
     import-values: [] # (optional)
-    alias: null
+    alias: 'cf-assets-inventory-api-docker'
+  - name: 'cf-assets-inventory-api-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-assets-inventory-ingest-api-docker'
+    tags:
+      - 'cf-assets-inventory-ingest-api-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'cf-assets-inventory-ingest-api-docker'
   - name: 'cf-ecy-ingest-svc-docker'
     version: '^1.0.0-0'
     repository: '@cfdevregistry'
@@ -261,8 +270,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r9.1.35-dev'
+appVersion: 'r9.1.47-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 9.1.35-dev
+version: 9.1.47-dev
