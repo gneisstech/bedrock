@@ -143,6 +143,12 @@ resources:
         branches:
           include:
             - 'master-bytelight'
+    - pipeline: 'cf-atrius-site-metadata-svc-docker'
+      source: 'cf_atrius_site_metadata'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
 
 pool:
   vmImage: 'ubuntu-latest'
