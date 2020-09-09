@@ -346,6 +346,16 @@ target:
           tags: *labels
           arm_type: 'Microsoft.Storage/storageAccounts'
           action: 'create'
+        - name: &analyticssa001name '##appenv##analsa001abl'
+          resource_group: *cfAnalyticsEhRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_GRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
         - name: &certbotState 'certbot-state'
@@ -372,11 +382,11 @@ target:
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
         - name: &geoTransformAssetPositionsBlobContainerName 'geo-transform-asset-position-history'
-          storage_account_name: *assetsa001name
+          storage_account_name: *analyticssa001name
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
         - name: &analyticsAssetPositionsBlobContainerName 'analytics-asset-position-history'
-          storage_account_name: *assetsa001name
+          storage_account_name: *analyticssa001name
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
@@ -681,7 +691,7 @@ target:
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
                 blob_container: *geoTransformAssetPositionsBlobContainerName  # Blob container Name
                 destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
-                storage_account: *assetsa001name  # name or ARM resource id
+                storage_account: *analyticssa001name  # name or ARM resource id
               consumer_groups:
                 - name: &geotransform_eh_asset_positions_consumer_group '##app-env##-geotransform-eventhub-asset-positions-cg'
                   topic_name: *cfGeoTransformEhAssetPositionsTopic
@@ -745,7 +755,7 @@ target:
                 archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
                 blob_container: *analyticsAssetPositionsBlobContainerName  # Blob container Name
                 destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
-                storage_account: *assetsa001name  # name or ARM resource id
+                storage_account: *analyticssa001name  # name or ARM resource id
               consumer_groups:
                 - name: &analytics_eh_asset_positions_consumer_group '##app-env##-analytics-eventhub-asset-positions-cg'
                   topic_name: *cfAnalyticsEhAssetPositionsTopic
