@@ -657,7 +657,7 @@ target:
                 - id: 'fixme-authorized-managed-identity-002'
                   roles:
                     - 'fixme-role-reader'
-        - name: &cfGeoTransformEhNamespace '##app-env##-geo-transform-eh-namespace'
+        - name: &cfGeoTransformEhNamespace '##app-env##-geotransform-eh-namespace'
           <<: *eh_namespace_template
           resource_group: *cfAnalyticsEhRG
           capacity: '1'
@@ -672,7 +672,7 @@ target:
           arm_type: 'Microsoft.EventHub/Namespaces'
           action: 'create'
           topics:
-            - name: &cfGeoTransformEhAssetPositionsTopic '##app-env##-geo-transform-eh-asset-positions-topic'
+            - name: &cfGeoTransformEhAssetPositionsTopic '##app-env##-geotransform-eh-asset-positions-topic'
               namespace: *cfGeoTransformEhNamespace
               resource_group: *cfAnalyticsEhRG
               enable_capture: 'true'
