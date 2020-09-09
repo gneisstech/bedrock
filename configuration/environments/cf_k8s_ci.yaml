@@ -1570,6 +1570,7 @@ target:
                 - '##'
         cf-assets-v2-telemetry-forwarding-svc-docker:
           enabled: true
+          replicaCount: 1
           config:
             # placeholder values should allow the service to install and minimally respond
             environment:
@@ -1861,6 +1862,62 @@ target:
                 - *cfGeoTransformEhAssetPositionsTopic
                 - '","policy_name":"'
                 - *cf_geotransform_eh_asset_positions_producer_rule
+                - '"}'
+                - '##'
+        cf-atrius-site-metadata-svc-docker:
+          enabled: true
+          replicaCount: 1
+          config:
+            environment:
+              APP_VERSION: '{{ .Chart.AppVersion }}'
+              GEOTRANSFORM_HOST_PORT:
+                - *cfGeoTransformEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              GEOTRANSFORM_CONSUMER_GROUP_NAME: *geotransform_eh_asset_positions_consumer_group
+              GEOTRANSFORM_TOPIC: *cfGeoTransformEhAssetPositionsTopic
+              ATRIUS_OBJECTS_HOST: *wafFqdn
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              ATRIUS_SITE_METADATA_PROCESSOR: 'fwd_parse'  # test 001, 002; fwd_parse; fwd_post; info
+              ATRIUS_SITE_METADATA_PROGRESS_COMMITS: 'false'
+              ATRIUS_SITE_METADATA_REWIND_OFFSET: 'true'
+              ATRIUS_SITE_METADATA_PUBLISHING_HOST_PORT:
+                - *cfAnalyticsEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              GEOTRANSFORM_PUBLISHING_TOPIC_NAME:
+                - *cfAnalyticsEhAssetPositionsTopic
+              JWT_ISSUERS: *trustedIdProviders
+            secrets:
+              GEOTRANSFORM_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAnalyticsEhRG
+                - '","namespace_name":"'
+                - *cfGeoTransformEhNamespace
+                - '","eventhub_name":"'
+                - *cfGeoTransformEhAssetPositionsTopic
+                - '","policy_name":"'
+                - *cf_geotransform_eh_consumer_rule
+                - '"}'
+                - '##'
+              ATRIUS_OBJECTS_JWT_AUTH_TOKEN: ''
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              ATRIUS_SITE_METADATA_PUBLISHING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAnalyticsEhRG
+                - '","namespace_name":"'
+                - *cfAnalyticsEhNamespace
+                - '","eventhub_name":"'
+                - *cfAnalyticsEhAssetPositionsTopic
+                - '","policy_name":"'
+                - *cf_analytics_eh_asset_positions_producer_rule
                 - '"}'
                 - '##'
         cf-oauth-proxy-docker:
