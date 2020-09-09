@@ -258,6 +258,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: 'cf-geotransform-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-geotransform-svc-docker.enabled'
+    tags:
+      - 'cf-geotransform-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
   - name: prometheus-operator
     version: 9.3.1
     repository: https://kubernetes-charts.storage.googleapis.com

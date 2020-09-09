@@ -51,6 +51,8 @@ target:
         action: 'create'
       - name: &cfAtEhRG 'AssetTag-Eh-##appenv##'
         action: 'create'
+      - name: &cfAnalyticsEhRG 'Analytics-Eh-##appenv##'
+        action: 'create'
       - name: &cfAuditLogEhRG 'AuditLog-Eh-##appenv##'
         action: 'create'
     networking:
@@ -366,6 +368,14 @@ target:
           storage_account_name: *assetsa001name
           metadata: 'cfenv=##env## cfrole=##env##'
           action: 'create'
+        - name: &geoTransformAssetPositionsBlobContainerName 'geo-transform-asset-position-history'
+          storage_account_name: *assetsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
+        - name: &analyticsAssetPositionsBlobContainerName 'analytics-asset-position-history'
+          storage_account_name: *assetsa001name
+          metadata: 'cfenv=##env## cfrole=##env##'
+          action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
     event_hub_namespaces:
       eh_namespace_template: &eh_namespace_template
@@ -541,6 +551,15 @@ target:
                     vault: *kvName
                     secret_name_001: &cf_asset_tag_eh_asset_positions_producer_key_001 '##app-env##-asset-tag-eventhub-asset-positions-producer-key-001'
                     secret_name_002: &cf_asset_tag_eh_asset_positions_producer_key_002 '##app-env##-asset-tag-eventhub-asset-positions-producer-key-002'
+                - name: &cf_at_eh_consumer_rule '##app-env##-at-eventhub-consumer'
+                  topic_name: *cfAtEhAssetPositionsTopic
+                  namespace: *cfAtEhNamespace
+                  resource_group: *cfAtEhRG
+                  rights: 'Listen'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_at_eh_consumer_key_001 '##app-env##-at-eventhub-consumer-key-001'
+                    secret_name_002: &cf_at_eh_consumer_key_002 '##app-env##-at-eventhub-consumer-key-002'
               authorized_managed_identities:
                 - id: 'fixme-authorized-managed-identity-001'
                   roles:
@@ -621,6 +640,134 @@ target:
                     vault: *kvName
                     secret_name_001: &cf_asset_tag_eh_edgar_status_producer_key_001 '##app-env##-asset-tag-eventhub-edgar-status-producer-key-001'
                     secret_name_002: &cf_asset_tag_eh_edgar_status_producer_key_002 '##app-env##-asset-tag-eventhub-edgar-status-producer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
+        - name: &cfGeoTransformEhNamespace '##app-env##-geo-transform-eh-namespace'
+          <<: *eh_namespace_template
+          resource_group: *cfAnalyticsEhRG
+          capacity: '1'
+          auto_inflate: 'true'
+          enable_kafka: 'true'
+          location: *defaultAzureLocation
+          maximum_throughput_units: '20'
+          sku: 'Standard'
+          tags: *labels
+          network_rules_default_action: 'Allow'
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.EventHub/Namespaces'
+          action: 'create'
+          topics:
+            - name: &cfGeoTransformEhAssetPositionsTopic '##app-env##-geo-transform-eh-asset-positions-topic'
+              namespace: *cfGeoTransformEhNamespace
+              resource_group: *cfAnalyticsEhRG
+              enable_capture: 'true'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: *geoTransformAssetPositionsBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
+              consumer_groups:
+                - name: &geotransform_eh_asset_positions_consumer_group '##app-env##-geotransform-eventhub-asset-positions-cg'
+                  topic_name: *cfGeoTransformEhAssetPositionsTopic
+                  namespace: *cfGeoTransformEhNamespace
+                  resource_group: *cfAnalyticsEhRG
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for geotransform assets tag position consumers'
+              authorization_rules:
+                - name: &cf_geotransform_eh_asset_positions_producer_rule '##app-env##-geotransform-eventhub-asset-positions-producer'
+                  topic_name: *cfGeoTransformEhAssetPositionsTopic
+                  namespace: *cfGeoTransformEhNamespace
+                  resource_group: *cfAnalyticsEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_geotransform_eh_asset_positions_producer_key_001 '##app-env##-geotransform-eventhub-asset-positions-producer-key-001'
+                    secret_name_002: &cf_geotransform_eh_asset_positions_producer_key_002 '##app-env##-geotransform-eventhub-asset-positions-producer-key-002'
+                - name: &cf_geotransform_eh_consumer_rule '##app-env##-geotransform-eventhub-consumer'
+                  topic_name: *cfGeoTransformEhAssetPositionsTopic
+                  namespace: *cfGeoTransformEhNamespace
+                  resource_group: *cfAnalyticsEhRG
+                  rights: 'Listen'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_geotransform_eh_consumer_key_001 '##app-env##-geotransform-eventhub-consumer-key-001'
+                    secret_name_002: &cf_geotransform_eh_consumer_key_002 '##app-env##-geotransform-eventhub-consumer-key-002'
+              authorized_managed_identities:
+                - id: 'fixme-authorized-managed-identity-001'
+                  roles:
+                    - 'fixme-role-writer'
+                - id: 'fixme-authorized-managed-identity-002'
+                  roles:
+                    - 'fixme-role-reader'
+        - name: &cfAnalyticsEhNamespace '##app-env##-analytics-eh-namespace'
+          <<: *eh_namespace_template
+          resource_group: *cfAnalyticsEhRG
+          capacity: '1'
+          auto_inflate: 'true'
+          enable_kafka: 'true'
+          location: *defaultAzureLocation
+          maximum_throughput_units: '20'
+          sku: 'Standard'
+          tags: *labels
+          network_rules_default_action: 'Allow'
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.EventHub/Namespaces'
+          action: 'create'
+          topics:
+            - name: &cfAnalyticsEhAssetPositionsTopic '##app-env##-analytics-eh-asset-positions-topic'
+              namespace: *cfAnalyticsEhNamespace
+              resource_group: *cfAnalyticsEhRG
+              enable_capture: 'true'
+              message_retention: 7
+              partition_count: 32
+              status: 'Active'
+              arm_type: 'Microsoft.EventHub/Namespaces/EventHubs'
+              action: 'create'
+              capture:
+                skip_empty_archives: 'true'
+                capture_interval: 60
+                capture_size_limit: 524288000
+                archive_name_format: '{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}'
+                blob_container: *analyticsAssetPositionsBlobContainerName  # Blob container Name
+                destination_name: 'EventHubArchive.AzureBlockBlob'  # Name for capture destination.
+                storage_account: *assetsa001name  # name or ARM resource id
+              consumer_groups:
+                - name: &analytics_eh_asset_positions_consumer_group '##app-env##-analytics-eventhub-asset-positions-cg'
+                  topic_name: *cfAnalyticsEhAssetPositionsTopic
+                  namespace: *cfAnalyticsEhNamespace
+                  resource_group: *cfAnalyticsEhRG
+                  user_metadata: 'Connected Facilities -- sample message stream in canonical format for analytics assets tag position consumers'
+              authorization_rules:
+                - name: &cf_analytics_eh_asset_positions_producer_rule '##app-env##-analytics-eventhub-asset-positions-producer'
+                  topic_name: *cfAnalyticsEhAssetPositionsTopic
+                  namespace: *cfAnalyticsEhNamespace
+                  resource_group: *cfAnalyticsEhRG
+                  rights: 'Send'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_analytics_eh_asset_positions_producer_key_001 '##app-env##-analytics-eventhub-asset-positions-producer-key-001'
+                    secret_name_002: &cf_analytics_eh_asset_positions_producer_key_002 '##app-env##-analytics-eventhub-asset-positions-producer-key-002'
+                - name: &cf_analytics_eh_consumer_rule '##app-env##-analytics-eventhub-consumer'
+                  topic_name: *cfAnalyticsEhAssetPositionsTopic
+                  namespace: *cfAnalyticsEhNamespace
+                  resource_group: *cfAnalyticsEhRG
+                  rights: 'Listen'
+                  key_store:
+                    vault: *kvName
+                    secret_name_001: &cf_analytics_eh_consumer_key_001 '##app-env##-analytics-eventhub-consumer-key-001'
+                    secret_name_002: &cf_analytics_eh_consumer_key_002 '##app-env##-analytics-eventhub-consumer-key-002'
               authorized_managed_identities:
                 - id: 'fixme-authorized-managed-identity-001'
                   roles:
@@ -1410,6 +1557,7 @@ target:
                 - '##'
         cf-assets-v2-telemetry-forwarding-svc-docker:
           enabled: true
+          replicaCount: 1
           config:
             # placeholder values should allow the service to install and minimally respond
             environment:
@@ -1645,6 +1793,62 @@ target:
                 - *cfAuditEhTopic
                 - '","policy_name":"'
                 - *cf_audit_log_eh_producer_rule
+                - '"}'
+                - '##'
+        cf-geotransform-svc-docker:
+          enabled: true
+          replicaCount: 1
+          config:
+            environment:
+              APP_VERSION: '{{ .Chart.AppVersion }}'
+              ASSET_POSITIONS_V1_HOST_PORT:
+                - *cfAtEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              ASSET_POSITIONS_V1_CONSUMER_GROUP_NAME: *asset_tag_eh_asset_positions_consumer_group
+              ASSET_POSITIONS_V1_TOPIC: *cfAtEhAssetPositionsTopic
+              ATRIUS_OBJECTS_HOST: *wafFqdn
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
+              AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
+              GEOTRANSFORM_PROCESSOR: 'fwd_post'  # test 001, 002; fwd_parse; fwd_post; info
+              GEOTRANSFORM_PROGRESS_COMMITS: 'false'
+              GEOTRANSFORM_REWIND_OFFSET: 'true'
+              GEOTRANSFORM_PUBLISHING_HOST_PORT:
+                - *cfGeoTransformEhNamespace
+                - '.servicebus.windows.net'
+                - ':'
+                - '9093'
+              GEOTRANSFORM_PUBLISHING_TOPIC_NAME:
+                - *cfGeoTransformEhAssetPositionsTopic
+              JWT_ISSUERS: *trustedIdProviders
+            secrets:
+              ASSET_POSITIONS_V1_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAtEhRG
+                - '","namespace_name":"'
+                - *cfAtEhNamespace
+                - '","eventhub_name":"'
+                - *cfAtEhAssetPositionsTopic
+                - '","policy_name":"'
+                - *cf_at_eh_consumer_rule
+                - '"}'
+                - '##'
+              ATRIUS_OBJECTS_JWT_AUTH_TOKEN: ''
+              ATRIUS_OBJECTS_SERVICE_PRINCIPAL_SECRET: *elmSpSecret
+              GEOTRANSFORM_PUBLISHING_CONNECTION_STRING:
+                - '##eventhub_connection_string={'
+                - '"resource_group":"'
+                - *cfAnalyticsEhRG
+                - '","namespace_name":"'
+                - *cfGeoTransformEhNamespace
+                - '","eventhub_name":"'
+                - *cfGeoTransformEhAssetPositionsTopic
+                - '","policy_name":"'
+                - *cf_geotransform_eh_asset_positions_producer_rule
                 - '"}'
                 - '##'
         cf-oauth-proxy-docker:
