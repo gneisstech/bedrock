@@ -125,7 +125,7 @@ helm upgrade cfk8s cfprodregistry/cf-deployment-umbrella --version ^2.0.0-0 --va
 
 ==============================
 kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .metadata.name'
-kubectl get secrets --namespace kube-system  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .data.token | @base64d'
+kubectl get secrets --namespace kube-system --context cf-prod-k8s-001  -o json |jq '.items[] | select(.metadata.annotations."kubernetes.io/service-account.name" == "admin-user") | .data.token | @base64d'
 
 ==============================
 kubectl --context cf-dev-k8s-001-admin --namespace cfk8s get pods -o json |jq -r '.items[].metadata.name' | grep -E 'admin|authz|health|elm' | xargs -n 1 -I {} kubectl --context cf-dev-k8s-001-admin --namespace cfk8s exec {} rake routes > rails_routes.txt
