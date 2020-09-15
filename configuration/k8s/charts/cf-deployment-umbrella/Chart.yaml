@@ -258,6 +258,24 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: 'cf-geotransform-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-geotransform-svc-docker.enabled'
+    tags:
+      - 'cf-geotransform-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
+  - name: 'cf-atrius-site-metadata-svc-docker'
+    version: '^0.0-0'
+    repository: '@cfdevregistry'
+    condition: 'cf-atrius-site-metadata-svc-docker.enabled'
+    tags:
+      - 'cf-atrius-site-metadata-svc-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
   - name: prometheus-operator
     version: 9.3.1
     repository: https://kubernetes-charts.storage.googleapis.com
@@ -270,8 +288,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r9.1.53-dev'
+appVersion: 'r9.2.13-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 9.1.53-dev
+version: 9.2.13-dev
