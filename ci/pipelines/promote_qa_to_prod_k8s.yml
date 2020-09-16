@@ -10,6 +10,7 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+timeoutInMinutes: 240
 steps:
   - checkout: self
     # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
