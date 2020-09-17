@@ -11,7 +11,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 jobs:
-  - job: 'promote qa to prod'
+  - job: 'promote_qa_to_prod'
     timeoutInMinutes: 240
     steps:
       - checkout: self
