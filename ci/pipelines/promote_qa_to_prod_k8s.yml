@@ -10,123 +10,125 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-timeoutInMinutes: 240
-steps:
-  - checkout: self
-    # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
-    persistCredentials: true
-  - task: Docker@2
-    displayName: Login to ACR for QA registry
-    inputs:
-      command: login
-      containerRegistry: cf-qa-acr-service-connection
-  - task: Docker@2
-    displayName: Login to ACR for Prod registry
-    inputs:
-      command: login
-      containerRegistry: cf-prod-acr-service-connection
-  - task: AzureCLI@2
-    displayName: 'Install tools if needed'
-    inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/install_tools_if_needed.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Trace Environment'
-    inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/trace_environment.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Static Analysis'
-    inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './recipes/sast_shellcheck.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Check Key Vault Access'
-    inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/check_prod_key_vault_access.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Promote Deployed QA Artifacts to Prod'
-    inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/promote_qa_to_prod_k8s.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Push packaged Artifacts to Prod'
-    inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/publish_packaged_chart_to_prod.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Install latest umbrella chart to development k8s cluster'
-    inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/deploy_umbrella_chart_to_prod.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
+jobs:
+  - job: 'promote qa to prod'
+    timeoutInMinutes: 240
+    steps:
+      - checkout: self
+        # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
+        persistCredentials: true
+      - task: Docker@2
+        displayName: Login to ACR for QA registry
+        inputs:
+          command: login
+          containerRegistry: cf-qa-acr-service-connection
+      - task: Docker@2
+        displayName: Login to ACR for Prod registry
+        inputs:
+          command: login
+          containerRegistry: cf-prod-acr-service-connection
+      - task: AzureCLI@2
+        displayName: 'Install tools if needed'
+        inputs:
+          azureSubscription: 'cf-prod-az-service-connection'
+          scriptType: bash
+          scriptLocation: scriptPath
+          scriptPath: './ci/recipes/install_tools_if_needed.sh'
+          # inlineScript:
+          # arguments
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Trace Environment'
+        inputs:
+          azureSubscription: 'cf-prod-az-service-connection'
+          scriptType: bash
+          scriptLocation: scriptPath
+          scriptPath: './ci/recipes/trace_environment.sh'
+          # inlineScript:
+          # arguments
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Static Analysis'
+        inputs:
+          azureSubscription: 'cf-prod-az-service-connection'
+          scriptType: bash
+          scriptLocation: scriptPath
+          scriptPath: './recipes/sast_shellcheck.sh'
+          # inlineScript:
+          # arguments
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Check Key Vault Access'
+        inputs:
+          azureSubscription: 'cf-prod-az-service-connection'
+          scriptType: bash
+          scriptLocation: scriptPath
+          scriptPath: './ci/recipes/check_prod_key_vault_access.sh'
+          # inlineScript:
+          # arguments
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Promote Deployed QA Artifacts to Prod'
+        inputs:
+          azureSubscription: 'cf-prod-az-service-connection'
+          scriptType: bash
+          scriptLocation: scriptPath
+          scriptPath: './ci/recipes/promote_qa_to_prod_k8s.sh'
+          # inlineScript:
+          # arguments
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Push packaged Artifacts to Prod'
+        inputs:
+          azureSubscription: 'cf-prod-az-service-connection'
+          scriptType: bash
+          scriptLocation: scriptPath
+          scriptPath: './ci/recipes/publish_packaged_chart_to_prod.sh'
+          # inlineScript:
+          # arguments
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Install latest umbrella chart to development k8s cluster'
+        inputs:
+          azureSubscription: 'cf-prod-az-service-connection'
+          scriptType: bash
+          scriptLocation: scriptPath
+          scriptPath: './ci/recipes/deploy_umbrella_chart_to_prod.sh'
+          # inlineScript:
+          # arguments
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
