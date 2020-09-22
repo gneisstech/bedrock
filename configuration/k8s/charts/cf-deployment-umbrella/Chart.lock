@@ -22,10 +22,10 @@ dependencies:
   version: 2.1.15-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.39-dev
+  version: 1.0.40-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.39-dev
+  version: 1.0.40-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.1-dev
@@ -89,5 +89,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:6506e8a7700544b0fef2b44a2712eb329bba6085ced5f0d13aebcb5d74244af5
-generated: "2020-09-21T21:55:55.526916132Z"
+digest: sha256:b4b926fe21e961712d76b934ed5639c73a85fb4d0cf084542037359b3d81790c
+generated: "2020-09-22T00:19:03.37201322Z"
