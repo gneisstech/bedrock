@@ -1,0 +1,74 @@
+@startuml
+title RFC - Element AssetHub Proposed AuthN, AuthZ and IDp Entity relations as of 20190402
+
+hide circle
+hide empty members
+'
+UserBrowser }o--|| Ingress
+
+Note top of AssetHubServices : \n\
+  1) Services shall only use Role assertions and internally generated\n\
+   [Paths & Actions] to query the AuthZ service\n\n\
+  2) Services may persist other properly signed claims and\n\
+  services shall not use those claims to implement functional logic\n\n\
+  3) AuthZ Failures shall wait a preconfigured or random interval\n\
+   before reporting failure to avoid information leakage side-channel timing attacks
+AssetHubServices ||..> AssetHubAuthZ : \n\
+  a) Register [Paths, Actions, Roles, Grants]\n\
+  b) Query [Paths, Actions, Roles, Grants]\n\
+   using AuthZPublicKeySet;\n
+AssetHubServices ||..> AssetHubAuthN : \n\
+  1) render attributes of UserID
+
+AssetHubServices ||--o{ Paths : FK
+AssetHubServices ||--o{ Actions : FK
+
+Note top of AssetHubAuthN : \n\
+  1) needs API/UI or static config to connect to IDp\n\n\
+  2) needs API to enumerate IDpGroups for AuthZ\n\n\
+  3) Supports multiple concurrent IDp\n\
+  4) needs API to render attributes of UserID
+
+AssetHubAuthN ||--|{ IdentityProvider
+AssetHubAuthN ||--|| AuditorService
+AssetHubAuthN ||--|{ AuthNPublicKeys
+AssetHubAuthN ||--o{ IDpMetaData
+
+
+IdentityProvider ||--o{ IDpIdentities
+IdentityProvider ||--o{ IDpGroups
+IdentityProvider ||--|| IDpMetaData
+
+Ingress ||--|| AssetHubAuthN
+Ingress ||--o{ AssetHubServices
+Ingress ||--|| AssetHubAuthZ
+
+Note top of AssetHubAuthZ : \n\
+  1) needs API for Services to register/query\n\
+  [CRUD for: Paths, Actions, Roles, Grants]\n\n\
+  2) needs API/UI to associate IDpGroups with Roles\n\n\
+  3) needs API/UI to associate Roles with Grants
+
+AssetHubAuthZ ||--o{ IDpGroups : FK
+AssetHubAuthZ ||--o{ Roles
+AssetHubAuthZ ||--o{ Actions
+AssetHubAuthZ ||--o{ Paths
+AssetHubAuthZ ||--|{ AuthZPublicKeys
+AssetHubAuthZ ||--|| AuditorService
+AssetHubAuthZ ||..> AssetHubAuthN : EnumerateGroups,\nEnumerateIDp\nusing AuthNPublicKeySet
+
+Note top of IDpGroups : use selected groups as "organization - OU"
+IDpGroups ||--|| Roles : FK
+
+Actions ||--|| Create
+Actions ||--|| Read
+Actions ||--|| Update
+Actions ||--|| Delete
+Actions ||--o{ OtherActions
+
+Roles ||--o{ Grants
+Grants ||--o{ Paths
+Grants ||--o{ Actions
+
+@enduml
+
