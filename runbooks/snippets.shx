@@ -44,6 +44,9 @@ helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/env
 helm install datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
 helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/cf_k8s_prod.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
 
+helm install datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/acuity_gitlab_k8s_001.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
+helm upgrade datadog stable/datadog --values <(TARGET_CONFIG=./configuration/environments/acuity_gitlab_k8s_001.yaml ./recipes/extract_datadog_values.sh) --namespace datadog
+
 #dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
 kubectl proxy
