@@ -20,20 +20,6 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function is_azure_pipeline_build () {
-    [[ "True" == "${TF_BUILD:-}" ]]
-}
-
-function update_git_tag () {
-    local -r blessed_release_tag="${1}"
-    if [[ "true" == "${BUMP_SEMVER}" ]]; then
-        printf 'pushing git commits: \n'
-        git status
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-        git push origin "${blessed_release_tag}"
-    fi
-}
-
 function get_kube_context () {
     local -r deployment_json="${1}"
     jq -r -e '.k8s.context' <<< "${deployment_json}"
@@ -44,9 +30,14 @@ function get_kube_namespace () {
     jq -r -e '.k8s.namespace' <<< "${deployment_json}"
 }
 
+function get_pv_secret_namespace_prefix () {
+    local -r deployment_json="${1}"
+    jq -r -e '.k8s.pv_secret_namespace_prefix' <<< "${deployment_json}"
+}
+
 function get_pv_secret_namespace () {
     local -r deployment_json="${1}"
-    jq -r -e '.k8s.pv_secret_namespace' <<< "${deployment_json}"
+    printf '%s-pv' "$(get_pv_secret_namespace_prefix "${deployment_json}")"
 }
 
 function get_helm_deployment_name () {
@@ -54,9 +45,14 @@ function get_helm_deployment_name () {
     jq -r -e '.helm.umbrella.deployment_name' <<< "${deployment_json}"
 }
 
-function get_helm_registry () {
+function get_helm_registry_name () {
     local -r deployment_json="${1}"
-    jq -r -e '.helm.umbrella.registry' <<< "${deployment_json}"
+    jq -r -e '.helm.umbrella.registry.name' <<< "${deployment_json}"
+}
+
+function get_helm_registry_url () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.umbrella.registry.url' <<< "${deployment_json}"
 }
 
 function get_helm_chart_name () {
@@ -118,96 +114,15 @@ function create_pv_secret_namespace () {
     kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
 }
 
-function get_sa_name () {
-    local -r deployment_json="${1}"
-    jq -r -e '.helm.storage.account.name' <<< "${deployment_json}"
-}
-
-function get_sa_key () {
-    local -r sa_name="${1}"
-    az storage account keys list --account-name "${sa_name}" | jq -r -e '.[0].value | @base64'
-}
-
-function get_certbot_state_name () {
-    printf 'certbot-state'
-}
-
-function create_azure_secret_resource () {
-    local -r deployment_json="${1}"
-    local -r sa_name="${2}"
-    local -r sa_key="${3}"
-cat <<EOF
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  annotations:
-  labels:
-    component: cf-az-files-$(get_certbot_state_name)
-    release: $(get_kube_namespace "${deployment_json}")
-  name: cf-az-files-$(get_certbot_state_name)
-  namespace: $(get_pv_secret_namespace "${deployment_json}")
-data:
-  azurestorageaccountname: '$(base64 <<< "${sa_name}")'
-  azurestorageaccountkey: '${sa_key}'
-
-EOF
-}
-
-function create_azure_volume_secret () {
-    local -r deployment_json="${1}"
-    local sa_name sa_key
-    sa_name="$(get_sa_name "${deployment_json}")"
-    sa_key="$(get_sa_key "${sa_name}")"
-
-    kubectl \
-        --context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_pv_secret_namespace "${deployment_json}")" \
-        apply -f <(create_azure_secret_resource "${deployment_json}" "${sa_name}" "${sa_key}")
-}
-
-function create_k8s_persistent_volume_resource () {
-    local -r deployment_json="${1}"
-    local -r sa_key="${2}"
-cat <<EOF
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: cf-az-files-$(get_certbot_state_name)-$(get_kube_namespace "${deployment_json}")-pv
-  labels:
-    usage: cf-az-files-$(get_certbot_state_name)-pv
-spec:
-  capacity:
-    storage: 10Gi
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: 'manual-certbot'
-  mountOptions:
-    - mfsymlinks
-  azureFile:
-    shareName: $(get_certbot_state_name)
-    secretName: cf-az-files-$(get_certbot_state_name)
-    secretNamespace: $(get_pv_secret_namespace "${deployment_json}")
-    readOnly: false
-EOF
-}
-
-function create_k8s_persistent_volume () {
-    local -r deployment_json="${1}"
-    local sa_name sa_key
-    sa_name="$(get_sa_name "${deployment_json}")"
-    sa_key="$(get_sa_key "${sa_name}")"
-
-    kubectl \
-        --context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_kube_namespace "${deployment_json}")" \
-        apply -f <(create_k8s_persistent_volume_resource "${deployment_json}" "${sa_key}")
-}
-
 function update_helm_repo () {
-    local -r registry="${1}"
-    az acr helm repo add --name "${registry}"
+    local registry_name registry_url
+    registry_name="$(get_helm_registry_name "${deployment_json}")"
+    registry_url="$(get_helm_registry_url "${deployment_json}")"
+    if [[ "${registry_url}" =~ ^https ]]; then
+      helm repo add "${registry_name}" "${registry_url}"
+    else
+      az acr helm repo add --name "${registry_name}"
+    fi
     helm repo update
     helm version
 }
@@ -221,12 +136,13 @@ function failed_secrets () {
 function update_helm_chart_on_k8s () {
     local -r deployment_json="${1}"
     local registry chart_name
-    registry="$(get_helm_registry "${deployment_json}")"
+    registry="$(get_helm_registry_name`` "${deployment_json}")"
     chart_name="$(get_helm_chart_name "${deployment_json}")"
-    update_helm_repo "${registry}"
+    update_helm_repo
     printf 'Script Failure means unable to access key vault\n'
     # get_helm_values "${deployment_json}"
     helm_values="$(get_helm_values "${deployment_json}")"
+    printf '%s' "${helm_values}}"
     printf 'Script succeeded to access key vault\n'
     kubectl cluster-info
     helm list -A \
@@ -272,8 +188,7 @@ function deployment_helm_update () {
     connect_to_k8s "${deployment_json}"
     create_k8s_app_namespace "${deployment_json}"
     create_pv_secret_namespace "${deployment_json}"
-    create_azure_volume_secret "${deployment_json}"
-    create_k8s_persistent_volume "${deployment_json}" || true
+    "$(repo_root)/recipes/deployment_helm_ensure_persistent_volumes.sh" "${deployment_name}"
     update_helm_chart_on_k8s "${deployment_json}"
 }
 

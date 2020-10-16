@@ -355,7 +355,7 @@ target:
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
-        - name: &certbotState 'certbot-state'
+        - name: 'certbot'
           quota: '10'
           storage_account_name: *sa001name
           metadata: 'cfenv=##env## cfrole=##env##'
