@@ -49,7 +49,8 @@ function jq_filter_join_string_arrays () {
 def is_string_array(a):
     . | if type == "array" then .
         | if (([ .[] | select(type == "array" or type == "object") ] | length) > 0) then false
-        else true
+        else
+          if ((. | length) > 1) then true else false end
         end
     else false
     end;

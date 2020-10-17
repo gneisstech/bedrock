@@ -176,7 +176,12 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: 'manual-${volume_name}'
   mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - uid=0
+    - gid=0
     - mfsymlinks
+    - cache=strict
   azureFile:
     shareName: ${volume_name}-state
     secretName: ${volume_prefix}-az-files-${volume_name}-state
@@ -196,7 +201,7 @@ function create_k8s_persistent_volume () {
         --namespace "$(get_kube_namespace "${deployment_json}")" \
         apply -f <( \
           create_k8s_persistent_volume_resource \
-          "${deployment_json}" \
+            "${deployment_json}" \
             "${volume_name}" \
             "${volume_prefix}" \
             "${volume_quota}" \

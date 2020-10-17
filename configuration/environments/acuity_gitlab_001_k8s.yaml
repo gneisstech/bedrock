@@ -145,11 +145,6 @@ target:
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
-        - name: 'certbot'
-          quota: '10'
-          storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
-          action: 'create'
         - name: 'gitlab-prometheus-server'
           quota: '32'
           storage_account_name: *sa001name
@@ -329,9 +324,10 @@ target:
         certmanager-issuer:
           email: 'techguru@byiq.com'
         gitlab:
-          gitaly:
+          xx-gitaly:
             persistence:
               storageClass: 'manual-gitlab-gitaly'
+              accessMode: 'ReadWriteMany'
         global:
           hosts:
             domain: 'dev.atrius-iot.com'
@@ -347,9 +343,10 @@ target:
               - '##'
           grafana:
             enabled: true
-        minio:
+        xx-minio:
           persistence:
             storageClass: 'manual-gitlab-minio'
+            accessMode: 'ReadWriteMany'
         nginx-ingress:
           controller:
             service:
@@ -366,19 +363,37 @@ target:
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *glWafRG
         postgresql:
+          volumePermissions:
+            enabled: true
           global:
             storageClass: 'manual-gitlab-postgresql'
-        prometheus:
+          persistence:
+            accessModes:
+              - 'ReadWriteMany'
+        xx-prometheus:
           alertmanager:
             persistentVolume:
               storageClass: 'manual-gitlab-prometheus-server'
+              accessModes:
+                - 'ReadWriteMany'
           pushgateway:
             persistentVolume:
               storageClass: 'manual-gitlab-prometheus-server'
+              accessModes:
+                - 'ReadWriteMany'
           server:
             persistentVolume:
               storageClass: 'manual-gitlab-prometheus-server'
-        redis:
+              accessModes:
+                - 'ReadWriteMany'
+        xx-redis:
           global:
             storageClass: 'manual-gitlab-redis'
-
+          master:
+            persistence:
+              accessModes:
+                - 'ReadWriteMany'
+          slave:
+            persistence:
+              accessModes:
+                - 'ReadWriteMany'
