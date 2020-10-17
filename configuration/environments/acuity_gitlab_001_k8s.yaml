@@ -130,55 +130,9 @@ target:
         sku: 'Premium'
         admin_enabled: true
         action: 'create'
-    # storage accounts - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
-    storage:
-      accounts:
-        - name: &sa001name 'abl##appenv##sa'
-          resource_group: *glReposRG
-          location: *defaultAzureLocation
-          encryption_services: 'file'
-          https_only: true
-          kind: 'StorageV2'
-          sku: 'Standard_ZRS'
-          tags: *labels
-          arm_type: 'Microsoft.Storage/storageAccounts'
-          action: 'create'
-      # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
-      azure_files:
-        - name: 'gitlab-prometheus-server'
-          quota: '32'
-          storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
-          action: 'create'
-        - name: 'gitlab-gitaly'
-          quota: '300'
-          storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
-          action: 'create'
-        - name: 'gitlab-redis'
-          quota: '32'
-          storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
-          action: 'create'
-        - name: 'gitlab-postgresql'
-          quota: '64'
-          storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
-          action: 'create'
-        - name: 'gitlab-minio'
-          quota: '300'
-          storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
-          action: 'create'
-      # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
-      blob_store:
-        - name: &gitlabBlobContainerName 'gitlab-blob-storage'
-          storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
-          action: 'create'
     k8s:
       clusters:
-        - name: '##app-env##-k8s'
+        - name: &glKubernetesClusterName '##app-env##-k8s'
           resource_group: *glK8sRG
           location: *defaultAzureLocation
           # aad_client_app_id:
@@ -304,6 +258,224 @@ target:
             create: true
           collectors:
             verticalpodautoscalers: null
+    # storage accounts - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+    storage:
+      accounts:
+        - name: &sa001name 'abl##appenv##sa'
+          resource_group: *glReposRG
+          location: *defaultAzureLocation
+          encryption_services: 'file'
+          https_only: true
+          kind: 'StorageV2'
+          sku: 'Standard_ZRS'
+          tags: *labels
+          arm_type: 'Microsoft.Storage/storageAccounts'
+          action: 'create'
+      # azure disks - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+      azure_disks:
+        - name: &prometheusDisk 'gitlab-prometheus'
+          resource_group: &k8sMcResourceGroup
+            - 'mc_'
+            - *glK8sRG
+            - '_'
+            - *glKubernetesClusterName
+            - '_'
+            - *defaultAzureLocation
+          location: *defaultAzureLocation
+          os_type: 'Linux'
+          size_gb: '32'
+          encryption_type: 'EncryptionAtRestWithPlatformKey'
+          sku: 'Premium_LRS'
+          tags: 'glenv=##env## glrole=##env##'
+          k8s_volume_data:
+            accessModes:
+              - 'ReadWriteOnce'
+            azureDisk:
+              cachingMode: 'ReadOnly'
+              diskName: *prometheusDisk
+              diskURI:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *k8sMcResourceGroup
+                - '/providers/Microsoft.Compute/disks/'
+                - *prometheusDisk
+              fsType: ''
+              kind: 'Managed'
+              readOnly: 'false'
+            persistentVolumeReclaimPolicy: 'Retain'
+            storageClassName: 'default'
+            volumeMode: 'Filesystem'
+          action: 'create'
+        - name: &gitalyDisk 'gitlab-gitaly'
+          resource_group: &k8sMcResourceGroup
+            - 'mc_'
+            - *glK8sRG
+            - '_'
+            - *glKubernetesClusterName
+            - '_'
+            - *defaultAzureLocation
+          location: *defaultAzureLocation
+          os_type: 'Linux'
+          size_gb: '300'
+          encryption_type: 'EncryptionAtRestWithPlatformKey'
+          sku: 'Premium_LRS'
+          tags: 'glenv=##env## glrole=##env##'
+          k8s_volume_data:
+            accessModes:
+              - 'ReadWriteOnce'
+            azureDisk:
+              cachingMode: 'ReadOnly'
+              diskName: *gitalyDisk
+              diskURI:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *k8sMcResourceGroup
+                - '/providers/Microsoft.Compute/disks/'
+                - *gitalyDisk
+              fsType: ''
+              kind: 'Managed'
+              readOnly: 'false'
+            persistentVolumeReclaimPolicy: 'Retain'
+            storageClassName: 'default'
+            volumeMode: 'Filesystem'
+          action: 'create'
+        - name: &redisDisk 'gitlab-redis'
+          resource_group: &k8sMcResourceGroup
+            - 'mc_'
+            - *glK8sRG
+            - '_'
+            - *glKubernetesClusterName
+            - '_'
+            - *defaultAzureLocation
+          location: *defaultAzureLocation
+          os_type: 'Linux'
+          size_gb: '32'
+          encryption_type: 'EncryptionAtRestWithPlatformKey'
+          sku: 'Premium_LRS'
+          tags: 'glenv=##env## glrole=##env##'
+          k8s_volume_data:
+            accessModes:
+              - 'ReadWriteOnce'
+            azureDisk:
+              cachingMode: 'ReadOnly'
+              diskName: *redisDisk
+              diskURI:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *k8sMcResourceGroup
+                - '/providers/Microsoft.Compute/disks/'
+                - *redisDisk
+              fsType: ''
+              kind: 'Managed'
+              readOnly: 'false'
+            persistentVolumeReclaimPolicy: 'Retain'
+            storageClassName: 'default'
+            volumeMode: 'Filesystem'
+          action: 'create'
+        - name: &postgresqlDisk 'gitlab-postgresql'
+          resource_group: &k8sMcResourceGroup
+            - 'mc_'
+            - *glK8sRG
+            - '_'
+            - *glKubernetesClusterName
+            - '_'
+            - *defaultAzureLocation
+          location: *defaultAzureLocation
+          os_type: 'Linux'
+          size_gb: '64'
+          encryption_type: 'EncryptionAtRestWithPlatformKey'
+          sku: 'Premium_LRS'
+          tags: 'glenv=##env## glrole=##env##'
+          k8s_volume_data:
+            accessModes:
+              - 'ReadWriteOnce'
+            azureDisk:
+              cachingMode: 'ReadOnly'
+              diskName: *postgresqlDisk
+              diskURI:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *k8sMcResourceGroup
+                - '/providers/Microsoft.Compute/disks/'
+                - *postgresqlDisk
+              fsType: ''
+              kind: 'Managed'
+              readOnly: 'false'
+            persistentVolumeReclaimPolicy: 'Retain'
+            storageClassName: 'default'
+            volumeMode: 'Filesystem'
+          action: 'create'
+        - name: &minioDisk 'gitlab-minio'
+          resource_group: &k8sMcResourceGroup
+            - 'mc_'
+            - *glK8sRG
+            - '_'
+            - *glKubernetesClusterName
+            - '_'
+            - *defaultAzureLocation
+          location: *defaultAzureLocation
+          os_type: 'Linux'
+          size_gb: '300'
+          encryption_type: 'EncryptionAtRestWithPlatformKey'
+          sku: 'Premium_LRS'
+          tags: 'glenv=##env## glrole=##env##'
+          k8s_volume_data:
+            accessModes:
+              - 'ReadWriteOnce'
+            azureDisk:
+              cachingMode: 'ReadOnly'
+              diskName: *minioDisk
+              diskURI:
+                - '/subscriptions/'
+                - *defaultAzureSubscription
+                - '/resourceGroups/'
+                - *k8sMcResourceGroup
+                - '/providers/Microsoft.Compute/disks/'
+                - *minioDisk
+              fsType: ''
+              kind: 'Managed'
+              readOnly: 'false'
+            persistentVolumeReclaimPolicy: 'Retain'
+            storageClassName: 'default'
+            volumeMode: 'Filesystem'
+          action: 'create'
+      # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+      azure_files:
+        - name: 'gitlab-prometheus-server'
+          quota: '32'
+          storage_account_name: *sa001name
+          metadata: 'glenv=##env## glrole=##env##'
+          action: 'create'
+        - name: 'gitlab-gitaly'
+          quota: '300'
+          storage_account_name: *sa001name
+          metadata: 'glenv=##env## glrole=##env##'
+          action: 'create'
+        - name: 'gitlab-redis'
+          quota: '32'
+          storage_account_name: *sa001name
+          metadata: 'glenv=##env## glrole=##env##'
+          action: 'create'
+        - name: 'gitlab-postgresql'
+          quota: '64'
+          storage_account_name: *sa001name
+          metadata: 'glenv=##env## glrole=##env##'
+          action: 'create'
+        - name: 'gitlab-minio'
+          quota: '300'
+          storage_account_name: *sa001name
+          metadata: 'glenv=##env## glrole=##env##'
+          action: 'create'
+      # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
+      blob_store:
+        - name: &gitlabBlobContainerName 'gitlab-blob-storage'
+          storage_account_name: *sa001name
+          metadata: 'glenv=##env## glrole=##env##'
+          action: 'create'
   saas:
     helm:
       default_values:
