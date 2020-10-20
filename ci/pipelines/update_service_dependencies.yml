@@ -29,6 +29,12 @@ pr: none
 
 resources:
   pipelines:
+    - pipeline: 'atrius-authz-api-docker'
+      source: 'atrius_authz'
+      trigger:
+        branches:
+          include:
+            - 'master-bytelight'
     - pipeline: 'cf-atrius-objects-api-docker'
       source: 'cf_atrius_objects'
       trigger:
