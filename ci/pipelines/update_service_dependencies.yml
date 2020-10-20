@@ -29,7 +29,7 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: 'atrius-authz-api-docker'
+    - pipeline: 'atrius-authz-web-api-docker'
       source: 'atrius_authz'
       trigger:
         branches:
