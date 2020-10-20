@@ -261,8 +261,8 @@ target:
     # storage accounts - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
     storage:
       accounts:
-        - name: &sa001name 'abl##appenv##sa'
-          resource_group: *glReposRG
+        - name: &sa001name 'abl02##appenv##sa'
+          resource_group: &k8sMcResourceGroup 'MC_K8S-gitlab001_gitlab-001-k8s_eastus'
           location: *defaultAzureLocation
           encryption_services: 'file'
           https_only: true
@@ -274,20 +274,18 @@ target:
       # azure disks - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_disks:
         - name: &prometheusDisk 'gitlab-prometheus'
-          resource_group: &k8sMcResourceGroup
-            - 'mc_'
-            - *glK8sRG
-            - '_'
-            - *glKubernetesClusterName
-            - '_'
-            - *defaultAzureLocation
+          resource_group: *k8sMcResourceGroup
           location: *defaultAzureLocation
           os_type: 'Linux'
-          size_gb: '32'
+          size_gb: &prometheusGB '32'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'glenv=##env## glrole=##env##'
+          tags: 'cf-env=gl##env## cf-role=gl##env##'
           k8s_volume_data:
+            capacity:
+              storage:
+                - *prometheusGB
+                - 'Gi'
             accessModes:
               - 'ReadWriteOnce'
             azureDisk:
@@ -302,26 +300,24 @@ target:
                 - *prometheusDisk
               fsType: ''
               kind: 'Managed'
-              readOnly: 'false'
+              readOnly: false
             persistentVolumeReclaimPolicy: 'Retain'
-            storageClassName: 'default'
+            storageClassName: 'gitlab-prometheus-state'
             volumeMode: 'Filesystem'
           action: 'create'
         - name: &gitalyDisk 'gitlab-gitaly'
-          resource_group: &k8sMcResourceGroup
-            - 'mc_'
-            - *glK8sRG
-            - '_'
-            - *glKubernetesClusterName
-            - '_'
-            - *defaultAzureLocation
+          resource_group: *k8sMcResourceGroup
           location: *defaultAzureLocation
           os_type: 'Linux'
-          size_gb: '300'
+          size_gb: &gitalyGB '300'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'glenv=##env## glrole=##env##'
+          tags: 'cf-env=gl##env## cf-role=gl##env##'
           k8s_volume_data:
+            capacity:
+              storage:
+                - *gitalyGB
+                - 'Gi'
             accessModes:
               - 'ReadWriteOnce'
             azureDisk:
@@ -336,26 +332,24 @@ target:
                 - *gitalyDisk
               fsType: ''
               kind: 'Managed'
-              readOnly: 'false'
+              readOnly: false
             persistentVolumeReclaimPolicy: 'Retain'
-            storageClassName: 'default'
+            storageClassName: 'gitlab-gitaly-state'
             volumeMode: 'Filesystem'
           action: 'create'
         - name: &redisDisk 'gitlab-redis'
-          resource_group: &k8sMcResourceGroup
-            - 'mc_'
-            - *glK8sRG
-            - '_'
-            - *glKubernetesClusterName
-            - '_'
-            - *defaultAzureLocation
+          resource_group: *k8sMcResourceGroup
           location: *defaultAzureLocation
           os_type: 'Linux'
-          size_gb: '32'
+          size_gb: &redisGB '32'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'glenv=##env## glrole=##env##'
+          tags: 'cf-env=gl##env## cf-role=gl##env##'
           k8s_volume_data:
+            capacity:
+              storage:
+                - *redisGB
+                - 'Gi'
             accessModes:
               - 'ReadWriteOnce'
             azureDisk:
@@ -370,26 +364,24 @@ target:
                 - *redisDisk
               fsType: ''
               kind: 'Managed'
-              readOnly: 'false'
+              readOnly: false
             persistentVolumeReclaimPolicy: 'Retain'
-            storageClassName: 'default'
+            storageClassName: 'gitlab-redis-state'
             volumeMode: 'Filesystem'
           action: 'create'
         - name: &postgresqlDisk 'gitlab-postgresql'
-          resource_group: &k8sMcResourceGroup
-            - 'mc_'
-            - *glK8sRG
-            - '_'
-            - *glKubernetesClusterName
-            - '_'
-            - *defaultAzureLocation
+          resource_group: *k8sMcResourceGroup
           location: *defaultAzureLocation
           os_type: 'Linux'
-          size_gb: '64'
+          size_gb: &postgresqlGB '64'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'glenv=##env## glrole=##env##'
+          tags: 'cf-env=gl##env## cf-role=gl##env##'
           k8s_volume_data:
+            capacity:
+              storage:
+                - *postgresqlGB
+                - 'Gi'
             accessModes:
               - 'ReadWriteOnce'
             azureDisk:
@@ -404,26 +396,24 @@ target:
                 - *postgresqlDisk
               fsType: ''
               kind: 'Managed'
-              readOnly: 'false'
+              readOnly: false
             persistentVolumeReclaimPolicy: 'Retain'
-            storageClassName: 'default'
+            storageClassName: 'gitlab-postgresql-state'
             volumeMode: 'Filesystem'
           action: 'create'
         - name: &minioDisk 'gitlab-minio'
-          resource_group: &k8sMcResourceGroup
-            - 'mc_'
-            - *glK8sRG
-            - '_'
-            - *glKubernetesClusterName
-            - '_'
-            - *defaultAzureLocation
+          resource_group: *k8sMcResourceGroup
           location: *defaultAzureLocation
           os_type: 'Linux'
-          size_gb: '300'
+          size_gb: &minioGB '300'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'glenv=##env## glrole=##env##'
+          tags: 'cf-env=gl##env## cf-role=gl##env##'
           k8s_volume_data:
+            capacity:
+              storage:
+                - *minioGB
+                - 'Gi'
             accessModes:
               - 'ReadWriteOnce'
             azureDisk:
@@ -438,9 +428,9 @@ target:
                 - *minioDisk
               fsType: ''
               kind: 'Managed'
-              readOnly: 'false'
+              readOnly: false
             persistentVolumeReclaimPolicy: 'Retain'
-            storageClassName: 'default'
+            storageClassName: 'gitlab-minio-state'
             volumeMode: 'Filesystem'
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
@@ -448,33 +438,33 @@ target:
         - name: 'gitlab-prometheus-server'
           quota: '32'
           storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
+          metadata: 'cf-env=gl##env## cf-role=gl##env##'
           action: 'create'
         - name: 'gitlab-gitaly'
           quota: '300'
           storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
+          metadata: 'cf-env=gl##env## cf-role=gl##env##'
           action: 'create'
         - name: 'gitlab-redis'
           quota: '32'
           storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
+          metadata: 'cf-env=gl##env## cf-role=gl##env##'
           action: 'create'
         - name: 'gitlab-postgresql'
           quota: '64'
           storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
+          metadata: 'cf-env=gl##env## cf-role=gl##env##'
           action: 'create'
         - name: 'gitlab-minio'
           quota: '300'
           storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
+          metadata: 'cf-env=gl##env## cf-role=gl##env##'
           action: 'create'
       # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       blob_store:
         - name: &gitlabBlobContainerName 'gitlab-blob-storage'
           storage_account_name: *sa001name
-          metadata: 'glenv=##env## glrole=##env##'
+          metadata: 'cf-env=gl##env## cf-role=gl##env##'
           action: 'create'
   saas:
     helm:
@@ -535,13 +525,17 @@ target:
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *glWafRG
         postgresql:
+          securityContext:
+            enabled: false
           volumePermissions:
             enabled: true
-          global:
+          xx-global:
             storageClass: 'manual-gitlab-postgresql'
           persistence:
             accessModes:
               - 'ReadWriteMany'
+            existingClaim:
+              'gl-az-files-gitlab-postgresql-state-gitlab-pvc'
         xx-prometheus:
           alertmanager:
             persistentVolume:
