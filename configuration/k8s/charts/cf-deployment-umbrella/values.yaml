@@ -1032,3 +1032,43 @@ cf-waf-ingress:
 cf-prometheus-operator:
   fullnameOverride: 'cf-prometheus-operator'
   enabled: false
+
+atrius-authz-web-api-docker:
+  fullnameOverride: 'atrius-authz-web-api-docker'
+  enabled: true
+  config_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/resource-policy": keep
+    "helm.sh/hook-weight": "-1"
+  migration_annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/atrius-authz/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+    hosts:
+      - paths:
+          - '/atrius-authz(/|$)(.*)'
+  config:
+    environment:
+      <<: *railsEnv
+      JWT_ISSUERS: *trustedIdProviders
+      AUTHORIZED_USERS: "\
+        fbb85e37-fb1e-49dd-8020-6f298347b875\
+        ,\
+        36bc7f6b-2161-415c-a00e-4332b59aaa99
+        ,\
+        36afd8af-9619-4c9b-a61b-5d792cc47d3b
+        ,\
+        0caa3161-bdb4-408d-abf3-cffb4ef7b990"
+    secrets:
+      DATABASE_URL: *dbUrlAuthZ
+      SECRET_KEY_BASE: *secretKeyBaseAuthZ

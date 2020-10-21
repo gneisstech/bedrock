@@ -276,6 +276,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
+  - name: atrius-authz-web-api-docker
+    version: '^0.2.0-0'
+    repository: '@cfdevregistry'
+    condition: 'atrius-authz-web-api-docker.enabled'
+    tags:
+      - 'atrius-authz-web-api-docker'
+    enabled: true
+    import-values: [] # (optional)
+    alias: null
   - name: prometheus-operator
     version: 9.3.1
     repository: https://kubernetes-charts.storage.googleapis.com
@@ -288,8 +297,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r9.2.41-dev'
+appVersion: 'r9.3.0-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 9.2.41-dev
+version: 9.3.0-dev
