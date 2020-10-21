@@ -2014,7 +2014,7 @@ target:
           defaultBackend:
             replicaCount: 3
         atrius-authz-web-api-docker:
-          replicaCount: 1
+          replicaCount: 3
           config_annotations:
             "helm.sh/hook": pre-install,pre-upgrade
             "helm.sh/resource-policy": keep
