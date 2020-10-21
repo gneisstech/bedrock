@@ -184,7 +184,11 @@ spec:
     secretNamespace: $(get_pv_secret_namespace "${deployment_json}")
     readOnly: false
   mountOptions:
+    - uid=0
+    - gid=0
+    - cache=strict
     - mfsymlinks
+    - nosharesock
 EOF
 
 cat > /dev/null <<EOF2
