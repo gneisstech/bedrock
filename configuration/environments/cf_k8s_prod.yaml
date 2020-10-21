@@ -227,7 +227,7 @@ target:
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
-          max_size: '250GB'
+          max_size: '600GB'
           auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
