@@ -1,1 +1,1 @@
-semver: 9.3.5
+semver: 9.3.6

@@ -88,9 +88,9 @@ dependencies:
   version: 0.0.2-dev
 - name: atrius-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.2.1-dev
+  version: 0.2.2-dev
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:6ad1e464f59fa7aef9817a3fa2fe9f8afa9097f13024117068b1ccb9eb39cdab
-generated: "2020-10-21T18:39:28.998772531Z"
+digest: sha256:667f7ad087b08267ea309e4258c0536918872922e9990a062a96118919b22002
+generated: "2020-10-22T14:39:01.691925911Z"
