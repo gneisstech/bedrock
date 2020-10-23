@@ -795,7 +795,7 @@ cf-ecy-ingest-svc-docker:
       SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
       SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
       APP_VERSION: '{{ .Chart.AppVersion }}'
-      RELAY_API_RESPONSE_TIMEOUT: 90
+      RELAY_API_RESPONSE_TIMEOUT: '90'
     secrets:
       JWT_AUTH_TOKEN: ''
       SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
