@@ -1,7 +1,7 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.50-dev
+  version: 1.2.51-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.1-dev
@@ -92,5 +92,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:f9479922fd4a44c547217c537bfa2962670c7942b84fec84c478804b3e21521a
-generated: "2020-10-29T20:00:34.632083787Z"
+digest: sha256:279a22ddc14d286d96807746c0699b8ddb0135f3ba503c911fe77991442eff4b
+generated: "2020-10-29T21:01:29.772407892Z"
