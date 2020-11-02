@@ -543,4 +543,8 @@ curl -vvv --request POST 'https://cf.dev.atrius-iot.com/cf-elm/api/v1/gateway-se
     SecDebugLog /dev/stderr
     SecDebugLogLevel 9
 
+kubectl --context cf-dev-k8s-001 --namespace cfk8s create job --from=cronjob/cf-ecy-ingest-svc-docker-job cf-ecy-ingest-svc-docker-job-manual-001
+kubectl --context cf-qa-k8s-001 --namespace cfk8s create job --from=cronjob/cf-ecy-ingest-svc-docker-job cf-ecy-ingest-svc-docker-job-manual-001
+kubectl --context cf-prod-k8s-001 --namespace cfk8s create job --from=cronjob/cf-ecy-ingest-svc-docker-job cf-ecy-ingest-svc-docker-job-manual-002
+
 

@@ -785,6 +785,11 @@ cf-ecy-ingest-svc-docker:
         SecRequestBodyLimitAction ProcessPartial
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
+      'nginx.ingress.kubernetes.io/upstream-keepalive-timeout': 540
+      'nginx.ingress.kubernetes.io/send_timeout': 540
+      'nginx.ingress.kubernetes.io/proxy-connect-timeout': 540
+      'nginx.ingress.kubernetes.io/proxy-read-timeout': 540
+      'nginx.ingress.kubernetes.io/proxy-send-timeout': 540
     hosts:
       - paths:
           - '/cf-ecy-ingest(/|$)(.*)'
