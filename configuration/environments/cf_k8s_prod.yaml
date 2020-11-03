@@ -1873,7 +1873,7 @@ target:
                 - '"}'
                 - '##'
         cf-geotransform-svc-docker:
-          enabled: true
+          enabled: false
           replicaCount: 3
           config:
             environment:
