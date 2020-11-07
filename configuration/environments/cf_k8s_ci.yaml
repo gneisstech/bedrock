@@ -93,7 +93,7 @@ target:
       - name: &kvName '##app-env##-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
-        soft_delete: 'false'
+        purge: 'true'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
