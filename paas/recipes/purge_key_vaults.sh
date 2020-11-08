@@ -55,12 +55,12 @@ function paas_configuration () {
 }
 
 function key_vault_names () {
-    paas_configuration | jq -r -e '[.key_vaults[] | select(.purge == "true") | .name ] | @tsv'
+    paas_configuration | jq -r -e '[.keyvaults[] | select(.purge == "true") | .name ] | @tsv'
 }
 
 function purge_key_vaults () {
     # shellcheck disable=2086
-    key_vault_names | xargs -n 1 -P 10 $AZ_TRACE keyvault purge --yes --name
+    key_vault_names | xargs -n 1 -P 10 $AZ_TRACE keyvault purge --name
 }
 
 purge_key_vaults || true
