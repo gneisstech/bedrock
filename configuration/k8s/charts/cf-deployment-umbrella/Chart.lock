@@ -10,10 +10,10 @@ dependencies:
   version: 1.0.13-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.24-dev
+  version: 1.4.25-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.24-dev
+  version: 1.4.25-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.21-dev
@@ -92,5 +92,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:7284342f1a02065b07f81a80789a25a870c430d430301720c0e88d84d42a5bb9
-generated: "2020-11-11T03:37:02.437614262Z"
+digest: sha256:f180057e662621dad6c22558f75e0afe569fbf39a92bdb09e551d813d3e92524
+generated: "2020-11-11T03:39:58.132823239Z"
