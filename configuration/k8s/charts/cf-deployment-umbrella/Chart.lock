@@ -1,40 +1,40 @@
 dependencies:
 - name: cf-react-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.55-dev
+  version: 1.2.59-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.1-dev
+  version: 1.2.3-dev
 - name: cf-http-https-echo
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.13-dev
+  version: 1.0.14-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.24-dev
+  version: 1.4.27-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.24-dev
+  version: 1.4.27-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.21-dev
+  version: 1.2.22-dev
 - name: cf-elm-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 2.1.18-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.55-dev
+  version: 1.0.59-dev
 - name: cf-network-view-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.55-dev
+  version: 1.0.59-dev
 - name: cf-oauth-proxy-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.1-dev
+  version: 1.2.2-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.11-dev
+  version: 1.1.12-dev
 - name: cf-self-healing-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.11-dev
+  version: 1.1.12-dev
 - name: nginx-ingress
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 1.41.2
@@ -52,45 +52,45 @@ dependencies:
   version: 1.0.0-dev
 - name: cf-smoketest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.0-dev
+  version: 1.2.2-dev
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.1-dev
+  version: 1.1.3-dev
 - name: cf-assets-v2-telemetry-tracking-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.0-dev
+  version: 1.0.1-dev
 - name: cf-assets-v2-telemetry-forwarding-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.1-dev
+  version: 1.0.3-dev
 - name: cf-coordinate-transforms-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.6-dev
+  version: 0.0.7-dev
 - name: cf-city-state-zip-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.5-dev
+  version: 1.0.7-dev
 - name: cf-assets-inventory-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.10-dev
+  version: 0.0.11-dev
 - name: cf-assets-inventory-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.10-dev
+  version: 0.0.11-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.9-dev
+  version: 1.1.17-dev
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.0-dev
+  version: 1.0.3-dev
 - name: cf-geotransform-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.3-dev
+  version: 0.0.4-dev
 - name: cf-atrius-site-metadata-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.2-dev
+  version: 0.0.4-dev
 - name: atrius-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.2.3-dev
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:d101a02612f2e0a5fa05852e7786f3a987cf20f674655dcd3bed4fc29c4c5c92
-generated: "2020-11-07T23:25:41.415386771Z"
+digest: sha256:c548170b969b093c4a0e900c88e20627d657922a0c42fcb8609eb87184c5ef89
+generated: "2020-11-11T16:44:42.746534629Z"
