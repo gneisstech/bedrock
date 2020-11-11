@@ -55,7 +55,7 @@ dependencies:
   version: 1.2.1-dev
 - name: cf-tls-certificate-manager-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.1-dev
+  version: 1.1.2-dev
 - name: cf-assets-v2-telemetry-tracking-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.0-dev
@@ -92,5 +92,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:164291f8dc9ffc4249681d29d1a90d15a02032f4da7bea6a7e7297e0462770be
-generated: "2020-11-11T04:41:36.70049021Z"
+digest: sha256:cffad0f62b75dbfbee89062622c0416886d08fbbbb76e83cf058301ab3c19874
+generated: "2020-11-11T05:14:30.612881283Z"
