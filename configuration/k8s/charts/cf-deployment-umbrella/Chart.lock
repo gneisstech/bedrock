@@ -79,7 +79,7 @@ dependencies:
   version: 1.1.16-dev
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.0.0-dev
+  version: 1.0.1-dev
 - name: cf-geotransform-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 0.0.3-dev
@@ -92,5 +92,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:2be0a9f49d81b04e74f0a8cfba1ff8d49f103a94a5770e3edb74014065d2865c
-generated: "2020-11-11T04:21:54.466234994Z"
+digest: sha256:1a77e2edb48220dd80f1bfcaae8914c9bffd9d8cba78d71e3d488635a32fce38
+generated: "2020-11-11T04:34:20.84947342Z"
