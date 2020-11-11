@@ -4,16 +4,16 @@ dependencies:
   version: 1.2.58-dev
 - name: cf-self-healing-app-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.1-dev
+  version: 1.2.2-dev
 - name: cf-http-https-echo
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.13-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.25-dev
+  version: 1.4.26-dev
 - name: cf-atrius-objects-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.4.25-dev
+  version: 1.4.26-dev
 - name: cf-authz-web-api-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.2.21-dev
@@ -92,5 +92,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:5cd3cfdf10dc995ce00c6e45b4e4aa51af7c6210fa227beecec06946cbad68d5
-generated: "2020-11-11T03:47:03.703275894Z"
+digest: sha256:117faa8528c37d3218099ad9f1a749952f33d55121ec456dd4d3f65f31c55dea
+generated: "2020-11-11T04:15:50.422399537Z"
