@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_keyvault_if_needed.sh ResourceGroupName KeyVaultName
+# usage: purge_key_vaults.sh
 
 #
 # Maintainer: techguru@byiq.com
@@ -36,11 +36,11 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx TARGET_CONFIG
+declare -rx AZ_TRACE="${AZ_TRACE:-echo az}"
 
 # Arguments
 # ---------------------
-declare -rx KEYVAULT_NAME="${1}"
-declare -rx RESOURCE_GROUP_NAME="fake_name"
 
 function repo_root () {
     git rev-parse --show-toplevel
@@ -54,57 +54,13 @@ function paas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
-function keyvault_name () {
-    echo "${KEYVAULT_NAME}"
+function key_vault_names () {
+    paas_configuration | jq -r -e '[.keyvaults[] | select(.purge == "true") | .name ] | @tsv'
 }
 
-function get_keyvault_rg () {
-    paas_configuration | jq -r -e ".keyvaults[] | select ( .name == \"$(keyvault_name)\" ) | .resource_group"
+function purge_key_vaults () {
+    # shellcheck disable=2086
+    key_vault_names | xargs -n 1 -P 10 $AZ_TRACE keyvault purge --name
 }
 
-function get_purge () {
-    paas_configuration | jq -r -e ".keyvaults[] | select ( .name == \"$(keyvault_name)\" ) | .purge"
-}
-
-function keyvault_already_exists () {
-    az keyvault show --name "$(keyvault_name)" --resource-group "$(get_keyvault_rg)" > /dev/null 2>&1
-}
-
-function is_azure_pipeline_build () {
-    [[ "True" == "${TF_BUILD:-}" ]]
-}
-
-function get_azure_pipeline_sp_id () {
-    env | grep 'SPNOBJECTID=' | sed -e 's/.*=//'
-}
-
-function get_azure_pipeline_sp_info () {
-    az ad sp show --id "$(get_azure_pipeline_sp_id)"
-}
-
-function get_azure_pipeline_app_id () {
-    get_azure_pipeline_sp_info | jq -r -e '.appId'
-}
-
-function assign_list_get_set_policy_if_needed () {
-    if is_azure_pipeline_build; then
-        $AZ_TRACE keyvault set-policy \
-            --name "$(keyvault_name)" \
-            --spn "$(get_azure_pipeline_app_id)" \
-            --secret-permissions get list set
-    fi
-}
-
-function create_keyvault () {
-    $AZ_TRACE keyvault create \
-        --name "$(keyvault_name)" \
-        --resource-group "$(get_keyvault_rg)" \
-        --enabled-for-template-deployment
-    assign_list_get_set_policy_if_needed
-}
-
-function create_keyvault_if_needed () {
-    keyvault_already_exists || create_keyvault
-}
-
-create_keyvault_if_needed
+purge_key_vaults || true

@@ -785,6 +785,11 @@ cf-ecy-ingest-svc-docker:
         SecRequestBodyLimitAction ProcessPartial
         SecResponseBodyLimit 2097152
         SecResponseBodyLimitAction ProcessPartial
+      'nginx.ingress.kubernetes.io/upstream-keepalive-timeout': "540"
+      'nginx.ingress.kubernetes.io/send_timeout': "540"
+      'nginx.ingress.kubernetes.io/proxy-connect-timeout': "540"
+      'nginx.ingress.kubernetes.io/proxy-read-timeout': "540"
+      'nginx.ingress.kubernetes.io/proxy-send-timeout': "540"
     hosts:
       - paths:
           - '/cf-ecy-ingest(/|$)(.*)'
@@ -795,6 +800,8 @@ cf-ecy-ingest-svc-docker:
       SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
       SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
       APP_VERSION: '{{ .Chart.AppVersion }}'
+      RELAY_API_RESPONSE_TIMEOUT: '150'
+      SITES_BATCH_SIZE: '40'
     secrets:
       JWT_AUTH_TOKEN: ''
       SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
@@ -1054,6 +1061,7 @@ atrius-authz-web-api-docker:
       'nginx.ingress.kubernetes.io/configuration-snippet': |
         auth_request_set $access_token $upstream_http_x_auth_request_access_token;
         proxy_set_header X-Forwarded-Access-Token $access_token;
+        more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline'; frame-ancestors 'self' login.microsoft.com;" always;
     hosts:
       - paths:
           - '/atrius-authz(/|$)(.*)'

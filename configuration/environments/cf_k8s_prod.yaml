@@ -94,7 +94,7 @@ target:
       - name: &kvName '##app-env##-k8s-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
-        soft_delete: 'true'
+        purge: 'false'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
@@ -227,7 +227,7 @@ target:
           resource_group: *cfDbRG
           server: *cfDefaultDbServer
           license_type: 'LicenseIncluded'
-          max_size: '250GB'
+          max_size: '600GB'
           auto_pause_delay: -1
           zone_redundant: false
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
@@ -301,6 +301,23 @@ target:
           catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
           collation: 'SQL_Latin1_General_CP1_CI_AS'
           capacity: 4
+          min_capacity: 0.5
+          tier: 'GeneralPurpose'
+          family: 'Gen5'
+          service_objective: 'GP_S_Gen5'
+          action: 'preserve'
+        - name: &atriusAuthzSchema '##app-env##-atrius-authz-db'
+          <<: *dbTemplate
+          arm_type: 'Microsoft.Sql/servers/databases'
+          resource_group: *cfDbRG
+          server: *cfDefaultDbServer
+          license_type: 'LicenseIncluded'
+          max_size: '250GB'
+          auto_pause_delay: -1
+          zone_redundant: false
+          catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
+          collation: 'SQL_Latin1_General_CP1_CI_AS'
+          capacity: 2
           min_capacity: 0.5
           tier: 'GeneralPurpose'
           family: 'Gen5'
@@ -868,7 +885,7 @@ target:
           enable_managed_identity: 'false'
           enable_private_cluster: 'false'
           generate_ssh_keys: 'true'
-          kubernetes_version: '1.17.7'
+          kubernetes_version: '1.18.8'
           load_balancer_sku: 'standard'
           max_count: 100
           max_pods: 30
@@ -1040,6 +1057,7 @@ target:
             - &oauth2ProxyClientSecretName '##app-env##-oauth2-proxy-client-secret'
             - &oauth2ProxyCookieSecretName '##app-env##-oauth2-proxy-cookie-secret'
             - &wafTLSSecret 'waf-tls-secret'
+            - &secretKeyBaseAtriusAuthZSecretName '##app-env##-atrius-authz-api-secret-key-base'
           values:
             atrius_objects_api_key: &atriusObjectsApiKey
               - '##secure_secret={"vault":"'
@@ -1102,6 +1120,13 @@ target:
               - *kvName
               - '","secret_name":"'
               - *oauth2ProxyCookieSecretName
+              - '"}'
+              - '##'
+            atrius_authz: &secretKeyBaseAtriusAuthZ
+              - '##secure_secret={"vault":"'
+              - *kvName
+              - '","secret_name":"'
+              - *secretKeyBaseAtriusAuthZSecretName
               - '"}'
               - '##'
           seed_values:
@@ -1331,6 +1356,18 @@ target:
               - '?'
               - 'database='
               - *assetTelemetrySchema
+            atrius_authz: &dbUrlAtriusAuthZ
+              - 'sqlserver://'
+              - *cfDefaultDBAdminName
+              - ':'
+              - *dbLinuxPassword
+              - '@'
+              - *cfDefaultDbServer
+              - '.database.windows.net'
+              - ':'
+              - 1433
+              - '/'
+              - *atriusAuthzSchema
         authz:
           api_url: &authzApiUrl 'http://cf-authz-web-api-docker/cf-authz'
         elm:
@@ -1785,7 +1822,7 @@ target:
               ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
               ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
-              HARVEST_STRATEGY: 'NOOP'  # "NOOP", "SAFE", "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
+              HARVEST_STRATEGY: 'PARALLEL_SITES' # "NOOP", "SAFE", "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
               HEALTH_API_HOST: *wafFqdn
               HEALTH_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
               HEALTH_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
@@ -1836,7 +1873,7 @@ target:
                 - '"}'
                 - '##'
         cf-geotransform-svc-docker:
-          enabled: true
+          enabled: false
           replicaCount: 3
           config:
             environment:
@@ -2008,3 +2045,30 @@ target:
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
           defaultBackend:
             replicaCount: 3
+        atrius-authz-web-api-docker:
+          replicaCount: 3
+          config_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/resource-policy": keep
+            "helm.sh/hook-weight": "-1"
+          migration_annotations:
+            "helm.sh/hook": pre-install,pre-upgrade
+            "helm.sh/hook-delete-policy": hook-succeeded
+            "helm.sh/hook-weight": "1"
+          config:
+            environment:
+              <<: *railsEnv
+              AUTHORIZED_USERS: "\
+                        fbb85e37-fb1e-49dd-8020-6f298347b875\
+                        ,\
+                        36bc7f6b-2161-415c-a00e-4332b59aaa99
+                        ,\
+                        36afd8af-9619-4c9b-a61b-5d792cc47d3b
+                        ,\
+                        0caa3161-bdb4-408d-abf3-cffb4ef7b990"
+              RAILS_ENV: 'production'
+              RAILS_LOG_TO_STDOUT: 'true'
+              JWT_ISSUERS: *trustedIdProviders
+            secrets:
+              DATABASE_URL: *dbUrlAtriusAuthZ
+              SECRET_KEY_BASE: *secretKeyBaseAtriusAuthZ

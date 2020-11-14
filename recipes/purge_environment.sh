@@ -87,6 +87,7 @@ function purge_environment () {
     set_target_subscription
     init_trace
     invoke_layer 'iaas' 'purge_resource_groups'
+    invoke_layer 'paas' 'purge_key_vaults'
     set_subscription "${saved_subscription}"
     date
 }

@@ -93,7 +93,7 @@ target:
       - name: &kvName '##app-env##-master-kv'
         resource_group: *cfKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
-        soft_delete: 'false'
+        purge: 'true'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
@@ -1795,7 +1795,7 @@ target:
               ATRIUS_OBJECTS_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
               ATRIUS_OBJECTS_SERVICE_PRINCIPAL_RESOURCE_ID: *passageApiApplicationID
               AUTHORIZED_USERS: *atriusObjectsAuthorizedUsers
-              HARVEST_STRATEGY: 'PARALLEL_ATTRIBUTES'  # "SAFE", "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
+              HARVEST_STRATEGY: 'PARALLEL_SITES' # "SAFE", "PARALLEL_ATTRIBUTES", "PARALLEL_SITES","PARALLEL_SITES_AND_PARALLEL_ATTRIBUTES","SAFE","SERIAL"
               HEALTH_API_HOST: *wafFqdn
               HEALTH_API_SERVICE_PRINCIPAL_CLIENT_ID: *elmSpAppId
               HEALTH_API_SERVICE_PRINCIPAL_TENANT_ID: *acuityDefaultTenant
@@ -1846,7 +1846,7 @@ target:
                 - '"}'
                 - '##'
         cf-geotransform-svc-docker:
-          enabled: true
+          enabled: false
           replicaCount: 1
           config:
             environment:
