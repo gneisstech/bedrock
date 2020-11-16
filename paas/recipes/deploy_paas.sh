@@ -228,6 +228,7 @@ function deploy_paas () {
     deploy_keyvaults
     deploy_service_principals
     deploy_databases
+    deploy_kubernetes_clusters
     deploy_storage_accounts
     deploy_azure_file_shares
     deploy_azure_disk_volumes
@@ -236,7 +237,6 @@ function deploy_paas () {
     deploy_server_farms
     deploy_container_registries
     deploy_virtual_machines
-    deploy_kubernetes_clusters
     deploy_eventhub_namespaces
 }
 

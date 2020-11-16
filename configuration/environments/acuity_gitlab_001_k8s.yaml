@@ -434,7 +434,7 @@ target:
             volumeMode: 'Filesystem'
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
-      azure_files:
+      azure_files_xx:
         - name: 'gitlab-prometheus-server'
           quota: '32'
           storage_account_name: *sa001name
@@ -461,7 +461,7 @@ target:
           metadata: 'cf-env=gl##env## cf-role=gl##env##'
           action: 'create'
       # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
-      blob_store:
+      blob_store_xx:
         - name: &gitlabBlobContainerName 'gitlab-blob-storage'
           storage_account_name: *sa001name
           metadata: 'cf-env=gl##env## cf-role=gl##env##'
@@ -524,7 +524,7 @@ target:
                 - '##'
               annotations:
                 'service.beta.kubernetes.io/azure-load-balancer-resource-group': *glWafRG
-        postgresql:
+        xx-postgresql:
           securityContext:
             enabled: false
           volumePermissions:
@@ -552,9 +552,9 @@ target:
               storageClass: 'manual-gitlab-prometheus-server'
               accessModes:
                 - 'ReadWriteMany'
-        xx-redis:
+        redis:
           global:
-            storageClass: 'manual-gitlab-redis'
+            storageClass: 'gitlab-redis-state'
           master:
             persistence:
               accessModes:
