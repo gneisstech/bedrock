@@ -27,7 +27,7 @@ function acr_logins () {
     az acr login -n cfdevregistry
     az acr login -n cfqaregistry
     az acr login -n cfprodregistry
-    az acr login -n acuitygitlabregistry
+#    az acr login -n acuitygitlabregistry
 }
 
 function neuvector_containers () {
@@ -46,7 +46,7 @@ function clone_neuvector () {
         originPath="${originRepo}${image}"
         docker pull "${originPath}"
         #shellcheck disable=SC2043
-        for targetRepo in cfdevregistry cfqaregistry cfprodregistry acuitygitlabregistry; do
+        for targetRepo in cfdevregistry cfqaregistry cfprodregistry ; do
             local targetPath
             targetPath="${targetRepo}.azurecr.io/${image}"
             docker tag "${originPath}" "${targetPath}"
