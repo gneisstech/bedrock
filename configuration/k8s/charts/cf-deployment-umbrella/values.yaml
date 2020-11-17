@@ -801,7 +801,7 @@ cf-ecy-ingest-svc-docker:
       SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
       APP_VERSION: '{{ .Chart.AppVersion }}'
       RELAY_API_RESPONSE_TIMEOUT: '150'
-      SITES_BATCH_SIZE: '40'
+      SITES_BATCH_SIZE: '120'
     secrets:
       JWT_AUTH_TOKEN: ''
       SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
