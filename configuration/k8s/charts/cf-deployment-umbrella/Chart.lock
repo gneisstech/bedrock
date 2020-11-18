@@ -76,7 +76,7 @@ dependencies:
   version: 0.0.11-dev
 - name: cf-ecy-ingest-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
-  version: 1.1.21-dev
+  version: 1.1.22-dev
 - name: cf-audit-log-svc-docker
   repository: https://cfdevregistry.azurecr.io/helm/v1/repo
   version: 1.0.3-dev
@@ -92,5 +92,5 @@ dependencies:
 - name: prometheus-operator
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 9.3.1
-digest: sha256:f3f60df6b3ee046189986610611b07d65a75dec5ce779d24454608aab7ab836f
-generated: "2020-11-18T02:20:17.11361585Z"
+digest: sha256:7e3e05188d48dc3e2fbf9bace41eb84fa9a440c52c78d963f6323f2bddb91e11
+generated: "2020-11-18T13:19:53.025783062Z"
