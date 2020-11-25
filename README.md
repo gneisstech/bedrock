@@ -59,8 +59,14 @@ Kitchen sink included.
 - sample application with Web Firewall Ingress supporting:
   - Federation of OpenID compliant Identity providers
   - Web Application Firewall with
-    - rate limiting,
-    - OWASP rule set enforcement
+    - 1st class kubernetes Ingress services
+    - DDOS defense measures
+    - OWASP rule sets - blocking mode only
+    - security headers
+    - limit TLS supported protocols
+    - limit TLS supported cryptographic suites
+    - Payload sizes
+    - Rate Limit
 
 Work in process:
 - near term goals
