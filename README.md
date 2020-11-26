@@ -26,13 +26,13 @@ Target Platforms:
 1. Various cloud providers (Azure, AWS, GCP)
 1. Local Host
 
-Issue Tracker: https://gitlab.com/abltech/bedrock/-/issues
+Issue Tracker: https://gitlab.com/acuitytech/bedrock/-/issues
 
 The "BeachHead" cluster example
 
 The "SunnyDay" sample application
 
-Kitchen sink included.
+Kitchen sink - included.
 - sample observability platform integration
   - labelling and tagging of resources for observability bucketing
 - sample security configuration
