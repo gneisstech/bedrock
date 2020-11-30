@@ -608,8 +608,8 @@ cf-assets-v2-telemetry-forwarding-svc-docker:
       ASSET_STATUS_V1_PUBLISHING_CONNECTION_STRING: ''
       EDGAR_STATUS_V1_PUBLISHING_CONNECTION_STRING: ''
 
-cf-tls-certificate-manager-svc-docker:
-  fullnameOverride: 'cf-tls-certificate-manager-svc-docker'
+br-tls-certificate-manager-svc-docker:
+  fullnameOverride: 'br-tls-certificate-manager-svc-docker'
   enabled: true
   yaml_values:
     - &leCertificateDir '/etc/letsencrypt'
