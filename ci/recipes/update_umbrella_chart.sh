@@ -183,7 +183,7 @@ function update_git_config () {
 function current_branch () {
     local branch
     if is_azure_pipeline_build; then
-        branch="${BUILD_SOURCEBRANCHNAME}"
+        branch="${BUILD_SOURCEBRANCH}"
     else
         branch="$(git rev-parse --abbrev-ref HEAD)"
     fi
