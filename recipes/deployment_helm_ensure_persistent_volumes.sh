@@ -20,20 +20,6 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function is_azure_pipeline_build () {
-    [[ "True" == "${TF_BUILD:-}" ]]
-}
-
-function update_git_tag () {
-    local -r blessed_release_tag="${1}"
-    if [[ "true" == "${BUMP_SEMVER}" ]]; then
-        printf 'pushing git commits: \n'
-        git status
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-        git push origin "${blessed_release_tag}"
-    fi
-}
-
 function get_kube_context () {
     local -r deployment_json="${1}"
     jq -r -e '.k8s.context' <<< "${deployment_json}"
