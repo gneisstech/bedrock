@@ -225,6 +225,7 @@ function update_git_tag () {
 }
 
 function bless_git_repo () {
+  set -x
     local -r blessed_release_tag="${1}"
     update_git_config
     update_internal_repo_semver "$(extract_semver <<<"${blessed_release_tag}")"
