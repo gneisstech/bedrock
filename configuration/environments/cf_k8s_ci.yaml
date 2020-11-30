@@ -1740,8 +1740,7 @@ target:
                 - *dnsZone
                 - '.'
                 - "renewal_failed.flag"
-              TLS_SECRET_NAME:
-                - *wafTLSSecret
+              TLS_SECRET_NAME: *wafTLSSecret
             secrets:
               TLS_PEM:
                 - '##tls_secret={'
