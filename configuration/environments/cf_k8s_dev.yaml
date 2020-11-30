@@ -1617,31 +1617,26 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME:
-                - *iot_eh_asset_tags_telemetry_forwarding_consumer_group
-              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC:
-                - *cfIotEhTopic
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: *iot_eh_asset_tags_telemetry_forwarding_consumer_group
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC: *cfIotEhTopic
               ASSET_POSITIONS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              ASSET_POSITIONS_V1_PUBLISHING_TOPIC_NAME:
-                - *cfAtEhAssetPositionsTopic
+              ASSET_POSITIONS_V1_PUBLISHING_TOPIC_NAME: *cfAtEhAssetPositionsTopic
               ASSET_STATUS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              ASSET_STATUS_V1_PUBLISHING_TOPIC_NAME:
-                - *cfAtEhAssetStatusTopic
+              ASSET_STATUS_V1_PUBLISHING_TOPIC_NAME: *cfAtEhAssetStatusTopic
               EDGAR_STATUS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              EDGAR_STATUS_V1_PUBLISHING_TOPIC_NAME:
-                - *cfAtEhEdgarStatusTopic
+              EDGAR_STATUS_V1_PUBLISHING_TOPIC_NAME: *cfAtEhEdgarStatusTopic
             secrets:
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
                 - '##eventhub_connection_string={'
