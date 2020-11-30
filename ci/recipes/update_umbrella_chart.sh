@@ -216,7 +216,7 @@ function update_git_tag () {
         printf 'pushing git commits: \n'
         git status
         if is_azure_pipeline_build; then
-          git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" "${BUILD_SOURCEBRANCH}"
+          git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" HEAD
         else
           git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
         fi
