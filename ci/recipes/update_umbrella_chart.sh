@@ -215,17 +215,12 @@ function update_git_tag () {
     if [[ "true" == "${BUMP_SEMVER}" ]]; then
         printf 'pushing git commits: \n'
         git status
-        if is_azure_pipeline_build; then
-          git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" HEAD
-        else
-          git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-        fi
+        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" HEAD
         git push origin "${blessed_release_tag}"
     fi
 }
 
 function bless_git_repo () {
-  set -x
     local -r blessed_release_tag="${1}"
     update_git_config
     update_internal_repo_semver "$(extract_semver <<<"${blessed_release_tag}")"
