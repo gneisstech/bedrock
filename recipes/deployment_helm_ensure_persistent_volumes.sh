@@ -278,7 +278,7 @@ function get_file_volume_metadata_by_name () {
 function create_artifacts_for_pv_az_file_volume () {
     local -r deployment_json="${1}"
     local -r volume_metadata="${2}"
-    local volume_name environment_metadata volume_quota volume_prefix sa_name
+    local volume_name volume_quota volume_prefix sa_name
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
     volume_prefix="$(get_pv_secret_namespace_prefix "${deployment_json}")"
@@ -394,7 +394,7 @@ function get_disk_volume_metadata_by_name () {
 function create_artifacts_for_pv_az_disk_volume () {
     local -r deployment_json="${1}"
     local -r volume_metadata="${2}"
-    local volume_name environment_metadata volume_quota volume_prefix sa_name
+    local volume_name volume_quota volume_prefix volume_spec
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
     volume_prefix="$(get_pv_secret_namespace_prefix "${deployment_json}")"
