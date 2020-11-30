@@ -1689,7 +1689,7 @@ target:
                 - *cf_asset_tag_eh_edgar_status_producer_rule
                 - '"}'
                 - '##'
-        cf-tls-certificate-manager-svc-docker:
+        br-tls-certificate-manager-svc-docker:
           enabled: true
           replicaCount: 1
           yaml_values:

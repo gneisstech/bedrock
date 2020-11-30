@@ -177,12 +177,12 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: null
-  - name: 'cf-tls-certificate-manager-svc-docker'
+  - name: 'br-tls-certificate-manager-svc-docker'
     version: '^1.0.0-0'
     repository: '@cfdevregistry'
-    condition: 'cf-tls-certificate-manager-svc-docker.enabled'
+    condition: 'br-tls-certificate-manager-svc-docker.enabled'
     tags:
-      - 'cf-tls-certificate-manager-svc-docker'
+      - 'br-tls-certificate-manager-svc-docker'
     enabled: true
     import-values: [] # (optional)
     alias: null
