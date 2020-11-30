@@ -12,6 +12,8 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx BUILD_SOURCEBRANCH
+declare -rx TF_BUILD
 
 # Arguments
 # ---------------------
@@ -192,7 +194,11 @@ function bless_git_repo () {
         git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
     fi
     if [[ "true" == "${BUMP_SEMVER}" ]]; then
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+        if is_azure_pipeline_build; then
+          git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" "${BUILD_SOURCEBRANCH}"
+        else
+          git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+        fi
         git push origin "${blessed_release_tag}"
     fi
 }
