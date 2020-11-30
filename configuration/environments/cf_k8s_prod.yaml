@@ -1849,8 +1849,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              AUDIT_WRITER_EH_TOPIC_NAME:
-                - *cfAuditEhTopic
+              AUDIT_WRITER_EH_TOPIC_NAME: *cfAuditEhTopic
             secrets:
               AUDIT_WRITER_EH_CONNECTION_STRING:
                 - '##eventhub_connection_string={'
