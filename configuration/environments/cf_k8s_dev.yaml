@@ -1584,10 +1584,8 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME:
-                - *iot_eh_asset_tags_telemetry_tracking_consumer_group
-              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_TOPIC:
-                - *cfIotEhTopic
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME: *iot_eh_asset_tags_telemetry_tracking_consumer_group
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_TOPIC: *cfIotEhTopic
             secrets:
               DATABASE_URL: *dbAssetTelemetryTracking
               TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONNECTION_STRING:
@@ -1862,8 +1860,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              GEOTRANSFORM_PUBLISHING_TOPIC_NAME:
-                - *cfGeoTransformEhAssetPositionsTopic
+              GEOTRANSFORM_PUBLISHING_TOPIC_NAME: *cfGeoTransformEhAssetPositionsTopic
               JWT_ISSUERS: *trustedIdProviders
             secrets:
               ASSET_POSITIONS_V1_CONNECTION_STRING:
@@ -1918,8 +1915,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              GEOTRANSFORM_PUBLISHING_TOPIC_NAME:
-                - *cfAnalyticsEhAssetPositionsTopic
+              GEOTRANSFORM_PUBLISHING_TOPIC_NAME: *cfAnalyticsEhAssetPositionsTopic
               JWT_ISSUERS: *trustedIdProviders
             secrets:
               GEOTRANSFORM_CONNECTION_STRING:
