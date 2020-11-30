@@ -173,9 +173,9 @@ cat <<EOF
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: cf-az-files-$(get_certbot_state_name)-$(get_kube_namespace "${deployment_json}")-pv
+  name: br-az-files-$(get_certbot_state_name)-$(get_kube_namespace "${deployment_json}")-pv
   labels:
-    usage: cf-az-files-$(get_certbot_state_name)-pv
+    usage: br-az-files-$(get_certbot_state_name)-pv
 spec:
   capacity:
     storage: 10Gi
@@ -187,7 +187,7 @@ spec:
     - mfsymlinks
   azureFile:
     shareName: $(get_certbot_state_name)
-    secretName: cf-az-files-$(get_certbot_state_name)
+    secretName: br-az-files-$(get_certbot_state_name)
     secretNamespace: $(get_pv_secret_namespace "${deployment_json}")
     readOnly: false
 EOF

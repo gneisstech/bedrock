@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: deploy_umbrella_chart_to_dev.sh
+# usage: deployment_helm_ensure_persistent_volumes.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
