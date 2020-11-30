@@ -185,7 +185,7 @@ dependencies: # A list of the chart requirements (optional)
       - 'br-tls-certificate-manager-svc-docker'
     enabled: true
     import-values: [] # (optional)
-    alias: null
+    alias: 'br-tls-certificate-manager-svc-docker'
   - name: 'cf-assets-v2-telemetry-tracking-svc-docker'
     version: '^1.0.0-0'
     repository: '@cfdevregistry'
