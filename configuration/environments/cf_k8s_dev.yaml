@@ -372,7 +372,7 @@ target:
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
-        - name: &certbotState 'certbot-state'
+        - name: 'certbot'
           quota: '10'
           storage_account_name: *sa001name
           metadata: 'cfenv=##env## cfrole=##env##'
@@ -1691,7 +1691,7 @@ target:
                 - *cf_asset_tag_eh_edgar_status_producer_rule
                 - '"}'
                 - '##'
-        cf-tls-certificate-manager-svc-docker:
+        br-tls-certificate-manager-svc-docker:
           enabled: true
           replicaCount: 1
           yaml_values:

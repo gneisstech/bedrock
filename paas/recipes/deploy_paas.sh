@@ -191,6 +191,17 @@ function deploy_azure_file_shares () {
     done
 }
 
+function az_disk_volumes () {
+    paas_configuration | jq -r -e '[.storage.azure_disks[]? | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_azure_disk_volumes () {
+    local volume_name
+    for volume_name in $(az_disk_volumes); do
+        invoke_layer 'paas' 'create_azure_disk_volume_if_needed' "${volume_name}"
+    done
+}
+
 function az_blob_stores () {
     paas_configuration | jq -r -e '[.storage.blob_store[]? | select(.action == "create") | .name ] | @tsv'
 }
@@ -217,14 +228,15 @@ function deploy_paas () {
     deploy_keyvaults
     deploy_service_principals
     deploy_databases
+    deploy_kubernetes_clusters
     deploy_storage_accounts
     deploy_azure_file_shares
+    deploy_azure_disk_volumes
     deploy_azure_blob_stores
     seed_secrets
     deploy_server_farms
     deploy_container_registries
     deploy_virtual_machines
-    deploy_kubernetes_clusters
     deploy_eventhub_namespaces
 }
 

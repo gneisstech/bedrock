@@ -20,6 +20,8 @@ declare -rx BUMP_SEMVER="${BUMP_SEMVER:-true}"
 declare -rx BUILD_REPOSITORY_LOCALPATH="${BUILD_REPOSITORY_LOCALPATH:-.}"
 declare -rx IMAGENAME="${IMAGENAME:-cf-deployment-umbrella}"
 declare -rx TAG="${TAG:-connected-facilities}"
+declare -rx TF_BUILD
+declare -rx BUILD_SOURCEBRANCH
 
 # Arguments
 # ---------------------
@@ -181,7 +183,7 @@ function update_git_config () {
 function current_branch () {
     local branch
     if is_azure_pipeline_build; then
-        branch="${BUILD_SOURCEBRANCHNAME}"
+        branch="${BUILD_SOURCEBRANCH}"
     else
         branch="$(git rev-parse --abbrev-ref HEAD)"
     fi
@@ -213,7 +215,7 @@ function update_git_tag () {
     if [[ "true" == "${BUMP_SEMVER}" ]]; then
         printf 'pushing git commits: \n'
         git status
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" HEAD
         git push origin "${blessed_release_tag}"
     fi
 }
