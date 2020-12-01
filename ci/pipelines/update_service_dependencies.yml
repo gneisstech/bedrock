@@ -53,7 +53,7 @@ resources:
         branches:
           include:
             - 'master-bytelight'
-    - pipeline: 'cf-http-https-echo'
+    - pipeline: 'br-http-https-echo'
       source: 'cf_http_https_echo'
       trigger:
         branches:
@@ -66,7 +66,7 @@ resources:
         branches:
           include:
             - 'master-bytelight'
-    - pipeline: 'cf-oauth-proxy-docker'
+    - pipeline: 'br-oauth-proxy-docker'
       source: 'cf_oauth2_proxy'
       trigger:
         branches:
@@ -109,7 +109,7 @@ resources:
         branches:
           include:
             - 'master-bytelight'
-    - pipeline: 'cf-tls-certificate-manager-svc-docker'
+    - pipeline: 'br-tls-certificate-manager-svc-docker'
       source: 'cf_tls_certificate_manager'
       trigger:
         branches:
