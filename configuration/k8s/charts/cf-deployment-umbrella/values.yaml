@@ -635,6 +635,7 @@ br-tls-certificate-manager-svc-docker:
       DEV_CERTIFICATE_DIR: 'fixme-dev-certificate-dir'
       DEVELOPER_CERTIFICATE_REQUIRED_FLAG: 'fixme-developer-certificate-required-flag'
       HOST_DOMAIN: 'fixme-missing-host-domain'
+      INGRESS_APP: 'cf-waf-ingress'
       IS_PRODUCTION: 'false'
       METRICS_PREFIX: 'cf.service.cf_tls_certificate_manager.'
       PRIVATE_TLS: 'true'
