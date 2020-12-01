@@ -1404,7 +1404,7 @@ target:
               - *subscription_tls
               - '"}'
               - '##'
-        cf-http-https-echo:
+        br-http-https-echo:
           replicaCount: 3
         cf-self-healing-app-docker:
           replicaCount: 3
@@ -1973,7 +1973,7 @@ target:
                 - *cf_analytics_eh_asset_positions_producer_rule
                 - '"}'
                 - '##'
-        cf-oauth-proxy-docker:
+        br-oauth-proxy-docker:
           replicaCount: 3
           config:
             environment:

@@ -109,8 +109,8 @@ default_values:
     api_url:
       prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
 
-cf-http-https-echo:
-  fullnameOverride: 'cf-http-https-echo'
+br-http-https-echo:
+  fullnameOverride: 'br-http-https-echo'
   enabled: true
   ingress:
     enabled: true
@@ -133,8 +133,8 @@ cf-http-https-echo:
       - paths:
           - '/cf-echo(/|$)(.*)'
 
-cf-oauth-proxy-docker:
-  fullnameOverride: 'cf-oauth-proxy-docker'
+br-oauth-proxy-docker:
+  fullnameOverride: 'br-oauth-proxy-docker'
   enabled: true
   ingress:
     enabled: true
