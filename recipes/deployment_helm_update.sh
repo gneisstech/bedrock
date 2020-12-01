@@ -143,9 +143,9 @@ type: Opaque
 metadata:
   annotations:
   labels:
-    component: cf-az-files-$(get_certbot_state_name)
+    component: br-az-files-$(get_certbot_state_name)
     release: $(get_kube_namespace "${deployment_json}")
-  name: cf-az-files-$(get_certbot_state_name)
+  name: br-az-files-$(get_certbot_state_name)
   namespace: $(get_pv_secret_namespace "${deployment_json}")
 data:
   azurestorageaccountname: '$(base64 <<< "${sa_name}")'
