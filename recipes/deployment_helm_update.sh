@@ -197,7 +197,6 @@ function deployment_helm_update () {
     connect_to_k8s "${deployment_json}"
     create_k8s_app_namespace "${deployment_json}"
     create_pv_secret_namespace "${deployment_json}"
-    set -x
     "$(repo_root)/recipes/deployment_helm_ensure_persistent_volumes.sh" "${deployment_name}"
     update_helm_chart_on_k8s "${deployment_json}"
 }

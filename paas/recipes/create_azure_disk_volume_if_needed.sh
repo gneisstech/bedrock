@@ -112,7 +112,6 @@ function update_azure_disk_volume () {
 }
 
 function create_azure_disk_volume () {
-  set -x
     local volume_name_json="${1}"
     # shellcheck disable=2046
     $AZ_TRACE disk create \
