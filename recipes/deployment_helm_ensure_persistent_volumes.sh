@@ -107,9 +107,9 @@ type: Opaque
 metadata:
   annotations:
   labels:
-    component: ${volume_prefix}-az-files-${volume_name}-state
+    component: ${volume_prefix}-az-files-${volume_name}
     release: $(get_kube_namespace "${deployment_json}")
-  name: ${volume_prefix}-az-files-${volume_name}-state
+  name: ${volume_prefix}-az-files-${volume_name}
   namespace: $(get_pv_secret_namespace "${deployment_json}")
 data:
   azurestorageaccountname: '$(echo -n "${sa_name}" | base64)'
@@ -149,9 +149,9 @@ cat <<EOF
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ${volume_prefix}-az-files-${volume_name}-state-$(get_kube_namespace "${deployment_json}")-pv
+  name: ${volume_prefix}-az-files-${volume_name}-$(get_kube_namespace "${deployment_json}")-pv
   labels:
-    usage: ${volume_prefix}-az-files-${volume_name}-state-pv
+    usage: ${volume_prefix}-az-files-${volume_name}-pv
 spec:
   capacity:
     storage: ${volume_quota}Gi
@@ -160,8 +160,8 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: 'manual-${volume_name}'
   azureFile:
-    shareName: ${volume_name}-state
-    secretName: ${volume_prefix}-az-files-${volume_name}-state
+    shareName: ${volume_name}
+    secretName: ${volume_prefix}-az-files-${volume_name}
     secretNamespace: $(get_pv_secret_namespace "${deployment_json}")
     readOnly: false
   mountOptions:
@@ -196,10 +196,10 @@ cat <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ${volume_prefix}-az-files-${volume_name}-state-$(get_kube_namespace "${deployment_json}")-pvc
+  name: ${volume_prefix}-az-files-${volume_name}-$(get_kube_namespace "${deployment_json}")-pvc
   namespace: $(get_kube_namespace "${deployment_json}")
   labels:
-    usage: ${volume_prefix}-az-files-${volume_name}-state-pvc
+    usage: ${volume_prefix}-az-files-${volume_name}-pvc
 spec:
   resources:
     requests:
@@ -208,7 +208,7 @@ spec:
     - ReadWriteMany
   storageClassName: 'manual-${volume_name}'
   volumeMode: 'Filesystem'
-  volumeName: ${volume_prefix}-az-files-${volume_name}-state-$(get_kube_namespace "${deployment_json}")-pv
+  volumeName: ${volume_prefix}-az-files-${volume_name}-$(get_kube_namespace "${deployment_json}")-pv
 EOF
 }
 
@@ -300,9 +300,9 @@ cat <<EOF
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ${volume_prefix}-az-disks-${volume_name}-state-$(get_kube_namespace "${deployment_json}")-pv
+  name: ${volume_prefix}-az-disks-${volume_name}-$(get_kube_namespace "${deployment_json}")-pv
   labels:
-    usage: ${volume_prefix}-az-disks-${volume_name}-state-pv
+    usage: ${volume_prefix}-az-disks-${volume_name}-pv
 spec:
   ${volume_spec}
 EOF
@@ -320,19 +320,19 @@ cat <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ${volume_prefix}-az-disks-${volume_name}-state-$(get_kube_namespace "${deployment_json}")-pvc
+  name: ${volume_prefix}-az-disks-${volume_name}-$(get_kube_namespace "${deployment_json}")-pvc
   namespace: $(get_kube_namespace "${deployment_json}")
   labels:
-    usage: ${volume_prefix}-az-disks-${volume_name}-state-pvc
+    usage: ${volume_prefix}-az-disks-${volume_name}-pvc
 spec:
   resources:
     requests:
       storage: ${volume_quota}
   accessModes:
     - ReadWriteOnce
-  storageClassName: '${volume_name}-state'
+  storageClassName: '${volume_name}'
   volumeMode: 'Filesystem'
-  volumeName: ${volume_prefix}-az-disks-${volume_name}-state-$(get_kube_namespace "${deployment_json}")-pv
+  volumeName: ${volume_prefix}-az-disks-${volume_name}-$(get_kube_namespace "${deployment_json}")-pv
 EOF
 }
 
