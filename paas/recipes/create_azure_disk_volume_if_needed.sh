@@ -80,6 +80,26 @@ function azure_disk_volume_exists () {
     || false
 }
 
+function dv_attr () {
+    local -r attr="${1}"
+    jq -r -e ".${attr}"
+}
+
+function dv_attr_size () {
+    local -r attr="${1}"
+    jq -r -e ".${attr} | length // 0"
+}
+
+function disk_volume_zone_option_if_present () {
+    local volume_name_json="${1}"
+    local -r option_key="${2}"
+    local -r option_config="${3}"
+    if [[ '0' != "$(dv_attr_size "${option_config}" <<< "${volume_name_json}")" ]]; then
+        printf -- "--%s %s" "${option_key}" "$(dv_attr "${option_config}" <<< "${volume_name_json}")"
+    fi
+    true
+}
+
 function update_azure_disk_volume () {
     local volume_name_json="${1}"
     # shellcheck disable=2046
@@ -92,6 +112,7 @@ function update_azure_disk_volume () {
 }
 
 function create_azure_disk_volume () {
+  set -x
     local volume_name_json="${1}"
     # shellcheck disable=2046
     $AZ_TRACE disk create \
@@ -102,7 +123,8 @@ function create_azure_disk_volume () {
         --size-gb "$(jq -r -e '.size_gb' <<< "${volume_name_json}" )" \
         --encryption-type "$(jq -r -e '.encryption_type' <<< "${volume_name_json}" )" \
         --sku "$(jq -r -e '.sku' <<< "${volume_name_json}" )" \
-        --tags "$(jq -r -e '.tags' <<< "${volume_name_json}" )"
+        --tags "$(jq -r -e '.tags' <<< "${volume_name_json}" )" \
+        $(disk_volume_zone_option_if_present "${volume_name_json}" 'zone' 'zone')
 }
 
 function create_or_update_azure_disk_volume () {

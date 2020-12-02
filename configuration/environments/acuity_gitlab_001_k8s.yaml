@@ -280,7 +280,8 @@ target:
           os_type: 'Linux'
           size_gb: &prometheusGB '32'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
-          sku: 'Premium_ZRS'
+          sku: 'Premium_LRS'
+          zone: 1
           tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
@@ -312,7 +313,8 @@ target:
           os_type: 'Linux'
           size_gb: &gitalyGB '300'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
-          sku: 'Premium_ZRS'
+          sku: 'Premium_LRS'
+          zone: 2
           tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
@@ -344,7 +346,8 @@ target:
           os_type: 'Linux'
           size_gb: &redisGB '32'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
-          sku: 'Premium_ZRS'
+          sku: 'Premium_LRS'
+          zone: 3
           tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
@@ -376,7 +379,8 @@ target:
           os_type: 'Linux'
           size_gb: &postgresqlGB '64'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
-          sku: 'Premium_ZRS'
+          sku: 'Premium_LRS'
+          zone: 1
           tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
@@ -408,7 +412,8 @@ target:
           os_type: 'Linux'
           size_gb: &minioGB '300'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
-          sku: 'Premium_ZRS'
+          sku: 'Premium_LRS'
+          zone: 2
           tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
