@@ -55,7 +55,8 @@ deployments:
     helm:
       migration_timeout: '15m'
       umbrella:
-        registry: 'cfdevregistry'
+        registry:
+          name: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         version: '^9.0.0-0'
         deployment_name: 'cfk8s'
@@ -118,7 +119,8 @@ deployments:
     helm:
       migration_timeout: '10m'
       umbrella:
-        registry: 'cfciregistry'
+        registry:
+          name: 'cfciregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
         version: '^9.0.0-0'
@@ -181,7 +183,8 @@ deployments:
     helm:
       migration_timeout: '15m'
       umbrella:
-        registry: 'cfqaregistry'
+        registry:
+          name: 'cfqaregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
         version: '^9.0.0-0'
@@ -248,7 +251,8 @@ deployments:
     helm:
       migration_timeout: '4h'
       umbrella:
-        registry: 'cfprodregistry'
+        registry:
+          name: 'cfprodregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
         version: '^9.0.0-0'
@@ -301,7 +305,8 @@ deployments:
     helm:
       migration_timeout: '5m'
       umbrella:
-        registry: 'cfdevregistry'
+        registry:
+          name: 'cfdevregistry'
         name: 'cf-deployment-umbrella'
         deployment_name: 'cfk8s'
         version: '^9.0.0-0'
@@ -309,4 +314,113 @@ deployments:
       storage:
         account:
           name: cfdevcmsa001abl
+  - name: 'GITLAB'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'ConnectedFacilities-Dev'
+            id: '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. ConnectedFacilities-Dev
+          location: 'eastus'
+          dns_subscription:
+            name: 'Allspice-Dev'
+            id: '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Allspice-Dev
+    external_services:
+      active_directory:
+    k8s:
+      namespace: 'gitlab'
+      context: 'gitlab-001-k8s-admin'
+      pv_secret_namespace: 'gl-pv'
+    paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8006
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+        values:
+          agents:
+            containers:
+              agent:
+                env:
+                  - name: DD_KUBELET_TLS_VERIFY
+                    value: "false"
+              processAgent:
+                env:
+                  - name: DD_KUBELET_TLS_VERIFY
+                    value: "false"
+              systemProbe:
+                env:
+                  - name: DD_KUBELET_TLS_VERIFY
+                    value: "false"
+              traceAgent:
+                env:
+                  - name: DD_KUBELET_TLS_VERIFY
+                    value: "false"
+            rbac:
+              create: true
+          clusterAgent:
+            rbac:
+              create: true
+          clusterChecksRunner:
+            env:
+              - name: DD_KUBELET_TLS_VERIFY
+                value: "false"
+            rbac:
+              create: true
+          datadog:
+            apiKey: d46cef3ec0ae9d0501ad1e852d6fee58
+            clusterAgent:
+              clusterAgent:
+                metricsProvider:
+                  enabled: true
+              enabled: true
+            clusterChecks:
+              enabled: false
+            collectEvents: true
+            dogstatsd:
+              nonLocalTraffic: true
+              port: 8125
+              useHostPort: true
+            env:
+              - name: DD_KUBELET_TLS_VERIFY
+                value: "false"
+            kubeStateMetricsEnabled: true
+            leaderElection: true
+            logs:
+              containerCollectAll: true
+              containerCollectUsingFiles: false
+              enabled: true
+          kube-state-metrics:
+            collectors:
+              verticalpodautoscalers: null
+            rbac:
+              create: true
+      neuvector:
+        enabled: 'true'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'acuitygitlabregistry.azurecr.io'
+    environment:
+      app: 'gitlab'
+      name: '001'
+      config: './configuration/environments/acuity_gitlab_001_k8s.yaml'
+    helm:
+      migration_timeout: '30m'
+      umbrella:
+        registry:
+          name: 'gitlab'
+          url: 'https://charts.gitlab.io/'
+        name: 'gitlab'
+        deployment_name: 'gitlab001'
+        version: '^4.4.3-0'
+        values_file: ''
+      storage:
+        account:
+          name: ablgitlab001sa
 ---

@@ -54,9 +54,14 @@ function get_helm_deployment_name () {
     jq -r -e '.helm.umbrella.deployment_name' <<< "${deployment_json}"
 }
 
-function get_helm_registry () {
+function get_helm_registry_name () {
     local -r deployment_json="${1}"
-    jq -r -e '.helm.umbrella.registry' <<< "${deployment_json}"
+    jq -r -e '.helm.umbrella.registry.name' <<< "${deployment_json}"
+}
+
+function get_helm_registry_url () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.umbrella.registry.url' <<< "${deployment_json}"
 }
 
 function get_helm_chart_name () {

@@ -46,16 +46,21 @@ function acr_login () {
     az acr login -n "${desired_repo}"
 }
 
-function get_helm_registry () {
+function get_helm_registry_name () {
     local -r deployment_json="${1}"
-    jq -r -e '.helm.umbrella.registry' <<< "${deployment_json}"
+    jq -r -e '.helm.umbrella.registry.name' <<< "${deployment_json}"
+}
+
+function get_helm_registry_url () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.umbrella.registry.url' <<< "${deployment_json}"
 }
 
 function acr_login_cluster_registry () {
     local -r deployment_name="${1}"
     local deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
-    acr_login "$(get_helm_registry "${deployment_json}")"
+    acr_login "$(get_helm_registry_name "${deployment_json}")"
 }
 
 function acr_login_ci_registry () {

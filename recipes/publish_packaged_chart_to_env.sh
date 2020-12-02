@@ -34,9 +34,14 @@ function get_deployment_json_by_name () {
             '.deployments[] | select(.name == "\($deployment_name)")'
 }
 
-function get_helm_registry () {
+function get_helm_registry_name () {
     local -r deployment_json="${1}"
-    jq -r -e '.helm.umbrella.registry' <<< "${deployment_json}"
+    jq -r -e '.helm.umbrella.registry.name' <<< "${deployment_json}"
+}
+
+function get_helm_registry_url () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.umbrella.registry.url' <<< "${deployment_json}"
 }
 
 function extract_chart_version () {
@@ -66,7 +71,7 @@ function publish_packaged_chart_to_env () {
     local -r target_deployment_name="${1}"
     local target_deployment_json target_registry chart_file_name
     target_deployment_json="$(get_deployment_json_by_name "${target_deployment_name}")"
-    target_registry="$(get_helm_registry "${target_deployment_json}")"
+    target_registry="$(get_helm_registry_name "${target_deployment_json}")"
     chart_file_name="$(get_helm_chart_name "${target_deployment_json}")"
 
     publish_new_umbrella "${target_registry}" "$(repo_root)/${chart_file_name}" || true

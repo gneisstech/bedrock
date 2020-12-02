@@ -35,9 +35,14 @@ function get_helm_deployment_name () {
     jq -r -e '.helm.umbrella.deployment_name' <<< "${deployment_json}"
 }
 
-function get_helm_registry () {
+function get_helm_registry_name () {
     local -r deployment_json="${1}"
-    jq -r -e '.helm.umbrella.registry' <<< "${deployment_json}"
+    jq -r -e '.helm.umbrella.registry.name' <<< "${deployment_json}"
+}
+
+function get_helm_registry_url () {
+    local -r deployment_json="${1}"
+    jq -r -e '.helm.umbrella.registry.url' <<< "${deployment_json}"
 }
 
 function get_helm_chart_name () {
@@ -152,7 +157,7 @@ function get_latest_deployed_version () {
 function fetch_latest_deployed_chart () {
     local origin_deployment_json="${1}"
     local tmp_chart_dir="${2}"
-    registry="$(get_helm_registry "${origin_deployment_json}")"
+    registry="$(get_helm_registry_name "${origin_deployment_json}")"
     chart_name="$(get_helm_chart_name "${origin_deployment_json}")"
     update_helm_repo "${registry}" "$(get_subscription "${origin_deployment_json}")"
     helm fetch \
@@ -238,8 +243,8 @@ function copy_containers () {
     local -r origin_suffix="${3}"
     local -r target_suffix="${4}"
     local origin_registry target_registry
-    origin_registry="$(get_helm_registry "${origin_deployment_json}")"
-    target_registry="$(get_helm_registry "${target_deployment_json}")"
+    origin_registry="$(get_helm_registry_name "${origin_deployment_json}")"
+    target_registry="$(get_helm_registry_name "${target_deployment_json}")"
     find_container_references "${origin_registry}" \
         | copy_containers_from_list \
             "${origin_registry}" \
