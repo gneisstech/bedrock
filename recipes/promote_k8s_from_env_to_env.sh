@@ -42,7 +42,7 @@ function get_helm_registry_name () {
 
 function get_helm_registry_url () {
     local -r deployment_json="${1}"
-    jq -r -e '.helm.umbrella.registry.url' <<< "${deployment_json}"
+    jq -r '.helm.umbrella.registry.url // ""' <<< "${deployment_json}"
 }
 
 function get_helm_chart_name () {
