@@ -6,7 +6,6 @@
 trigger:
   - master-bytelight
   - azure-pipelines
-  - feature/paulc/newtls
 
 pr: none
 
