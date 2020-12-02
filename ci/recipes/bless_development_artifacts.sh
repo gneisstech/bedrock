@@ -192,7 +192,7 @@ function bless_git_repo () {
         git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
     fi
     if [[ "true" == "${BUMP_SEMVER}" ]]; then
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
+        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" 'HEAD'
         git push origin "${blessed_release_tag}"
     fi
 }

@@ -372,7 +372,7 @@ target:
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       azure_files:
-        - name: 'certbot'
+        - name: &certbotState 'certbot-state'
           quota: '10'
           storage_account_name: *sa001name
           metadata: 'cfenv=##env## cfrole=##env##'
@@ -1380,7 +1380,7 @@ target:
               - *subscription_tls
               - '"}'
               - '##'
-        cf-http-https-echo:
+        br-http-https-echo:
           replicaCount: 1
         cf-self-healing-app-docker:
           replicaCount: 1
@@ -1584,10 +1584,8 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME:
-                - *iot_eh_asset_tags_telemetry_tracking_consumer_group
-              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_TOPIC:
-                - *cfIotEhTopic
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONSUMER_GROUP_NAME: *iot_eh_asset_tags_telemetry_tracking_consumer_group
+              TELEMETRY_EH_CG_ASSETS_V2_TRACKING_TOPIC: *cfIotEhTopic
             secrets:
               DATABASE_URL: *dbAssetTelemetryTracking
               TELEMETRY_EH_CG_ASSETS_V2_TRACKING_CONNECTION_STRING:
@@ -1617,31 +1615,26 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME:
-                - *iot_eh_asset_tags_telemetry_forwarding_consumer_group
-              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC:
-                - *cfIotEhTopic
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONSUMER_GROUP_NAME: *iot_eh_asset_tags_telemetry_forwarding_consumer_group
+              TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_TOPIC: *cfIotEhTopic
               ASSET_POSITIONS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              ASSET_POSITIONS_V1_PUBLISHING_TOPIC_NAME:
-                - *cfAtEhAssetPositionsTopic
+              ASSET_POSITIONS_V1_PUBLISHING_TOPIC_NAME: *cfAtEhAssetPositionsTopic
               ASSET_STATUS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              ASSET_STATUS_V1_PUBLISHING_TOPIC_NAME:
-                - *cfAtEhAssetStatusTopic
+              ASSET_STATUS_V1_PUBLISHING_TOPIC_NAME: *cfAtEhAssetStatusTopic
               EDGAR_STATUS_V1_PUBLISHING_HOST_PORT:
                 - *cfAtEhNamespace
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              EDGAR_STATUS_V1_PUBLISHING_TOPIC_NAME:
-                - *cfAtEhEdgarStatusTopic
+              EDGAR_STATUS_V1_PUBLISHING_TOPIC_NAME: *cfAtEhEdgarStatusTopic
             secrets:
               TELEMETRY_EH_CG_ASSETS_V2_FORWARDING_CONNECTION_STRING:
                 - '##eventhub_connection_string={'
@@ -1691,7 +1684,7 @@ target:
                 - *cf_asset_tag_eh_edgar_status_producer_rule
                 - '"}'
                 - '##'
-        cf-tls-certificate-manager-svc-docker:
+        br-tls-certificate-manager-svc-docker:
           enabled: true
           replicaCount: 1
           yaml_values:
@@ -1737,8 +1730,7 @@ target:
                 - *dnsZone
                 - '.'
                 - "renewal_failed.flag"
-              TLS_SECRET_NAME:
-                - *wafTLSSecret
+              TLS_SECRET_NAME: *wafTLSSecret
             secrets:
               TLS_PEM:
                 - '##tls_secret={'
@@ -1827,8 +1819,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              AUDIT_WRITER_EH_TOPIC_NAME:
-                - *cfAuditEhTopic
+              AUDIT_WRITER_EH_TOPIC_NAME: *cfAuditEhTopic
             secrets:
               AUDIT_WRITER_EH_CONNECTION_STRING:
                 - '##eventhub_connection_string={'
@@ -1868,8 +1859,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              GEOTRANSFORM_PUBLISHING_TOPIC_NAME:
-                - *cfGeoTransformEhAssetPositionsTopic
+              GEOTRANSFORM_PUBLISHING_TOPIC_NAME: *cfGeoTransformEhAssetPositionsTopic
               JWT_ISSUERS: *trustedIdProviders
             secrets:
               ASSET_POSITIONS_V1_CONNECTION_STRING:
@@ -1924,8 +1914,7 @@ target:
                 - '.servicebus.windows.net'
                 - ':'
                 - '9093'
-              GEOTRANSFORM_PUBLISHING_TOPIC_NAME:
-                - *cfAnalyticsEhAssetPositionsTopic
+              GEOTRANSFORM_PUBLISHING_TOPIC_NAME: *cfAnalyticsEhAssetPositionsTopic
               JWT_ISSUERS: *trustedIdProviders
             secrets:
               GEOTRANSFORM_CONNECTION_STRING:
@@ -1954,7 +1943,7 @@ target:
                 - *cf_analytics_eh_asset_positions_producer_rule
                 - '"}'
                 - '##'
-        cf-oauth-proxy-docker:
+        br-oauth-proxy-docker:
           replicaCount: 1
           config:
             environment:

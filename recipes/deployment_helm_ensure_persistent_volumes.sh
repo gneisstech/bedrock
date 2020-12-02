@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: deploy_umbrella_chart_to_dev.sh
+# usage: deployment_helm_ensure_persistent_volumes.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -18,20 +18,6 @@ set -o pipefail
 
 function repo_root () {
     git rev-parse --show-toplevel
-}
-
-function is_azure_pipeline_build () {
-    [[ "True" == "${TF_BUILD:-}" ]]
-}
-
-function update_git_tag () {
-    local -r blessed_release_tag="${1}"
-    if [[ "true" == "${BUMP_SEMVER}" ]]; then
-        printf 'pushing git commits: \n'
-        git status
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit"
-        git push origin "${blessed_release_tag}"
-    fi
 }
 
 function get_kube_context () {
@@ -278,7 +264,7 @@ function get_file_volume_metadata_by_name () {
 function create_artifacts_for_pv_az_file_volume () {
     local -r deployment_json="${1}"
     local -r volume_metadata="${2}"
-    local volume_name environment_metadata volume_quota volume_prefix sa_name
+    local volume_name volume_quota volume_prefix sa_name
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
     volume_prefix="$(get_pv_secret_namespace_prefix "${deployment_json}")"
@@ -394,7 +380,7 @@ function get_disk_volume_metadata_by_name () {
 function create_artifacts_for_pv_az_disk_volume () {
     local -r deployment_json="${1}"
     local -r volume_metadata="${2}"
-    local volume_name environment_metadata volume_quota volume_prefix sa_name
+    local volume_name volume_quota volume_prefix volume_spec
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
     volume_prefix="$(get_pv_secret_namespace_prefix "${deployment_json}")"

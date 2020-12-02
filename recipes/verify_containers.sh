@@ -27,7 +27,7 @@ function acr_logins () {
 }
 
 function verify_containers () {
-    local -r containers='cf-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-docker cf-self-healing-app-docker'
+    local -r containers='br-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-docker cf-self-healing-app-docker'
     acr_logins
     for image in ${containers}; do
         local imageWithTag targetPath targetRepo

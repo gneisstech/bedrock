@@ -109,8 +109,8 @@ default_values:
     api_url:
       prefix: &urlPrefixSelfHealing '/cf-self-healing-api/api/v1'
 
-cf-http-https-echo:
-  fullnameOverride: 'cf-http-https-echo'
+br-http-https-echo:
+  fullnameOverride: 'br-http-https-echo'
   enabled: true
   ingress:
     enabled: true
@@ -133,8 +133,8 @@ cf-http-https-echo:
       - paths:
           - '/cf-echo(/|$)(.*)'
 
-cf-oauth-proxy-docker:
-  fullnameOverride: 'cf-oauth-proxy-docker'
+br-oauth-proxy-docker:
+  fullnameOverride: 'br-oauth-proxy-docker'
   enabled: true
   ingress:
     enabled: true
@@ -608,8 +608,8 @@ cf-assets-v2-telemetry-forwarding-svc-docker:
       ASSET_STATUS_V1_PUBLISHING_CONNECTION_STRING: ''
       EDGAR_STATUS_V1_PUBLISHING_CONNECTION_STRING: ''
 
-cf-tls-certificate-manager-svc-docker:
-  fullnameOverride: 'cf-tls-certificate-manager-svc-docker'
+br-tls-certificate-manager-svc-docker:
+  fullnameOverride: 'br-tls-certificate-manager-svc-docker'
   enabled: true
   yaml_values:
     - &leCertificateDir '/etc/letsencrypt'
@@ -635,6 +635,7 @@ cf-tls-certificate-manager-svc-docker:
       DEV_CERTIFICATE_DIR: 'fixme-dev-certificate-dir'
       DEVELOPER_CERTIFICATE_REQUIRED_FLAG: 'fixme-developer-certificate-required-flag'
       HOST_DOMAIN: 'fixme-missing-host-domain'
+      INGRESS_APP: 'cf-waf-ingress'
       IS_PRODUCTION: 'false'
       METRICS_PREFIX: 'cf.service.cf_tls_certificate_manager.'
       PRIVATE_TLS: 'true'
@@ -801,7 +802,7 @@ cf-ecy-ingest-svc-docker:
       SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
       APP_VERSION: '{{ .Chart.AppVersion }}'
       RELAY_API_RESPONSE_TIMEOUT: '150'
-      SITES_BATCH_SIZE: '40'
+      SITES_BATCH_SIZE: '120'
     secrets:
       JWT_AUTH_TOKEN: ''
       SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret

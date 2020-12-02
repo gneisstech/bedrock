@@ -29,10 +29,10 @@ function acr_logins () {
 
 function promote_containers () {
     local -r originRepo='cfqaregistry.azurecr.io'
-    #local -r containers='cf-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-docker cf-self-healing-app-docker'
+    #local -r containers='br-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-docker cf-self-healing-app-docker'
     local -r containers='cf-self-healing-api-docker cf-self-healing-app-docker'
-    #local -r containers='cf-atrius-objects-api-docker cf-authz-web-api-docker cf-elm-web-api-docker cf-network-view-web-api-docker cf-oauth-proxy-docker cf-react-app-docker'
-    #local -r containers='cf-oauth-proxy-docker'
+    #local -r containers='cf-atrius-objects-api-docker cf-authz-web-api-docker cf-elm-web-api-docker cf-network-view-web-api-docker br-oauth-proxy-docker cf-react-app-docker'
+    #local -r containers='br-oauth-proxy-docker'
     acr_logins
     for image in ${containers}; do
         local imageWithTag originPath targetPath targetRepo
