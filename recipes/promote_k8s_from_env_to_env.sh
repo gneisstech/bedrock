@@ -291,8 +291,8 @@ function rewrite_latest_deployment () {
     local origin_suffix target_suffix
     local target_registry build_root
     origin_chart_name="$(get_helm_chart_name "${origin_deployment_json}" )"
-    origin_registry="$(get_helm_registry "${origin_deployment_json}")"
-    target_registry="$(get_helm_registry "${target_deployment_json}")"
+    origin_registry="$(get_helm_registry_name "${origin_deployment_json}")"
+    target_registry="$(get_helm_registry_name "${target_deployment_json}")"
     origin_suffix="-$(get_env "${origin_deployment_json}")"
     target_suffix="-$(get_env "${target_deployment_json}")"
     build_root="$(repo_root)"
