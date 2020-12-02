@@ -215,7 +215,7 @@ function update_git_tag () {
     if [[ "true" == "${BUMP_SEMVER}" ]]; then
         printf 'pushing git commits: \n'
         git status
-        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" "$(current_branch)"
+        git tag -a "${blessed_release_tag}" -m "automated promotion on git commit" 'HEAD'
         git push origin "${blessed_release_tag}"
     fi
 }
