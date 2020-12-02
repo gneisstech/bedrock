@@ -30,6 +30,11 @@ function get_env () {
     jq -r -e '.environment.name' <<< "${deployment_json}"
 }
 
+function get_volume_prefix () {
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.volume_prefix' <<< "${deployment_json}"
+}
+
 function get_kube_context () {
     local -r deployment_json="${1}"
     jq -r -e '.k8s.context' <<< "${deployment_json}"
@@ -262,7 +267,7 @@ function create_artifacts_for_pv_az_file_volume () {
     local volume_name volume_quota volume_prefix sa_name
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
-    volume_prefix="$(get_app "${deployment_json}")"
+    volume_prefix="$(get_volume_prefix "${deployment_json}")"
     sa_name="$(jq -r -e '.storage_account_name' <<< "${volume_metadata}")"
 
     create_azure_file_volume_secret \
@@ -378,7 +383,7 @@ function create_artifacts_for_pv_az_disk_volume () {
     local volume_name volume_quota volume_prefix volume_spec
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
-    volume_prefix="$(get_app "${deployment_json}")"
+    volume_prefix="$(get_volume_prefix "${deployment_json}")"
     volume_spec="$(jq -r -e '.k8s_volume_data' <<< "${volume_metadata}")"
 
     create_k8s_persistent_disk_volume \

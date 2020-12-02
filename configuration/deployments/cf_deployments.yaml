@@ -51,6 +51,7 @@ deployments:
     environment:
       app: 'cf'
       name: 'dev'
+      volume_prefix: 'br'
       config: './configuration/environments/cf_k8s_dev.yaml'
     helm:
       migration_timeout: '15m'
@@ -115,6 +116,7 @@ deployments:
     environment:
       app: 'cf'
       name: 'ci'
+      volume_prefix: 'br'
       config: './configuration/environments/cf_k8s_ci.yaml'
     helm:
       migration_timeout: '10m'
@@ -179,6 +181,7 @@ deployments:
     environment:
       app: 'cf'
       name: 'qa'
+      volume_prefix: 'br'
       config: './configuration/environments/cf_k8s_qa.yaml'
     helm:
       migration_timeout: '15m'
@@ -247,6 +250,7 @@ deployments:
     environment:
       app: 'cf'
       name: 'prod'
+      volume_prefix: 'br'
       config: './configuration/environments/cf_k8s_prod.yaml'
     helm:
       migration_timeout: '4h'
@@ -301,6 +305,7 @@ deployments:
     environment:
       app: 'cf'
       name: 'local'
+      volume_prefix: 'br'
       config: './configuration/environments/cf_k8s_local.yaml'
     helm:
       migration_timeout: '5m'
@@ -409,6 +414,7 @@ deployments:
     environment:
       app: 'gitlab'
       name: '001'
+      volume_prefix: 'br'
       config: './configuration/environments/acuity_gitlab_001_k8s.yaml'
     helm:
       migration_timeout: '30m'
