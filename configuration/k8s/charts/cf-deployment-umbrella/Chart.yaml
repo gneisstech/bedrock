@@ -297,8 +297,8 @@ dependencies: # A list of the chart requirements (optional)
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
-appVersion: 'r9.8.3-dev'
+appVersion: 'r9.8.4-dev'
 
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
-version: 9.8.3-dev
+version: 9.8.4-dev
