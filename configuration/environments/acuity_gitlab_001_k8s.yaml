@@ -492,7 +492,7 @@ target:
         certmanager-issuer:
           email: 'techguru@byiq.com'
         gitlab:
-          xx-gitaly:
+          gitaly:
             persistence:
               storageClass: 'manual-gitlab-gitaly'
               accessMode: 'ReadWriteMany'

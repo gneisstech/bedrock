@@ -222,27 +222,34 @@ function create_k8s_persistent_file_volume () {
     local -r volume_name="${2}"
     local -r volume_prefix="${3}"
     local -r volume_quota="${4}"
+    local -r create_pv="${5}"
+    local -r create_pvc="${6}"
 
-    kubectl \
-        --context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_kube_namespace "${deployment_json}")" \
-        apply -f <( \
-          create_k8s_persistent_file_volume_resource \
-            "${deployment_json}" \
-            "${volume_name}" \
-            "${volume_prefix}" \
-            "${volume_quota}" \
-        )
-    kubectl \
-        --context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_kube_namespace "${deployment_json}")" \
-        apply -f <( \
-          create_k8s_persistent_file_volume_claim \
-            "${deployment_json}" \
-            "${volume_name}" \
-            "${volume_prefix}" \
-            "${volume_quota}" \
-        )
+    if [[ 'true' == "${create_pv}" ]]; then
+      kubectl \
+          --context "$(get_kube_context "${deployment_json}")" \
+          --namespace "$(get_kube_namespace "${deployment_json}")" \
+          apply -f <( \
+            create_k8s_persistent_file_volume_resource \
+              "${deployment_json}" \
+              "${volume_name}" \
+              "${volume_prefix}" \
+              "${volume_quota}" \
+          )
+    fi
+
+    if [[ 'true' == "${create_pvc}" ]]; then
+      kubectl \
+          --context "$(get_kube_context "${deployment_json}")" \
+          --namespace "$(get_kube_namespace "${deployment_json}")" \
+          apply -f <( \
+            create_k8s_persistent_file_volume_claim \
+              "${deployment_json}" \
+              "${volume_name}" \
+              "${volume_prefix}" \
+              "${volume_quota}" \
+          )
+    fi
 }
 
 function get_deployment_json_by_name () {
@@ -264,11 +271,13 @@ function get_file_volume_metadata_by_name () {
 function create_artifacts_for_pv_az_file_volume () {
     local -r deployment_json="${1}"
     local -r volume_metadata="${2}"
-    local volume_name volume_quota volume_prefix sa_name
+    local volume_name volume_quota volume_prefix sa_name create_pv create_pvc
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
     volume_prefix="$(get_volume_prefix "${deployment_json}")"
     sa_name="$(jq -r -e '.storage_account_name' <<< "${volume_metadata}")"
+    create_pv="$(jq -r '.pv.create // "false"' <<< "${volume_metadata}" )"
+    create_pvc="$(jq -r '.pvc.create // "false"' <<< "${volume_metadata}" )"
 
     create_azure_file_volume_secret \
       "${deployment_json}" \
@@ -280,6 +289,8 @@ function create_artifacts_for_pv_az_file_volume () {
       "${volume_name}" \
       "${volume_prefix}" \
       "${volume_quota}" \
+      "${create_pv}" \
+      "${create_pvc}" \
     || true
 }
 
@@ -346,27 +357,34 @@ function create_k8s_persistent_disk_volume () {
     local -r volume_name="${2}"
     local -r volume_prefix="${3}"
     local -r volume_spec="${4}"
+    local -r create_pv="${5}"
+    local -r create_pvc="${6}"
 
-    kubectl \
-        --context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_kube_namespace "${deployment_json}")" \
-        apply -f <( \
-          create_k8s_persistent_disk_volume_resource \
-            "${deployment_json}" \
-            "${volume_name}" \
-            "${volume_prefix}" \
-            "${volume_spec}" \
-        )
-    kubectl \
-        --context "$(get_kube_context "${deployment_json}")" \
-        --namespace "$(get_kube_namespace "${deployment_json}")" \
-        apply -f <( \
-          create_k8s_persistent_disk_volume_claim \
-            "${deployment_json}" \
-            "${volume_name}" \
-            "${volume_prefix}" \
-            "${volume_spec}" \
-        )
+    if [[ 'true' == "${create_pv}" ]]; then
+      kubectl \
+          --context "$(get_kube_context "${deployment_json}")" \
+          --namespace "$(get_kube_namespace "${deployment_json}")" \
+          apply -f <( \
+            create_k8s_persistent_disk_volume_resource \
+              "${deployment_json}" \
+              "${volume_name}" \
+              "${volume_prefix}" \
+              "${volume_spec}" \
+          )
+    fi
+
+    if [[ 'true' == "${create_pvc}" ]]; then
+      kubectl \
+          --context "$(get_kube_context "${deployment_json}")" \
+          --namespace "$(get_kube_namespace "${deployment_json}")" \
+          apply -f <( \
+            create_k8s_persistent_disk_volume_claim \
+              "${deployment_json}" \
+              "${volume_name}" \
+              "${volume_prefix}" \
+              "${volume_spec}" \
+          )
+    fi
 }
 
 function get_disk_volume_metadata_by_name () {
@@ -380,17 +398,21 @@ function get_disk_volume_metadata_by_name () {
 function create_artifacts_for_pv_az_disk_volume () {
     local -r deployment_json="${1}"
     local -r volume_metadata="${2}"
-    local volume_name volume_quota volume_prefix volume_spec
+    local volume_name volume_quota volume_prefix volume_spec create_pv create_pvc
     volume_name="$(jq -r -e '.name' <<< "${volume_metadata}")"
     volume_quota="$(jq -r -e '.quota' <<< "${volume_metadata}")"
     volume_prefix="$(get_volume_prefix "${deployment_json}")"
     volume_spec="$(jq -r -e '.k8s_volume_data' <<< "${volume_metadata}")"
+    create_pv="$(jq -r '.pv.create // "false"' <<< "${volume_metadata}" )"
+    create_pvc="$(jq -r '.pvc.create // "false"' <<< "${volume_metadata}" )"
 
     create_k8s_persistent_disk_volume \
       "${deployment_json}" \
       "${volume_name}" \
       "${volume_prefix}" \
       "${volume_spec}" \
+      "${create_pv}" \
+      "${create_pvc}" \
     || true
 }
 

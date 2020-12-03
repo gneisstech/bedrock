@@ -151,7 +151,7 @@ function update_helm_chart_on_k8s () {
     printf 'Script Failure means unable to access key vault\n'
     # get_helm_values "${deployment_json}"
     helm_values="$(get_helm_values "${deployment_json}")"
-    printf '%s' "${helm_values}}"
+    # printf '%s' "${helm_values}}"
     printf 'Script succeeded to access key vault\n'
     kubectl cluster-info
     helm list -A \

@@ -376,6 +376,10 @@ target:
           quota: '10'
           storage_account_name: *sa001name
           metadata: 'cfenv=##env## cfrole=##env##'
+          pv:
+            create: "true"
+          pvc:
+            create: "false"
           action: 'create'
       # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       blob_store:
