@@ -621,6 +621,9 @@ br-tls-certificate-manager-svc-docker:
     hosts:
       - paths:
           - '/.well-known(/|$)(.*)'
+  certbot:
+    pvc:
+      create: true
   rbac:
     create: true
   config:

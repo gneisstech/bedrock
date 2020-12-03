@@ -102,6 +102,7 @@ target:
         resource_group: *glKeysRG
         arm_type: 'Microsoft.KeyVault/vaults'
         soft_delete: 'false'
+        purge: 'true'
         action: 'create'
     service_principals:
       # for K8S to call Azure APIs
@@ -280,7 +281,8 @@ target:
           size_gb: &prometheusGB '32'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'cf-env=gl##env## cf-role=gl##env##'
+          zone: 1
+          tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
               storage:
@@ -312,7 +314,8 @@ target:
           size_gb: &gitalyGB '300'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'cf-env=gl##env## cf-role=gl##env##'
+          zone: 2
+          tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
               storage:
@@ -344,7 +347,8 @@ target:
           size_gb: &redisGB '32'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'cf-env=gl##env## cf-role=gl##env##'
+          zone: 3
+          tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
               storage:
@@ -376,7 +380,8 @@ target:
           size_gb: &postgresqlGB '64'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'cf-env=gl##env## cf-role=gl##env##'
+          zone: 1
+          tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
               storage:
@@ -408,7 +413,8 @@ target:
           size_gb: &minioGB '300'
           encryption_type: 'EncryptionAtRestWithPlatformKey'
           sku: 'Premium_LRS'
-          tags: 'cf-env=gl##env## cf-role=gl##env##'
+          zone: 2
+          tags: 'glenv=gl##env## glrole=gl##env##'
           k8s_volume_data:
             capacity:
               storage:
@@ -434,37 +440,37 @@ target:
             volumeMode: 'Filesystem'
           action: 'create'
       # azure files - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
-      azure_files_xx:
+      azure_files:
         - name: 'gitlab-prometheus-server'
           quota: '32'
           storage_account_name: *sa001name
-          metadata: 'cf-env=gl##env## cf-role=gl##env##'
+          metadata: 'glenv=gl##env## glrole=gl##env##'
           action: 'create'
         - name: 'gitlab-gitaly'
           quota: '300'
           storage_account_name: *sa001name
-          metadata: 'cf-env=gl##env## cf-role=gl##env##'
+          metadata: 'glenv=gl##env## glrole=gl##env##'
           action: 'create'
         - name: 'gitlab-redis'
           quota: '32'
           storage_account_name: *sa001name
-          metadata: 'cf-env=gl##env## cf-role=gl##env##'
+          metadata: 'glenv=gl##env## glrole=gl##env##'
           action: 'create'
         - name: 'gitlab-postgresql'
           quota: '64'
           storage_account_name: *sa001name
-          metadata: 'cf-env=gl##env## cf-role=gl##env##'
+          metadata: 'glenv=gl##env## glrole=gl##env##'
           action: 'create'
         - name: 'gitlab-minio'
           quota: '300'
           storage_account_name: *sa001name
-          metadata: 'cf-env=gl##env## cf-role=gl##env##'
+          metadata: 'glenv=gl##env## glrole=gl##env##'
           action: 'create'
       # blob store - for data that must persist longer than a cluster lifetime (survives cluster rebuild)
       blob_store_xx:
         - name: &gitlabBlobContainerName 'gitlab-blob-storage'
           storage_account_name: *sa001name
-          metadata: 'cf-env=gl##env## cf-role=gl##env##'
+          metadata: 'glenv=gl##env## glrole=gl##env##'
           action: 'create'
   saas:
     helm:
@@ -486,7 +492,7 @@ target:
         certmanager-issuer:
           email: 'techguru@byiq.com'
         gitlab:
-          xx-gitaly:
+          gitaly:
             persistence:
               storageClass: 'manual-gitlab-gitaly'
               accessMode: 'ReadWriteMany'
@@ -552,7 +558,7 @@ target:
               storageClass: 'manual-gitlab-prometheus-server'
               accessModes:
                 - 'ReadWriteMany'
-        redis:
+        xx-redis:
           global:
             storageClass: 'gitlab-redis-state'
           master:

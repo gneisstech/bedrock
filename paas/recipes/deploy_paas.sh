@@ -227,15 +227,15 @@ function deploy_kubernetes_clusters () {
 function deploy_paas () {
     deploy_keyvaults
     deploy_service_principals
-    deploy_databases
+    deploy_container_registries
     deploy_kubernetes_clusters
     deploy_storage_accounts
     deploy_azure_file_shares
     deploy_azure_disk_volumes
     deploy_azure_blob_stores
+    deploy_databases
     seed_secrets
     deploy_server_farms
-    deploy_container_registries
     deploy_virtual_machines
     deploy_eventhub_namespaces
 }
