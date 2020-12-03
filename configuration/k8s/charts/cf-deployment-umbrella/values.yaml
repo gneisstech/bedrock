@@ -68,12 +68,12 @@ default_values:
       atrius: &dbPasswordAtrius 'too2Simple'
       linux: &dbPasswordLinux 'too2Simple'
     url:
-      admin: &dbUrlAdmin 'sqlserver:/sa:too2Simple@cf-mssql-linux:1433/cf-dev-admin-db?azure='
-      atrius: &dbUrlAtrius 'sqlserver://sa:too2Simple@cf-mssql-atrius:1433/allspice-mapmanager01db?encrypt=disable'
-      authz: &dbUrlAuthZ 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-authz-db?azure='
-      elm: &dbUrlElm 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-elm-db?azure='
-      assets_inventory: &dbUrlAssetsInventory 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-assets-inventory-db?azure='
-      network_view: &dbUrlNetworkView 'sqlserver://sa:too2Simple@cf-mssql-linux:1433/cf-dev-network-view-db?azure='
+      admin: &dbUrlAdmin 'sqlserver:/sa:too2Simple@cf-mssql-linux/cf-dev-admin-db?azure='
+      atrius: &dbUrlAtrius 'sqlserver://sa:too2Simple@cf-mssql-atrius/allspice-mapmanager01db?encrypt=disable'
+      authz: &dbUrlAuthZ 'sqlserver://sa:too2Simple@cf-mssql-linux/cf-dev-authz-db?azure='
+      elm: &dbUrlElm 'sqlserver://sa:too2Simple@cf-mssql-linux/cf-dev-elm-db?azure='
+      assets_inventory: &dbUrlAssetsInventory 'sqlserver://sa:too2Simple@cf-mssql-linux/cf-dev-assets-inventory-db?azure='
+      network_view: &dbUrlNetworkView 'sqlserver://sa:too2Simple@cf-mssql-linux/cf-dev-network-view-db?azure='
       self_healing: &dbUrlSelfHealing "\
         DRIVER={FreeTDS};\
         SERVER=cf-mssql-linux;\

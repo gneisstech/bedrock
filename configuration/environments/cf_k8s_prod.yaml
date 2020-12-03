@@ -1255,8 +1255,6 @@ target:
               - '@'
               - *cfDefaultDbServer
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *adminSchema
             atrius: &dbUrlAtrius
@@ -1267,8 +1265,6 @@ target:
               - '@'
               - *cfObjectsDbHostName_001
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *cfObjectsDbName_001
             atrius_2: &dbUrlAtrius_002
@@ -1279,8 +1275,6 @@ target:
               - '@'
               - *cfObjectsDbHostName_002
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *cfObjectsDbName_002
             authz: &dbUrlAuthZ
@@ -1291,8 +1285,6 @@ target:
               - '@'
               - *cfDefaultDbServer
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *authzSchema
             elm: &dbUrlElm
@@ -1303,8 +1295,6 @@ target:
               - '@'
               - *cfDefaultDbServer
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *elmSchema
             assets_inventory: &dbUrlAssetsInventory
@@ -1315,8 +1305,6 @@ target:
               - '@'
               - *cfDefaultDbServer
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *assetsInventorySchema
             network_view: &dbUrlNetworkView
@@ -1327,8 +1315,6 @@ target:
               - '@'
               - *cfDefaultDbServer
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *netWorkViewSchema
             self_healing: &dbUrlSelfHealing
@@ -1368,8 +1354,6 @@ target:
               - '@'
               - *cfDefaultDbServer
               - '.database.windows.net'
-              - ':'
-              - 1433
               - '/'
               - *atriusAuthzSchema
         authz:
