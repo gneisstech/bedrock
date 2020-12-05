@@ -1,8 +1,8 @@
 apiVersion: v2
 name: 'br-deployment-umbrella'
-description: 'CF: Umbrella for all CF services'
+description: 'BR: Umbrella for all BR services'
 keywords:
-  - 'connected-facilities'
+  - 'bedrock'
   - 'umbrella'
 type: application
 home: ''  # The URL of this projects home page (optional)
