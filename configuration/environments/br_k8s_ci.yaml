@@ -3,10 +3,10 @@ target:
   app: 'br'
   env: 'ci'
   metadata:
-    default_azure_location: &defaultAzureLocation 'central'
-    default_azure_subscription: &defaultAzureSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. Bedrock-Dev
-    tls_cert_subscription: &subscription_tls '5649ad97-1fd3-460f-b569-9995bbb6c5c0'  # Acuity Brands, Inc. Bedrock-Dev
-    dns_subscription: &subscription_dns '5e49f516-d005-4ae8-a287-031c8573401c'  # Acuity Brands, Inc. Bedrock-Dev
+    default_azure_location: &defaultAzureLocation 'centralus'
+    default_azure_subscription: &defaultAzureSubscription 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+    tls_cert_subscription: &subscription_tls 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+    dns_subscription: &subscription_dns 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
     service_deployment:
       tenant: &brDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # sponsored by Acuity Brands, Inc.
       authn_tenant: &environmentTenant 'common'  # allow all AD tenants to authenticate
@@ -14,14 +14,11 @@ target:
       bedrock_application_id: &bedrockApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands, Inc. sponsored demo application
     k8s_namespace: &brNamespace 'brk8s'
     tags: &labels 'br-env=##env## br-role=##env##'
-    tls_secret_name: &tlsSecretName 'wildcarddevatrius-iotcom'
+    tls_secret_name: &tlsSecretName 'wildcarddevbedrock-iotcom'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
       # for naming conventions, see: https://docs.acuitynext.net/wiki/azure-naming-conventions/
-      # pre-existing Atrius resource groups with shared configuration state
-      - name: &atriusDnsRG 'atriusops-allspicedev'
-        action: 'read'
       # ##app-env## resource groups
       - name: &brWafRG 'Waf-##appenv##'
         action: 'create'
@@ -37,21 +34,37 @@ target:
         action: 'create'
     networking:
       public_ip:
-        - name: &wafIP '##app-env##-waf-k8s-pip'
+        - name: &waf_zone_redundant_IPV4 '##app-env##-waf-k8s-zrpipv4'
           resource_group: *brWafRG
           subscription: *defaultAzureSubscription
           arm_type: 'Microsoft.Network/publicIPAddresses'
           sku: 'Standard'
+          version: 'Ipv4'
+          # zone: '1'
           allocation_method: 'Static'
           action: 'create'
+        - name: &waf_zone_redundant_IPV6 '##app-env##-waf-k8s-zrpipv6'
+          resource_group: *brWafRG
+          subscription: *defaultAzureSubscription
+          arm_type: 'Microsoft.Network/publicIPAddresses'
+          sku: 'Standard'
+          version: 'Ipv6'
+          # zone: '1'
+          allocation_method: 'Static'
+          action: 'create'
+      dns_zones:
+        - name: 'bedrock.gneiss-tech.net'
+          resource_group: *brWafRG
+          subscription: *subscription_dns
+          action: 'create'
       dns_a_records:
-        - zone: &dnsZone '##env##.bedrock.gneiss-tech.com'
-          host: &dnsHost '##app##-##env##'
-          fqdn: &wafFqdn '##app-env##.bedrock.gneiss-tech.com.'
-          resource_group: *atriusDnsRG
+        - zone: &dnsZone '##app-env##.bedrock.gneiss-tech.net'
+          host: &dnsHost '##app-env##'
+          fqdn: &wafFqdn '##app-env##.bedrock.gneiss-tech.net.'
+          resource_group: *brWafRG
           subscription: *subscription_dns
           a_record_ttl: 3600
-          a_record_public_ip: *wafIP
+          a_record_public_ip: *waf_zone_redundant_IPV4
           action: 'create'
   paas:
     location: *defaultAzureLocation
@@ -111,7 +124,8 @@ target:
         zone_redundant: false
         catalog_collation: 'SQL_Latin1_General_CP1_CI_AS'
         collation: 'SQL_Latin1_General_CP1_CI_AS'
-        capacity: 14
+        capacity: 2
+        min_capacity: 0.5
         tier: 'GeneralPurpose'
         family: 'Gen5'
         service_objective: 'GP_S_Gen5'
@@ -562,7 +576,7 @@ target:
                 - '/resourceGroups/'
                 - *brWafRG
                 - '/providers/Microsoft.Network/publicIPAddresses/'
-                - *wafIP
+                - *waf_zone_redundant_IPV4
                 - '"}'
                 - '##'
               annotations:

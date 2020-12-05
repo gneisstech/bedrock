@@ -55,7 +55,7 @@ function iaas_configuration () {
 }
 
 function resource_group_names () {
-    iaas_configuration | jq -r -e '[.resource_groups[] | select(.action == "create") | .name ] | @tsv'
+    iaas_configuration | jq -r -e '[.resource_groups[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function purge_resource_groups () {

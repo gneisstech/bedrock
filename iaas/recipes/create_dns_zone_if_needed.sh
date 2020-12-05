@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# usage: create_public_ip_if_needed.sh public_ip_name
+# usage: create_dns_zone_if_needed.sh dns_a_zone_record_set
 
 #
 # Maintainer: techguru@byiq.com
 #
-# Copyright (c) 2017-2019,  Cloud Scaling -- All Rights Reserved
+# Copyright (c) 2017-2020,  Cloud Scaling -- All Rights Reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,58 +41,64 @@ declare -rx AZ_TRACE
 
 # Arguments
 # ---------------------
-declare -rx PUBLIC_IP_NAME="${1}"
+declare -rx DNS_ZONE_NAME="${1}"
 
-function public_ip_name (){
-    echo "${PUBLIC_IP_NAME}"
+function dns_zone_name() {
+  echo "${DNS_ZONE_NAME}"
 }
 
-function repo_root () {
-    git rev-parse --show-toplevel
+function repo_root() {
+  git rev-parse --show-toplevel
 }
 
-function invoke_layer () {
-    local -r layer="${1}"
-    local -r target_recipe="${2}"
-    shift 2
-    "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
+function invoke_layer() {
+  local -r layer="${1}"
+  local -r target_recipe="${2}"
+  shift 2
+  "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
 }
 
-function target_config () {
-    echo "$(repo_root)/${TARGET_CONFIG}"
+function target_config() {
+  echo "$(repo_root)/${TARGET_CONFIG}"
 }
 
-function iaas_configuration () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.iaas'
+function iaas_configuration() {
+  yq read --tojson "$(target_config)" | jq -r -e '.target.iaas'
 }
 
-function ip_attr () {
-    local -r attr="${1}"
-    iaas_configuration | jq -r -e ".networking.public_ip[] | select(.name == \"$(public_ip_name)\") | .${attr}"
+function dns_zone_attr() {
+  local -r attr="${1}"
+  iaas_configuration | jq -r -e ".networking.dns_zones[] | select(.name == \"$(dns_zone_name)\") | .${attr}"
 }
 
-function public_ip_resource_group () {
-    ip_attr 'resource_group'
+function create_dns_zone() {
+  $AZ_TRACE network dns zone create \
+    --name "$(dns_zone_name)" \
+    --resource-group "$(dns_zone_attr 'resource_group')" \
+    --subscription "$(dns_zone_attr 'subscription')"
 }
 
-function public_ip_already_exists () {
-    az network public-ip show --name  "$(public_ip_name)" --resource-group "$(public_ip_resource_group)" > /dev/null 2>&1
+function update_dns_zone() {
+  $AZ_TRACE network dns zone update \
+    --name "$(dns_zone_name)" \
+    --resource-group "$(dns_zone_attr 'resource_group')" \
+    --subscription "$(dns_zone_attr 'subscription')"
 }
 
-function create_public_ip () {
-    $AZ_TRACE network public-ip create \
-        --name "$(public_ip_name)" \
-        --resource-group "$(ip_attr 'resource_group')" \
-        --sku "$(ip_attr 'sku')" \
-        --allocation-method "$(ip_attr 'allocation_method')" \
-        --dns-name "$(public_ip_name)" \
-        --version "$(ip_attr 'version')"
-# microsoft states "coming soon..."
-#        --zone "$(ip_attr 'zone')"
+function dns_zone_exists() {
+  az network dns zone show \
+    --name "$(dns_zone_name)" \
+    --resource-group "$(dns_zone_attr 'resource_group')" \
+    --subscription "$(dns_zone_attr 'subscription')" \
+  > /dev/null 2>&1
 }
 
-function create_public_ip_if_needed () {
-    public_ip_already_exists || create_public_ip
+function create_dns_zone_if_needed() {
+  if dns_zone_exists; then
+    update_dns_zone
+  else
+    create_dns_zone
+  fi
 }
 
-create_public_ip_if_needed
+create_dns_zone_if_needed

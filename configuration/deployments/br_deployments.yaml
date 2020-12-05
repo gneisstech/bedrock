@@ -70,7 +70,7 @@ deployments:
     k8s:
       namespace: 'brk8s'
       context: 'br-ci-k8s-001-admin'
-      tls_secret_name: 'wildcarddevatrius-iotcom'
+      tls_secret_name: 'wildcarddevbedrock-iotcom'
       pv_secret_namespace: 'br-pv'
     paas:
       dashboard:

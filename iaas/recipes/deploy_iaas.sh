@@ -66,7 +66,7 @@ function iaas_location () {
 }
 
 function resource_group_names () {
-    iaas_configuration | jq -r -e '[.resource_groups[] | select(.action == "create") | .name ] | @tsv'
+    iaas_configuration | jq -r -e '[.resource_groups[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_resource_groups () {
@@ -76,7 +76,7 @@ function deploy_resource_groups () {
 }
 
 function public_ip_names () {
-    iaas_configuration | jq -r -e '[.networking.public_ip[] | select(.action == "create") | .name ] | @tsv'
+    iaas_configuration | jq -r -e '[.networking.public_ip[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_public_ips () {
@@ -85,8 +85,18 @@ function deploy_public_ips () {
     done
 }
 
+function dns_zones () {
+    iaas_configuration | jq -r -e '[.networking.dns_zones[]? | select(.action == "create") | .name ] | @tsv'
+}
+
+function deploy_dns_zones () {
+    for dns_zone in $(dns_zones); do
+        invoke_layer 'iaas' 'create_dns_zone_if_needed' "${dns_zone}"
+    done
+}
+
 function dns_hosts () {
-    iaas_configuration | jq -r -e '[.networking.dns_a_records[] | select(.action == "create") | .host ] | @tsv'
+    iaas_configuration | jq -r -e '[.networking.dns_a_records[]? | select(.action == "create") | .host ] | @tsv'
 }
 
 function deploy_dns_a_records () {
@@ -95,16 +105,8 @@ function deploy_dns_a_records () {
     done
 }
 
-function vnet_count () {
-    iaas_configuration | jq -r -e '.networking.vnets // null | length'
-}
-
 function vnet_names () {
-    if [[ "0" != "$(vnet_count)" ]]; then
-        iaas_configuration | jq -r -e '[.networking.vnets[] | select(.action == "create") | .name ] | @tsv'
-    else
-        printf ''
-    fi
+    iaas_configuration | jq -r -e '[.networking.vnets[]? | select(.action == "create") | .name ] | @tsv'
 }
 
 function deploy_vnets () {
@@ -115,13 +117,16 @@ function deploy_vnets () {
 
 function deploy_networking () {
     deploy_public_ips
+    deploy_dns_zones
     deploy_dns_a_records
     deploy_vnets
+    echo "done networking" >> /dev/stderr
 }
 
 function deploy_iaas () {
     deploy_resource_groups
     deploy_networking
+    echo "done iaas" >> /dev/stderr
 }
 
 deploy_iaas

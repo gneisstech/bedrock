@@ -188,7 +188,7 @@ function bless_container () {
 function bless_git_repo () {
     if is_azure_pipeline_build; then
         # configure azure pipeline workspace
-        git config --global user.email "azure_automation@gneiss-tech.com"
+        git config --global user.email "azure_automation@gneiss-tech.net"
         git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
     fi
     if [[ "true" == "${BUMP_SEMVER}" ]]; then
