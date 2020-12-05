@@ -17,7 +17,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Install tools if needed'
     inputs:
-      azureSubscription: 'cf-dev-az-service-connection'
+      azureSubscription: 'br-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/install_tools_if_needed.sh'
@@ -32,7 +32,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Trace Environment'
     inputs:
-      azureSubscription: 'cf-dev-az-service-connection'
+      azureSubscription: 'br-dev-az-service-connection'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/trace_environment.sh'
@@ -47,7 +47,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Update Prod Environment'
     inputs:
-      azureSubscription: 'cf-prod-az-service-connection'
+      azureSubscription: 'br-prod-az-service-connection'
       scriptType: bash
       scriptLocation: 'scriptPath'
       scriptPath: './ci/recipes/update_prod_environment.sh'

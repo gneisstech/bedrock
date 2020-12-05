@@ -20,7 +20,7 @@ declare -rx TF_BUILD
 # ---------------------
 
 declare -rx ORIGIN_ENVIRONMENT="${ORIGIN_ENVIRONMENT:-dev}"
-declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-cfdevregistry}"
+declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-brdevregistry}"
 declare -rx RELEASE_PREFIX="${RELEASE_PREFIX:-r}"
 declare -rx BUILD_REPOSITORY_LOCALPATH="${BUILD_REPOSITORY_LOCALPATH:-.}"
 

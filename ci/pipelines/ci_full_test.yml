@@ -29,12 +29,12 @@ jobs:
         displayName: Login to ACR for Dev registry
         inputs:
           command: login
-          containerRegistry: cf-dev-acr-service-connection
+          containerRegistry: br-dev-acr-service-connection
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Install tools if needed'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/install_tools_if_needed.sh'
@@ -50,7 +50,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Trace Environment'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/trace_environment.sh'
@@ -66,7 +66,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Static Analysis'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './recipes/sast_shellcheck.sh'
@@ -82,7 +82,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Check Key Vault Access'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/check_dev_key_vault_access.sh'
@@ -98,7 +98,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Provision CI k8s cluster'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/deploy_ci_cluster.sh'
@@ -114,7 +114,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Login to CI ACR Registry'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/acr_login_ci_registry.sh'
@@ -130,7 +130,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Copy Deployed Dev Artifacts to CI'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/copy_dev_to_ci_k8s.sh'
@@ -146,7 +146,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Push packaged Artifacts to CI'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/publish_packaged_chart_to_ci.sh'
@@ -162,7 +162,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Install latest umbrella chart to development k8s cluster'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/deploy_umbrella_chart_to_ci.sh'
@@ -178,7 +178,7 @@ jobs:
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Purge CI k8s cluster'
         inputs:
-          azureSubscription: 'cf-dev-az-service-connection'
+          azureSubscription: 'br-dev-az-service-connection'
           scriptType: bash
           scriptLocation: scriptPath
           scriptPath: './ci/recipes/purge_ci_cluster.sh'

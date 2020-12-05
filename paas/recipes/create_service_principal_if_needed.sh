@@ -94,8 +94,8 @@ function is_azure_pipeline_build () {
 }
 
 function get_prebuilt_sp_info () {
-    local -r vault="cf-ci-devops-kv"
-    local -r secret_name="cf-ci-devops-sp-info"
+    local -r vault="br-ci-devops-kv"
+    local -r secret_name="br-ci-devops-sp-info"
     az keyvault secret show \
         --vault-name "${vault}" \
         --name "${secret_name}" \

@@ -1,0 +1,217 @@
+---
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+br-http-https-echo:
+  fullnameOverride: 'br-http-https-echo'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/br-echo/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $name_upstream_1 $upstream_cookie_name_1;
+        access_by_lua_block {
+          if ngx.var.name_upstream_1 ~= "" then
+            ngx.header["Set-Cookie"] = "name_1=" .. ngx.var.name_upstream_1 .. ngx.var.auth_cookie:match("(; .*)")
+          end
+        }
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header X-Forwarded-Access-Token $access_token;
+        more_set_headers "Content-Security-Policy: base-uri 'self'; default-src * 'self' data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self' login.microsoft.com;" always;
+    hosts:
+      - paths:
+          - '/br-echo(/|$)(.*)'
+
+br-oauth-proxy-docker:
+  fullnameOverride: 'br-oauth-proxy-docker'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/oauth2/$2'
+    hosts:
+      - paths:
+          - '/oauth2(/|$)(.*)'
+  config:
+    environment:
+      OAUTH2_PROXY_AZURE_TENANT: 'common'
+      OAUTH2_PROXY_CLIENT_ID: 'fixme-oauth-sp-client-id'
+      OAUTH2_PROXY_COOKIE_EXPIRE: '4320h'
+      OAUTH2_PROXY_COOKIE_NAME: 'ConnectedFacilities_AUTHN_cf_auth__utm'
+      OAUTH2_PROXY_COOKIE_PATH: '/'
+      OAUTH2_PROXY_COOKIE_REFRESH: '1h'
+      OAUTH2_PROXY_EMAIL_DOMAINS: '*'
+      OAUTH2_PROXY_EXTRA_JWT_ISSUERS: 'fixme-oauth-jwt-id-providers'
+      OAUTH2_PROXY_HTTP_ADDRESS: '0.0.0.0:4180'
+      OAUTH2_PROXY_PASS_ACCESS_TOKEN: 'true'
+      OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: 'true'
+      OAUTH2_PROXY_PING_PATH: '/'
+      OAUTH2_PROXY_PROFILE_URL: 'https://graph.windows.net/me?api-version=1.6'
+      OAUTH2_PROXY_PROVIDER: 'azure'
+      OAUTH2_PROXY_REDIRECT_URL: 'fixme-oauth-redirect-url'
+      OAUTH2_PROXY_RESOURCE: 'fixme-oauth-proxy-resource'
+      OAUTH2_PROXY_SET_AUTHORIZATION_HEADER: 'true'
+      OAUTH2_PROXY_SILENCE_PING_LOGGING: 'true'
+      OAUTH2_PROXY_SKIP_AUTH_REGEX: 'fixme-oauth-skip-auth-regex'
+      OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: 'true'
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: 'true'
+      OAUTH2_PROXY_UPSTREAMS: ''  # deliberately empty
+    secrets:
+      OAUTH2_PROXY_CLIENT_SECRET: 'fixme-oauth-proxy-client-secret'
+      OAUTH2_PROXY_COOKIE_SECRET: 'fixme-oauth-proxy-cookie-secret'
+
+br-waf-ingress-default-backend:
+  fullnameOverride: 'br-waf-ingress-default-backend'
+  enabled: true
+
+br-tls-certificate-manager-svc-docker:
+  fullnameOverride: 'br-tls-certificate-manager-svc-docker'
+  enabled: true
+  yaml_values:
+    - &leCertificateDir '/etc/letsencrypt'
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'false'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/.well-known/$2'
+    hosts:
+      - paths:
+          - '/.well-known(/|$)(.*)'
+  certbot:
+    pvc:
+      create: true
+  rbac:
+    create: true
+  config:
+    environment:
+      ACTIVE_TLS_PUBLISH: 'false'
+      ADMIN_EMAIL: 'techguru@byiq.com'
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+      CERTIFICATE_CREATED_FLAG: 'fixme-certificate-created-flag'
+      CERTIFICATE_DIR: *leCertificateDir
+      CERTIFICATE_NAME: '{{ .Release.Name }}'
+      CERTIFICATE_ORG: 'Acuity Brands, Inc.'
+      DEV_CERTIFICATE_DIR: 'fixme-dev-certificate-dir'
+      DEVELOPER_CERTIFICATE_REQUIRED_FLAG: 'fixme-developer-certificate-required-flag'
+      HOST_DOMAIN: 'fixme-missing-host-domain'
+      INGRESS_APP: 'br-waf-ingress'
+      IS_PRODUCTION: 'false'
+      METRICS_PREFIX: 'cf.service.cf_tls_certificate_manager.'
+      PRIVATE_TLS: 'true'
+      RELEASE_NAME: '{{ .Release.Name }}'
+      RELEASE_NAMESPACE: '{{ .Release.Namespace }}'
+      RENEWAL_FAILED_FLAG: 'fixme-renewal-failed-flag'
+      TLS_SECRET_NAME: 'fixme-missing-tls-secret-name'
+    secrets:
+      TLS_PEM: 'fixme-missing-tls-pem-secret'
+
+br-waf-ingress:
+  fullnameOverride: 'br-waf-ingress'
+  enabled: true
+  rbac:
+    scope: true
+  controller:
+    scope:
+      enabled: true
+    # config:
+    addHeaders:
+      'Strict-Transport-Security': 'max-age=31536000'
+      'Referrer-Policy': 'strict-origin-when-cross-origin'
+      'X-Frame-Options': 'sameorigin'
+      'Content-Security-Policy': "default-src 'self'; frame-ancestors 'self' login.microsoft.com;"
+      'Feature-Policy': >-
+        accelerometer 'none';
+        ambient-light-sensor 'none';
+        autoplay 'none';
+        battery 'none';
+        camera 'none';
+        display-capture 'none';
+        document-domain 'none';
+        encrypted-media 'none';
+        execution-while-not-rendered 'none';
+        execution-while-out-of-viewport 'none';
+        fullscreen 'none';
+        geolocation 'none';
+        gyroscope 'none';
+        layout-animations 'none';
+        legacy-image-formats 'none';
+        magnetometer 'none';
+        microphone 'none';
+        midi 'none';
+        oversized-images 'none';
+        payment 'none';
+        picture-in-picture 'none';
+        speaker 'none';
+        sync-xhr 'none';
+        unoptimized-images 'none';
+        unsized-media 'none';
+        usb 'none';
+        vibrate 'none';
+        vr 'none';
+        wake-lock 'none';
+        webauthn 'none';
+        vr 'none';
+        xr-spatial-tracking 'none';
+        xr 'none';
+      'X-Content-Type-Options': 'nosniff'
+      'Server': ''  # TODO: delete server header from upstream
+      'Access-Control-Allow-Origin': 'https://login.microsoftonline.com'
+    config:
+      # https://github.com/bashofmann/ingress-nginx/blob/1c17962ba0ccbe93805d96aa62b260b74ed99015/internal/ingress/controller/config/config.go#L516
+      # nginx.ingress.kubernetes.io/affinity: 'cookie'
+      enable-modsecurity: "true"
+      enable-owasp-core-rules: "true"
+      modsecurity-snippet: |
+        SecRuleEngine On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /dev/stderr
+        SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000002,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+        SecRule REQUEST_URI "@beginsWith /is-dynamic-lb-initialized" "t:none"
+        SecRule REMOTE_ADDR "^127\.0\.0\.1" "id:1000003,phase:1,nolog,allow,ctl:ruleEngine=off,chain"
+        SecRule REQUEST_URI "@beginsWith /nginx-status" "t:none"
+        SecAction "id:1000001,phase:1,nolog,pass,t:none,setvar:tx.paranoia_level=3"
+        SecRequestBodyAccess On
+        SecRequestBodyLimit 32768
+        SecRequestBodyNoFilesLimit 32768
+        SecRequestBodyLimitAction Reject
+        SecResponseBodyAccess On
+        SecResponseBodyLimit 32768
+        SecResponseBodyLimitAction Reject
+      enable-underscores-in-headers: 'true'
+      use-http2: 'false'
+      proxy-body-size: '32k'
+      proxy-buffer-size: '32k'
+      client-header-buffer-size: '32k'
+      client-body-buffer-size: '2m'
+      ssl-ciphers: >-
+        ECDHE-ECDSA-AES128-GCM-SHA256
+        :
+        ECDHE-RSA-AES128-GCM-SHA256
+        :
+        ECDHE-ECDSA-AES256-GCM-SHA384
+        :
+        ECDHE-RSA-AES256-GCM-SHA384
+        :
+        ECDHE-ECDSA-CHACHA20-POLY1305
+        :
+        ECDHE-RSA-CHACHA20-POLY1305
+        :
+        DHE-RSA-AES128-GCM-SHA256
+        :
+        DHE-RSA-AES256-GCM-SHA384
+      ssl-protocols: 'TLSv1.2 TLSv1.3'
+    extraArgs:
+      'default-ssl-certificate':
+        - 'fixme/waf-tls-secret'
+    service:
+      enableHttp: true
+      loadBalancerIP:
+        - 'fixme-waf-lb-ip'
+      annotations:
+        'service.beta.kubernetes.io/azure-load-balancer-resource-group': 'fixme-waf-resource-group'

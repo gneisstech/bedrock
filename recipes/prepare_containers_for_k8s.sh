@@ -21,7 +21,7 @@ function repo_root () {
 }
 
 function acr_logins () {
-    az acr login -n cfqaregistry
+    az acr login -n brqaregistry
 }
 
 function acr_containers () {
@@ -30,7 +30,7 @@ function acr_containers () {
 }
 
 function prepare_containers_for_k8s () {
-    local -r originRepo='cfqaregistry'
+    local -r originRepo='brqaregistry'
     #local -r app_version='r0.0.20-IndividualCI.20200428.3.RC'
     local -r app_version='r0.0.26-IndividualCI.20200514.3.RC'
     acr_logins
@@ -40,7 +40,7 @@ function prepare_containers_for_k8s () {
         originPath="${originRepo}.azurecr.io/${originImage}"
         docker pull "${originPath}"
         # shellcheck disable=SC2043
-        for targetRepo in cfqaregistry; do
+        for targetRepo in brqaregistry; do
             local targetPath
             targetPath="${targetRepo}.azurecr.io/${image}:${app_version}"
             docker tag "${originPath}" "${targetPath}"

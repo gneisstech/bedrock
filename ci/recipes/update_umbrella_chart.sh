@@ -13,7 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx ORIGIN_ENVIRONMENT="${ORIGIN_ENVIRONMENT:-dev}"
-declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-cfdevregistry}"
+declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-brdevregistry}"
 declare -rx RELEASE_PREFIX="${RELEASE_PREFIX:-r}"
 declare -rx DEFAULT_SEMVER="${DEFAULT_SEMVER:-0.0.0}"
 declare -rx BUMP_SEMVER="${BUMP_SEMVER:-true}"
