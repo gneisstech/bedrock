@@ -112,7 +112,7 @@ General philosophies:
 ```
 MIT License
 
-Copyright (c) 2020 AcuityTech
+Copyright (c) 2020-, Gneiss Technology LLC
 Copyright (c) 2019-2020, Acuity Brands Lighting Inc.
 Copyright (c) 2017-2019, Cloud Scaling
 Copyright (c) 2016-2017, techguru@byiq.com
