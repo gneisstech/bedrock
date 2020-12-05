@@ -71,10 +71,10 @@ function get_pipeline_services () {
 }
 
 function chart_dir () {
-    printf '%s/configuration/k8s/charts/cf-deployment-umbrella/' "$(repo_root)"
+    printf '%s/configuration/k8s/charts/br--deployment-umbrella/' "$(repo_root)"
 }
 
-function filter_upstream_cf_services () {
+function filter_upstream_br_services () {
     jq -r -e \
         --arg repository "${ORIGIN_REPOSITORY}" \
         '.dependencies[] | select(.repository|test(".*\($repository).*")) | .name' \
@@ -82,14 +82,14 @@ function filter_upstream_cf_services () {
 }
 
 function get_chart_services () {
-    yq r --tojson "$(chart_dir)/Chart.yaml" | filter_upstream_cf_services || true
+    yq r --tojson "$(chart_dir)/Chart.yaml" | filter_upstream_br_services || true
 }
 
 function get_locked_chart_services () {
-    yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_cf_services || true
+    yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_br_services || true
 }
 
-function filter_upstream_cf_service_semver () {
+function filter_upstream_br_service_semver () {
     local -r sub_chart="${1}"
     jq -r -e \
         --arg sub_chart "${sub_chart}" \
@@ -99,7 +99,7 @@ function filter_upstream_cf_service_semver () {
 
 function locked_sub_chart_semver () {
     local -r sub_chart="${1}"
-    yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_cf_service_semver "${sub_chart}" || true
+    yq r --tojson "$(chart_dir)/Chart.lock" | filter_upstream_br_service_semver "${sub_chart}" || true
 }
 
 function update_helm_repo () {

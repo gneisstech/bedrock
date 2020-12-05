@@ -35,7 +35,7 @@ function get_target_config () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    yq r --tojson "$(repo_root)/configuration/deployments/cf_deployments.yaml" |
+    yq r --tojson "$(repo_root)/configuration/deployments/br_deployments.yaml" |
         jq -r -e \
             --arg deployment_name "${deployment_name}" \
             '.deployments[] | select(.name == "\($deployment_name)")'
@@ -67,7 +67,7 @@ function acr_login_ci_registry () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         SECONDS=0
-        acr_login_cluster_registry "CF_CI"
+        acr_login_cluster_registry "BR_CI"
         DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }

@@ -24,7 +24,7 @@ function deploy_umbrella_chart_to_qa () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         SECONDS=0
-        "$(repo_root)/recipes/deployment_helm_update.sh" "CF_QA"
+        "$(repo_root)/recipes/deployment_helm_update.sh" "BR_QA"
         DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }

@@ -18,7 +18,7 @@ set -o pipefail
 
 declare -rx required_repo_branch="${required_repo_branch:-deployment_request/qa}"
 declare -rx ORIGIN_ENVIRONMENT="${ORIGIN_ENVIRONMENT:-dev}"
-declare -rx ORIGIN_SUBSCRIPTION="${ORIGIN_SUBSCRIPTION:-ConnectedFacilities-Dev}"
+declare -rx ORIGIN_SUBSCRIPTION="${ORIGIN_SUBSCRIPTION:-Bedrock-Dev}"
 declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-brdevregistry}"
 declare -rx ORIGIN_RESOURCE_PREFIX="${ORIGIN_RESOURCE_PREFIX:-br-dev-}"
 declare -rx TARGET_REPOSITORY="${TARGET_REPOSITORY:-brqaregistry}"
@@ -175,7 +175,7 @@ function bless_container () {
     local -r blessed_semver="${2}"
     local blessed_path
     blessed_path="$(printf '%s' "${container_path}" | target_path_with_new_tag "${blessed_semver}" )"
-    deployment_path="$(printf '%s' "${container_path}" | target_path_with_new_tag 'connected-facilities' )"
+    deployment_path="$(printf '%s' "${container_path}" | target_path_with_new_tag 'bedrock' )"
     docker pull "${container_path}"
     docker tag "${container_path}" "${blessed_path}"
     docker tag "${container_path}" "${deployment_path}"
@@ -188,7 +188,7 @@ function bless_container () {
 function bless_git_repo () {
     if is_azure_pipeline_build; then
         # configure azure pipeline workspace
-        git config --global user.email "azure_automation@bytelight.com"
+        git config --global user.email "azure_automation@gneiss-tech.com"
         git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
     fi
     if [[ "true" == "${BUMP_SEMVER}" ]]; then

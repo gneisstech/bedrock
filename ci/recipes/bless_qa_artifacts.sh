@@ -18,7 +18,7 @@ set -o pipefail
 
 declare -rx required_repo_branch="${required_repo_branch:-deployment_request/prod}"
 declare -rx ORIGIN_ENVIRONMENT="${ORIGIN_ENVIRONMENT:-qa}"
-declare -rx ORIGIN_SUBSCRIPTION="${ORIGIN_SUBSCRIPTION:-ConnectedFacilities-QA}"
+declare -rx ORIGIN_SUBSCRIPTION="${ORIGIN_SUBSCRIPTION:-Bedrock-QA}"
 declare -rx ORIGIN_REPOSITORY="${ORIGIN_REPOSITORY:-brqaregistry}"
 declare -rx ORIGIN_RESOURCE_PREFIX="${ORIGIN_RESOURCE_PREFIX:-br-qa-}"
 declare -rx TARGET_REPOSITORY="${TARGET_REPOSITORY:-brprodregistry}"

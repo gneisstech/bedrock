@@ -24,7 +24,7 @@ function promote_dev_to_qa_k8s () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         SECONDS=0
-        "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'CF_Development' 'CF_QA'
+        "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'BR_Development' 'BR_QA'
         DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }

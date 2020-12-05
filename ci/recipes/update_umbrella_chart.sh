@@ -18,8 +18,8 @@ declare -rx RELEASE_PREFIX="${RELEASE_PREFIX:-r}"
 declare -rx DEFAULT_SEMVER="${DEFAULT_SEMVER:-0.0.0}"
 declare -rx BUMP_SEMVER="${BUMP_SEMVER:-true}"
 declare -rx BUILD_REPOSITORY_LOCALPATH="${BUILD_REPOSITORY_LOCALPATH:-.}"
-declare -rx IMAGENAME="${IMAGENAME:-cf-deployment-umbrella}"
-declare -rx TAG="${TAG:-connected-facilities}"
+declare -rx IMAGENAME="${IMAGENAME:-br-deployment-umbrella}"
+declare -rx TAG="${TAG:-bedrock}"
 declare -rx TF_BUILD
 declare -rx BUILD_SOURCEBRANCH
 
@@ -175,7 +175,7 @@ function origin_repository () {
 function update_git_config () {
     if is_azure_pipeline_build; then
         # configure azure pipeline workspace
-        git config --global user.email "azure_automation@bytelight.com"
+        git config --global user.email "azure_automation@gneiss-tech.com"
         git config --global user.name "Azure automation Blessing Artifacts from [$(origin_environment)]"
     fi
 }
