@@ -303,7 +303,7 @@ function dispatch_functions () {
 }
 
 function process_app_env () {
-    local -r app="${1:-cf}"
+    local -r app="${1:-br}"
     local -r env="${2:-env}"
     sed -e "s|##app##|${app}|g" \
         -e "s|##env##|${env}|g" \

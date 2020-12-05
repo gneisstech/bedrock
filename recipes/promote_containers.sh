@@ -22,21 +22,20 @@ function repo_root () {
 
 function acr_logins () {
     az acr login -n brdevregistry
-    az acr login -n cfstagingregistry
     az acr login -n brqaregistry
     az acr login -n brprodregistry
 }
 
 function promote_containers () {
     local -r originRepo='brqaregistry.azurecr.io'
-    #local -r containers='br-oauth-proxy-docker cf-react-app-docker cf-ruby-api-docker cf-self-healing-api-docker cf-self-healing-app-docker'
-    local -r containers='cf-self-healing-api-docker cf-self-healing-app-docker'
-    #local -r containers='cf-atrius-objects-api-docker cf-authz-web-api-docker cf-elm-web-api-docker cf-network-view-web-api-docker br-oauth-proxy-docker cf-react-app-docker'
+    #local -r containers='br-oauth-proxy-docker br-react-app-docker br-ruby-api-docker br-self-healing-api-docker br-self-healing-app-docker'
+    local -r containers='br-self-healing-api-docker br-self-healing-app-docker'
+    #local -r containers='br-atrius-objects-api-docker br-authz-web-api-docker br-elm-web-api-docker br-network-view-web-api-docker br-oauth-proxy-docker br-react-app-docker'
     #local -r containers='br-oauth-proxy-docker'
     acr_logins
     for image in ${containers}; do
         local imageWithTag originPath targetPath targetRepo
-        imageWithTag="${image}:connected-facilities"
+        imageWithTag="${image}:bedrock"
         originPath="${originRepo}/${imageWithTag}"
         docker pull "${originPath}"
         #shellcheck disable=SC2043

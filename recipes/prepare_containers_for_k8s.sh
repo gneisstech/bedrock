@@ -36,7 +36,7 @@ function prepare_containers_for_k8s () {
     acr_logins
     for image in $(acr_containers "${originRepo}" ); do
         local originImage originPath targetPath targetRepo
-        originImage="${image}:connected-facilities"
+        originImage="${image}:bedrock"
         originPath="${originRepo}.azurecr.io/${originImage}"
         docker pull "${originPath}"
         # shellcheck disable=SC2043

@@ -15,8 +15,8 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -r CLEAN_SUBSCRIPTION="${CLEAN_SUBSCRIPTION:-ConnectedFacilities-Dev}"
-declare -r CLEAN_RESOURCE_GROUPS_SUFFIX="${CLEAN_RESOURCE_GROUPS_SUFFIX:--exp-cfdev}"
+declare -r CLEAN_SUBSCRIPTION="${CLEAN_SUBSCRIPTION:-Bedrock-Dev}"
+declare -r CLEAN_RESOURCE_GROUPS_SUFFIX="${CLEAN_RESOURCE_GROUPS_SUFFIX:--exp-brdev}"
 declare -r APPROVED="${APPROVED:-false}"
 
 # Arguments

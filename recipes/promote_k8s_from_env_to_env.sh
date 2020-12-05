@@ -70,7 +70,7 @@ function get_env () {
     jq -r -e '.environment.name' <<< "${deployment_json}"
 }
 function process_app_env () {
-    local -r app="${1:-cf}"
+    local -r app="${1:-br}"
     local -r env="${2:-env}"
     sed -e "s|##app##|${app}|g" \
         -e "s|##env##|${env}|g" \
@@ -119,7 +119,7 @@ function update_helm_repo () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    yq r --tojson "$(repo_root)/configuration/deployments/cf_deployments.yaml" |
+    yq r --tojson "$(repo_root)/configuration/deployments/br_deployments.yaml" |
         jq -r -e \
             --arg deployment_name "${deployment_name}" \
             '.deployments[] | select(.name == "\($deployment_name)")'
