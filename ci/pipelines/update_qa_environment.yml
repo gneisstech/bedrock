@@ -1,0 +1,61 @@
+---
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - checkout: self
+    # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
+    persistCredentials: true
+  - task: AzureCLI@2
+    displayName: 'Install tools if needed'
+    inputs:
+      azureSubscription: 'br-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/install_tools_if_needed.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+    displayName: 'Trace Environment'
+    inputs:
+      azureSubscription: 'br-dev-az-service-connection'
+      scriptType: bash
+      scriptLocation: scriptPath
+      scriptPath: './ci/recipes/trace_environment.sh'
+      # inlineScript:
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE
+  - task: AzureCLI@2
+    displayName: 'Update QA Environment'
+    inputs:
+      azureSubscription: 'br-qa-az-service-connection'
+      scriptType: bash
+      scriptLocation: 'scriptPath'
+      scriptPath: './ci/recipes/update_qa_environment.sh'
+      # inlineScript
+      # arguments
+      # powerShellErrorActionPreference
+      # addSpnToEnvironment
+      # useGlobalConfig
+      # workingDirectory
+      # failOnStandardError
+      # powerShellIgnoreLASTEXITCODE

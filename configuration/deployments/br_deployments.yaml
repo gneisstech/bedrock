@@ -1,0 +1,108 @@
+---
+deployments:
+  - name: 'BR_Development'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'Bedrock-Dev'
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Bedrock-Dev
+          location: 'eastus'
+          tls_subscription:
+            name: 'Bedrock-Dev'
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Bedrock-Dev
+          dns_subscription:
+            name: 'Bedrock-Dev'
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Bedrock-Dev
+    k8s:
+      namespace: 'brk8s'
+      context: 'br-dev-k8s-001-admin'
+      pv_secret_namespace: 'br-pv'
+    paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8001
+      datadog:
+        enabled: 'true'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'true'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'brdevregistry.azurecr.io'
+    environment:
+      app: 'br'
+      name: 'dev'
+      volume_prefix: 'br'
+      config: './configuration/environments/br_k8s_dev.yaml'
+    helm:
+      migration_timeout: '15m'
+      umbrella:
+        registry:
+          name: 'brdevregistry'
+        name: 'br-deployment-umbrella'
+        version: '^0.1.0-0'
+        deployment_name: 'brk8s'
+        values_file: ''
+      storage:
+        account:
+          name: 'brdevcmsa001abl'
+  - name: 'BR_CI'
+    iaas:
+      provider:
+        azure:
+          enabled: 'true'
+          subscription:
+            name: 'Bedrock-Dev'
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+          location: 'eastus'
+          tls_subscription:
+            name: 'Bedrock-Dev'
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+          dns_subscription:
+            name: 'Bedrock-Dev'
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Bedrock-Dev
+    k8s:
+      namespace: 'brk8s'
+      context: 'br-ci-k8s-001-admin'
+      tls_secret_name: 'wildcarddevbedrock-iotcom'
+      pv_secret_namespace: 'br-pv'
+    paas:
+      dashboard:
+        enabled: 'true'
+        namespace: 'dashboard'
+        port: 8002
+      datadog:
+        enabled: 'false'
+        namespace: 'datadog'
+      neuvector:
+        enabled: 'false'
+        namespace: 'neuvector'
+        values:
+          cve:
+            updater:
+              enabled: 'true'
+          registry: 'brdevregistry.azurecr.io'
+    environment:
+      app: 'br'
+      name: 'ci'
+      volume_prefix: 'br'
+      config: './configuration/environments/br_k8s_ci.yaml'
+    helm:
+      migration_timeout: '10m'
+      umbrella:
+        registry:
+          name: 'brciregistry'
+        name: 'br-deployment-umbrella'
+        deployment_name: 'brk8s'
+        version: '^0.1.0-0'
+        values_file: ''
+      storage:
+        account:
+          name: 'brcicmsa001abl'
+---
