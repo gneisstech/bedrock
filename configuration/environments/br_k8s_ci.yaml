@@ -58,7 +58,7 @@ target:
           subscription: *subscription_dns
           action: 'create'
       dns_a_records:
-        - zone: &dnsZone '##app-env##.bedrock.gneiss-tech.net'
+        - zone: &dnsZone 'bedrock.gneiss-tech.net'
           host: &dnsHost '##app-env##'
           fqdn: &wafFqdn '##app-env##.bedrock.gneiss-tech.net.'
           resource_group: *brWafRG
