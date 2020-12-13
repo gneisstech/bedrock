@@ -24,11 +24,6 @@ function is_azure_pipeline_build () {
     [[ "True" == "${TF_BUILD:-}" ]]
 }
 
-function get_target_config () {
-    local -r deployment_json="${1}"
-    jq -r -e '.environment.config' <<< "${deployment_json}"
-}
-
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
     "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
@@ -62,7 +57,7 @@ function process_app_env () {
 function populate_config_file () {
     local -r deployment_json="${1}"
     local -r new_config_file="${2}"
-    read_configuration "$(get_target_config "${deployment_json}")" \
+    read_configuration "$( "$(repo_root)/recipes/get_target_config_path.sh" "${deployment_json}" )" \
     | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
     > "${new_config_file}"
 }

@@ -39,7 +39,7 @@ deployments:
       app: 'br'
       name: 'dev'
       volume_prefix: 'br'
-      config: './configuration/environments/br_k8s_dev.yaml'
+      config: 'br_k8s_dev.yaml'
     helm:
       migration_timeout: '15m'
       umbrella:
@@ -92,7 +92,7 @@ deployments:
       app: 'br'
       name: 'ci'
       volume_prefix: 'br'
-      config: './configuration/environments/br_k8s_ci.yaml'
+      config: 'br_k8s_ci.yaml'
     helm:
       migration_timeout: '10m'
       umbrella:

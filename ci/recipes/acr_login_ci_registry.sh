@@ -28,11 +28,6 @@ function is_azure_pipeline_build () {
     [[ "True" == "${TF_BUILD:-}" ]]
 }
 
-function get_target_config () {
-    local -r deployment_json="${1}"
-    jq -r -e '.environment.config' <<< "${deployment_json}"
-}
-
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
     "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"

@@ -50,11 +50,6 @@ function get_helm_chart_name () {
     jq -r -e '.helm.umbrella.name' <<< "${deployment_json}"
 }
 
-function get_target_config () {
-    local -r deployment_json="${1}"
-    jq -r -e '.environment.config' <<< "${deployment_json}"
-}
-
 function read_configuration () {
     local -r config_filename="${1}"
     yq read --tojson "${config_filename}"
@@ -81,7 +76,7 @@ function process_app_env () {
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    read_configuration "$(get_target_config "${deployment_json}")" \
+    read_configuration "$( "$(repo_root)/recipes/get_target_config_path.sh" "${deployment_json}" )" \
         | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
         | "$(repo_root)/recipes/join_string_arrays.sh"
 }

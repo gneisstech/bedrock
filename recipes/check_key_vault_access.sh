@@ -25,11 +25,6 @@ function get_deployment_json_by_name () {
     "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
-function get_target_config_file_name () {
-    local -r deployment_json="${1}"
-    jq -r -e '.environment.config' <<< "${deployment_json}"
-}
-
 function read_configuration () {
     local -r config_filename="${1}"
     yq read --tojson "${config_filename}"

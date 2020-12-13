@@ -74,11 +74,6 @@ function get_helm_version () {
     jq -r -e '.helm.umbrella.version' <<< "${deployment_json}"
 }
 
-function get_target_config () {
-    local -r deployment_json="${1}"
-    jq -r -e '.environment.config' <<< "${deployment_json}"
-}
-
 function get_migration_timeout () {
     local -r deployment_json="${1}"
     jq -r -e '.helm.migration_timeout' <<< "${deployment_json}"
@@ -86,12 +81,14 @@ function get_migration_timeout () {
 
 function get_helm_values () {
     local -r deployment_json="${1}"
-    TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/extract_service_values.sh"
+    TARGET_CONFIG="$( "$(repo_root)/recipes/get_target_config_path.sh" "${deployment_json}" )" \
+      "$(repo_root)/recipes/extract_service_values.sh"
 }
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    TARGET_CONFIG="$(get_target_config "${deployment_json}")" "$(repo_root)/recipes/pre_process_strings.sh"
+    TARGET_CONFIG="$( "$(repo_root)/recipes/get_target_config_path.sh" "${deployment_json}" )" \
+      "$(repo_root)/recipes/pre_process_strings.sh"
 }
 
 function connect_to_k8s () {

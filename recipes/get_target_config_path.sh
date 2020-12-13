@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: get_deployment_json_by_name.sh
+# usage: get_target_config_path.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -21,20 +21,22 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function bedrock_config_dir () {
+function get_target_config_filename () {
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.config' <<< "${deployment_json}"
+}
+
+function bedrock_config_environment_dir () {
   local config_dir="${BEDROCK_CONFIG_DIR:-}"
   if [[ -z "${config_dir}" ]]; then
-    config_dir="$(repo_root)/configuration"
+    config_dir="$(repo_root)/configuration/environments"
   fi
   printf "%s" "${config_dir}"
 }
 
-function get_deployment_json_by_name () {
-    local -r deployment_name="${1}"
-    yq r --tojson "$(bedrock_config_dir)/deployments/br_deployments.yaml" |
-        jq -r -e -c \
-            --arg deployment_name "${deployment_name}" \
-            '.deployments[] | select(.name == "\($deployment_name)")'
+function get_target_config_path () {
+    local -r deployment_json="${1}"
+    printf "%s/%s" "$(bedrock_config_environment_dir)" "$(get_target_config_filename "${deployment_json}")"
 }
 
-get_deployment_json_by_name "${@}"
+get_target_config_path "${@}"
