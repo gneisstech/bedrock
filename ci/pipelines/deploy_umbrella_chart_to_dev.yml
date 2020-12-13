@@ -28,12 +28,12 @@ steps:
     displayName: Login to ACR for Dev registry
     inputs:
       command: login
-      containerRegistry: br-dev-acr-service-connection
+      containerRegistry: 'Bedrock - ABLTech - Dev Container Registry - Contributor'
   - task: AzureCLI@2
     condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Install tools if needed'
     inputs:
-      azureSubscription: 'br-dev-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - Dev Contributor'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/install_tools_if_needed.sh'
@@ -49,7 +49,7 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Trace Environment'
     inputs:
-      azureSubscription: 'br-dev-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - Dev Contributor'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/trace_environment.sh'
@@ -65,7 +65,7 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Static Analysis'
     inputs:
-      azureSubscription: 'br-dev-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - Dev Contributor'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './recipes/sast_shellcheck.sh'
@@ -81,7 +81,7 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Check Key Vault Access'
     inputs:
-      azureSubscription: 'br-dev-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - Dev Contributor'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/check_dev_key_vault_access.sh'
@@ -97,7 +97,7 @@ steps:
     condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
     displayName: 'Install latest umbrella chart to development k8s cluster'
     inputs:
-      azureSubscription: 'br-dev-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - Dev Contributor'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/deploy_umbrella_chart_to_dev.sh'
