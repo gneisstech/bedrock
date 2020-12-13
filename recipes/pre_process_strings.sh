@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: pre_process_strings.sh target_environment_config.yaml
+# usage: TARGET_CONFIG=target_environment_config.yaml pre_process_strings.sh
 
 #
 # Maintainer: techguru@byiq.com

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: deploy_environment.sh target_environment_config.yaml
+# usage: TARGET_CONFIG=target_environment_config.yaml deploy_saas.sh
 
 #
 # Maintainer: techguru@byiq.com

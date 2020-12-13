@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_eventhub_namespace_if_needed.sh eventhub_namespace
+# usage: TARGET_CONFIG=target_environment_config.yaml create_eventhub_namespace_if_needed.sh eventhub_namespace
 
 #
 # Maintainer: techguru@byiq.com

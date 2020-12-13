@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: apply_service_access_restrictions.sh service_name
+# usage: TARGET_CONFIG=target_environment_config.yaml apply_service_access_restrictions.sh service_name
 
 #
 # Maintainer: techguru@byiq.com

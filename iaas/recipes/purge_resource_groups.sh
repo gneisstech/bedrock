@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: purge_resource_groups.sh
+# usage: TARGET_CONFIG=target_environment_config.yaml purge_resource_groups.sh
 
 #
 # Maintainer: techguru@byiq.com

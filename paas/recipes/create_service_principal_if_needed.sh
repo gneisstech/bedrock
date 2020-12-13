@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_service_principal_if_needed.sh service_principal_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_service_principal_if_needed.sh service_principal_name
 
 #
 # Maintainer: techguru@byiq.com

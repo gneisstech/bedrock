@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_server_farm_if_needed.sh server_farm_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_server_farm_if_needed.sh server_farm_name
 
 #
 # Maintainer: techguru@byiq.com

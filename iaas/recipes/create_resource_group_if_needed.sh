@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: docker_install.sh
+# usage: TARGET_CONFIG=target_environment_config.yaml docker_install.sh
 
 #
 # Maintainer: techguru@byiq.com

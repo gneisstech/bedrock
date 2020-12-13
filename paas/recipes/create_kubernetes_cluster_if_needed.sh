@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_kubernetes_cluster_if_needed.sh kubernetes_cluster_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_kubernetes_cluster_if_needed.sh kubernetes_cluster_name
 
 #
 # Maintainer: techguru@byiq.com

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: import_database.sh database_instance_name
+# usage: TARGET_CONFIG=target_environment_config.yaml import_database.sh database_instance_name
 
 #
 # Maintainer: techguru@byiq.com

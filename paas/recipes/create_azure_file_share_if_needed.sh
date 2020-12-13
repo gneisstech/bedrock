@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_azure_file_share_if_needed.sh azure_file_share
+# usage: TARGET_CONFIG=target_environment_config.yaml create_azure_file_share_if_needed.sh azure_file_share
 
 #
 # Maintainer: techguru@byiq.com

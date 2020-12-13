@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_storage_account_if_needed.sh storage_account
+# usage: TARGET_CONFIG=target_environment_config.yaml create_storage_account_if_needed.sh storage_account
 
 #
 # Maintainer: techguru@byiq.com

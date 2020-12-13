@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_database_instance_if_needed.sh database_instance_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_database_instance_if_needed.sh database_instance_name
 
 #
 # Maintainer: techguru@byiq.com

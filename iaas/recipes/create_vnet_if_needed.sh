@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_public_ip_if_needed.sh public_ip_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_vnet_if_needed.sh public_ip_name
 
 #
 # Maintainer: techguru@byiq.com

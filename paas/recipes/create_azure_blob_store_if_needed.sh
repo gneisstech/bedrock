@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_azure_blob_store_if_needed.sh azure_blob_store
+# usage: TARGET_CONFIG=target_environment_config.yaml create_azure_blob_store_if_needed.sh azure_blob_store
 
 #
 # Maintainer: techguru@byiq.com

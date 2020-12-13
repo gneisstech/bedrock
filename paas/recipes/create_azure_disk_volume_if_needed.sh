@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_azure_disk_volume_if_needed.sh azure_disk_volume
+# usage: TARGET_CONFIG=target_environment_config.yaml create_azure_disk_volume_if_needed.sh azure_disk_volume
 
 #
 # Maintainer: techguru@byiq.com

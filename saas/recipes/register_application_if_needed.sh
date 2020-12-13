@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: register_application_if_needed.sh service_name
+# usage: TARGET_CONFIG=target_environment_config.yaml register_application_if_needed.sh service_name
 
 #
 # Maintainer: techguru@byiq.com

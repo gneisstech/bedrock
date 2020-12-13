@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: extract_service_values.sh target_environment_config.yaml
+# usage: TARGET_CONFIG=target_environment_config.yaml extract_service_values.sh
 
 #
 # Maintainer: techguru@byiq.com

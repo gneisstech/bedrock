@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_dashboard_credentials.sh
+# usage: TARGET_CONFIG=target_environment_config.yaml create_dashboard_credentials.sh
 
 #
 # Maintainer: techguru@byiq.com
@@ -36,6 +36,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx TARGET_CONFIG
 
 # Arguments
 # ---------------------

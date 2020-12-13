@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: purge_key_vaults.sh
+# usage: TARGET_CONFIG=target_environment_config.yaml purge_key_vaults.sh
 
 #
 # Maintainer: techguru@byiq.com

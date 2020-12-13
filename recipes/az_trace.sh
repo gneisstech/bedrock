@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: az_trace.sh target_environment_config.yaml
+# usage: TARGET_CONFIG=target_environment_config.yaml az_trace.sh
 
 #
 # Maintainer: techguru@byiq.com

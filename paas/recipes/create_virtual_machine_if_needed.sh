@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_virtual_machine_if_needed.sh vm_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_virtual_machine_if_needed.sh vm_name
 
 #
 # Maintainer: techguru@byiq.com

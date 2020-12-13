@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: purge_environment_cluster.sh
+# usage: purge_ci_cluster.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_application_gateway_if_needed.sh application_gateway_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_application_gateway_if_needed.sh application_gateway_name
 
 #
 # Maintainer: techguru@byiq.com

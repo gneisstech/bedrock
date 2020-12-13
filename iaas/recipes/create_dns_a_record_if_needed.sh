@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_dns_a_record_if_needed.sh dns_a_record_host
+# usage: TARGET_CONFIG=target_environment_config.yaml create_dns_a_record_if_needed.sh dns_a_record_host
 
 #
 # Maintainer: techguru@byiq.com

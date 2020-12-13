@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: create_container_registry_if_needed.sh container_registry_name
+# usage: TARGET_CONFIG=target_environment_config.yaml create_container_registry_if_needed.sh container_registry_name
 
 #
 # Maintainer: techguru@byiq.com
