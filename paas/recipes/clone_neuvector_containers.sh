@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: clone_neuvector.sh
+# usage: clone_neuvector_containers.sh
 # place copy of containers in our Azure repo(s) for reliability in pull
 
 # Exit script if you try to use an uninitialized variable.
@@ -25,8 +25,8 @@ function repo_root () {
 
 function acr_logins () {
     az acr login -n brdevregistry
-    az acr login -n brqaregistry
-    az acr login -n brprodregistry
+    az acr login -n brqaregistry || true
+    az acr login -n brprodregistry || true
 }
 
 function neuvector_containers () {
@@ -49,7 +49,7 @@ function clone_neuvector () {
             local targetPath
             targetPath="${targetRepo}.azurecr.io/${image}"
             docker tag "${originPath}" "${targetPath}"
-            docker push "${targetPath}"
+            docker push "${targetPath}" || true
         done
     done
 }

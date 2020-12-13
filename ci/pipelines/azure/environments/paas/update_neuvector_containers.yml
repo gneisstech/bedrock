@@ -28,11 +28,13 @@ steps:
       command: login
       containerRegistry: br-dev-acr-service-connection
   - task: Docker@2
+    condition: false
     displayName: Login to ACR for QA registry
     inputs:
       command: login
       containerRegistry: br-qa-acr-service-connection
   - task: Docker@2
+    condition: false
     displayName: Login to ACR for Production registry
     inputs:
       command: login
@@ -70,12 +72,12 @@ steps:
   - task: AzureCLI@2
     displayName: 'Update Neuvector Containers'
     inputs:
-      azureSubscription: 'br-prod-az-service-connection'
+      azureSubscription: 'br-dev-az-service-connection'
       scriptType: bash
       scriptLocation: 'inlineScript'
       # scriptPath
       inlineScript: >
-        DOCKER_TOKEN="$(docker_token)" DOCKER_USER="$(docker_user)" ./ci/recipes/update_neuvector.sh
+        DOCKER_TOKEN="$(docker_token)" DOCKER_USER="$(docker_user)" ./ci/recipes/update_neuvector_containers.sh
       # arguments
       # powerShellErrorActionPreference
       # addSpnToEnvironment
