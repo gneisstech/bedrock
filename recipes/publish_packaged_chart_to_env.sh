@@ -28,10 +28,7 @@ function get_helm_chart_name () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    yq r --tojson "$(repo_root)/configuration/deployments/br_deployments.yaml" |
-        jq -r -e \
-            --arg deployment_name "${deployment_name}" \
-            '.deployments[] | select(.name == "\($deployment_name)")'
+    "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
 function get_helm_registry_name () {
