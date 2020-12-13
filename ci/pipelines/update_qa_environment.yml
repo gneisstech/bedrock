@@ -17,7 +17,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Install tools if needed'
     inputs:
-      azureSubscription: 'br-dev-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - QA Contributor'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/install_tools_if_needed.sh'
@@ -32,7 +32,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Trace Environment'
     inputs:
-      azureSubscription: 'br-dev-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - QA Contributor'
       scriptType: bash
       scriptLocation: scriptPath
       scriptPath: './ci/recipes/trace_environment.sh'
@@ -47,7 +47,7 @@ steps:
   - task: AzureCLI@2
     displayName: 'Update QA Environment'
     inputs:
-      azureSubscription: 'br-qa-az-service-connection'
+      azureSubscription: 'Bedrock - ABLTech - QA Contributor'
       scriptType: bash
       scriptLocation: 'scriptPath'
       scriptPath: './ci/recipes/update_qa_environment.sh'
