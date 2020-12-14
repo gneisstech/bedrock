@@ -40,10 +40,6 @@ set -o pipefail
 # Arguments
 # ---------------------
 
-function repo_root () {
-    git rev-parse --show-toplevel
-}
-
 function process_acr_registry_key () {
     local -r theString="${1}"
     local acr_name rg_name theMessage
@@ -317,7 +313,6 @@ function interpolate_functions () {
 }
 
 function interpolate_strings () {
-    declare -a myarray
     local i=0
     while IFS=$'\n' read -r line_data; do
         local current_line="${line_data}"

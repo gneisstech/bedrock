@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: TARGET_CONFIG=target_environment_config.yaml az_trace.sh
+# usage: az_trace.sh
 
 #
 # Maintainer: techguru@byiq.com
@@ -36,8 +36,6 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx TARGET_CONFIG
-declare -x AZ_TRACE
 
 # Arguments
 # ---------------------
