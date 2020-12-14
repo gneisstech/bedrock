@@ -30,6 +30,12 @@ function get_datadog_values () {
   "$(repo_root)/recipes/extract_datadog_values.sh" "${deployment_json}"
 }
 
+function update_local_helm_charts () {
+  # update per
+  helm repo add datadog https://helm.datadoghq.com
+  helm repo update
+}
+
 function deploy_datadog () {
     local -r deployment_name="${1}"
     local deployment_json datadog_enabled
@@ -40,6 +46,7 @@ function deploy_datadog () {
         datadog_namespace="$(jq -r -e '.paas.datadog.namespace' <<< "${deployment_json}")"
         k8s_context="$(jq -r -e '.k8s.context' <<< "${deployment_json}")"
         kubectl --context "${k8s_context}" create ns "${datadog_namespace}" 2> /dev/null || true
+        update_local_helm_charts
         datadog_values="$(get_datadog_values "${deployment_json}")"
         printf "[%s]\n" "${datadog_values}"
         helm upgrade --install \
@@ -47,7 +54,7 @@ function deploy_datadog () {
             --namespace "${datadog_namespace}" \
             --history-max 20 \
             'datadog' \
-            'stable/datadog' \
+            'datadog/datadog' \
             --timeout "10m" \
             --wait \
             --values <(printf "%s" "${datadog_values}")
