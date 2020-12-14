@@ -459,6 +459,7 @@ target:
                 subscription: *defaultAzureSubscription
               dest: *neuvectorLicenseKeyName
         service_principals:
+      service_values:
         br-http-https-echo:
           replicaCount: 1
         br-tls-certificate-manager-svc-docker:
@@ -509,20 +510,7 @@ target:
                 - "renewal_failed.flag"
               TLS_SECRET_NAME: *wafTLSSecret
             secrets:
-              TLS_PEM:
-                - '##tls_secret={'
-                - '"k8s_tls_secret_name":"'
-                - *wafTLSSecret
-                - '","k8s_namespace":"'
-                - *brNamespace
-                - '","from_vault":"'
-                - *persistentKVName
-                - '","from_secret_name":"'
-                - *tlsSecretName
-                - '","from_subscription":"'
-                - *subscription_tls
-                - '"}'
-                - '##'
+              TLS_PEM: ''
         br-oauth-proxy-docker:
           replicaCount: 1
           config:

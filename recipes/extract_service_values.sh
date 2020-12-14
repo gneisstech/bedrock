@@ -65,7 +65,7 @@ function extract_service_values () {
     app="$(get_app "${deployment_json}")"
     env="$(get_env "${deployment_json}")"
     read_raw_configuration "${deployment_json}" \
-      | jq -r -e '.target.saas.helm.service_values' \
+      | jq -r '.target.saas.helm.service_values? // "{}"' \
       | "$(repo_root)/recipes/join_string_arrays.sh" \
       | "$(repo_root)/recipes/interpolate_strings.sh" "${app}" "${env}"
 }
