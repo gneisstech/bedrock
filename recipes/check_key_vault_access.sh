@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: check_key_vault_access.sh
+# usage: check_key_vault_access.sh "deployment_name"
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -25,9 +25,9 @@ function get_deployment_json_by_name () {
     "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
-function read_configuration () {
-    local -r config_filename="${1}"
-    yq read --tojson "${config_filename}"
+function read_raw_configuration () {
+    local -r deployment_json="${1}"
+    "$(repo_root)/recipes/read_raw_configuration.sh" "${deployment_json}"
 }
 
 function get_app () {
@@ -39,7 +39,6 @@ function get_env () {
     local -r deployment_json="${1}"
     jq -r -e '.environment.name' <<< "${deployment_json}"
 }
-
 function process_app_env () {
     local -r app="${1:-br}"
     local -r env="${2:-env}"
@@ -52,9 +51,13 @@ function process_app_env () {
 
 function get_target_cluster_config_json () {
     local -r deployment_json="${1}"
-    read_configuration "$(get_target_config_file_name "${deployment_json}")" \
-        | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
-        | "$(repo_root)/recipes/join_string_arrays.sh"
+    local -r deployment_json="${1}"
+    local app env
+    app="$(get_app "${deployment_json}")"
+    env="$(get_env "${deployment_json}")"
+    read_raw_configuration "${deployment_json}" \
+      | process_app_env "${app}" "${env}" \
+      | "$(repo_root)/recipes/join_string_arrays.sh"
 }
 
 function explore_key_vault_access () {

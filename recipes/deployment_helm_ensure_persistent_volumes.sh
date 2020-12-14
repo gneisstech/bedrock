@@ -72,14 +72,12 @@ function get_migration_timeout () {
 
 function get_helm_values () {
     local -r deployment_json="${1}"
-    TARGET_CONFIG="$( "$(repo_root)/recipes/get_target_config_path.sh" "${deployment_json}" )" \
-      "$(repo_root)/recipes/extract_service_values.sh"
+    "$(repo_root)/recipes/extract_service_values.sh" "${deployment_json}"
 }
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    TARGET_CONFIG="$( "$(repo_root)/recipes/get_target_config_path.sh" "${deployment_json}" )" \
-      "$(repo_root)/recipes/pre_process_strings.sh"
+    "$(repo_root)/recipes/pre_process_strings.sh" "${deployment_json}"
 }
 
 function get_sa_name () {

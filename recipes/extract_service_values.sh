@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: TARGET_CONFIG=target_environment_config.yaml extract_service_values.sh
+# usage: extract_service_values.sh "{deployment_json}"
 
 #
 # Maintainer: techguru@byiq.com
@@ -39,33 +39,35 @@ set -o pipefail
 
 # Arguments
 # ---------------------
-declare -rx TARGET_CONFIG
 
 function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function target_config () {
-    echo "$(repo_root)/${TARGET_CONFIG}"
-}
-
-function read_configuration () {
-    yq read --tojson "$(target_config)"
+function read_raw_configuration () {
+    local -r deployment_json="${1}"
+    "$(repo_root)/recipes/read_raw_configuration.sh" "${deployment_json}"
 }
 
 function get_app () {
-    read_configuration | jq -r -e '.target.app'
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.app' <<< "${deployment_json}"
 }
 
 function get_env () {
-    read_configuration | jq -r -e '.target.env'
+    local -r deployment_json="${1}"
+    jq -r -e '.environment.name' <<< "${deployment_json}"
 }
 
 function extract_service_values () {
-    read_configuration \
-        | jq -r -e '.target.saas.helm.service_values' \
-        | "$(repo_root)/recipes/join_string_arrays.sh" \
-        | "$(repo_root)/recipes/interpolate_strings.sh" "$(get_app)" "$(get_env)"
+    local -r deployment_json="${1}"
+    local app env
+    app="$(get_app "${deployment_json}")"
+    env="$(get_env "${deployment_json}")"
+    read_raw_configuration "${deployment_json}" \
+      | jq -r -e '.target.saas.helm.service_values' \
+      | "$(repo_root)/recipes/join_string_arrays.sh" \
+      | "$(repo_root)/recipes/interpolate_strings.sh" "${app}" "${env}"
 }
 
-extract_service_values
+extract_service_values "${@}"

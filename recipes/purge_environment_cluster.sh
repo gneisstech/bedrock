@@ -29,9 +29,9 @@ function get_deployment_json_by_name () {
     "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
-function read_configuration () {
-    local -r config_filename="${1}"
-    yq read --tojson "${config_filename}"
+function read_raw_configuration () {
+    local -r deployment_json="${1}"
+    "$(repo_root)/recipes/read_raw_configuration.sh" "${deployment_json}"
 }
 
 function get_app () {
@@ -57,15 +57,20 @@ function process_app_env () {
 function populate_config_file () {
     local -r deployment_json="${1}"
     local -r new_config_file="${2}"
-    read_configuration "$( "$(repo_root)/recipes/get_target_config_path.sh" "${deployment_json}" )" \
-    | process_app_env "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")" \
-    > "${new_config_file}"
+    local app env
+    app="$(get_app "${deployment_json}")"
+    env="$(get_env "${deployment_json}")"
+    read_raw_configuration "${deployment_json}" \
+      | process_app_env "${app}" "${env}" \
+      > "${new_config_file}"
 }
 
 function purge_environment_cluster () {
     local -r deployment_name="${1}"
     local -r new_config="./.new_config"
-    local deployment_json
+    local app env deployment_json
+    app="$(get_app "${deployment_json}")"
+    env="$(get_env "${deployment_json}")"
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     populate_config_file "${deployment_json}" "$(repo_root)/${new_config}"
     TARGET_CONFIG="${new_config}" AZ_TRACE=az "$(repo_root)/recipes/purge_environment.sh"
