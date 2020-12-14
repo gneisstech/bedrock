@@ -1,0 +1,15 @@
+dependencies:
+- name: br-http-https-echo
+  repository: https://brdevregistry.azurecr.io/helm/v1/repo
+  version: 1.2.1-dev
+- name: br-oauth-proxy-docker
+  repository: https://brdevregistry.azurecr.io/helm/v1/repo
+  version: 1.4.1-dev
+- name: nginx-ingress
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 1.41.2
+- name: br-tls-certificate-manager-svc-docker
+  repository: https://brdevregistry.azurecr.io/helm/v1/repo
+  version: 1.3.1-dev
+digest: sha256:2a9de7bbf6fda01569f98cea497efbe238379ad99f02716eb7522e951b93cb28
+generated: "2020-12-14T05:43:10.003248-10:00"
