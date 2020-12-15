@@ -1,11 +1,12 @@
 ---
 #
-# trigger this pipeline when there is a commit to the bedrock-main branch
+# trigger this pipeline when there is a commit to the specified branches
 #
 
 trigger:
-  - bedrock-main
-  - azure-pipelines
+  - 'bedrock-main'
+  - 'master-bedrock'
+  - 'azure-pipelines'
 
 pr: none
 
