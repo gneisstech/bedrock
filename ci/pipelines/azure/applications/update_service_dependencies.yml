@@ -42,7 +42,7 @@ resources:
           include:
             - 'bedrock-main'
     - pipeline: 'br-tls-certificate-manager-svc-docker'
-      source: 'brock-k8s-svc-tls-certificate-manager'
+      source: 'brock-k8s-svc-tls_certificate_manager'
       trigger:
         branches:
           include:
