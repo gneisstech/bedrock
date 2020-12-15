@@ -30,23 +30,23 @@ pr: none
 resources:
   pipelines:
     - pipeline: 'br-http-https-echo'
-      source: 'br_http_https_echo'
+      source: 'brock-k8s-svc-http-https-echo'
       trigger:
         branches:
           include:
-            - 'master-bedrock'
+            - 'bedrock-main'
     - pipeline: 'br-oauth-proxy-docker'
-      source: 'br_oauth2_proxy'
+      source: 'brock-k8s-svc-oauth2-proxy'
       trigger:
         branches:
           include:
-            - 'master-bedrock'
+            - 'bedrock-main'
     - pipeline: 'br-tls-certificate-manager-svc-docker'
-      source: 'br_tls_certificate_manager'
+      source: 'brock-k8s-svc-tls-certificate-manager'
       trigger:
         branches:
           include:
-            - 'master-bedrock'
+            - 'bedrock-main'
 
 pool:
   vmImage: 'ubuntu-latest'
