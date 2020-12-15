@@ -79,7 +79,7 @@ jobs:
           # failOnStandardError
           # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
-        # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: and(false, succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Check Key Vault Access'
         inputs:
           azureSubscription: 'br-dev-az-service-connection'

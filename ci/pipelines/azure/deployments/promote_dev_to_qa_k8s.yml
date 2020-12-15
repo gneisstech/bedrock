@@ -70,6 +70,7 @@ steps:
       # failOnStandardError
       # powerShellIgnoreLASTEXITCODE
   - task: AzureCLI@2
+    condition: false
     displayName: 'Check Key Vault Access'
     inputs:
       azureSubscription: 'br-qa-az-service-connection'

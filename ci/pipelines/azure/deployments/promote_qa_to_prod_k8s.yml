@@ -73,6 +73,7 @@ jobs:
           # failOnStandardError
           # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
+        condition: false
         displayName: 'Check Key Vault Access'
         inputs:
           azureSubscription: 'br-prod-az-service-connection'
