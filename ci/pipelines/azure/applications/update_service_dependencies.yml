@@ -35,18 +35,21 @@ resources:
         branches:
           include:
             - 'bedrock-main'
+            - 'master-bedrock'
     - pipeline: 'br-oauth-proxy-docker'
       source: 'brock-k8s-svc-oauth2-proxy'
       trigger:
         branches:
           include:
             - 'bedrock-main'
+            - 'master-bedrock'
     - pipeline: 'br-tls-certificate-manager-svc-docker'
       source: 'brock-k8s-svc-tls_certificate_manager'
       trigger:
         branches:
           include:
             - 'bedrock-main'
+            - 'master-bedrock'
 
 pool:
   vmImage: 'ubuntu-latest'
