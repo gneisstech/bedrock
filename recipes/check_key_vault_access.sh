@@ -51,7 +51,6 @@ function process_app_env () {
 
 function get_target_cluster_config_json () {
     local -r deployment_json="${1}"
-    local -r deployment_json="${1}"
     local app env
     app="$(get_app "${deployment_json}")"
     env="$(get_env "${deployment_json}")"
