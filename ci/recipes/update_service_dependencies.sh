@@ -63,7 +63,7 @@ function get_upstream_services () {
 }
 
 function pipeline_as_json () {
-    yq r --tojson "$(repo_root)/ci/pipelines/update_service_dependencies.yml"
+    yq r --tojson "$(repo_root)/ci/pipelines/azure/applications/update_service_dependencies.yml"
 }
 
 function get_pipeline_services () {
@@ -71,7 +71,7 @@ function get_pipeline_services () {
 }
 
 function chart_dir () {
-    printf '%s/configuration/k8s/charts/br--deployment-umbrella/' "$(repo_root)"
+    printf '%s/configuration/k8s/charts/br-deployment-umbrella/' "$(repo_root)"
 }
 
 function filter_upstream_br_services () {
