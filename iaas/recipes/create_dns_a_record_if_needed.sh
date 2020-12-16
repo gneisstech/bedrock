@@ -148,8 +148,52 @@ function dns_zone_exists () {
         > /dev/null 2>&1
 }
 
+function dns_caa_record_already_exists () {
+    az network dns record-set caa show \
+        --name "$(dns_a_record_host)" \
+        --resource-group "$(dns_a_record_resource_group)" \
+        --zone-name "$(dns_a_record_zone)" \
+        --subscription "$(dns_a_record_subscription)" \
+        > /dev/null 2>&1
+}
+
+function create_dns_caa_record () {
+    $AZ_TRACE network dns record-set caa add-record \
+        --resource-group "$(dns_a_record_resource_group)" \
+        --zone-name "$(dns_a_record_zone)" \
+        --subscription "$(dns_a_record_subscription)" \
+        --if-none-match \
+        --ttl "$(dns_a_record_ttl)" \
+        --record-set-name "$(dns_a_record_host)" \
+        --flags '0' \
+        --tag 'issue' \
+        --value 'letsencrypt.org'
+}
+
+function update_dns_caa_record () {
+    $AZ_TRACE network dns record-set caa add-record \
+        --resource-group "$(dns_a_record_resource_group)" \
+        --zone-name "$(dns_a_record_zone)" \
+        --subscription "$(dns_a_record_subscription)" \
+        --if-none-match \
+        --ttl "$(dns_a_record_ttl)" \
+        --record-set-name "$(dns_a_record_host)" \
+        --flags '0' \
+        --tag 'issue' \
+        --value 'letsencrypt.org'
+}
+
+function create_dns_caa_record_if_needed () {
+  if dns_caa_record_already_exists; then
+      update_dns_caa_record
+  else
+      create_dns_caa_record
+  fi
+}
+
 function create_dns_a_record_if_needed () {
     if dns_zone_exists; then
+        create_dns_caa_record_if_needed
         if dns_a_record_already_exists; then
             update_dns_a_record
         else
