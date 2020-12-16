@@ -60,7 +60,7 @@ function get_vault_secret () {
     az keyvault secret show \
         --vault-name "${vault}" \
         --name "${secret_name}" \
-        2> /dev/null \
+        2> /dev/stderr \
     | jq -r '.value'
 }
 
@@ -73,7 +73,7 @@ function set_vault_secret () {
         --name "${secret_name}" \
         --description 'secure secret from deployment automation' \
         --value "${secret}" \
-        2> /dev/null
+        2> /dev/stderr
 }
 
 function random_key () {
@@ -119,7 +119,7 @@ function get_secret_from_shared_vault () {
         --subscription "${subscription}" \
         --vault-name "${vault_name}" \
         --name "${secret_name}" \
-        2> /dev/null
+        2> /dev/stderr
 }
 
 function get_original_cert_from_shared_vault () {
