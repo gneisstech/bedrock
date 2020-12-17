@@ -171,16 +171,12 @@ function create_dns_caa_record () {
 }
 
 function update_dns_caa_record () {
-    $AZ_TRACE network dns record-set caa add-record \
+    $AZ_TRACE network dns record-set caa update \
         --resource-group "$(dns_a_record_resource_group)" \
         --zone-name "$(dns_a_record_zone)" \
         --subscription "$(dns_a_record_subscription)" \
-        --if-none-match \
-        --ttl "$(dns_a_record_ttl)" \
-        --record-set-name "$(dns_a_record_host)" \
-        --flags '0' \
-        --tag 'issue' \
-        --value 'letsencrypt.org'
+        --if-none-match '*' \
+        --name "$(dns_a_record_host)"
 }
 
 function create_dns_caa_record_if_needed () {
