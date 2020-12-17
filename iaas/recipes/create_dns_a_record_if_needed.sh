@@ -198,5 +198,4 @@ function create_dns_a_record_if_needed () {
     fi
 }
 
-set -x
 create_dns_a_record_if_needed
