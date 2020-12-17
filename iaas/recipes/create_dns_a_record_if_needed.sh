@@ -181,7 +181,7 @@ function update_dns_caa_record () {
 
 function create_dns_caa_record_if_needed () {
   if dns_caa_record_already_exists; then
-      update_dns_caa_record
+      update_dns_caa_record || true
   else
       create_dns_caa_record
   fi
@@ -198,4 +198,5 @@ function create_dns_a_record_if_needed () {
     fi
 }
 
+set -x
 create_dns_a_record_if_needed
