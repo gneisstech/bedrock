@@ -100,11 +100,11 @@ function create_keyvault () {
         --name "$(keyvault_name)" \
         --resource-group "$(get_keyvault_rg)" \
         --enabled-for-template-deployment
-    assign_list_get_set_policy_if_needed
 }
 
 function create_keyvault_if_needed () {
     keyvault_already_exists || create_keyvault
+    assign_list_get_set_policy_if_needed
 }
 
 create_keyvault_if_needed
