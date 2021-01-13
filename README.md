@@ -26,7 +26,7 @@ Target Platforms:
 1. Various cloud providers (Azure, AWS, GCP)
 1. Local Host
 
-Issue Tracker: https://gitlab.com/acuitytech/bedrock/-/issues
+Issue Tracker: https://github.com/gneisstech/bedrock/issues
 
 The "BeachHead" cluster example
 
