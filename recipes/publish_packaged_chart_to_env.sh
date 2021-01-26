@@ -54,7 +54,8 @@ function publish_new_umbrella () {
 
     ls -l
     printf 'chart package name [%s]\n' "${chart_package}"
-    az acr helm repo add --name "${target_registry}"
+    helm repo remove "${target_registry}" 2> /dev/null || true
+    az acr helm repo add --name "${target_registry}" 2> /dev/null
     if az acr helm push -n "${target_registry}" "${chart_package}" 2> /dev/null; then
         result=0
     else

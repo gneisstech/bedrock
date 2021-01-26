@@ -89,7 +89,7 @@ function get_subscription () {
     local -r deployment_json="${1}"
     local cluster_config_json
     cluster_config_json="$(get_cluster_config_json "${deployment_json}" )"
-    jq -r -e '.target.metadata.default_azure_subscription' <<< "${cluster_config_json}"
+    jq -r -e '.target.metadata.azure.default.subscription' <<< "${cluster_config_json}"
 }
 
 function connect_to_k8s () {
@@ -111,7 +111,8 @@ function update_helm_repo () {
     local -r registry="${1}"
     local -r subscription="${2}"
     printf '[%s]\n' "az acr helm repo add --name ${registry} --subscription ${subscription}"
-    az acr helm repo add --name "${registry}" --subscription "${subscription}"
+    helm repo remove "${registry}" 2> /dev/null || true
+    az acr helm repo add --name "${registry}" --subscription "${subscription}" 2> /dev/null
     helm repo update
     helm version
 }

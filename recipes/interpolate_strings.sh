@@ -60,7 +60,7 @@ function get_vault_secret () {
     az keyvault secret show \
         --vault-name "${vault}" \
         --name "${secret_name}" \
-        2> /dev/stderr \
+        2> /dev/null \
     | jq -r '.value'
 }
 
@@ -73,7 +73,7 @@ function set_vault_secret () {
         --name "${secret_name}" \
         --description 'secure secret from deployment automation' \
         --value "${secret}" \
-        2> /dev/stderr
+        2> /dev/null
 }
 
 function random_key () {
@@ -119,7 +119,7 @@ function get_secret_from_shared_vault () {
         --subscription "${subscription}" \
         --vault-name "${vault_name}" \
         --name "${secret_name}" \
-        2> /dev/stderr
+        2> /dev/null
 }
 
 function get_original_cert_from_shared_vault () {
@@ -211,7 +211,7 @@ function create_k8s_tls_secret () {
         --namespace "${k8s_namespace}" \
         "${k8s_tls_secret_name}" \
         --cert=<(pem_cert "${pem_key_cert}") \
-        --key=<(pem_key "${pem_key_cert}") > /dev/null
+        --key=<(pem_key "${pem_key_cert}") > /dev/null 2> /dev/null
 }
 
 function k8s_secret_exists () {
@@ -243,14 +243,16 @@ function process_tls_secret () {
 function process_eventhub_connection_string () {
     local -r theString="${1}"
     local theMessage
-    local resource_group namespace_name eventhub_name policy_name
+    local subscription resource_group namespace_name eventhub_name policy_name
     theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    subscription="$(jq -r '.subscription' <<< "${theMessage}")"
     resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
     namespace_name="$(jq -r '.namespace_name' <<< "${theMessage}")"
     eventhub_name="$(jq -r '.eventhub_name' <<< "${theMessage}")"
     policy_name="$(jq -r '.policy_name' <<< "${theMessage}")"
 
     az eventhubs eventhub authorization-rule keys list \
+        --subscription "${subscription}" \
         --resource-group "${resource_group}" \
         --namespace-name "${namespace_name}" \
         --eventhub-name "${eventhub_name}" \

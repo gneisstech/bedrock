@@ -64,7 +64,7 @@ function target_config () {
 }
 
 function target_subscription () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.default_azure_subscription'
+    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.azure.default.subscription'
 }
 
 function set_subscription () {

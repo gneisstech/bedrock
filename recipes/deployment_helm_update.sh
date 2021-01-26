@@ -93,7 +93,7 @@ function connect_to_k8s () {
     local -r deployment_json="${1}"
     local cluster_config_json subscription resource_group cluster_name
     cluster_config_json="$(get_cluster_config_json "${deployment_json}" )"
-    subscription="$(jq -r -e '.target.metadata.default_azure_subscription' <<< "${cluster_config_json}")"
+    subscription="$(jq -r -e '.target.metadata.azure.default.subscription' <<< "${cluster_config_json}")"
     resource_group="$(jq -r -e '.target.paas.k8s.clusters[0].resource_group' <<< "${cluster_config_json}")"
     cluster_name="$(jq -r -e '.target.paas.k8s.clusters[0].name' <<< "${cluster_config_json}")"
     az aks get-credentials \
@@ -108,14 +108,14 @@ function create_k8s_app_namespace () {
     local -r deployment_json="${1}"
     local namespace
     namespace="$(get_kube_namespace "${deployment_json}")"
-    kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
+    kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" 2> /dev/null || true
 }
 
 function create_pv_secret_namespace () {
     local -r deployment_json="${1}"
     local namespace
     namespace="$(get_pv_secret_namespace "${deployment_json}")"
-    kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" || true
+    kubectl --context "$(get_kube_context "${deployment_json}")" create namespace "${namespace}" 2> /dev/null || true
 }
 
 function update_helm_repo () {
@@ -125,7 +125,8 @@ function update_helm_repo () {
     if [[ "${registry_url}" =~ ^https ]]; then
       helm repo add "${registry_name}" "${registry_url}"
     else
-      az acr helm repo add --name "${registry_name}"
+      helm repo remove "${registry_name}" 2> /dev/null || true
+      az acr helm repo add --name "${registry_name}" 2> /dev/null
     fi
     helm repo update
     helm version
