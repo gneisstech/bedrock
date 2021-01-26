@@ -10,7 +10,7 @@ keep it simple.  keep it boring.  keep it DRY
    1. changes to list of included services or charts (added or dropped dependencies)
 1. boring tooling for container management
    1. maintain semver
-   1. add metadata for audit and tracability
+   1. add metadata for audit and traceability
       1. source repository
       1. commit SHA
       1. semver tagging
@@ -42,7 +42,7 @@ Kitchen sink - included.
     - control plane APIs
   - container firewall
   - container CVE check admission controller
-  - active Intrusion Detection and Prevention integation
+  - active Intrusion Detection and Prevention integration
   - encryption of data in motion
   - automation rotation of public facing TLS certificates
     - LetsEncrypt/ACME protocol
@@ -53,9 +53,9 @@ Kitchen sink - included.
   - encryption of data in motion
   - isolated zones with RBAC access
   - isolated DNS namespaces with RBAC access
-  - internal loadbalancers for services
-  - external loadbalancers for web firewall function
-- autoscale horizontally for cpu, memory, pod capacity
+  - internal load balancers for services
+  - external load balancers for web firewall function
+- auto scaling horizontally for cpu, memory, pod capacity
 - sample application with Web Firewall Ingress supporting:
   - Federation of OpenID compliant Identity providers
   - Web Application Firewall with
@@ -107,7 +107,7 @@ General philosophies:
     - isolate different architectures from each other
     - when security similar to a VLAN or Network Security Group is needed
     - when isolation of resources is required for security concerns
-    - when separation of resources facilitates different lifecycles
+    - when separation of resources facilitates different life cycles
 
 ```
 MIT License
