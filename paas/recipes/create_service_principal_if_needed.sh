@@ -66,6 +66,14 @@ function paas_configuration () {
     yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
+function target_env () {
+    yq read --tojson "$(target_config)" | jq -r -e '.target.env'
+}
+
+function target_app () {
+    yq read --tojson "$(target_config)" | jq -r -e '.target.app'
+}
+
 function service_principal_attr () {
     local -r attr="${1}"
     paas_configuration | jq -r -e ".service_principals[] | select(.name == \"$(service_principal_name)\") | .${attr}"
@@ -94,14 +102,14 @@ function is_azure_pipeline_build () {
 }
 
 function get_prebuilt_sp_info () {
-    local -r vault="br-ci-devops-kv"
-    local -r secret_name="br-ci-devops-sp-info"
+    local vault secret_name
+    vault="$(printf '%s-%s-devops-kv' "$(target_app)" "$(target_env)")"
+    secret_name="$(printf '%s-%s-devops-sp-info' "$(target_app)" "$(target_env)")"
     az keyvault secret show \
         --vault-name "${vault}" \
         --name "${secret_name}" \
-        2> /dev/null \
+        2> /dev/stderr \
     | jq -r '.value'
-
 }
 
 function az_create_service_principal () {
@@ -115,6 +123,7 @@ function az_create_service_principal () {
                 --scopes $(service_principal_string_attr    '' 'scopes')
         fi
     else
+        printf '>>> using prebuilt sp info <<<' > /dev/stderr
         get_prebuilt_sp_info
     fi
 }
