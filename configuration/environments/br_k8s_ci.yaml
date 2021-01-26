@@ -3,8 +3,10 @@ target:
   app: 'br'
   env: 'ci'
   metadata:
-    default_azure_location: &defaultAzureLocation 'centralus'
-    default_azure_subscription: &defaultAzureSubscription 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+    azure:
+      default:
+        subscription: &defaultAzureSubscription 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+        location: &defaultAzureLocation 'centralus'
     tls_cert_subscription: &subscription_tls 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
     dns_subscription: &subscription_dns 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
     service_deployment:

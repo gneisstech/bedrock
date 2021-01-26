@@ -64,7 +64,7 @@ function target_config () {
 }
 
 function target_subscription () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.default_azure_subscription'
+    yq read --tojson "$(target_config)" | jq -r -e '.target.metadata.azure.default.subscription'
 }
 
 function set_subscription () {
@@ -93,4 +93,4 @@ function deploy_environment () {
     date
 }
 
-deploy_environment 2> >(while read -r line; do (echo "# STDERR: $line"); done)
+deploy_environment 2> >(while read -r line; do (echo "# LOGGING: $line"); done)

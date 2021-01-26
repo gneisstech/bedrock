@@ -90,9 +90,20 @@ function eventhub_topic_exists () {
     > /dev/null 2>&1
 }
 
+function show_blob_storage () {
+  local capture_json="${1}"
+  local storage_account blob_container
+  storage_account="$(jq -r -e '.storage_account' <<< "${capture_json}" )"
+  blob_container="$(jq -r -e '.blob_container' <<< "${capture_json}" )"
+  az storage account show --name "${storage_account}"
+  az storage container show --name "${blob_container}" --account-name "${storage_account}"
+}
+
+
 function update_eventhub_topic () {
     local topic_json="${1}"
     if [[ 'true' == "$(jq -r -e '.enable_capture' <<< "${topic_json}" )" ]]; then
+        show_blob_storage "$(jq -r -e '.capture' <<< "${topic_json}" )"
         $AZ_TRACE eventhubs eventhub update \
             --name "$(jq -r -e '.name' <<< "${topic_json}" )" \
             --namespace-name "$(jq -r -e '.namespace' <<< "${topic_json}" )"\
@@ -123,6 +134,7 @@ function update_eventhub_topic () {
 function create_eventhub_topic () {
     local -r topic_json="${1}"
     if [[ 'true' == "$(jq -r -e '.enable_capture' <<< "${topic_json}" )" ]]; then
+        show_blob_storage "$(jq -r -e '.capture' <<< "${topic_json}" )"
         $AZ_TRACE eventhubs eventhub create \
             --name "$(jq -r -e '.name' <<< "${topic_json}" )" \
             --namespace-name "$(jq -r -e '.namespace' <<< "${topic_json}" )"\

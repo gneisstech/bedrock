@@ -55,7 +55,7 @@ function paas_configuration () {
 }
 
 function keyvault_name () {
-    echo "${KEYVAULT_NAME}"
+    printf '%s' "${KEYVAULT_NAME}"
 }
 
 function get_keyvault_rg () {

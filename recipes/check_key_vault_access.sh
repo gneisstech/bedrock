@@ -39,6 +39,7 @@ function get_env () {
     local -r deployment_json="${1}"
     jq -r -e '.environment.name' <<< "${deployment_json}"
 }
+
 function process_app_env () {
     local -r app="${1:-br}"
     local -r env="${2:-env}"
@@ -64,20 +65,22 @@ function explore_key_vault_access () {
     local -r deployment_json="${2}"
     local subscription vault_name
     local retval=0
-    subscription="$(jq -r -e '.target.metadata.default_azure_subscription' <<< "${target_cluster_config_json}")"
-    vault_name="$(jq -r -e '.target.paas.keyvaults[1].name' <<< "${target_cluster_config_json}")"
-    secret_name="$(jq -r -e '.k8s.tls_secret_name' <<< "${deployment_json}")"
+    subscription="$(jq -r -e '.target.metadata.azure.default.subscription' <<< "${target_cluster_config_json}")"
+    vault_name="$(jq -r '.target.paas.keyvaults[]? | [ select(.action == "create") ] | .[0].name // empty' <<< "${target_cluster_config_json}")"
+    secret_name="$(jq -r '.k8s.tls_secret_name? // empty' <<< "${deployment_json}")"
+    if [[ -n "${vault_name}" ]]; then
     if ! az keyvault list --subscription "${subscription}" -o table; then
         printf 'NO ACCESS TO LIST OF KEY VAULTS\n'
         retval=1
-    fi
-    if ! az keyvault secret list --subscription "${subscription}" --vault-name "${vault_name}" -o table; then
+      elif ! az keyvault secret list --subscription "${subscription}" --vault-name "${vault_name}" -o table; then
         printf 'NO ACCESS TO LIST OF SECRETS\n'
         retval=1
-    fi
+      elif [[ -n "${secret_name}" ]]; then
     if ! az keyvault secret show --subscription "${subscription}" --vault-name "${vault_name}" --name "${secret_name}" > /dev/null; then
         printf 'NO ACCESS TO SPECIFIC SECRET\n'
         retval=1
+    fi
+      fi
     fi
     (( retval == 0 ))
 }
