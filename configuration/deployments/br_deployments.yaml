@@ -46,7 +46,7 @@ deployments:
         registry:
           name: 'brdevregistry'
         name: 'br-deployment-umbrella'
-        version: '^0.2.0-0'
+        version: '^0.3.0-0'
         deployment_name: 'brk8s'
         values_file: ''
       storage:
@@ -100,7 +100,7 @@ deployments:
           name: 'brciregistry'
         name: 'br-deployment-umbrella'
         deployment_name: 'brk8s'
-        version: '^0.2.0-0'
+        version: '^0.3.0-0'
         values_file: ''
       storage:
         account:
