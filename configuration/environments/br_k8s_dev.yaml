@@ -582,8 +582,8 @@ target:
             secrets:
               USPS-UserId:
                 - '##secure_secret={"vault":"'
-                  - *kvName
-                  - '","secret_name":"'
-                  - *addressValidationSecretName
-                  - '"}'
-                  - '##'
+                - *kvName
+                - '","secret_name":"'
+                - *addressValidationSecretName
+                - '"}'
+                - '##'
