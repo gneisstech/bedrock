@@ -51,6 +51,15 @@ dependencies: # A list of the chart requirements (optional)
     enabled: true
     import-values: [] # (optional)
     alias: 'br-tls-certificate-manager-svc-docker'
+  - name: 'platform-api-addressvalidation-svc'
+    version: '^0.2.0-0'
+    repository: '@brdevregistry'
+    condition: 'platform-api-addressvalidation-svc.enabled'
+    tags:
+      - 'platform-api-addressvalidation-svc'
+    enabled: true
+    import-values: [] # (optional)
+    alias: 'platform-api-addressvalidation-svc'
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
