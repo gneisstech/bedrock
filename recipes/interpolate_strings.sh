@@ -315,6 +315,7 @@ function interpolate_functions () {
 }
 
 function interpolate_strings () {
+    local line_data
     local i=0
     while IFS=$'\n' read -r line_data; do
         local current_line="${line_data}"

@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -r BEDROCK_CONFIG_DIR
+declare -rx DEPLOYMENT_CATALOG="${DEPLOYMENT_CATALOG:-br_deployments.yaml}"
 
 # Arguments
 # ---------------------
@@ -31,7 +32,7 @@ function bedrock_config_dir () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    yq r --tojson "$(bedrock_config_dir)/deployments/br_deployments.yaml" |
+    yq r --tojson "$(repo_root)/configuration/deployments/${DEPLOYMENT_CATALOG}" |
         jq -r -e -c \
             --arg deployment_name "${deployment_name}" \
             '.deployments[] | select(.name == "\($deployment_name)")'

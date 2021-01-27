@@ -122,6 +122,7 @@ function process_secure_secret () {
 
 function dispatch_functions () {
     declare -a myarray
+    local line_data
     local i=0
     while IFS=$'\n' read -r line_data; do
         local array_entry="${line_data}"
