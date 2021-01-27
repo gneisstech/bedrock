@@ -15,4 +15,4 @@ dependencies:
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
   version: 0.2.1-dev
 digest: sha256:c7a9e93a9f211d453c59c054788e724823b47ad47cbbfa5c096adadb4ea5020f
-generated: "2021-01-27T22:38:13.019167231Z"
+generated: "2021-01-27T22:43:45.362155456Z"
