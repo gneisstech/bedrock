@@ -1,0 +1,7 @@
+
+# IntelliJ / JetBrains
+.idea
+
+# OSX
+.DS_Store
+.env
