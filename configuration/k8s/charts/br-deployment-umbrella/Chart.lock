@@ -13,6 +13,6 @@ dependencies:
   version: 1.3.1-dev
 - name: platform-api-addressvalidation-svc
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
-  version: 0.2.1-dev
-digest: sha256:c7a9e93a9f211d453c59c054788e724823b47ad47cbbfa5c096adadb4ea5020f
-generated: "2021-01-27T22:50:46.570171813Z"
+  version: 0.2.2-dev
+digest: sha256:71fa87e8fc20663056db2c2aa15f5b72c53f1c2f222df60bd92ee9070c410108
+generated: "2021-01-27T22:58:06.683464099Z"
