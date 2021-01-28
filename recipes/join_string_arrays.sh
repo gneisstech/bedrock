@@ -46,19 +46,16 @@ function repo_root () {
 
 function jq_filter_join_string_arrays () {
     cat << JQ_FILTER_COMBINE_STRING_ARRAYS
-def is_collapsible_string_array(a):
+def is_string_array(a):
     . | if type == "array" then .
         | if (([ .[] | select(type == "array" or type == "object") ] | length) > 0) then false
         else
-          if ((. | length) == 0 then false
-          else
-            if ((.[0] | startswith("##") ) ) then true else false end
-          end
+          if ((. | length) > 1) then true else false end
         end
     else false
     end;
 
-walk( if is_collapsible_string_array(.) then . | join("")  else . end)
+walk( if is_string_array(.) then . | join("")  else . end)
 JQ_FILTER_COMBINE_STRING_ARRAYS
 }
 
