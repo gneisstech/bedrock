@@ -176,7 +176,7 @@ function get_original_cert_from_shared_vault () {
 }
 
 function pkcs12_to_pem () {
-    base64 --decode | openssl pkcs12 -nodes -in /dev/stdin -passin 'pass:'
+    base64 -d | openssl pkcs12 -nodes -in /dev/stdin -passin 'pass:'
 }
 
 function fail_empty_set () {
