@@ -67,12 +67,12 @@ function populate_config_file () {
 
 function purge_environment_cluster () {
     local -r deployment_name="${1}"
-    local -r new_config="./.new_config"
+    local -r new_config="/tmp/.new_config"
     local app env deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     app="$(get_app "${deployment_json}")"
     env="$(get_env "${deployment_json}")"
-    populate_config_file "${deployment_json}" "$(repo_root)/${new_config}"
+    populate_config_file "${deployment_json}" "${new_config}"
     TARGET_CONFIG="${new_config}" AZ_TRACE=az "/bedrock/recipes/purge_environment.sh"
     rm -f "${new_config}"
 }

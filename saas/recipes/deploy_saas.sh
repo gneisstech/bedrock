@@ -54,7 +54,7 @@ function invoke_layer () {
 }
 
 function target_config () {
-    printf '%s/%s' "$(repo_root)" "${TARGET_CONFIG}"
+    printf '%s' "${TARGET_CONFIG}"
 }
 
 function saas_configuration () {
