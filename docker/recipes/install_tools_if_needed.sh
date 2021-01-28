@@ -12,6 +12,9 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx K8S_RELEASE="${K8S_RELEASE:-v1.20.2}"
+declare -rx YQ_RELEASE="${YQ_RELEASE:-2.4.0}"
+declare -rx JQ_RELEASE="${JQ_RELEASE:-jq-1.6}"
 
 # Arguments
 # ---------------------
@@ -35,6 +38,18 @@ function install_az_cli() {
   az version
 }
 
+function install_kubectl() {
+  curl -LSo '/usr/local/bin/kubectl' "https://storage.googleapis.com/kubernetes-release/release/${K8S_RELEASE}/bin/linux/amd64/kubectl"
+  chmod +x '/usr/local/bin/kubectl'
+}
+
+function install_helm() {
+  apk add openssl
+  curl -fsSL -o 'get_helm.sh' 'https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3'
+  chmod 700 'get_helm.sh'
+  ./get_helm.sh
+}
+
 function install_git() {
   apk add git
 }
@@ -53,16 +68,16 @@ function install_netcat() {
 
 function install_yq_if_needed() {
   if ! command -v yq; then
-    curl -L https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -o yq-local
-    chmod +x yq-local
-    mv yq-local /usr/bin/yq
+    curl -L "https://github.com/mikefarah/yq/releases/download/${YQ_RELEASE}/yq_linux_amd64" -o yq-local
+    chmod +x 'yq-local'
+    mv 'yq-local' '/usr/bin/yq'
   fi
 }
 
 function install_jq_if_needed() {
-  curl -L -o jq-local https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-  chmod +x jq-local
-  mv jq-local /usr/bin/jq
+  curl -L -o 'jq-local' "https://github.com/stedolan/jq/releases/download/${JQ_RELEASE}/jq-linux64"
+  chmod +x 'jq-local'
+  mv 'jq-local' '/usr/bin/jq'
 }
 
 function install_shellcheck_if_needed() {
@@ -86,6 +101,8 @@ function install_tools_if_needed() {
   install_python3
   install_az_cli
   install_docker
+  install_kubectl
+  install_helm
   install_git
   install_make
   install_netcat
