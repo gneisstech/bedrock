@@ -81,12 +81,12 @@ function get_migration_timeout () {
 
 function get_helm_values () {
     local -r deployment_json="${1}"
-    "$(repo_root)/recipes/extract_service_values.sh" "${deployment_json}"
+    "/bedrock/recipes/extract_service_values.sh" "${deployment_json}"
 }
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    "$(repo_root)/recipes/pre_process_strings.sh" "${deployment_json}"
+    "/bedrock/recipes/pre_process_strings.sh" "${deployment_json}"
 }
 
 function connect_to_k8s () {
@@ -180,7 +180,7 @@ function update_helm_chart_on_k8s () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
+    "/bedrock/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
 function deployment_helm_update () {
@@ -190,7 +190,7 @@ function deployment_helm_update () {
     connect_to_k8s "${deployment_json}"
     create_k8s_app_namespace "${deployment_json}"
     create_pv_secret_namespace "${deployment_json}"
-    "$(repo_root)/recipes/deployment_helm_ensure_persistent_volumes.sh" "${deployment_name}"
+    "/bedrock/recipes/deployment_helm_ensure_persistent_volumes.sh" "${deployment_name}"
     update_helm_chart_on_k8s "${deployment_json}"
 }
 

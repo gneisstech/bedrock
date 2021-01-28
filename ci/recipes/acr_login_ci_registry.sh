@@ -30,7 +30,7 @@ function is_azure_pipeline_build () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
+    "/bedrock/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
 function acr_login () {
@@ -60,7 +60,7 @@ function acr_login_ci_registry () {
     pwd
         SECONDS=0
         acr_login_cluster_registry "BR_CI"
-        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "/bedrock/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }
 

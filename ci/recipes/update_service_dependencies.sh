@@ -63,7 +63,7 @@ function get_upstream_services () {
 }
 
 function pipeline_as_json () {
-    yq r --tojson "$(repo_root)/ci/pipelines/azure/applications/update_service_dependencies.yml"
+    yq r --tojson "/bedrock/ci/pipelines/azure/applications/update_service_dependencies.yml"
 }
 
 function get_pipeline_services () {
@@ -366,8 +366,8 @@ function update_service_dependencies () {
     update_helm_repo
     if check_services_config; then
         # shellcheck disable=2046
-        $(repo_root)/ci/recipes/update_umbrella_chart.sh
-        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
+        /bedrock/ci/recipes/update_umbrella_chart.sh
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "/bedrock/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     else
         false
     fi

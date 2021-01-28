@@ -72,12 +72,12 @@ function get_migration_timeout () {
 
 function get_helm_values () {
     local -r deployment_json="${1}"
-    "$(repo_root)/recipes/extract_service_values.sh" "${deployment_json}"
+    "/bedrock/recipes/extract_service_values.sh" "${deployment_json}"
 }
 
 function get_cluster_config_json () {
     local -r deployment_json="${1}"
-    "$(repo_root)/recipes/pre_process_strings.sh" "${deployment_json}"
+    "/bedrock/recipes/pre_process_strings.sh" "${deployment_json}"
 }
 
 function get_sa_name () {
@@ -249,7 +249,7 @@ function create_k8s_persistent_file_volume () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
+    "/bedrock/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
 function get_file_volume_metadata_by_name () {

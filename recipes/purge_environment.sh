@@ -50,7 +50,7 @@ function invoke_layer () {
   local -r layer="${1}"
   local -r target_recipe="${2}"
   shift 2
-  "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
+  "/bedrock/${layer}/recipes/${target_recipe}.sh" "$@"
 }
 
 function init_trace () {
@@ -60,7 +60,7 @@ function init_trace () {
 }
 
 function target_config () {
-    echo "$(repo_root)/${TARGET_CONFIG}"
+    printf '%s/%s' "$(repo_root)" "${TARGET_CONFIG}"
 }
 
 function target_subscription () {

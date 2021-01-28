@@ -46,7 +46,7 @@ function repo_root () {
 
 function read_raw_configuration () {
     local -r deployment_json="${1}"
-    "$(repo_root)/recipes/read_raw_configuration.sh" "${deployment_json}"
+    "/bedrock/recipes/read_raw_configuration.sh" "${deployment_json}"
 }
 
 function get_app () {
@@ -66,8 +66,8 @@ function extract_datadog_values () {
     env="$(get_env "${deployment_json}")"
     read_raw_configuration "${deployment_json}" \
       | jq -r -e '.target.paas.k8s.datadog' \
-      | "$(repo_root)/recipes/join_string_arrays.sh" \
-      | "$(repo_root)/recipes/interpolate_strings.sh" "${app}" "${env}"
+      | "/bedrock/recipes/join_string_arrays.sh" \
+      | "/bedrock/recipes/interpolate_strings.sh" "${app}" "${env}"
 }
 
 extract_datadog_values "${@}"

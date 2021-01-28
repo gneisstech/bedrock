@@ -33,8 +33,8 @@ function repo_root () {
 
 function bless_qa_artifacts () {
     SECONDS=0
-    "$(repo_root)/ci/recipes/bless_development_artifacts.sh"
-    DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
+    "/bedrock/ci/recipes/bless_development_artifacts.sh"
+    DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "/bedrock/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
 }
 
 bless_qa_artifacts "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)

@@ -52,7 +52,7 @@ function repo_root () {
 }
 
 function target_config () {
-    echo -n "$(repo_root)/${TARGET_CONFIG}"
+    printf '%s/%s' "$(repo_root)" "${TARGET_CONFIG}"
 }
 
 function paas_configuration () {

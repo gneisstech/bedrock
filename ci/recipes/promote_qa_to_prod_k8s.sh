@@ -24,8 +24,8 @@ function promote_qa_to_prod_k8s () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         SECONDS=0
-        "$(repo_root)/recipes/promote_k8s_from_env_to_env.sh" 'BR_QA' 'BR_Prod'
-        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
+        "/bedrock/recipes/promote_k8s_from_env_to_env.sh" 'BR_QA' 'BR_Prod'
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "/bedrock/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }
 

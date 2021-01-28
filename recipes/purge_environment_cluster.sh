@@ -26,12 +26,12 @@ function is_azure_pipeline_build () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
+    "/bedrock/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
 function read_raw_configuration () {
     local -r deployment_json="${1}"
-    "$(repo_root)/recipes/read_raw_configuration.sh" "${deployment_json}"
+    "/bedrock/recipes/read_raw_configuration.sh" "${deployment_json}"
 }
 
 function get_app () {
@@ -73,7 +73,7 @@ function purge_environment_cluster () {
     app="$(get_app "${deployment_json}")"
     env="$(get_env "${deployment_json}")"
     populate_config_file "${deployment_json}" "$(repo_root)/${new_config}"
-    TARGET_CONFIG="${new_config}" AZ_TRACE=az "$(repo_root)/recipes/purge_environment.sh"
+    TARGET_CONFIG="${new_config}" AZ_TRACE=az "/bedrock/recipes/purge_environment.sh"
     rm -f "${new_config}"
 }
 

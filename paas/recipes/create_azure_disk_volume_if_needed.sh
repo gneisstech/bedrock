@@ -55,11 +55,11 @@ function invoke_layer () {
     local -r layer="${1}"
     local -r target_recipe="${2}"
     shift 2
-    "$(repo_root)/${layer}/recipes/${target_recipe}.sh" "$@"
+    "/bedrock/${layer}/recipes/${target_recipe}.sh" "$@"
 }
 
 function target_config () {
-    echo "$(repo_root)/${TARGET_CONFIG}"
+    printf '%s/%s' "$(repo_root)" "${TARGET_CONFIG}"
 }
 
 function paas_configuration () {
@@ -139,7 +139,7 @@ function get_volume_configuration_json () {
   local volume_name="${1}"
   paas_configuration \
   | azure_disk_volume_json "${volume_name}" \
-  | "$(repo_root)/recipes/join_string_arrays.sh"
+  | "/bedrock/recipes/join_string_arrays.sh"
 }
 
 function create_azure_disk_volume_if_needed () {

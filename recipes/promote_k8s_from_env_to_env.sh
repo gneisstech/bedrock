@@ -52,7 +52,7 @@ function get_helm_chart_name () {
 
 function read_raw_configuration () {
     local -r deployment_json="${1}"
-    "$(repo_root)/recipes/read_raw_configuration.sh" "${deployment_json}"
+    "/bedrock/recipes/read_raw_configuration.sh" "${deployment_json}"
 }
 
 function get_app () {
@@ -82,7 +82,7 @@ function get_cluster_config_json () {
     env="$(get_env "${deployment_json}")"
     read_raw_configuration "${deployment_json}" \
       | process_app_env "${app}" "${env}" \
-      | "$(repo_root)/recipes/join_string_arrays.sh"
+      | "/bedrock/recipes/join_string_arrays.sh"
 }
 
 function get_subscription () {
@@ -119,7 +119,7 @@ function update_helm_repo () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    "$(repo_root)/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
+    "/bedrock/recipes/get_deployment_json_by_name.sh" "${deployment_name}"
 }
 
 function get_latest_deployed_charts () {

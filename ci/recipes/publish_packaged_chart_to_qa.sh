@@ -24,8 +24,8 @@ function publish_packaged_chart_to_qa () {
     pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
     pwd
         SECONDS=0
-        "$(repo_root)/recipes/publish_packaged_chart_to_env.sh" 'BR_QA'
-        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
+        "/bedrock/recipes/publish_packaged_chart_to_env.sh" 'BR_QA'
+        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "/bedrock/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
     popd
 }
 
