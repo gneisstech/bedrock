@@ -249,3 +249,21 @@ br-waf-ingress:
         - 'fixme-waf-lb-ip'
       annotations:
         'service.beta.kubernetes.io/azure-load-balancer-resource-group': 'fixme-waf-resource-group'
+
+platform-api-addressvalidation-svc:
+  fullnameOverride: 'platform-api-addressvalidation-svc'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/api/v1.0/AddressValidation'
+    hosts:
+      - paths:
+          - '/address-validation'
+  config:
+    environment:
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+      AddressValidationUSPS_BaseURL: 'fixme-need-usps-base-url'
+    secrets:
+      USPS-UserId: 'fixme-need-usps-user-id'

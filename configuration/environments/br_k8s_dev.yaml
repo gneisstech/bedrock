@@ -17,6 +17,7 @@ target:
     k8s_namespace: &brNamespace 'brk8s'
     tags: &labels 'br-env=##env## br-role=##env##'
     tls_secret_name: &tlsSecretName 'wildcarddevbedrock-iotcom'
+    address_validation_secret_name: &addressValidationSecretName 'br-validation-usps-userid'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -571,3 +572,18 @@ target:
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
           defaultBackend:
             replicaCount: 1
+
+        platform-api-addressvalidation-svc:
+          enabled: true
+          config:
+            environment:
+              APP_VERSION: '{{ .Chart.AppVersion }}'
+              AddressValidationUSPS_BaseURL: 'https://secure.shippingapis.com'
+            secrets:
+              USPS-UserId:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *addressValidationSecretName
+                - '"}'
+                - '##'
