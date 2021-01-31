@@ -12,5 +12,7 @@ COPY ./paas /bedrock/paas
 COPY ./saas /bedrock/saas
 COPY ./recipes /bedrock/recipes
 COPY ./ci /bedrock/ci
+COPY ./Makefile /bedrock/Makefile
+WORKDIR /src
 
-ENTRYPOINT [ "/bin/bash", "-c" ]
+ENTRYPOINT [ "/usr/bin/make", "-f", "/bedrock/Makefile" ]
