@@ -16,8 +16,7 @@ purge_cluster:
 	/bedrock/recipes/purge_environment_cluster.sh "${BEDROCK_CLUSTER}"
 
 login_cluster_registry:
-	echo "FIXME"
-	./ci/recipes/cf/acr_login_ci_registry.sh
+	/bedrock/recipes/login_cluster_registry.sh "${BEDROCK_CLUSTER}"
 
 copy_upstream_to_cluster_k8s:
 	/bedrock/recipes/promote_k8s_from_env_to_env.sh "${BEDROCK_UPSTREAM_CLUSTER}" "${BEDROCK_CLUSTER}"

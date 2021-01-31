@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: acr_login_ci_registry.sh
+# usage: login_cluster_registry.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -15,10 +15,6 @@ set -o pipefail
 
 # Arguments
 # ---------------------
-
-function repo_root () {
-    git rev-parse --show-toplevel
-}
 
 function repo_root () {
     git rev-parse --show-toplevel
@@ -48,20 +44,11 @@ function get_helm_registry_url () {
     jq -r '.helm.umbrella.registry.url // ""' <<< "${deployment_json}"
 }
 
-function acr_login_cluster_registry () {
+function login_cluster_registry () {
     local -r deployment_name="${1}"
     local deployment_json
     deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
     acr_login "$(get_helm_registry_name "${deployment_json}")"
 }
 
-function acr_login_ci_registry () {
-    pushd "${BUILD_REPOSITORY_LOCALPATH:-.}"
-    pwd
-        SECONDS=0
-        acr_login_cluster_registry "BR_CI"
-        DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "/bedrock/ci/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"
-    popd
-}
-
-acr_login_ci_registry "$@" 2> >(while read -r line; do (echo "STDERR: $line"); done)
+login_cluster_registry "$@"
