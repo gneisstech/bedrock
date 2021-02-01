@@ -50,6 +50,11 @@ function get_helm_chart_name () {
     jq -r -e '.helm.umbrella.name' <<< "${deployment_json}"
 }
 
+function get_upstream_deployment_name () {
+    local -r deployment_json="${1}"
+    jq -r -e '.upstream.name? // empty' <<< "${deployment_json}"
+}
+
 function read_raw_configuration () {
     local -r deployment_json="${1}"
     "/bedrock/recipes/read_raw_configuration.sh" "${deployment_json}"
@@ -307,16 +312,21 @@ function rewrite_latest_deployment () {
 }
 
 function promote_k8s_from_env_to_env () {
-    local -r origin_deployment_name="${1}"
-    local -r target_deployment_name="${2}"
-    local origin_deployment_json target_deployment_json tmp_chart_dir
-    origin_deployment_json="$(get_deployment_json_by_name "${origin_deployment_name}")"
+    local -r target_deployment_name="${1}"
+    local origin_deployment_name origin_deployment_json target_deployment_json tmp_chart_dir
     target_deployment_json="$(get_deployment_json_by_name "${target_deployment_name}")"
-    if tmp_chart_dir="$(mktemp -d)"; then
-        fetch_latest_deployed_chart "${origin_deployment_json}" "${tmp_chart_dir}"
-        rewrite_latest_deployment "${origin_deployment_json}" "${target_deployment_json}"  "${tmp_chart_dir}"
-        printf 'tmp_chart_dir[%s]\n' "${tmp_chart_dir}"
-        #rm -rf "${tmp_chart_dir}"
+    origin_deployment_name="$(get_upstream_deployment_name "${target_deployment_json}")"
+    if [[ -n "${origin_deployment_name}" ]]; then
+      origin_deployment_json="$(get_deployment_json_by_name "${origin_deployment_name}")"
+      if tmp_chart_dir="$(mktemp -d)"; then
+          fetch_latest_deployed_chart "${origin_deployment_json}" "${tmp_chart_dir}"
+          rewrite_latest_deployment "${origin_deployment_json}" "${target_deployment_json}"  "${tmp_chart_dir}"
+          printf 'tmp_chart_dir[%s]\n' "${tmp_chart_dir}"
+          rm -rf "${tmp_chart_dir}"
+      fi
+    else
+      printf 'no upstream cluster specified for cluster [%s]' "${target_deployment_name}" > /dev/stderr
+      return 1
     fi
 }
 
