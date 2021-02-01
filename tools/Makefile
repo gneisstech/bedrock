@@ -3,6 +3,9 @@ default: help list
 .NOTPARALLEL:
 .SECONDEXPANSION:
 
+export BEDROCK_CONFIG_DIR
+export BEDROCK_DEPLOYMENT_CATALOG
+
 sast_shellcheck:
 	/bedrock/recipes/sast_shellcheck.sh
 
@@ -37,13 +40,13 @@ deploy_umbrella_chart_to_cluster:
 	/bedrock/recipes/deployment_helm_update.sh "${BEDROCK_CLUSTER}"
 
 deploy_dashboard_to_cluster:
-	/bedrock/paass/recipes/deploy_dashboard.sh "${BEDROCK_CLUSTER}"
+	/bedrock/paas/recipes/deploy_dashboard.sh "${BEDROCK_CLUSTER}"
 
 deploy_datadog_to_cluster:
-	/bedrock/paass/recipes/deploy_datadog.sh "${BEDROCK_CLUSTER}"
+	/bedrock/paas/recipes/deploy_datadog.sh "${BEDROCK_CLUSTER}"
 
 deploy_neuvector_to_cluster:
-	/bedrock/paass/recipes/deploy_neuvector.sh "${BEDROCK_CLUSTER}"
+	/bedrock/paas/recipes/deploy_neuvector.sh "${BEDROCK_CLUSTER}"
 
 init_service_tree:
 	@echo "Not Implemented Yet"
