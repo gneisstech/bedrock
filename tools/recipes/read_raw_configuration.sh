@@ -12,7 +12,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -r BEDROCK_CONFIG_DIR
+declare -rx BEDROCK_INVOKED_DIR
 
 # Arguments
 # ---------------------
@@ -27,11 +27,7 @@ function get_target_config_filename () {
 }
 
 function bedrock_config_environment_dir () {
-  local config_dir="${BEDROCK_CONFIG_DIR:-}"
-  if [[ -z "${config_dir}" ]]; then
-    config_dir="$(repo_root)/configuration/environments"
-  fi
-  printf "%s" "${config_dir}"
+  printf "%s/configuration/environment" "${BEDROCK_INVOKED_DIR}"
 }
 
 function raw_configuration_filename () {

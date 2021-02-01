@@ -3,7 +3,7 @@ default: help list
 .NOTPARALLEL:
 .SECONDEXPANSION:
 
-export BEDROCK_CONFIG_DIR
+export BEDROCK_INVOKED_DIR
 export BEDROCK_DEPLOYMENT_CATALOG
 
 sast_shellcheck:
