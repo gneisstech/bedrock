@@ -26,13 +26,13 @@ function get_target_config_filename () {
     jq -r -e '.environment.config' <<< "${deployment_json}"
 }
 
-function bedrock_config_environment_dir () {
-  printf "%s/configuration/environment" "${BEDROCK_INVOKED_DIR}"
+function bedrock_config_environments_dir () {
+  printf "%s/configuration/environments" "${BEDROCK_INVOKED_DIR}"
 }
 
 function raw_configuration_filename () {
     local -r deployment_json="${1}"
-    printf "%s/%s" "$(bedrock_config_environment_dir)" "$(get_target_config_filename "${deployment_json}")"
+    printf "%s/%s" "$(bedrock_config_environments_dir)" "$(get_target_config_filename "${deployment_json}")"
 }
 
 function read_raw_configuration () {
