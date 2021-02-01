@@ -27,5 +27,26 @@ publish_packaged_chart_for_cluster:
 deploy_umbrella_chart_to_cluster:
 	/bedrock/recipes/deployment_helm_update.sh "${BEDROCK_CLUSTER}"
 
+deploy_dashboard_to_cluster:
+	/bedrock/paass/recipes/deploy_dashboard.sh "${BEDROCK_CLUSTER}"
+
+deploy_datadog_to_cluster:
+	/bedrock/paass/recipes/deploy_datadog.sh "${BEDROCK_CLUSTER}"
+
+deploy_neuvector_to_cluster:
+	/bedrock/paass/recipes/deploy_neuvector.sh "${BEDROCK_CLUSTER}"
+
+init_service_tree:
+	@echo "Not Implemented Yet"
+
+install_service_pipelines:
+	@echo "Not Implemented Yet"
+
+init_app_tree:
+	@echo "Not Implemented Yet"
+
+install_app_pipelines:
+	@echo "Not Implemented Yet"
+
 
 # /bedrock/recipes/clone_neuvector.sh" 'cf'
