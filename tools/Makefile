@@ -28,7 +28,7 @@ login_cluster_registry:
 	/bedrock/recipes/login_cluster_registry.sh "${BEDROCK_CLUSTER}"
 
 copy_upstream_to_cluster_k8s:
-	/bedrock/recipes/promote_k8s_from_env_to_env.sh "${BEDROCK_UPSTREAM_CLUSTER}" "${BEDROCK_CLUSTER}"
+	/bedrock/recipes/promote_k8s_from_env_to_env.sh "${BEDROCK_CLUSTER}"
 
 publish_packaged_chart_for_cluster:
 	/bedrock/recipes/publish_packaged_chart_to_env.sh "${BEDROCK_CLUSTER}"
