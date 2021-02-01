@@ -26,7 +26,7 @@ function get_target_config_filename () {
     jq -r -e '.environment.config' <<< "${deployment_json}"
 }
 
-function bedrock_config_environmenst_dir () {
+function bedrock_config_environments_dir () {
   printf "%s/configuration/environments" "${BEDROCK_INVOKED_DIR}"
 }
 

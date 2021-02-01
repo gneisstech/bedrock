@@ -48,6 +48,9 @@ deploy_datadog_to_cluster:
 deploy_neuvector_to_cluster:
 	/bedrock/paas/recipes/deploy_neuvector.sh "${BEDROCK_CLUSTER}"
 
+rollup_chart_dependencies:
+	/bedrock/recipes/rollup_chart_dependencies.sh "${BEDROCK_CLUSTER}"
+
 init_service_tree:
 	@echo "Not Implemented Yet"
 
