@@ -256,6 +256,8 @@ platform-api-addressvalidation-svc:
   ingress:
     enabled: true
     annotations:
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
       'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
       'nginx.ingress.kubernetes.io/rewrite-target': '/api/v1.0/AddressValidation'
     hosts:
