@@ -230,11 +230,11 @@ function update_internal_repo_semver() {
   internal_semver_file_json "${deployment_json}"|
     jq -r --arg new_semver "${blessed_release_semver}" '.semver = $new_semver' |
     yq r - >"${temp_file}"
-  cp "${temp_file}" "$(internal_semver_file)"
+  cp "${temp_file}" "$(internal_semver_file "${deployment_json}" )"
   rm -f "${temp_file}"
-  git add "$(internal_semver_file)"
+  git add "$(internal_semver_file "${deployment_json}" )"
   if pending_git_files; then
-    printf 'pushing git tag update [%s]\n' "$(cat "$(internal_semver_file)")"
+    printf 'pushing git tag update [%s]\n' "$(cat "$(internal_semver_file "${deployment_json}" )")"
     git commit -m "automated update of semver on git commit" || true
     git push origin HEAD:"$(current_branch)"
   fi
