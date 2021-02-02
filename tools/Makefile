@@ -51,6 +51,9 @@ deploy_neuvector_to_cluster:
 rollup_chart_dependencies:
 	/bedrock/recipes/rollup_chart_dependencies.sh "${BEDROCK_CLUSTER}"
 
+update_helm_chart:
+	/bedrock/recipes/update_helm_chart.sh "${BEDROCK_CLUSTER}"
+
 init_service_tree:
 	@echo "Not Implemented Yet"
 

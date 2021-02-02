@@ -172,7 +172,7 @@ function services_are_subset() {
 }
 
 function internal_semver_file() {
-  printf '%s/semver.txt' "$(bedrock_semver_dir)"
+  printf '%s/semver.txt' "$(bedrock_app_semver_dir)"
 }
 
 function internal_semver_file_json() {
