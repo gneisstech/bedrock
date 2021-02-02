@@ -59,7 +59,7 @@ function invoke_layer() {
 }
 
 function target_config() {
-  printf '%s' ${TARGET_CONFIG}"
+  printf '%s' "${TARGET_CONFIG}"
 }
 
 function iaas_configuration() {
