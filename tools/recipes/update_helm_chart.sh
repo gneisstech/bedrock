@@ -224,9 +224,10 @@ function pending_git_files() {
 }
 
 function update_internal_repo_semver() {
-  local -r blessed_release_semver="${1}"
+  local -r deployment_json="${1}"
+  local -r blessed_release_semver="${2}"
   local -r temp_file="$(mktemp)"
-  internal_semver_file_json |
+  internal_semver_file_json "${deployment_json}"|
     jq -r --arg new_semver "${blessed_release_semver}" '.semver = $new_semver' |
     yq r - >"${temp_file}"
   cp "${temp_file}" "$(internal_semver_file)"
@@ -253,7 +254,7 @@ function bless_git_repo() {
   local -r deployment_json="${1}"
   local -r blessed_release_tag="${2}"
   update_git_config "${deployment_json}"
-  update_internal_repo_semver "$(extract_semver <<<"${blessed_release_tag}")"
+  update_internal_repo_semver "${deployment_json}" "$(extract_semver <<<"${blessed_release_tag}")"
   update_git_tag "${blessed_release_tag}"
 }
 
