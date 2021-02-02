@@ -71,6 +71,11 @@ function k8s_attr () {
     paas_configuration | jq -r -e ".k8s.clusters[] | select(.name == \"$(kubernetes_cluster_name)\") | .${attr}"
 }
 
+function k8s_attr_size () {
+    local -r attr="${1}"
+    paas_configuration | jq -r -e ".k8s.clusters[] | select(.name == \"$(kubernetes_cluster_name)\") | .${attr} | length // 0"
+}
+
 function k8s_string () {
     local -r attr="${1}"
     local -r key="${2}"
@@ -167,6 +172,15 @@ function option_if_true () {
     true
 }
 
+function option_if_present () {
+    local -r option_key="${1}"
+    local -r option_config="${2}"
+    if [[ '0' != "$(k8s_attr_size "${option_config}")" ]]; then
+        printf -- "--%s %s" "${option_key}" "$(k8s_attr "${option_config}" )"
+    fi
+    true
+}
+
 function kubernetes_cluster_resource_group () {
     k8s_attr 'resource_group'
 }
@@ -211,7 +225,7 @@ function create_kubernetes_cluster () {
         --ssh-key-value "$(k8s_attr 'ssh_key_value')" \
         --tags $(k8s_attr 'tags') \
         --vm-set-type "$(k8s_attr 'vm_set_type')" \
-        --zones $(k8s_attr 'zones')
+        $(option_if_present 'zones' 'zones')
 
 #        --attach-acr "$(k8s_attr 'attach_acr')"
 #        --api-server-authorized-ip-ranges "$(k8s_attr 'api_server_authorized_ip_ranges')"
