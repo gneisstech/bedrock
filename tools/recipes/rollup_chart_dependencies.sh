@@ -70,6 +70,11 @@ function bedrock_app_semver_dir() {
   printf '%s' "${BEDROCK_INVOKED_DIR}"
 }
 
+function bedrock_app_semver_filename() {
+  local -r deployment_json="${1}"
+  jq -r -e '.environment.semver' <<<"${deployment_json}"
+}
+
 function bedrock_config_dir() {
   printf '%s/configuration' "${BEDROCK_INVOKED_DIR}"
 }
@@ -172,21 +177,25 @@ function services_are_subset() {
 }
 
 function internal_semver_file() {
-  printf '%s/semver.txt' "$(bedrock_app_semver_dir)"
+  local -r deployment_json="${1}"
+  printf '%s/%s' "$(bedrock_app_semver_dir)" "$(bedrock_app_semver_filename "${deployment_json}" )"
 }
 
 function internal_semver_file_json() {
-  yq r "$(internal_semver_file)" --tojson
+  local -r deployment_json="${1}"
+  yq r "$(internal_semver_file "${deployment_json}" )" --tojson
 }
 
 function internal_repo_semver() {
-  jq -r '.semver' <(internal_semver_file_json)
+  local -r deployment_json="${1}"
+  jq -r '.semver' <(internal_semver_file_json "${deployment_json}" )
 }
 
 function update_internal_repo_semver() {
-  local -r requested_semver="${1}"
+  local -r deployment_json="${1}"
+  local -r requested_semver="${2}"
   local -r temp_file="$(mktemp)"
-  internal_semver_file_json |
+  internal_semver_file_json "${deployment_json} "|
     jq -r --arg new_semver "${requested_semver}" '.semver = $new_semver' |
     yq r - >"${temp_file}"
   cp "${temp_file}" "$(internal_semver_file)"
@@ -203,17 +212,19 @@ function extract_semver_minor() {
 }
 
 function semver_breaking_change() {
+  local -r deployment_json="${1}"
   local current_semver
   current_semver="$(internal_repo_semver)"
   printf 'BREAKING CHANGE DETECTED from semver[%s]\n' "${current_semver}"
   local major
   major="$(extract_semver_major <<<"${current_semver}")"
   ((major++))
-  update_internal_repo_semver "${major}.0.0"
+  update_internal_repo_semver "${deployment_json}" "${major}.0.0"
   printf '   to new semver[%s]\n' "$(internal_repo_semver)"
 }
 
 function semver_new_feature() {
+  local -r deployment_json="${1}"
   local current_semver
   current_semver="$(internal_repo_semver)"
   printf 'NEW FEATURE DETECTED from semver[%s]\n' "${current_semver}"
@@ -221,7 +232,7 @@ function semver_new_feature() {
   major="$(extract_semver_major <<<"${current_semver}")"
   minor="$(extract_semver_minor <<<"${current_semver}")"
   ((minor++))
-  update_internal_repo_semver "${major}.${minor}.0"
+  update_internal_repo_semver "${deployment_json}" "${major}.${minor}.0"
   printf '   to new semver[%s]\n' "$(internal_repo_semver)"
 }
 
@@ -360,14 +371,14 @@ function update_semver() {
 
   if ! services_are_subset "${deployment_json}" "${locked_chart_services}" "${chart_services}"; then
     # if locked_chart_services contains any service not in the chart, then breaking change
-    semver_breaking_change
+    semver_breaking_change "${deployment_json}"
     return
   fi
 
   if services_are_subset "${locked_chart_services}" "${helm_services}"; then
     if has_breaking_changes "${deployment_json}" "${locked_chart_services}"; then
       # if any service has a breaking change, then overall breaking change
-      semver_breaking_change
+      semver_breaking_change "${deployment_json}"
       return
     fi
     if has_new_features "${deployment_json}" "${locked_chart_services}"; then
@@ -379,7 +390,7 @@ function update_semver() {
 
   if ! services_are_subset "${chart_services}" "${locked_chart_services}"; then
     # if chart_services contains any service not in the locked_chart_services, then new feature
-    semver_new_feature
+    semver_new_feature "${deployment_json}"
     return
   fi
 }

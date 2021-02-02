@@ -39,7 +39,7 @@ function get_deployment_json_by_name() {
 
 function update_helm_repo() {
   local -r deployment_json="${1}"
-  helm repo remove "$(get_helm_registry "${deployment_json}")" 2> /dev/null || true
+  helm repo remove "$(get_helm_registry "${deployment_json}")" 2>/dev/null || true
   az acr helm repo add -n "$(get_helm_registry "${deployment_json}")"
   helm repo update
   helm version
@@ -140,29 +140,39 @@ function bedrock_app_semver_dir() {
   printf '%s' "${BEDROCK_INVOKED_DIR}"
 }
 
+function bedrock_app_semver_filename() {
+  local -r deployment_json="${1}"
+  jq -r -e '.environment.semver' <<<"${deployment_json}"
+}
+
 function bedrock_config_dir() {
   printf '%s/configuration' "${BEDROCK_INVOKED_DIR}"
 }
 
 function internal_semver_file() {
-  printf '%s/semver.txt' "$(bedrock_app_semver_dir)"
+  local -r deployment_json="${1}"
+  printf '%s/%s' "$(bedrock_app_semver_dir)" "$(bedrock_app_semver_filename "${deployment_json}")"
 }
 
 function internal_semver_file_json() {
-  yq r "$(internal_semver_file)" --tojson
+  local -r deployment_json="${1}"
+  yq r "$(internal_semver_file "${deployment_json}")" --tojson
 }
 
 function internal_repo_semver() {
-  jq -r '.semver' <(internal_semver_file_json)
+  local -r deployment_json="${1}"
+  jq -r '.semver' <(internal_semver_file_json "${deployment_json}")
 }
 
 function compute_blessed_release_semver() {
-  sort -t. -k 1,1nr -k 2,2nr -k 3,3nr <(new_repo_semver) <(internal_repo_semver) | head -1
+  local -r deployment_json="${1}"
+  sort -t. -k 1,1nr -k 2,2nr -k 3,3nr <(new_repo_semver) <(internal_repo_semver "${deployment_json}") | head -1
 }
 
 function compute_blessed_release_tag() {
+  local -r deployment_json="${1}"
   local new_tag prerelease
-  new_tag="$(compute_blessed_release_semver)"
+  new_tag="$(compute_blessed_release_semver "${deployment_json}")"
   prerelease="dev"
   if ! is_azure_pipeline_build; then
     prerelease="${prerelease}.private"
@@ -187,7 +197,7 @@ function get_helm_registry() {
 
 function get_app_env() {
   local -r deployment_json="${1}"
-  printf '%s-%s' "$(get_app "${deployment_json}" )" "$(get_env "${deployment_json}" )"
+  printf '%s-%s' "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")"
 }
 
 function update_git_config() {
@@ -195,7 +205,7 @@ function update_git_config() {
   if is_azure_pipeline_build; then
     # configure azure pipeline workspace
     git config --global user.email "azure_automation@gneiss-tech.net"
-    git config --global user.name "Azure automation Blessing Artifacts from [$(get_app_env "${deployment_json}" )]"
+    git config --global user.name "Azure automation Blessing Artifacts from [$(get_app_env "${deployment_json}")]"
   fi
 }
 
@@ -272,7 +282,7 @@ function build_and_push_helm_chart() {
   local -r chartDir="${2}"
   local -r blessed_release_tag="${3}"
   local chartPackage result
-  chartPackage="$(get_helm_chart_name "${deployment_json}" )-$(remove_release_prefix <<<"${blessed_release_tag}").tgz"
+  chartPackage="$(get_helm_chart_name "${deployment_json}")-$(remove_release_prefix <<<"${blessed_release_tag}").tgz"
   rm -f "${chartDir}/Chart.lock"
   helm dependency build "${chartDir}"
   git add "${chartDir}/Chart.lock" || true
@@ -297,14 +307,14 @@ function update_helm_package() {
   local -r blessed_release_tag="${2}"
   printf 'update_helm_chart %s\n' "${blessed_release_tag}"
   local chartDir
-  chartDir="$(chart_dir "${deployment_json}" )"
+  chartDir="$(chart_dir "${deployment_json}")"
   update_chart_yaml "${chartDir}" "${blessed_release_tag}"
   build_and_push_helm_chart "${deployment_json}" "${chartDir}" "${blessed_release_tag}"
 }
 
 function update_helm_git() {
   local -r deployment_json="${1}"
-  local -r blessed_release_tag="$(compute_blessed_release_tag)"
+  local -r blessed_release_tag="$(compute_blessed_release_tag "${deployment_json}")"
   if update_helm_package "${deployment_json}" "${blessed_release_tag}"; then
     bless_git_repo "${deployment_json}" "${blessed_release_tag}"
   fi
@@ -314,7 +324,7 @@ function update_helm_chart() {
   local -r target_deployment_name="${1}"
   local target_deployment_json
   target_deployment_json="$(get_deployment_json_by_name "${target_deployment_name}")"
-  internal_semver_file_json
+  internal_semver_file_json "${target_deployment_json}"
   update_helm_repo "${target_deployment_json}"
   update_helm_git "${target_deployment_json}"
 }

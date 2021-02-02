@@ -40,6 +40,7 @@ deployments:
       name: 'dev'
       volume_prefix: 'br'
       config: 'br_k8s_dev.yaml'
+      semver: 'semver.txt'
     helm:
       migration_timeout: '15m'
       umbrella:
@@ -93,6 +94,7 @@ deployments:
       name: 'ci'
       volume_prefix: 'br'
       config: 'br_k8s_ci.yaml'
+      semver: 'semver.txt'
     helm:
       migration_timeout: '10m'
       umbrella:
