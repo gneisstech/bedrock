@@ -61,72 +61,78 @@ resources:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-  - checkout: self
-    # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
-    persistCredentials: true
-  - task: Docker@2
-    displayName: Login to ACR for Dev registry
-    inputs:
-      command: login
-      containerRegistry: br-dev-acr-service-connection
-  - task: AzureCLI@2
-    displayName: 'Install tools if needed'
-    inputs:
-      azureSubscription: 'br-dev-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/install_tools_if_needed.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Trace Environment'
-    inputs:
-      azureSubscription: 'br-dev-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/trace_environment.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Static Analysis'
-    inputs:
-      azureSubscription: 'br-dev-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './recipes/sast_shellcheck.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
-  - task: AzureCLI@2
-    displayName: 'Update Service Dependencies'
-    inputs:
-      azureSubscription: 'br-dev-az-service-connection'
-      scriptType: bash
-      scriptLocation: scriptPath
-      scriptPath: './ci/recipes/update_service_dependencies.sh'
-      # inlineScript:
-      # arguments
-      # powerShellErrorActionPreference
-      # addSpnToEnvironment
-      # useGlobalConfig
-      # workingDirectory
-      # failOnStandardError
-      # powerShellIgnoreLASTEXITCODE
+variables:
+  DD_CLIENT_API_KEY: ''
+  DD_CLIENT_APP_KEY: ''
+  BEDROCK_DEPLOYMENT_CATALOG: 'br_deployments.yaml'
+  BEDROCK_CLUSTER: 'BR_Development'
+  BEDROCK_INVOKED_DIR: ''
+  BEDROCK_SUBSCRIPTION: 'br-dev-az-service-connection'
+
+jobs:
+  - job: 'rollup_chart_dependencies'
+    timeoutInMinutes: 120
+    steps:
+      - checkout: self
+        # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
+        persistCredentials: true
+      - task: AzureCLI@2
+        displayName: 'Init Bedrock Tools Container Runtime'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            ./ci/recipes/init_bedrock_tools.sh
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Static Analysis'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
+            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
+            BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
+            BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
+            ./ci/recipes/invoke_bedrock_recipe.sh
+            sast_shellcheck
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        displayName: 'Rollup Chart Dependencies'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
+            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
+            BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
+            BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
+            ./ci/recipes/invoke_bedrock_recipe.sh
+            rollup_chart_dependencies
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
