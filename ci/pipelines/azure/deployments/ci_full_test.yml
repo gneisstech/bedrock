@@ -11,7 +11,7 @@ schedules:
     displayName: Nightly build
     branches:
       include:
-        - master-bytelight
+        - bedrock-main
     always: true
 
 pool:

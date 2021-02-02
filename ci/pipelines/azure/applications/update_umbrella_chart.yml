@@ -1,10 +1,10 @@
 ---
 #
-# trigger this pipeline when there is a commit to the master-bytelight branch
+# trigger this pipeline when there is a commit to the bedrock-main branch
 #
 
 trigger:
-  - master-bytelight
+  - bedrock-main
   - azure-pipelines
 
 pr: none
