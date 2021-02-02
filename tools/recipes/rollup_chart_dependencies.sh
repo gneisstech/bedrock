@@ -214,26 +214,26 @@ function extract_semver_minor() {
 function semver_breaking_change() {
   local -r deployment_json="${1}"
   local current_semver
-  current_semver="$(internal_repo_semver)"
+  current_semver="$(internal_repo_semver "${deployment_json}" )"
   printf 'BREAKING CHANGE DETECTED from semver[%s]\n' "${current_semver}"
   local major
   major="$(extract_semver_major <<<"${current_semver}")"
   ((major++))
   update_internal_repo_semver "${deployment_json}" "${major}.0.0"
-  printf '   to new semver[%s]\n' "$(internal_repo_semver)"
+  printf '   to new semver[%s]\n' "$(internal_repo_semver "${deployment_json}" )"
 }
 
 function semver_new_feature() {
   local -r deployment_json="${1}"
   local current_semver
-  current_semver="$(internal_repo_semver)"
+  current_semver="$(internal_repo_semver "${deployment_json}" )"
   printf 'NEW FEATURE DETECTED from semver[%s]\n' "${current_semver}"
   local major minor
   major="$(extract_semver_major <<<"${current_semver}")"
   minor="$(extract_semver_minor <<<"${current_semver}")"
   ((minor++))
   update_internal_repo_semver "${deployment_json}" "${major}.${minor}.0"
-  printf '   to new semver[%s]\n' "$(internal_repo_semver)"
+  printf '   to new semver[%s]\n' "$(internal_repo_semver "${deployment_json}" )"
 }
 
 function get_helm_repo_semver() {
