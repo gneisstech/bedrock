@@ -420,9 +420,7 @@ function rollup_chart_dependencies() {
   target_deployment_json="$(get_deployment_json_by_name "${target_deployment_name}")"
   update_helm_repo "${target_deployment_json}"
   if check_services_config "${target_deployment_json}"; then
-    # shellcheck disable=2046
-    # /bedrock/recipes/update_umbrella_chart.sh "${target_deployment_name}"
-    true
+    /bedrock/recipes/update_helm_chart.sh "${target_deployment_name}"
   else
     false
   fi

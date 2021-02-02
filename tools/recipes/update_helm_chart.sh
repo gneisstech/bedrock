@@ -140,6 +140,10 @@ function bedrock_app_semver_dir() {
   printf '%s' "${BEDROCK_INVOKED_DIR}"
 }
 
+function bedrock_config_dir() {
+  printf '%s/configuration' "${BEDROCK_INVOKED_DIR}"
+}
+
 function internal_semver_file() {
   printf '%s/semver.txt' "$(bedrock_app_semver_dir)"
 }
@@ -315,5 +319,4 @@ function update_helm_chart() {
   update_helm_git "${target_deployment_json}"
 }
 
-set -x
 update_helm_chart "$@"
