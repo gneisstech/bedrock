@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: update_helm_chart.sh
+# usage: bless_development_artifacts.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -169,6 +169,16 @@ function compute_blessed_release_semver() {
   sort -t. -k 1,1nr -k 2,2nr -k 3,3nr <(new_repo_semver) <(internal_repo_semver "${deployment_json}") | head -1
 }
 
+function get_app() {
+  local -r deployment_json="${1}"
+  jq -r -e '.environment.app' <<<"${deployment_json}"
+}
+
+function get_env() {
+  local -r deployment_json="${1}"
+  jq -r -e '.environment.name' <<<"${deployment_json}"
+}
+
 function compute_prerelease() {
   local -r deployment_json="${1}"
   printf '%s%s' "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")"
@@ -183,16 +193,6 @@ function compute_blessed_release_tag() {
     prerelease="${prerelease}.private"
   fi
   printf '%s%s-%s' "$(release_prefix)" "${new_tag}" "${prerelease}"
-}
-
-function get_app() {
-  local -r deployment_json="${1}"
-  jq -r -e '.environment.app' <<<"${deployment_json}"
-}
-
-function get_env() {
-  local -r deployment_json="${1}"
-  jq -r -e '.environment.name' <<<"${deployment_json}"
 }
 
 function get_helm_registry() {
@@ -263,6 +263,35 @@ function bless_git_repo() {
   update_git_tag "${blessed_release_tag}"
 }
 
+function registry_image_name() {
+  local -r tag="${1}"
+  printf '%s.azurecr.io/%s:%s' "$(origin_repository)" "${IMAGENAME}" "${tag}"
+}
+
+function desired_image_exists() {
+  local -r tag="${1}"
+  printf 'desired_image_exists %s\n' "${tag}"
+  acr_login "${ORIGIN_REPOSITORY}"
+  docker pull "$(registry_image_name "${tag}")" 2>/dev/null
+}
+
+function bless_container() {
+  local -r blessed_tag="${1}"
+  local origin_container result_container
+  origin_container="$(registry_image_name "${TAG}")"
+  result_container="$(registry_image_name "${blessed_tag}")"
+  docker tag "${origin_container}" "${result_container}"
+  docker push "${result_container}" 1>&2
+}
+
+function update_docker_container() {
+  local -r blessed_release_tag="${1}"
+  printf 'update_docker_container %s\n' "${blessed_release_tag}"
+  if ! desired_image_exists "${blessed_release_tag}"; then
+    bless_container "${blessed_release_tag}"
+  fi
+}
+
 function update_chart_yaml() {
   local -r chartDir="${1}"
   local -r blessed_release_tag="${2}"
@@ -318,21 +347,31 @@ function update_helm_package() {
   build_and_push_helm_chart "${deployment_json}" "${chartDir}" "${blessed_release_tag}"
 }
 
-function update_helm_git() {
+function warn_nothing_done() {
+  printf 'Did not update docker container or helm chart\n'
+  printf '  If this is not what you intended, did you update the semver.txt or git tag?\n'
+}
+
+function update_docker_helm_git() {
   local -r deployment_json="${1}"
   local -r blessed_release_tag="$(compute_blessed_release_tag "${deployment_json}")"
-  if update_helm_package "${deployment_json}" "${blessed_release_tag}"; then
-    bless_git_repo "${deployment_json}" "${blessed_release_tag}"
+  if update_docker_container "${blessed_release_tag}"; then
+    if update_helm_package "${deployment_json}" "${blessed_release_tag}"; then
+      bless_git_repo "${deployment_json}" "${blessed_release_tag}"
+    fi
+  else
+    warn_nothing_done
   fi
 }
 
-function update_helm_chart() {
+function bless_development_artifacts() {
   local -r target_deployment_name="${1}"
   local target_deployment_json
   target_deployment_json="$(get_deployment_json_by_name "${target_deployment_name}")"
-  internal_semver_file_json "${target_deployment_json}"
-  update_helm_repo "${target_deployment_json}"
-  update_helm_git "${target_deployment_json}"
+  pushd "${BUILD_REPOSITORY_LOCALPATH}"
+  pwd
+  update_docker_helm_git "${target_deployment_json}"
+  popd
 }
 
-update_helm_chart "$@"
+bless_development_artifacts "$@"
