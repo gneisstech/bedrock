@@ -54,6 +54,9 @@ rollup_chart_dependencies:
 update_helm_chart:
 	/bedrock/recipes/update_helm_chart.sh "${BEDROCK_CLUSTER}"
 
+bless_service_artifacts:
+	/bedrock/recipes/bless_service_artifacts.sh "${BEDROCK_CLUSTER}"
+
 init_service_tree:
 	@echo "Not Implemented Yet"
 

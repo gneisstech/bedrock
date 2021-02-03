@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: bless_development_artifacts.sh
+# usage: bless_service_artifacts.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -369,7 +369,7 @@ function update_docker_helm_git() {
   fi
 }
 
-function bless_development_artifacts() {
+function bless_service_artifacts() {
   local -r target_deployment_name="${1}"
   local target_deployment_json
   target_deployment_json="$(get_deployment_json_by_name "${target_deployment_name}")"
@@ -378,4 +378,4 @@ function bless_development_artifacts() {
   update_docker_helm_git "${target_deployment_json}"
 }
 
-bless_development_artifacts "$@"
+bless_service_artifacts "$@"
