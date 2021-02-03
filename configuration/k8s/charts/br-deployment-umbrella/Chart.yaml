@@ -68,7 +68,7 @@ dependencies: # A list of the chart requirements (optional)
       - 'br-eclypse-relay-api'
     enabled: true
     import-values: [] # (optional)
-    alias: 'br-eclypse-relay-api
+    alias: 'br-eclypse-relay-api'
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application.
