@@ -169,16 +169,6 @@ function compute_blessed_release_semver() {
   sort -t. -k 1,1nr -k 2,2nr -k 3,3nr <(new_repo_semver) <(internal_repo_semver "${deployment_json}") | head -1
 }
 
-function get_app() {
-  local -r deployment_json="${1}"
-  jq -r -e '.environment.app' <<<"${deployment_json}"
-}
-
-function get_env() {
-  local -r deployment_json="${1}"
-  jq -r -e '.environment.name' <<<"${deployment_json}"
-}
-
 function compute_prerelease() {
   local -r deployment_json="${1}"
   printf '%s%s' "$(get_app "${deployment_json}")" "$(get_env "${deployment_json}")"
@@ -195,9 +185,24 @@ function compute_blessed_release_tag() {
   printf '%s%s-%s' "$(release_prefix)" "${new_tag}" "${prerelease}"
 }
 
+function get_app() {
+  local -r deployment_json="${1}"
+  jq -r -e '.environment.app' <<<"${deployment_json}"
+}
+
+function get_env() {
+  local -r deployment_json="${1}"
+  jq -r -e '.environment.name' <<<"${deployment_json}"
+}
+
 function get_helm_registry() {
   local -r deployment_json="${1}"
   jq -r '.helm.umbrella.registry.name? // ""' <<<"${deployment_json}"
+}
+
+function get_docker_registry () {
+  local -r deployment_json="${1}"
+  get_helm_registry "${deployment_json}"
 }
 
 function get_app_env() {
@@ -265,13 +270,13 @@ function bless_git_repo() {
 
 function registry_image_name() {
   local -r tag="${1}"
-  printf '%s.azurecr.io/%s:%s' "$(origin_repository)" "${IMAGENAME}" "${tag}"
+  printf '%s.azurecr.io/%s:%s' "$(get_docker_registry)" "${IMAGENAME}" "${tag}"
 }
 
 function desired_image_exists() {
   local -r tag="${1}"
   printf 'desired_image_exists %s\n' "${tag}"
-  acr_login "${ORIGIN_REPOSITORY}"
+  acr_login "$(get_docker_registry)"
   docker pull "$(registry_image_name "${tag}")" 2>/dev/null
 }
 
@@ -368,10 +373,9 @@ function bless_development_artifacts() {
   local -r target_deployment_name="${1}"
   local target_deployment_json
   target_deployment_json="$(get_deployment_json_by_name "${target_deployment_name}")"
-  pushd "${BUILD_REPOSITORY_LOCALPATH}"
-  pwd
+  internal_semver_file_json "${target_deployment_json}"
+  update_helm_repo "${target_deployment_json}"
   update_docker_helm_git "${target_deployment_json}"
-  popd
 }
 
 bless_development_artifacts "$@"
