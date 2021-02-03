@@ -200,7 +200,7 @@ function get_helm_registry() {
   jq -r '.helm.umbrella.registry.name? // ""' <<<"${deployment_json}"
 }
 
-function get_docker_registry () {
+function get_docker_registry() {
   local -r deployment_json="${1}"
   get_helm_registry "${deployment_json}"
 }
@@ -269,31 +269,35 @@ function bless_git_repo() {
 }
 
 function registry_image_name() {
-  local -r tag="${1}"
-  printf '%s.azurecr.io/%s:%s' "$(get_docker_registry)" "${IMAGENAME}" "${tag}"
+  local -r deployment_json="${1}"
+  local -r tag="${2}"
+  printf '%s.azurecr.io/%s:%s' "$(get_docker_registry "${deployment_json}")" "${IMAGENAME}" "${tag}"
 }
 
 function desired_image_exists() {
-  local -r tag="${1}"
+  local -r deployment_json="${1}"
+  local -r tag="${2}"
   printf 'desired_image_exists %s\n' "${tag}"
-  acr_login "$(get_docker_registry)"
-  docker pull "$(registry_image_name "${tag}")" 2>/dev/null
+  acr_login "$(get_docker_registry "${deployment_json}")"
+  docker pull "$(registry_image_name "${deployment_json}" "${tag}")" 2>/dev/null
 }
 
 function bless_container() {
-  local -r blessed_tag="${1}"
+  local -r deployment_json="${1}"
+  local -r blessed_tag="${2}"
   local origin_container result_container
-  origin_container="$(registry_image_name "${TAG}")"
-  result_container="$(registry_image_name "${blessed_tag}")"
+  origin_container="$(registry_image_name "${deployment_json}" "${TAG}")"
+  result_container="$(registry_image_name "${deployment_json}" "${blessed_tag}")"
   docker tag "${origin_container}" "${result_container}"
   docker push "${result_container}" 1>&2
 }
 
 function update_docker_container() {
-  local -r blessed_release_tag="${1}"
+  local -r deployment_json="${1}"
+  local -r blessed_release_tag="${2}"
   printf 'update_docker_container %s\n' "${blessed_release_tag}"
-  if ! desired_image_exists "${blessed_release_tag}"; then
-    bless_container "${blessed_release_tag}"
+  if ! desired_image_exists "${deployment_json}" "${blessed_release_tag}"; then
+    bless_container "${deployment_json}" "${blessed_release_tag}"
   fi
 }
 
@@ -360,7 +364,7 @@ function warn_nothing_done() {
 function update_docker_helm_git() {
   local -r deployment_json="${1}"
   local -r blessed_release_tag="$(compute_blessed_release_tag "${deployment_json}")"
-  if update_docker_container "${blessed_release_tag}"; then
+  if update_docker_container "${deployment_json}" "${blessed_release_tag}"; then
     if update_helm_package "${deployment_json}" "${blessed_release_tag}"; then
       bless_git_repo "${deployment_json}" "${blessed_release_tag}"
     fi
