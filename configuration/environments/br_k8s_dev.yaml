@@ -18,6 +18,10 @@ target:
     tags: &labels 'br-env=##env## br-role=##env##'
     tls_secret_name: &tlsSecretName 'wildcarddevbedrock-iotcom'
     address_validation_secret_name: &addressValidationSecretName 'br-validation-usps-userid'
+    iothub_secret_name: &iothubSecretName 'br-eclypse-relay-iothub-connectionstring'
+    blobstorage_secret_name: &blobstorageSecretName 'br-eclypse-relay-blobstorage-connectionstring'
+    appinsights_secret_name: &appinsightsSecretName 'br-dev-app-insights-key'
+
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -585,5 +589,33 @@ target:
                 - *kvName
                 - '","secret_name":"'
                 - *addressValidationSecretName
+                - '"}'
+                - '##'
+
+        br-eclypse-relay-api:
+          enabled: true
+          config:
+            environment:
+              APP_VERSION: '{{ .Chart.AppVersion }}'
+            secrets:
+              iothubConnectionString:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *iothubSecretName
+                - '"}'
+                - '##'
+              blobStorageConnectionString:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *blobstorageSecretName
+                - '"}'
+                - '##'
+              appInsightsKey:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *appinsightsSecretName
                 - '"}'
                 - '##'
