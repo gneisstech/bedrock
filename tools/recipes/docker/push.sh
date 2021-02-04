@@ -37,7 +37,16 @@ function get_docker_repo_name() {
   read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
+function get_docker_registry_name() {
+  get_docker_repo_name | sed -e 's|\/.*||'
+}
+
+function attach_docker_registry () {
+  az acr login -n "$(get_docker_registry_name)"
+}
+
 function push () {
+  attach_docker_registry
   docker push "$(get_docker_repo_name):bedrock"
 }
 

@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
+declare -rx HOST_HOME="${HOST_HOME:-}"
 
 # Arguments
 # ---------------------
@@ -104,10 +105,17 @@ function attach_docker_registry () {
 function neuvector_scanner () {
   local -r max_allowed_cve_high="2"
   local -r max_allowed_cve_medium="0"
+  local -r local_shared_dir="$(pwd)/ci_pipeline_home"
+  local -r host_shared_dir="${HOST_HOME}/ci_pipeline_home"
+  local -r scan_result="${local_shared_dir}/scan_result.json"
 
   attach_docker_registry
+  mkdir -p "${local_shared_dir}"
+  chmod 777 "${local_shared_dir}"
   echo "%%%%%"
-  ls -la .
+  ls -la "${local_shared_dir}"
+  echo "%%%%%"
+  pwd
   echo "%%%%%"
   docker run \
     --name neuvector.scanner \
@@ -115,18 +123,21 @@ function neuvector_scanner () {
     -e SCANNER_REPOSITORY="$(get_docker_repo_name)" \
     -e SCANNER_TAG='bedrock' \
     -e SCANNER_LICENSE="$(get_neuvector_license)" \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "$(pwd)":/var/neuvector \
+    -e HOST_HOME="${HOST_HOME}" \
+    --volume '/var/run/docker.sock:/var/run/docker.sock' \
+    --volume "${host_shared_dir}:/var/neuvector" \
     "$(get_docker_registry_name)/neuvector/scanner:latest"
   printf "======== High priority CVE ========\n"
   echo "%%%%%"
   ls -la .
   echo "%%%%%"
-  show_cve_high 'scan_result.json'
+  find / | grep -i "scan_"
+  echo "%%%%%"
+  show_cve_high "${scan_result}"
   printf "======== Medium priority CVE ========\n"
-  show_cve_medium 'scan_result.json'
-  fail_cve_high 'scan_result.json' "${max_allowed_cve_high}"
-  fail_cve_medium 'scan_result.json' "${max_allowed_cve_medium}"
+  show_cve_medium "${scan_result}"
+  fail_cve_high "${scan_result}" "${max_allowed_cve_high}"
+  fail_cve_medium "${scan_result}" "${max_allowed_cve_medium}"
   printf "======== CVE checks passed --------\n"
 }
 
