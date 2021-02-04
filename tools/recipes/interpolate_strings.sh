@@ -267,14 +267,12 @@ function process_iothub_connection_string () {
     theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
     subscription="$(jq -r '.subscription' <<< "${theMessage}")"
     resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
-    namespace_name="$(jq -r '.namespace_name' <<< "${theMessage}")"
     iothub_name="$(jq -r '.iothub_name' <<< "${theMessage}")"
     policy_name="$(jq -r '.policy_name' <<< "${theMessage}")"
 
     az iot hub show-connection-string \
         --subscription "${subscription}" \
         --resource-group "${resource_group}" \
-        #--namespace-name "${namespace_name}" \
         --hub-name "${eventhub_name}" \
         --policy-name "${policy_name}" \
     | jq -r '.connectionString'
