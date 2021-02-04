@@ -5,6 +5,7 @@ default: help list
 
 export BEDROCK_INVOKED_DIR
 export BEDROCK_DEPLOYMENT_CATALOG
+export BEDROCK_SERVICE
 
 sast_shellcheck:
 	/bedrock/recipes/sast_shellcheck.sh
@@ -107,6 +108,22 @@ scale_update_nodepool_add_node:
 scale_update_nodepool_remove_node:
 	@echo "Not Implemented Yet - delete a node from a nodepool in the cluster"
 
+get_go_module_dependencies:
+	/bedrock/recipes/golang/go_module_fetch_vendor_folder.sh
+
+remove_go_module_dependencies:
+	/bedrock/recipes/golang/go_module_remove_vendor_folder.sh
+
+docker_build_and_push_default_tag:
+	/bedrock/recipes/docker/build.sh "${BEDROCK_SERVICE}"
+	/bedrock/recipes/docker/push.sh "${BEDROCK_SERVICE}"
+
+cve_scan_default_docker_container:
+	/bedrock/recipes/cve/neuvector_scanner.sh "${BEDROCK_SERVICE}"
+
+black_duck_scan_src_and_default_docker_container:
+	/bedrock/recipes/cve/blackduck_scanner.sh "${BEDROCK_SERVICE}"
+
 #
 #####################################################################################
 
@@ -118,6 +135,7 @@ settings:
 	)
 
 help :
+	@echo 'Bedrock:'
 	@echo 'Configuration and installation of developer tools for particular runtime environments'
 	@echo ''
 	@echo 'Environment Variables that contribute to the build:'

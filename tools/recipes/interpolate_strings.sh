@@ -295,8 +295,6 @@ function process_storage_account_connection_string () {
     | jq -r '.connectionString'
 }
 
-
-
 function dispatch_functions () {
     declare -a myarray
     local i=0
