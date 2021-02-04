@@ -50,5 +50,4 @@ function push () {
   docker push "$(get_docker_repo_name):bedrock"
 }
 
-set -x
-push || true
+push

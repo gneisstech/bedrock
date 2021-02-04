@@ -12,6 +12,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
 
 # Arguments
 # ---------------------
@@ -100,5 +101,4 @@ function go_module_fetch_vendor_folder () {
   CGO_ENABLED=1 GO111MODULE=on GOPRIVATE=ablcode.visualstudio.com go mod vendor -v
 }
 
-set -x
-go_module_fetch_vendor_folder || true
+go_module_fetch_vendor_folder

@@ -112,11 +112,6 @@ function neuvector_scanner () {
   attach_docker_registry
   mkdir -p "${local_shared_dir}"
   chmod 777 "${local_shared_dir}"
-  echo "%%%%%"
-  ls -la "${local_shared_dir}"
-  echo "%%%%%"
-  pwd
-  echo "%%%%%"
   docker run \
     --name neuvector.scanner \
     --rm \
@@ -128,11 +123,6 @@ function neuvector_scanner () {
     --volume "${host_shared_dir}:/var/neuvector" \
     "$(get_docker_registry_name)/neuvector/scanner:latest"
   printf "======== High priority CVE ========\n"
-  echo "%%%%%"
-  ls -la .
-  echo "%%%%%"
-  find / | grep -i "scan_"
-  echo "%%%%%"
   show_cve_high "${scan_result}"
   printf "======== Medium priority CVE ========\n"
   show_cve_medium "${scan_result}"
@@ -141,5 +131,4 @@ function neuvector_scanner () {
   printf "======== CVE checks passed --------\n"
 }
 
-set -x
 neuvector_scanner "$@" || true

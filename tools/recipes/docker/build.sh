@@ -41,5 +41,4 @@ function build () {
   docker build . -f Dockerfile -t "$(get_docker_repo_name):bedrock"
 }
 
-set -x
-build || true
+build
