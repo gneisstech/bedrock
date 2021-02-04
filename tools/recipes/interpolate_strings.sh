@@ -260,6 +260,45 @@ function process_eventhub_connection_string () {
     | jq -r '.primaryConnectionString'
 }
 
+function process_iothub_connection_string () {
+    local -r theString="${1}"
+    local theMessage
+    local subscription resource_group namespace_name iothub_name policy_name
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    subscription="$(jq -r '.subscription' <<< "${theMessage}")"
+    resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
+    namespace_name="$(jq -r '.namespace_name' <<< "${theMessage}")"
+    iothub_name="$(jq -r '.iothub_name' <<< "${theMessage}")"
+    policy_name="$(jq -r '.policy_name' <<< "${theMessage}")"
+
+    az iot hub show-connection-string \
+        --subscription "${subscription}" \
+        --resource-group "${resource_group}" \
+        #--namespace-name "${namespace_name}" \
+        --hub-name "${eventhub_name}" \
+        --policy-name "${policy_name}" \
+    | jq -r '.connectionString'
+}
+
+function process_storage_account_connection_string () {
+    local -r theString="${1}"
+    local theMessage
+    local subscription resource_group storage_account_name
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    subscription="$(jq -r '.subscription' <<< "${theMessage}")"
+    resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
+    storage_account_name="$(jq -r '.storage_account_name' <<< "${theMessage}")"
+
+    az storage account show-connection-string \
+        --name "${storage_account_name}" \
+        --protocol "https" \
+        --resource-group "${resource_group}" \
+        --subscription "${subscription}" \
+    | jq -r '.connectionString'
+}
+
+
+
 function dispatch_functions () {
     declare -a myarray
     local i=0
@@ -284,6 +323,12 @@ function dispatch_functions () {
                     ;;
                 eventhub_connection_string*)
                     array_entry="$(process_eventhub_connection_string "${line_data}")"
+                    ;;
+                iothub_connection_string*)
+                    array_entry="$(process_iothub_connection_string "${line_data}")"
+                    ;;
+                storage_account_connection_string*)
+                    array_entry="$(process_storage_account_connection_string "${line_data}")"
                     ;;
                 *)
                    array_entry="UNDEFINED_FUNCTION [${line_data}]"
