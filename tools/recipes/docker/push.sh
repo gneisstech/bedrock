@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: build.sh
+# usage: push.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -37,9 +37,9 @@ function get_docker_repo_name() {
   read_helm_values | jq -r -e '.image.repository'
 }
 
-function build () {
-  docker build . -f Dockerfile -t "$(get_docker_repo_name):bedrock"
+function push () {
+  docker push "$(get_docker_repo_name):bedrock"
 }
 
 set -x
-build || true
+push || true

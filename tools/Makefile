@@ -119,10 +119,10 @@ docker_build_and_push_default_tag:
 	/bedrock/recipes/docker/push.sh "${BEDROCK_SERVICE}"
 
 cve_scan_default_docker_container:
-	/bedrock/recipes/cve/neuvector_scanner.sh "${BEDROCK_SERVICE}"
+	-/bedrock/recipes/cve/neuvector_scanner.sh "${BEDROCK_SERVICE}"
 
 black_duck_scan_src_and_default_docker_container:
-	/bedrock/recipes/cve/blackduck_scanner.sh "${BEDROCK_SERVICE}"
+	-/bedrock/recipes/cve/blackduck_scanner.sh "${BEDROCK_SERVICE}"
 
 #
 #####################################################################################
