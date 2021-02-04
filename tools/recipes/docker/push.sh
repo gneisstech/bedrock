@@ -29,12 +29,12 @@ function get_helm_values_file_name() {
   printf "%s/helm/%s/values.yaml" "${BEDROCK_INVOKED_DIR}" "$(get_helm_chart_name)"
 }
 
-function read_helm_values () {
-  cat "$(get_helm_values_file_name)"
+function read_helm_values_as_json () {
+  yq r --tojson "$(get_helm_values_file_name)"
 }
 
 function get_docker_repo_name() {
-  read_helm_values | jq -r -e '.image.repository'
+  read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
 function push () {

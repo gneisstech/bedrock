@@ -1,4 +1,4 @@
-default: help list
+default: help list printvars settings
 
 .NOTPARALLEL:
 .SECONDEXPANSION:
@@ -54,9 +54,6 @@ rollup_chart_dependencies:
 
 update_helm_chart:
 	/bedrock/recipes/update_helm_chart.sh "${BEDROCK_CLUSTER}"
-
-bless_service_artifacts:
-	/bedrock/recipes/bless_service_artifacts.sh "${BEDROCK_CLUSTER}"
 
 init_service_tree:
 	@echo "Not Implemented Yet"
@@ -123,6 +120,9 @@ cve_scan_default_docker_container:
 
 black_duck_scan_src_and_default_docker_container:
 	-/bedrock/recipes/cve/blackduck_scanner.sh "${BEDROCK_SERVICE}"
+
+bless_service_artifacts:
+	-/bedrock/recipes/bless_service_artifacts.sh "${BEDROCK_CLUSTER}"
 
 #
 #####################################################################################

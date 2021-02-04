@@ -12,15 +12,59 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx BUILD_REPOSITORY_LOCALPATH="${BUILD_REPOSITORY_LOCALPATH:-.}"
-declare -rx IMAGENAME="${IMAGENAME:-cf-ecy-ingest-svc-docker}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
 
 # Arguments
 # ---------------------
 
+function repo_root() {
+  git rev-parse --show-toplevel
+}
 
-function repo_root () {
-    git rev-parse --show-toplevel
+function get_helm_chart_name() {
+  ls "${BEDROCK_INVOKED_DIR}/helm"
+}
+
+function get_helm_values_file_name() {
+  printf "%s/helm/%s/values.yaml" "${BEDROCK_INVOKED_DIR}" "$(get_helm_chart_name)"
+}
+
+function read_helm_values_as_json () {
+  yq r --tojson "$(get_helm_values_file_name)"
+}
+
+function get_docker_repo_name() {
+  read_helm_values_as_json | jq -r -e '.image.repository'
+}
+
+function get_docker_registry_name() {
+  get_docker_repo_name | sed -e 's|\/.*||'
+}
+
+function get_vault_secret () {
+    local -r vault="${1}"
+    local -r secret_name="${2}"
+    az keyvault secret show \
+        --vault-name "${vault}" \
+        --name "${secret_name}" \
+        2> /dev/null \
+    | jq -r '.value'
+}
+
+function get_project_prefix() {
+  get_helm_chart_name | sed -e 's|-.*||'
+}
+
+function get_project_prefix_uc() {
+  get_project_prefix | tr [a-z] [A-Z]
+}
+
+function get_devops_vault() {
+  printf '%s-devops-kv' "$(get_project_prefix)"
+}
+
+function get_neuvector_license() {
+  get_vault_secret "$(get_devops_vault)" 'neuvector-license'
 }
 
 function show_cve_high () {
@@ -53,32 +97,38 @@ function fail_cve_medium () {
   fi
 }
 
-function neuvector_scanner () {
-  local -r licenseKeyPath="${1}"
-  local -r imageName="${2}"
-  local -r tag="${3}"
-  local -r max_allowed_cve_high="${4}"
-  local -r max_allowed_cve_medium="${5}"
-
-  pushd "${BUILD_REPOSITORY_LOCALPATH}"
-  pwd
-    docker run \
-      --name neuvector.scanner \
-      --rm \
-      -e SCANNER_REPOSITORY="cfdevregistry.azurecr.io/${imageName}" \
-      -e SCANNER_TAG="${tag}" \
-      -e SCANNER_LICENSE="$(cat "${licenseKeyPath}")" \
-      -v /var/run/docker.sock:/var/run/docker.sock \
-      -v "$(pwd)":/var/neuvector \
-      'cfdevregistry.azurecr.io/neuvector/scanner:latest'
-    printf "======== High priority CVE ========\n"
-    show_cve_high 'scan_result.json'
-    printf "======== Medium priority CVE ========\n"
-    show_cve_medium 'scan_result.json'
-    fail_cve_high 'scan_result.json' "${max_allowed_cve_high}"
-    fail_cve_medium 'scan_result.json' "${max_allowed_cve_medium}"
-    printf "======== CVE checks passed --------\n"
-  popd
+function attach_docker_registry () {
+  az acr login -n "$(get_docker_registry_name)"
 }
 
+function neuvector_scanner () {
+  local -r max_allowed_cve_high="2"
+  local -r max_allowed_cve_medium="0"
+
+  attach_docker_registry
+  echo "%%%%%"
+  ls -la .
+  echo "%%%%%"
+  docker run \
+    --name neuvector.scanner \
+    --rm \
+    -e SCANNER_REPOSITORY="$(get_docker_repo_name)" \
+    -e SCANNER_TAG='bedrock' \
+    -e SCANNER_LICENSE="$(get_neuvector_license)" \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "$(pwd)":/var/neuvector \
+    "$(get_docker_registry_name)/neuvector/scanner:latest"
+  printf "======== High priority CVE ========\n"
+  echo "%%%%%"
+  ls -la .
+  echo "%%%%%"
+  show_cve_high 'scan_result.json'
+  printf "======== Medium priority CVE ========\n"
+  show_cve_medium 'scan_result.json'
+  fail_cve_high 'scan_result.json' "${max_allowed_cve_high}"
+  fail_cve_medium 'scan_result.json' "${max_allowed_cve_medium}"
+  printf "======== CVE checks passed --------\n"
+}
+
+set -x
 neuvector_scanner "$@" || true

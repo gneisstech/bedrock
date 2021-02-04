@@ -94,6 +94,14 @@ function install_yamllint_if_needed() {
   fi
 }
 
+function install_openssh() {
+  apk add openssh
+}
+
+function install_java() {
+  apk add openjdk8
+}
+
 function install_tools_if_needed() {
   set -x
   SECONDS=0
@@ -110,6 +118,8 @@ function install_tools_if_needed() {
   install_jq_if_needed
   install_shellcheck_if_needed
   install_yamllint_if_needed
+  install_openssh
+  install_java
   #    install_aws_cli
   #    install_gcp_cli
   DD_CLIENT_API_KEY="${1:-}" DD_CLIENT_APP_KEY="${2:-}" "/recipes/report_metric_to_datadog.sh" "${FUNCNAME[0]}" "${SECONDS}"

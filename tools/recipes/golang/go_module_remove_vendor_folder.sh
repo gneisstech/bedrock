@@ -22,7 +22,7 @@ function repo_root () {
 
 function go_module_remove_vendor_folder () {
      rm -rf ./vendor
-     rm ~/.gitconfig
+     rm -f ~/.gitconfig
 }
 
 go_module_remove_vendor_folder || true

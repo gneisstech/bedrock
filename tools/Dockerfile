@@ -7,6 +7,9 @@ RUN apk update && apk add bash && /recipes/install_tools_if_needed.sh
 FROM base
 ENV BEDROCK_DOCKER="true"
 
+COPY --from=golang:1.14-alpine /usr/local/go/ /usr/local/go/
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 COPY iaas /bedrock/iaas
 COPY paas /bedrock/paas
 COPY saas /bedrock/saas
