@@ -25,4 +25,4 @@ function go_module_remove_vendor_folder () {
      rm -f ~/.gitconfig
 }
 
-go_module_remove_vendor_folder || true
+go_module_remove_vendor_folder
