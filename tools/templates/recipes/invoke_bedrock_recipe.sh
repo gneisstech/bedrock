@@ -12,11 +12,13 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx DD_CLIENT_API_KEY="${DD_CLIENT_API_KEY:-}"
-declare -rx DD_CLIENT_APP_KEY="${DD_CLIENT_APP_KEY:-}"
+declare -rx DD_SECRET_VAULT="${DD_SECRET_VAULT:-}"
 declare -rx BEDROCK_DEPLOYMENT_CATALOG="${BEDROCK_DEPLOYMENT_CATALOG:-}"
 declare -rx BEDROCK_CLUSTER="${BEDROCK_CLUSTER:-}"
 declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-$(pwd)}"
+declare -rx BEDROCK_SERVICE="${BEDROCK_SERVICE:-}"
+declare -rx DOCKERFILE="${DOCKERFILE:-Dockerfile}"
+declare -rx HOST_HOME="${HOST_HOME:-$(pwd)}"
 
 # Arguments
 # ---------------------
@@ -43,11 +45,13 @@ function bedrock_invoked_dir () {
 function invoke_bedrock () {
   local -r az_config_dir="${AZURE_CONFIG_DIR:-${HOME}/.azure}"
   docker run \
-    --env DD_CLIENT_API_KEY="${DD_CLIENT_API_KEY:-}" \
-    --env DD_CLIENT_APP_KEY="${DD_CLIENT_APP_KEY:-}" \
+    --env DD_SECRET_VAULT="${DD_SECRET_VAULT:-}" \
     --env BEDROCK_DEPLOYMENT_CATALOG="${BEDROCK_DEPLOYMENT_CATALOG:-}" \
     --env BEDROCK_CLUSTER="${BEDROCK_CLUSTER:-}" \
     --env BEDROCK_INVOKED_DIR="$(bedrock_invoked_dir)" \
+    --env BEDROCK_SERVICE="${BEDROCK_SERVICE:-}" \
+    --env DOCKERFILE="${DOCKERFILE:-Dockerfile}" \
+    --env HOST_HOME="${HOST_HOME:-$(pwd)}" \
     --env-file <(pipeline_env_vars) \
     --volume "$(repo_root):/src" \
     --volume "/var/run/docker.sock:/var/run/docker.sock" \
@@ -55,8 +59,6 @@ function invoke_bedrock () {
     --volume "${HOME}/.kube:/root/.kube" \
     gneisstech/bedrock_tools:latest \
     "${@}"
-
-#     --volume "${HOME}/.docker:/root/.docker" \
 }
 
 function invoke_bedrock_recipe () {
@@ -65,7 +67,7 @@ function invoke_bedrock_recipe () {
   pushd "$(repo_root)"
   invoke_bedrock "${@}"
   popd
-  "$(repo_root)/ci/recipes/report_metric_to_datadog.sh" "${make_target}" "${SECONDS}"
+  "${BEDROCK_INVOKED_DIR}/.bedrock/ci/recipes/report_metric_to_datadog.sh" "${make_target}" "${SECONDS}"
 }
 
 invoke_bedrock_recipe "$@" 2> >(while read -r line; do (echo "LOGGING: $line"); done)
