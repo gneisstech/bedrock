@@ -13,6 +13,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
+declare -rx DOCKERFILE="${DOCKERFILE:-Dockerfile}"
 
 # Arguments
 # ---------------------
@@ -33,12 +34,34 @@ function read_helm_values_as_json () {
   yq r --tojson "$(get_helm_values_file_name)"
 }
 
-function get_docker_repo_name() {
+function get_helm_docker_repo_name() {
   read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
-function build () {
-  docker build . -f Dockerfile -t "$(get_docker_repo_name):bedrock"
+function get_docker_registry() {
+  get_helm_docker_repo_name | sed -e 's|/.*||'
 }
 
-build
+function get_dockerfile_suffix() {
+  # shellcheck disable=SC2001
+  sed -e 's|.*\.||' <<< "${DOCKERFILE}"
+}
+
+function get_alternate_repo_name() {
+  printf '%s/%s' "$(get_docker_registry)" "$(get_dockerfile_suffix)"
+}
+
+function get_docker_repo_name() {
+  if [[ "Dockerfile" == "${DOCKERFILE}" ]]; then
+    read_helm_values_as_json | jq -r -e '.image.repository'
+  else
+    get_alternate_repo_name
+  fi
+}
+
+function build () {
+  local -r docker_filename="${DOCKERFILE}"
+  docker build . -f "${docker_filename}" -t "$(get_docker_repo_name):bedrock"
+}
+
+build "$@"

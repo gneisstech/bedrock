@@ -12,7 +12,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 declare -rx HOST_HOME="${HOST_HOME:-}"
 
 # Arguments
@@ -118,7 +118,6 @@ function neuvector_scanner () {
     -e SCANNER_REPOSITORY="$(get_docker_repo_name)" \
     -e SCANNER_TAG='bedrock' \
     -e SCANNER_LICENSE="$(get_neuvector_license)" \
-    -e HOST_HOME="${HOST_HOME}" \
     --volume '/var/run/docker.sock:/var/run/docker.sock' \
     --volume "${host_shared_dir}:/var/neuvector" \
     "$(get_docker_registry_name)/neuvector/scanner:latest"
@@ -131,4 +130,4 @@ function neuvector_scanner () {
   printf "======== CVE checks passed --------\n"
 }
 
-neuvector_scanner "$@" || true
+neuvector_scanner "$@"

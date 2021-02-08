@@ -140,5 +140,4 @@ function blackduck_scanner() {
     docker image ls --all
 }
 
-set -x
-blackduck_scanner "$@" || true
+blackduck_scanner "$@"

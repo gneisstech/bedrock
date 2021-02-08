@@ -33,21 +33,41 @@ function read_helm_values_as_json () {
   yq r --tojson "$(get_helm_values_file_name)"
 }
 
-function get_docker_repo_name() {
+function get_helm_docker_repo_name() {
   read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
 function get_docker_registry_name() {
-  get_docker_repo_name | sed -e 's|\/.*||'
+  get_helm_docker_repo_name | sed -e 's|\/.*||'
 }
 
 function attach_docker_registry () {
   az acr login -n "$(get_docker_registry_name)"
 }
 
+function get_dockerfile_suffix() {
+  # shellcheck disable=SC2001
+  sed -e 's|.*\.||' <<< "${DOCKERFILE}"
+}
+
+function get_alternate_repo_name() {
+  printf '%s/%s' "$(get_docker_registry_name)" "$(get_dockerfile_suffix)"
+}
+
+function get_docker_repo_name() {
+  if [[ "Dockerfile" == "${DOCKERFILE}" ]]; then
+    read_helm_values_as_json | jq -r -e '.image.repository'
+  else
+    get_alternate_repo_name
+  fi
+}
+
 function push () {
+  local -r docker_filename="${DOCKERFILE}"
   attach_docker_registry
+  docker image ls
+
   docker push "$(get_docker_repo_name):bedrock"
 }
 
-push
+push "$@"

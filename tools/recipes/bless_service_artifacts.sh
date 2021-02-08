@@ -248,6 +248,11 @@ function registry_image_name() {
   printf '%s:%s' "$(get_docker_repo_name)" "${tag}"
 }
 
+function acr_login () {
+    local -r desired_repo="${1}"
+    az acr login -n "${desired_repo}"
+}
+
 function desired_image_exists() {
   local -r tag="${1}"
   printf 'desired_image_exists %s\n' "${tag}"
@@ -332,6 +337,7 @@ function update_docker_helm_git() {
     fi
   else
     warn_nothing_done
+    false
   fi
 }
 

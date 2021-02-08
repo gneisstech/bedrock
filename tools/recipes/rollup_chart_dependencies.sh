@@ -81,7 +81,7 @@ function bedrock_config_dir() {
 
 function bedrock_app_ci_dir() {
   local -r deployment_json="${1}"
-  printf '%s/ci/pipelines/%s' "$(repo_root)" "$(get_app "${deployment_json}")"
+  printf '%s/.bedrock/ci/pipelines/%s' "${BEDROCK_INVOKED_DIR}" "$(get_app "${deployment_json}")"
 }
 
 #

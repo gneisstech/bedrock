@@ -6,6 +6,11 @@ default: help list printvars settings
 export BEDROCK_INVOKED_DIR
 export BEDROCK_DEPLOYMENT_CATALOG
 export BEDROCK_SERVICE
+export DOCKERFILE
+
+sast_repo: sast_shellcheck sast_json_lint sast_yaml_lint sast_helm_lint # static analysis which can be performed on the repository prior to building
+
+sast_container: sast_in_container dast_in_container sast_neuvector_scan sast_blackduck_scan # static analysis which can be performed on the artifacts in a built container
 
 sast_shellcheck:
 	/bedrock/recipes/sast_shellcheck.sh
@@ -16,11 +21,18 @@ sast_json_lint:
 sast_yaml_lint:
 	/bedrock/recipes/sast_yaml_lint.sh
 
-sast_neuvector_scan:
-	@echo "Not Implemented Yet"
+sast_helm_lint:
+	/bedrock/recipes/sast_helm_lint.sh
 
-sast_blackduck_scan:
-	@echo "Not Implemented Yet"
+sast_in_container:
+	/bedrock/recipes/sast_in_container.sh
+
+dast_in_container:
+	/bedrock/recipes/dast_in_container.sh
+
+sast_neuvector_scan: cve_scan_default_docker_container
+
+sast_blackduck_scan: black_duck_scan_src_and_default_docker_container
 
 deploy_cluster:
 	/bedrock/recipes/deploy_environment_cluster.sh "${BEDROCK_CLUSTER}"
@@ -105,24 +117,37 @@ scale_update_nodepool_add_node:
 scale_update_nodepool_remove_node:
 	@echo "Not Implemented Yet - delete a node from a nodepool in the cluster"
 
-get_go_module_dependencies:
-	/bedrock/recipes/golang/go_module_fetch_vendor_folder.sh
+get_go_module_dependencies: pre_build_housekeeping
 
-remove_go_module_dependencies:
-	/bedrock/recipes/golang/go_module_remove_vendor_folder.sh
+remove_go_module_dependencies: post_build_housekeeping
 
-docker_build_and_push_default_tag:
-	/bedrock/recipes/docker/build.sh "${BEDROCK_SERVICE}"
-	/bedrock/recipes/docker/push.sh "${BEDROCK_SERVICE}"
+pre_build_housekeeping:
+	/bedrock/recipes/pre_build_housekeeping.sh
+
+post_build_housekeeping:
+	/bedrock/recipes/post_build_housekeeping.sh
+
+docker_build_default_tag:
+	DOCKERFILE="${DOCKERFILE}" /bedrock/recipes/docker/build.sh
+
+docker_push_default_tag:
+	DOCKERFILE="${DOCKERFILE}" /bedrock/recipes/docker/push.sh
+
+docker_build_and_push_default_tag: docker_build_default_tag docker_push_default_tag
 
 cve_scan_default_docker_container:
-	/bedrock/recipes/cve/neuvector_scanner.sh "${BEDROCK_SERVICE}"
+	/bedrock/recipes/cve/neuvector_scanner.sh
 
 black_duck_scan_src_and_default_docker_container:
-	-/bedrock/recipes/cve/blackduck_scanner.sh "${BEDROCK_SERVICE}"
+	-/bedrock/recipes/cve/blackduck_scanner.sh
 
 bless_service_artifacts:
 	-/bedrock/recipes/bless_service_artifacts.sh "${BEDROCK_CLUSTER}"
+
+bedrock_tools:
+	cd "$(git rev-parse --show-toplevel)"
+	docker build . -f Dockerfile -t gneisstech/bedrock_tools
+	docker push gneisstech/bedrock_tools
 
 #
 #####################################################################################
