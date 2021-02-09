@@ -1,0 +1,16 @@
+{{- if .Values.config.environment }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: {{ template "#app#-xxx.name" . }}
+    chart: {{ template "#app#-xxx.chart" . }}
+    component: "{{ template "#app#-xxx.name" . }}"
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+  name: {{ template "#app#-xxx.fullname" . }}-env
+  annotations:
+    checksum/environment: {{ tpl (toYaml .Values.config.environment) . | sha256sum }}
+data:
+{{ tpl (toYaml .Values.config.environment) . | indent 2 }}
+{{- end }}

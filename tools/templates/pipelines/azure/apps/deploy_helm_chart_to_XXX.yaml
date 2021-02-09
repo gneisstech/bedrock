@@ -1,27 +1,6 @@
 ---
 #
-# trigger this pipeline when any service dependency is updated
-#
-# notes:
-# the happy path for working triggers when service dependencies are updated is very narrow
-# and does not match available microsoft documentation at the time of this writing
-#
-# the most important undocumented fact is that this YAML must be on the default branch
-# ** FOR EACH PIPELINE THAT REFERENCES THIS YAML **
-# the setting is well hidden in the webUI under:
-# pipelines->{pipeline}->{...}->edit->{...}->triggers->yaml->getsources->default_Branch_for_manual_and_scheduled_builds
-#
-# note also, the runner pool can be changed at
-# pipelines->{pipeline}->{...}->edit->{...}->triggers->yaml->pipeline
-#
-# you can test if your default branch is correct by inspecting the default branch shown in:
-# pipelines->{pipeline}->{...}->run
-#
-# see also:
-# https://github.com/MicrosoftDocs/azure-devops-docs/issues/8435#issuecomment-633257995
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/resources?view=azure-devops&tabs=example#resources-pipelines
-# https://github.com/microsoft/azure-pipelines-yaml/blob/master/design/pipeline-triggers.md
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/process/pipeline-triggers?view=azure-devops&tabs=yaml
+# trigger this pipeline when there is an update to the umbrella helm chart
 #
 
 trigger: none
@@ -29,44 +8,16 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: 'br-http-https-echo'
-      source: 'brock-k8s-svc-http-https-echo'
+    - pipeline: 'deploy_umbrella_chart_to_dev'
+      source: 'update_umbrella_chart'
       trigger:
         branches:
           include:
             - 'bedrock-main'
-            - 'master-bedrock'
-    - pipeline: 'br-oauth-proxy-docker'
-      source: 'brock-k8s-svc-oauth2-proxy'
-      trigger:
-        branches:
-          include:
-            - 'bedrock-main'
-            - 'master-bedrock'
-    - pipeline: 'br-tls-certificate-manager-svc-docker'
-      source: 'brock-k8s-svc-tls_certificate_manager'
-      trigger:
-        branches:
-          include:
-            - 'bedrock-main'
-            - 'master-bedrock'
-    - pipeline: 'platform-api-addressvalidation-svc'
-      source: 'platform-api-addressvalidation'
-      trigger:
-        branches:
-          include:
-            - 'bedrock-main'
-            - 'master-bedrock'
-    - pipeline: 'br-eclypse-relay-api'
-      source: 'brock-k8s-svc-eclypse-relay-api'
-      trigger:
-        branches:
-          include:
-            - 'bedrock-main'
-            - 'master-bedrock'
+            - 'azure-pipelines'
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-18.04'
 
 variables:
   DD_CLIENT_API_KEY: ''
@@ -77,13 +28,14 @@ variables:
   BEDROCK_SUBSCRIPTION: 'br-dev-az-service-connection'
 
 jobs:
-  - job: 'rollup_chart_dependencies'
+  - job: 'deploy_chart_to_dev_cluster'
     timeoutInMinutes: 120
     steps:
       - checkout: self
         # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
         persistCredentials: true
       - task: AzureCLI@2
+        condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Init Bedrock Tools Container Runtime'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
@@ -100,6 +52,7 @@ jobs:
           # failOnStandardError
           # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
+        condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Static Analysis'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
@@ -122,7 +75,8 @@ jobs:
           # failOnStandardError
           # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
-        displayName: 'Rollup Chart Dependencies'
+        condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        displayName: 'Install latest umbrella chart to development k8s cluster'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
@@ -134,7 +88,7 @@ jobs:
             BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
-            rollup_chart_dependencies
+            deploy_umbrella_chart_to_cluster
           # arguments:
           # scriptPath:
           # powerShellErrorActionPreference

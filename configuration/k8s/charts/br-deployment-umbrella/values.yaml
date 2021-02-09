@@ -269,3 +269,34 @@ platform-api-addressvalidation-svc:
       AddressValidationUSPS_BaseURL: 'fixme-need-usps-base-url'
     secrets:
       USPS-UserId: 'fixme-need-usps-user-id'
+
+br-eclypse-relay-api:
+  fullnameOverride: 'br-eclypse-relay-api'
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      'nginx.ingress.kubernetes.io/force-ssl-redirect': 'true'
+      'nginx.ingress.kubernetes.io/rewrite-target': '/api/v1/devices/$2'
+      'nginx.ingress.kubernetes.io/auth-url': "https://$host/oauth2/auth"
+      'nginx.ingress.kubernetes.io/auth-signin': "https://$http_host/oauth2/start?rd=$escaped_request_uri"
+      'nginx.ingress.kubernetes.io/configuration-snippet': |
+        auth_request_set $access_token $upstream_http_x_auth_request_access_token;
+        proxy_set_header Authorization $access_token;
+      'nginx.ingress.kubernetes.io/modsecurity-snippet': |
+        SecRuleEngine On
+        SecResponseBodyLimit 2097152
+        SecResponseBodyLimitAction ProcessPartial
+    hosts:
+      - paths:
+          - '/api/v1/devices(/|$)(.*)'
+  config:
+    environment:
+      JWT_ISSUERS: *trustedIdProviders
+      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
+      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
+      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
+    secrets:
+      CUSTOMCONNSTR_CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
+      CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
+      CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret

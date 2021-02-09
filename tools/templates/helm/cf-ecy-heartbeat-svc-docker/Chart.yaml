@@ -1,0 +1,24 @@
+apiVersion: v2
+name: '##app##-xxx'
+description: '##APP##: xxx - todo: write short description of this service'
+keywords:
+  - 'bedrock'
+  - 'bedrock-service'
+  - 'XXX_TODO'
+type: application
+home: ''  # The URL of this projects home page (optional)
+sources: []  # A list of URLs to source code for this project (optional)
+maintainers:
+  - name: 'Paul Charlton'
+    email: 'techguru@byiq.com'
+    url: 'https://www.gitlab.com/techguru'
+icon: ''
+deprecated: false
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 'r0.1.0-dev'
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.1.0-dev

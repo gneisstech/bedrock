@@ -1,0 +1,159 @@
+---
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  DD_CLIENT_API_KEY: ''
+  DD_CLIENT_APP_KEY: ''
+  BEDROCK_DEPLOYMENT_CATALOG: 'br_deployments.yaml'
+  BEDROCK_CLUSTER: 'BR_Development'
+  BEDROCK_INVOKED_DIR: ''
+  BEDROCK_SUBSCRIPTION: 'br-dev-az-service-connection'
+
+jobs:
+  - job: 'update_environment'
+    timeoutInMinutes: 120
+    steps:
+      - checkout: self
+        # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
+        persistCredentials: true
+      - task: AzureCLI@2
+        condition: succeeded()
+        displayName: 'Init Bedrock Tools Container Runtime'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            ./ci/recipes/init_bedrock_tools.sh
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        condition: succeeded()
+        displayName: 'Static Analysis'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
+            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
+            BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
+            BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
+            ./ci/recipes/invoke_bedrock_recipe.sh
+            sast_shellcheck
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        condition: succeeded()
+        displayName: 'Provision CI k8s cluster'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
+            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
+            BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
+            BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
+            ./ci/recipes/invoke_bedrock_recipe.sh
+            deploy_cluster
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        condition: succeeded()
+        displayName: 'Deploy Dashboard to Cluster'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
+            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
+            BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
+            BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
+            ./ci/recipes/invoke_bedrock_recipe.sh
+            deploy_dashboard_to_cluster
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        condition: succeeded()
+        displayName: 'Deploy Datadog to Cluster'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
+            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
+            BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
+            BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
+            ./ci/recipes/invoke_bedrock_recipe.sh
+            deploy_datadog_to_cluster
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
+      - task: AzureCLI@2
+        condition: and(false, succeeded())
+        displayName: 'Deploy Neuvector to Cluster'
+        inputs:
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: >-
+            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
+            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
+            BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
+            BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
+            ./ci/recipes/invoke_bedrock_recipe.sh
+            deploy_neuvector_to_cluster
+          # arguments:
+          # scriptPath:
+          # powerShellErrorActionPreference
+          # addSpnToEnvironment
+          # useGlobalConfig
+          # workingDirectory
+          # failOnStandardError
+          # powerShellIgnoreLASTEXITCODE
