@@ -45,12 +45,11 @@ function repo_root() {
 }
 
 function find_yaml() {
-  # shellcheck disable=SC2046
-  find "${BEDROCK_INVOKED_DIR}" -type d \( -name helm -o -name charts \) -prune -o -name "*.yml" -o -name "*.yaml" -print0
+  find . \( -name "*.yml" -o -name "*.yaml" \) -a -print | grep -vE "/helm/|/charts/"
 }
 
 function sast_yamllint() {
-  find_yaml | xargs -0 -n 1 -r yamllint -c /bedrock/recipes/.yamllint.yaml --no-warnings --format colored
+  find_yaml | xargs -n 1 -r yamllint -c /bedrock/recipes/.yamllint.yaml --no-warnings --format colored
 }
 
 sast_yamllint

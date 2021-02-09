@@ -4,21 +4,21 @@
 # https://aka.ms/yaml
 
 trigger:
-  - 'master-{{ .app }}'
+  - 'master-##app##'
   - 'azure-pipelines'
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  DD_SECRET_VAULT: '{{ .app }}-devops-kv'
-  BEDROCK_DEPLOYMENT_CATALOG: '{{ .app }}_deployments.yaml'
-  BEDROCK_CLUSTER: 'CF_Development'
+  DD_SECRET_VAULT: '##app##-devops-kv'
+  BEDROCK_DEPLOYMENT_CATALOG: '##app##_deployments.yaml'
+  BEDROCK_CLUSTER: '##APP##_Development'
   BEDROCK_INVOKED_DIR: ''
-  BEDROCK_SUBSCRIPTION: '{{ .app }}-dev-az-service-connection'
+  BEDROCK_SUBSCRIPTION: '##app##-dev-az-service-connection'
 
 jobs:
-  - job: 'build_{{ .service_name }}_service'
+  - job: 'build_##service_name##_service'
     timeoutInMinutes: 20
     steps:
       - checkout: 'self'

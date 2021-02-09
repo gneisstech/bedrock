@@ -63,7 +63,6 @@ function get_docker_repo_name() {
 }
 
 function push () {
-  local -r docker_filename="${DOCKERFILE}"
   attach_docker_registry
   docker image ls
 

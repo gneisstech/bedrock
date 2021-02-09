@@ -24,7 +24,6 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-
 function get_helm_chart_name() {
   ls "${BEDROCK_INVOKED_DIR}/helm"
 }

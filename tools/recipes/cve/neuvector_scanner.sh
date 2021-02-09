@@ -57,7 +57,7 @@ function get_project_prefix() {
 }
 
 function get_project_prefix_uc() {
-  get_project_prefix | tr [a-z] [A-Z]
+  get_project_prefix | tr '[:lower:]' '[:upper:]'
 }
 
 function get_devops_vault() {
@@ -70,18 +70,19 @@ function get_neuvector_license() {
 
 function show_cve_high () {
   local -r results_file="${1}"
-  cat "${results_file}" | jq '[.report.vulnerabilities[] | select(.severity == "High")]'
+  jq '[.report.vulnerabilities[] | select(.severity == "High")]' "${results_file}"
 }
 
 function show_cve_medium () {
   local -r results_file="${1}"
-  cat "${results_file}" | jq '[.report.vulnerabilities[] | select(.severity == "Medium")]'
+  jq '[.report.vulnerabilities[] | select(.severity == "Medium")]' "${results_file}"
 }
 
 function fail_cve_high () {
   local -r results_file="${1}"
   local -r max_allowed="${2}"
-  local count_cve="$(show_cve_high "${results_file}" | jq 'length')"
+  local count_cve
+  count_cve="$(show_cve_high "${results_file}" | jq 'length')"
   if (( count_cve > max_allowed )); then
     printf "Too Many High priority CVE [%d] > limit [%d]\n" "${count_cve}" "${max_allowed}"
     false
@@ -91,7 +92,8 @@ function fail_cve_high () {
 function fail_cve_medium () {
   local -r results_file="${1}"
   local -r max_allowed="${2}"
-  local count_cve="$(show_cve_medium "${results_file}" | jq 'length')"
+  local count_cve
+  count_cve="$(show_cve_medium "${results_file}" | jq 'length')"
   if (( count_cve > max_allowed )); then
     printf "Too Many Medium priority CVE [%d] > limit [%d]\n" "${count_cve}" "${max_allowed}"
     false

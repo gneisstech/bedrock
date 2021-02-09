@@ -52,7 +52,7 @@ function get_project_prefix() {
 }
 
 function get_project_prefix_uc() {
-  get_project_prefix | tr [a-z] [A-Z]
+  get_project_prefix | tr '[:lower:]' '[:upper:]'
 }
 
 function get_devops_vault() {
@@ -87,7 +87,7 @@ function register_known_host() {
 function setup_ssh() {
   mkdir -p ~/.ssh
   chmod 700 ~/.ssh
-  eval `ssh-agent`
+  eval "$(ssh-agent -s)"
   create_private_key_file
   create_public_key_file
   register_known_host

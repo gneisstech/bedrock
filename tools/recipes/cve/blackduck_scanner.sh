@@ -94,7 +94,7 @@ function register_known_host() {
 function setup_ssh() {
   mkdir -p ~/.ssh
   chmod 700 ~/.ssh
-  eval `ssh-agent`
+  eval "$(ssh-agent -s)"
   create_private_key_file
   create_public_key_file
   register_known_host
