@@ -45,9 +45,9 @@ function remove_persistent_resources () {
 
 function clean_resource_ids () {
     if [[ "true" == "${APPROVED}" ]]; then
-        xargs -P 32 az resource delete --ids
+        xargs -P 32 -r az resource delete --ids
     else
-        xargs -n 1 echo "removal candidate: "
+        xargs -n 1 -r echo "removal candidate: "
     fi
 }
 

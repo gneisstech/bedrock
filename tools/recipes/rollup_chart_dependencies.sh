@@ -81,7 +81,7 @@ function bedrock_config_dir() {
 
 function bedrock_app_ci_dir() {
   local -r deployment_json="${1}"
-  printf '%s/ci/pipelines/%s' "$(repo_root)" "$(get_app "${deployment_json}")"
+  printf '%s/.bedrock/ci/pipelines/%s' "${BEDROCK_INVOKED_DIR}" "$(get_app "${deployment_json}")"
 }
 
 #
@@ -412,7 +412,7 @@ function check_services_config() {
   printf 'locked chart [%s]\n\n' "${locked_chart_services}"
   printf 'helm [%s]\n\n' "${helm_services}"
   if [[ "${pipeline_services}" != "${chart_services}" ]]; then
-    printf 'ERROR: misconfigured repository: upstream does not match rollup_chart_dependencies.yml\n'
+    printf 'ERROR: misconfigured repository: upstream does not match rollup_chart_dependencies.yaml\n'
   elif [[ $(is_azure_pipeline_build) && ( "${upstream_services}" != "${chart_services}" ) ]]; then
     printf 'ERROR: misconfigured repository: upstream does not match Chart.yaml\n'
   elif ! services_are_subset "${chart_services}" "${helm_services}"; then

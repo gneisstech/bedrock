@@ -35,6 +35,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 
 # Arguments
 # ---------------------
@@ -43,9 +44,8 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function sast_shellcheck () {
-    find "$(repo_root)" -name "*.json" -print0 | xargs -0 -n 1 jq -e 'empty'
+function sast_json_lint () {
+    find "${BEDROCK_INVOKED_DIR}" -name "*.json" -print0 | xargs -0 -n 1 -r jq -e 'empty'
 }
 
-sast_shellcheck
-
+sast_json_lint

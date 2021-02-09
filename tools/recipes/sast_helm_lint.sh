@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# usage: TARGET_CONFIG=target_environment_config.yaml purge_key_vaults.sh
 
 #
 # Maintainer: techguru@byiq.com
@@ -36,8 +35,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx TARGET_CONFIG
-declare -rx AZ_TRACE="${AZ_TRACE:-echo az}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 
 # Arguments
 # ---------------------
@@ -46,21 +44,13 @@ function repo_root () {
     git rev-parse --show-toplevel
 }
 
-function target_config () {
-    printf '%s' "${TARGET_CONFIG}"
+function find_charts() {
+  # shellcheck disable=SC2046
+  find "${BEDROCK_INVOKED_DIR}" -type f -name Chart.yaml -print0 | sed -e 's|/Chart.yaml$||'
 }
 
-function paas_configuration () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
+function sast_helm_lint () {
+  find_charts | xargs -0 -n 1 -r helm lint
 }
 
-function key_vault_names () {
-    paas_configuration | jq -r -e '[.keyvaults[] | select(.purge == "true") | .name ] | @tsv'
-}
-
-function purge_key_vaults () {
-    # shellcheck disable=2086
-    key_vault_names | xargs -n 1 -P 10 -r $AZ_TRACE keyvault purge --name
-}
-
-purge_key_vaults || true
+sast_helm_lint

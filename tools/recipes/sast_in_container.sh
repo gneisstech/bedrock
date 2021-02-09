@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# usage: TARGET_CONFIG=target_environment_config.yaml purge_key_vaults.sh
 
 #
 # Maintainer: techguru@byiq.com
@@ -36,31 +35,53 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx TARGET_CONFIG
-declare -rx AZ_TRACE="${AZ_TRACE:-echo az}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 
 # Arguments
 # ---------------------
 
-function repo_root () {
-    git rev-parse --show-toplevel
+function repo_root() {
+  git rev-parse --show-toplevel
 }
 
-function target_config () {
-    printf '%s' "${TARGET_CONFIG}"
+function fail_empty_set () {
+    grep -q '^'
 }
 
-function paas_configuration () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
+function get_helm_chart_name() {
+  ls "${BEDROCK_INVOKED_DIR}/helm"
 }
 
-function key_vault_names () {
-    paas_configuration | jq -r -e '[.keyvaults[] | select(.purge == "true") | .name ] | @tsv'
+function get_helm_values_file_name() {
+  printf "%s/helm/%s/values.yaml" "${BEDROCK_INVOKED_DIR}" "$(get_helm_chart_name)"
 }
 
-function purge_key_vaults () {
-    # shellcheck disable=2086
-    key_vault_names | xargs -n 1 -P 10 -r $AZ_TRACE keyvault purge --name
+function read_helm_values_as_json() {
+  yq r --tojson "$(get_helm_values_file_name)"
 }
 
-purge_key_vaults || true
+function get_docker_repo_name() {
+  read_helm_values_as_json | jq -r -e '.image.repository'
+}
+
+function docker_entry_cmd() {
+  local -r container_path="${1}"
+  docker inspect -f '{{ .Config.Cmd}}' "${container_path}"
+}
+
+function docker_container_has_ruby() {
+  local -r container_path="${1}"
+  docker_entry_cmd "${container_path}" | grep "ruby" | fail_empty_set
+}
+
+function sast_in_container() {
+  local container_path
+  container_path="$(get_docker_repo_name):bedrock"
+  if docker_container_has_ruby "${container_path}"; then
+    /bedrock/recipes/ruby/ruby_static_analysis.sh
+  else
+    true
+  fi
+}
+
+sast_in_container

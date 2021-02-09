@@ -103,7 +103,7 @@ function is_azure_pipeline_build () {
 
 function get_prebuilt_sp_info () {
     local vault secret_name
-    vault="$(printf '%s-%s-devops-kv' "$(target_app)" "$(target_env)")"
+    vault="$(printf '%s-devops-kv' "$(target_app)")"
     secret_name="$(printf '%s-%s-devops-sp-info' "$(target_app)" "$(target_env)")"
     az keyvault secret show \
         --vault-name "${vault}" \

@@ -32,7 +32,7 @@ function acr_registries () {
 
 function acr_logins () {
   local -r environment="${1}"
-  acr_registries "${environment}" | xargs -n 1 az acr login -n
+  acr_registries "${environment}" | xargs -n 1 -r az acr login -n
 }
 
 function neuvector_containers () {

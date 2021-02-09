@@ -22,7 +22,7 @@ function repo_root () {
 }
 
 function get_app() {
-  printf 'cf'
+  printf 'br'
 }
 
 function get_env() {

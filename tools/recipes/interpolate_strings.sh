@@ -260,6 +260,54 @@ function process_eventhub_connection_string () {
     | jq -r '.primaryConnectionString'
 }
 
+function process_iothub_connection_string () {
+    local -r theString="${1}"
+    local theMessage
+    local subscription resource_group iothub_name policy_name
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    subscription="$(jq -r '.subscription' <<< "${theMessage}")"
+    resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
+    iothub_name="$(jq -r '.iothub_name' <<< "${theMessage}")"
+    policy_name="$(jq -r '.policy_name' <<< "${theMessage}")"
+
+    az iot hub show-connection-string \
+        --subscription "${subscription}" \
+        --resource-group "${resource_group}" \
+        --hub-name "${iothub_name}" \
+        --policy-name "${policy_name}" \
+    | jq -r '.connectionString'
+}
+
+function process_storage_account_connection_string () {
+    local -r theString="${1}"
+    local theMessage
+    local subscription resource_group storage_account_name
+    theMessage=$(awk 'BEGIN {FS="="} {print $2}' <<< "${theString}")
+    subscription="$(jq -r '.subscription' <<< "${theMessage}")"
+    resource_group="$(jq -r '.resource_group' <<< "${theMessage}")"
+    storage_account_name="$(jq -r '.storage_account_name' <<< "${theMessage}")"
+
+    az storage account show-connection-string \
+        --name "${storage_account_name}" \
+        --protocol "https" \
+        --resource-group "${resource_group}" \
+        --subscription "${subscription}" \
+    | jq -r '.connectionString'
+}
+
+function get_helm_chart_name() {
+  ls "${BEDROCK_INVOKED_DIR}/helm"
+}
+
+function process_service_name () {
+  local service_name
+  service_name="$(get_helm_chart_name)"
+  if [[ -z "${chart_name:-}" ]]; then
+    service_name="${BEDROCK_SERVICE:-FIXME_BEDROCK_SERVICE}"
+  fi
+  printf '%s' "${service_name}"
+}
+
 function dispatch_functions () {
     declare -a myarray
     local i=0
@@ -285,6 +333,15 @@ function dispatch_functions () {
                 eventhub_connection_string*)
                     array_entry="$(process_eventhub_connection_string "${line_data}")"
                     ;;
+                iothub_connection_string*)
+                    array_entry="$(process_iothub_connection_string "${line_data}")"
+                    ;;
+                storage_account_connection_string*)
+                    array_entry="$(process_storage_account_connection_string "${line_data}")"
+                    ;;
+                service_name*)
+                    array_entry="$(process_service_name "${line_data}")"
+                    ;;
                 *)
                    array_entry="UNDEFINED_FUNCTION [${line_data}]"
                    ;;
@@ -303,11 +360,14 @@ function dispatch_functions () {
 function process_app_env () {
     local -r app="${1:-br}"
     local -r env="${2:-env}"
+    local uc_app
+    uc_app="$(tr '[:lower:]' '[:upper:]' <<< "${app}" )"
     sed -e "s|##app##|${app}|g" \
         -e "s|##env##|${env}|g" \
         -e "s|##app-env##|${app}-${env}|g" \
         -e "s|##app_env##|${app}_${env}|g" \
-        -e "s|##appenv##|${app}${env}|g"
+        -e "s|##appenv##|${app}${env}|g" \
+        -e "s|##APP##|${uc_app}|g"
 }
 
 function interpolate_functions () {

@@ -35,27 +35,21 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 
 # Arguments
 # ---------------------
 
-function repo_root () {
-    git rev-parse --show-toplevel
+function repo_root() {
+  git rev-parse --show-toplevel
 }
 
-function excluded_paths () {
-    echo -n "-path /*/saas/vf-saas-umbrella"
-    echo -n " -o "
-    echo -n "-path /*/saas/services/*/charts"
+function find_yaml() {
+  find . \( -name "*.yml" -o -name "*.yaml" \) -a -print | grep -vE "/helm/|/charts/"
 }
 
-function find_yaml () {
-    # shellcheck disable=SC2046
-    find "$(repo_root)" \( $(excluded_paths) \) -prune -o -name "*.yaml" -print0
+function sast_yamllint() {
+  find_yaml | xargs -n 1 -r yamllint -c /bedrock/recipes/.yamllint.yaml --no-warnings --format colored
 }
 
-function sast_shellcheck () {
-    find_yaml | xargs -0 -n 1 yamllint --strict --format colored
-}
-
-sast_shellcheck
+sast_yamllint

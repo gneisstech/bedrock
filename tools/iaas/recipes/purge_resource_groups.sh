@@ -60,7 +60,7 @@ function resource_group_names () {
 
 function purge_resource_groups () {
     # shellcheck disable=2086
-    resource_group_names | xargs -n 1 -P 10 $AZ_TRACE group delete --yes --name
+    resource_group_names | xargs -n 1 -P 10 -r $AZ_TRACE group delete --yes --name
 }
 
 # retry a second time to remove cyclic dependencies in the resource group graph
