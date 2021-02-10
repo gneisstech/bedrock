@@ -292,11 +292,9 @@ br-eclypse-relay-api:
           - '/api/v1/devices(/|$)(.*)'
   config:
     environment:
-      JWT_ISSUERS: *trustedIdProviders
-      SERVICE_PRINCIPAL_CLIENT_ID: *servicePrincipalClientId
-      SERVICE_PRINCIPAL_TENANT_ID: *servicePrincipalTenantId
-      SERVICE_PRINCIPAL_RESOURCE: *servicePrincipalResource
+      APP_VERSION: '{{ .Chart.AppVersion }}'
+      ASPNETCORE_URLS: 'http://0.0.0.0:{{ .Values.service.port }}'
     secrets:
-      CUSTOMCONNSTR_CF_DISTECH_LIGHTSMAP_API_KEY: *atriusObjectsApiKey
-      CUSTOMCONNSTR_DATABASE_URLS: *dbUrlAtrius
-      CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET: *servicePrincipalSecret
+      ConnectionStrings__IotHubConnectionString: 'fixme-cluster-default'
+      ConnectionStrings__BlobStorageConnectionString: 'fixme-cluster-default'
+      ApplicationInsights__InstrumentationKey: 'fixme-cluster-default'
