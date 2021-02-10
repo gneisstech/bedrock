@@ -290,9 +290,9 @@ function build_and_push_helm_chart() {
   local chartPackage result
   chartPackage="$(get_helm_chart_name "${deployment_json}")-$(remove_release_prefix <<<"${blessed_release_tag}").tgz"
   rm -f "${chartDir}/Chart.lock"
-  helm dependency build "${chartDir}"
+  helm dependency build "${chartDir}" || return
   git add "${chartDir}/Chart.lock" || true
-  helm package "${chartDir}"
+  helm package "${chartDir}" || return
   if az acr helm push -n "$(get_helm_registry "${deployment_json}")" "${chartPackage}" 2>/dev/null; then
     result=0
   else

@@ -61,7 +61,7 @@ dependencies: # A list of the chart requirements (optional)
     import-values: [] # (optional)
     alias: 'platform-api-addressvalidation-svc'
   - name: 'br-eclypse-relay-api'
-    version: '>=0.0.0-0 <0.1'
+    version: '>= 0.0.0-0 < 0.1-0'
     repository: '@brdevregistry'
     condition: 'br-eclypse-relay-api.enabled'
     tags:
