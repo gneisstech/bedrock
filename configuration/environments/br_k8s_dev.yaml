@@ -595,8 +595,6 @@ target:
         br-eclypse-relay-api:
           enabled: true
           config:
-            environment:
-              APP_VERSION: '{{ .Chart.AppVersion }}'
             secrets:
               ConnectionStrings__IotHubConnectionString:
                 - '##iothub_connection_string={"subscription":"'

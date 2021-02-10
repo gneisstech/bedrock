@@ -323,6 +323,8 @@ function update_helm_git() {
   local -r blessed_release_tag="$(compute_blessed_release_tag "${deployment_json}")"
   if update_helm_package "${deployment_json}" "${blessed_release_tag}"; then
     bless_git_repo "${deployment_json}" "${blessed_release_tag}"
+  else
+    false
   fi
 }
 
@@ -334,5 +336,7 @@ function update_helm_chart() {
   update_helm_repo "${target_deployment_json}"
   update_helm_git "${target_deployment_json}"
 }
+
+set -x
 
 update_helm_chart "$@"
