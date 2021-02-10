@@ -144,6 +144,17 @@ black_duck_scan_src_and_default_docker_container:
 bless_service_artifacts:
 	-/bedrock/recipes/bless_service_artifacts.sh "${BEDROCK_CLUSTER}"
 
+update_repo_permissions:
+	@echo "Not Implemented Yet"
+
+integrate_service_with_app:
+
+integrate_app_with_cluster_namespace:
+
+integrate_service_with_bedrock: init_service_tree update_repo_permissions install_service_pipelines
+
+integrate_app_with_bedrock: init_app_tree update_repo_permissions install_app_pipelines
+
 bedrock_tools:
 	cd "$(git rev-parse --show-toplevel)"
 	docker build . -f Dockerfile -t gneisstech/bedrock_tools
