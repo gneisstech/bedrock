@@ -16,6 +16,6 @@ dependencies:
   version: 0.3.0-dev
 - name: br-eclypse-relay-api
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.12-dev
-digest: sha256:8acf9dc01189166e2432c0ee16f50cf41e4877aaf07dfce4da5c7c84f522a31f
-generated: "2021-02-10T05:04:20.70864347Z"
+  version: 0.0.13-dev
+digest: sha256:d461a7c294a8c9a6cb5620f9bc4e08a8b589bc6514f25f423aa87a6eb9117f5f
+generated: "2021-02-10T06:16:04.828184479Z"
