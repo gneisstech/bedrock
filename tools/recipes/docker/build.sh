@@ -38,8 +38,12 @@ function get_helm_docker_repo_name() {
   read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
-function get_docker_registry() {
+function get_docker_registry_name() {
   get_helm_docker_repo_name | sed -e 's|/.*||'
+}
+
+function attach_docker_registry () {
+  az acr login -n "$(get_docker_registry_name)"
 }
 
 function get_dockerfile_suffix() {
@@ -48,7 +52,7 @@ function get_dockerfile_suffix() {
 }
 
 function get_alternate_repo_name() {
-  printf '%s/%s' "$(get_docker_registry)" "$(get_dockerfile_suffix)"
+  printf '%s/%s' "$(get_docker_registry_name)" "$(get_dockerfile_suffix)"
 }
 
 function get_docker_repo_name() {
@@ -61,6 +65,7 @@ function get_docker_repo_name() {
 
 function build () {
   local -r docker_filename="${DOCKERFILE}"
+  attach_docker_registry
   docker build . -f "${docker_filename}" -t "$(get_docker_repo_name):bedrock"
 }
 

@@ -142,7 +142,7 @@ black_duck_scan_src_and_default_docker_container:
 	-/bedrock/recipes/cve/blackduck_scanner.sh
 
 bless_service_artifacts:
-	-/bedrock/recipes/bless_service_artifacts.sh "${BEDROCK_CLUSTER}"
+	/bedrock/recipes/bless_service_artifacts.sh "${BEDROCK_CLUSTER}"
 
 update_repo_permissions:
 	@echo "Not Implemented Yet"

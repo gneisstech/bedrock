@@ -244,37 +244,51 @@ function bless_git_repo() {
 }
 
 function registry_image_name() {
-  local -r tag="${1}"
-  printf '%s:%s' "$(get_docker_repo_name)" "${tag}"
+  local -r imageName="${1}"
+  local -r tag="${2}"
+  printf '%s/%s:%s' "$(get_docker_registry_name)" "${imageName}" "${tag}"
 }
 
-function acr_login () {
-    local -r desired_repo="${1}"
-    az acr login -n "${desired_repo}"
+function acr_login() {
+  local -r desired_repo="${1}"
+  az acr login -n "${desired_repo}"
 }
 
 function desired_image_exists() {
-  local -r tag="${1}"
-  printf 'desired_image_exists %s\n' "${tag}"
+  local -r imageName="${1}"
+  local -r tag="${2}"
+  printf 'desired_image_exists %s:%s\n' "${imageName}" "${tag}"
   acr_login "$(get_docker_registry_name)"
-  docker pull "$(registry_image_name "${tag}")" 2>/dev/null
+  docker pull "$(registry_image_name "${imageName}" "${tag}")" 2>/dev/null || return
 }
 
 function bless_container() {
-  local -r blessed_tag="${1}"
+  local -r imageName="${1}"
+  local -r blessed_tag="${2}"
   local origin_container result_container
-  origin_container="$(registry_image_name "${TAG}")"
-  result_container="$(registry_image_name "${blessed_tag}")"
-  docker tag "${origin_container}" "${result_container}"
-  docker push "${result_container}" 1>&2
+  origin_container="$(registry_image_name "${imageName}" "${TAG}")"
+  result_container="$(registry_image_name "${imageName}" "${blessed_tag}")"
+  docker tag "${origin_container}" "${result_container}" || return
+  docker push "${result_container}" 1>&2 || return
 }
 
-function update_docker_container() {
+function get_helm_chart_repositories() {
+  read_helm_values_as_json | jq -cr '.[] | select(.repository?) | .repository'
+}
+
+function get_image_names() {
+  get_helm_chart_repositories | sed -e 's|.*\/||'
+}
+
+function update_docker_containers() {
   local -r blessed_release_tag="${1}"
-  printf 'update_docker_container %s\n' "${blessed_release_tag}"
-  if ! desired_image_exists "${blessed_release_tag}"; then
-    bless_container "${blessed_release_tag}"
-  fi
+  local imageName
+  for imageName in $(get_image_names); do
+    printf 'update_docker_container %s:%s\n' "${imageName}" "${blessed_release_tag}"
+    if ! desired_image_exists "${imageName}" "${blessed_release_tag}"; then
+      bless_container "${imageName}" "${blessed_release_tag}" || return
+    fi
+  done
 }
 
 function update_chart_yaml() {
@@ -331,7 +345,7 @@ function warn_nothing_done() {
 
 function update_docker_helm_git() {
   local -r blessed_release_tag="$(compute_blessed_release_tag)"
-  if update_docker_container "${blessed_release_tag}"; then
+  if update_docker_containers "${blessed_release_tag}"; then
     if update_helm_package "${blessed_release_tag}"; then
       bless_git_repo "${blessed_release_tag}"
     fi
