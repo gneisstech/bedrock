@@ -85,6 +85,7 @@ jobs:
         persistCredentials: true
       - task: AzureCLI@2
         displayName: 'Init Bedrock Tools Container Runtime'
+        condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
@@ -101,6 +102,7 @@ jobs:
           # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         displayName: 'Static Analysis'
+        condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
@@ -123,6 +125,7 @@ jobs:
           # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         displayName: 'Rollup Chart Dependencies'
+        condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
