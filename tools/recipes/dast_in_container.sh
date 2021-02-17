@@ -74,11 +74,18 @@ function docker_container_has_ruby() {
   docker_entry_cmd "${container_path}" | grep "ruby" | fail_empty_set
 }
 
+function docker_container_has_scala() {
+  local -r container_path="${1}"
+  docker_entry_cmd "${container_path}" | grep "scala" | fail_empty_set
+}
+
 function dast_in_container() {
   local container_path
   container_path="$(get_docker_repo_name):bedrock"
   if docker_container_has_ruby "${container_path}"; then
     /bedrock/recipes/ruby/ruby_dynamic_analysis.sh
+  elif docker_container_has_scala "${container_path}"; then
+    /bedrock/recipes/scala/scala_dynamic_analysis.sh
   else
     true
   fi
