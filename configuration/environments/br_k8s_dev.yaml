@@ -625,3 +625,41 @@ target:
                 - *appinsightsSecretName
                 - '"}'
                 - '##'
+        bdtlab-ingest-enrich-post:
+          enabled: true
+          config:
+            environment:
+              KAFKA_HOST: 'dtlab-kafka.kafka.svc.cluster.local:9092'
+              OUT_TOPIC: 'dt.er.cf.assettag2.status '
+              LOCAL_FILE_PATH: '/data/positionInfo.json'
+              APP_MODE: 'asset-status'
+            secrets:
+              ConnectionStrings__EVENTHUBS_IN_CONNECTION_STRING: 'fixme'
+                - '##eventhub_connection_string={"subscription":"'
+                - *allspiceSubscription
+                - '","resource_group":"'
+                - 'PlatformIngestion-AllspiceDev'
+                - '","iothub_name":"'
+                - '??????'
+                - '","policy_name":"'
+                - ''
+                - '"}'
+                - '##'
+                ConnectionStrings__EVENTHUBS_IN_CONSUMER_GROUP: 'fixme'
+                - '##eventhub_connection_string={"subscription":"'
+                - *allspiceSubscription
+                - '","resource_group":"'
+                - 'PlatformIngestion-AllspiceDev'
+                - '","iothub_name":"'
+                - '??????'
+                - '","policy_name":"'
+                - ''
+                - '"}'
+                - '##'
+              ApplicationInsights__InstrumentationKey:
+                - '##secure_secret={"vault":"'
+                - *kvName
+                - '","secret_name":"'
+                - *appinsightsSecretName
+                - '"}'
+                - '##'
