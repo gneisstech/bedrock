@@ -84,9 +84,12 @@ function dast_in_container() {
   container_path="$(get_docker_repo_name):bedrock"
   if docker_container_has_ruby "${container_path}"; then
     /bedrock/recipes/ruby/ruby_dynamic_analysis.sh
-  elif docker_container_has_scala "${container_path}"; then
+  fi
+  if docker_container_has_scala "${container_path}"; then
     /bedrock/recipes/scala/scala_dynamic_analysis.sh
-  else
+  fi
+
+  if [! docker_container_has_ruby] && [! docker_container_has_scala]; then
     true
   fi
 }
