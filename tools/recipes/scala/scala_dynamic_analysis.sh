@@ -43,7 +43,7 @@ function get_docker_repo_name() {
 function scala_dynamic_analysis () {
   local container_path
   container_path="$(get_docker_repo_name):bedrock"
-  docker run \
+  docker run --rm \
       "${container_path}" \
       /assets/run_scala_dynamic_analysis.sh
 }
