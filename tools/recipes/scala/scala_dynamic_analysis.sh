@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: ruby_dynamic_analysis.sh
+# usage: scala_dynamic_analysis.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
