@@ -636,7 +636,7 @@ target:
               APP_MODE: 'asset-status'
               EVENTHUBS_IN_CONSUMER_GROUP: 'cf-dev-at-eh-asset-status-twin-cg'
             secrets:
-              ConnectionStrings__EVENTHUBS_IN_CONNECTION_STRING: 'fixme'
+              ConnectionStrings__EVENTHUBS_IN_CONNECTION_STRING:
                 - '##eventhub_connection_string={"subscription":"'
                 - *connectedFacilitiesSubscription
                 - '","resource_group":"'
