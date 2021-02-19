@@ -48,8 +48,12 @@ function get_docker_repo_name() {
   read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
-function get_docker_registry_name() {
+function get_docker_registry() {
   get_docker_repo_name | sed -e 's|\/.*||'
+}
+
+function get_docker_registry_name() {
+  get_docker_registry | sed -e 's|\..*||'
 }
 
 function get_helm_registry_name() {
@@ -246,7 +250,7 @@ function bless_git_repo() {
 function registry_image_name() {
   local -r imageName="${1}"
   local -r tag="${2}"
-  printf '%s/%s:%s' "$(get_docker_registry_name)" "${imageName}" "${tag}"
+  printf '%s/%s:%s' "$(get_docker_registry)" "${imageName}" "${tag}"
 }
 
 function acr_login() {
