@@ -297,7 +297,7 @@ function build_and_push_helm_chart() {
     result=0
   else
     printf 'Race condition resolved in favor of earlier job\n'
-    result=1
+    result=0
   fi
   rm -f "${chartPackage}"
   ((result == 0))

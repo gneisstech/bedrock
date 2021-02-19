@@ -60,7 +60,7 @@ function publish_new_umbrella () {
         result=0
     else
         printf 'Race condition resolved in favor of earlier job\n'
-        result=1
+        result=0
     fi
     (( result == 0 ))
 }

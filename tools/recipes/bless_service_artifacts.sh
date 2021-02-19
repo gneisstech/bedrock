@@ -316,14 +316,14 @@ function build_and_push_helm_chart() {
   local chartPackage result
   chartPackage="$(get_helm_chart_name)-$(remove_release_prefix <<<"${blessed_release_tag}").tgz"
   rm -f "${chartDir}/Chart.lock"
-  helm dependency build "${chartDir}"
+  helm dependency build "${chartDir}" || return
   git add "${chartDir}/Chart.lock" || true
-  helm package "${chartDir}"
+  helm package "${chartDir}" || return
   if az acr helm push -n "$(get_helm_registry_name)" "${chartPackage}" 2>/dev/null; then
     result=0
   else
     printf 'Race condition resolved in favor of earlier job\n'
-    result=1
+    result=0
   fi
   rm -f "${chartPackage}"
   ((result == 0))
