@@ -13,9 +13,9 @@ dependencies:
   version: 1.3.2-dev
 - name: platform-api-addressvalidation-svc
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
-  version: 0.3.0-dev
+  version: 0.3.1-dev
 - name: br-eclypse-relay-api
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
-  version: 0.0.20-dev
-digest: sha256:926ee00085788c20742a03e46233c3d0f2c4ce4f3b37abb1f0ebd92c9ca471c9
-generated: "2021-02-17T21:11:07.155002695Z"
+  version: 0.0.23-dev
+digest: sha256:3e7fb2e1399c0e4d16bfb6fe3bbd15d67a58ca839cce852e5972857be2eddcce
+generated: "2021-02-18T16:34:19.655152696Z"

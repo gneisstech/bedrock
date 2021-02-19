@@ -22,6 +22,7 @@ target:
     blobstorage_secret_name: &blobstorageSecretName 'br-eclypse-relay-blobstorage-connectionstring'
     appinsights_secret_name: &appinsightsSecretName 'br-dev-app-insights-key'
     allspice_dev_subscrioption: &allspiceSubscription '5e49f516-d005-4ae8-a287-031c8573401c'
+    connected_facilities_dev_subscription: &connectedFacilitiesSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
@@ -516,6 +517,7 @@ target:
             secrets:
               TLS_PEM: ''
         br-oauth-proxy-docker:
+          enabled: false
           replicaCount: 1
           config:
             environment:
@@ -623,5 +625,28 @@ target:
                 - *kvName
                 - '","secret_name":"'
                 - *appinsightsSecretName
+                - '"}'
+                - '##'
+        bdtlab-ingest-enrich-post:
+          enabled: true
+          config:
+            environment:
+              KAFKA_HOST: 'dtlab-kafka.kafka.svc.cluster.local:9092'
+              OUT_TOPIC: 'dt.er.cf.assettag2.status '
+              LOCAL_FILE_PATH: '/data/positionInfo.json'
+              APP_MODE: 'asset-status'
+              EVENTHUBS_IN_CONSUMER_GROUP: 'cf-dev-at-eh-asset-status-twin-cg'
+            secrets:
+              ConnectionStrings__EVENTHUBS_IN_CONNECTION_STRING:
+                - '##eventhub_connection_string={"subscription":"'
+                - *connectedFacilitiesSubscription
+                - '","resource_group":"'
+                - 'AssetTag-Eh-cfdev'
+                - '","namespace_name":"'
+                - 'cf-dev-asset-tag-eh-namespace'
+                - '","eventhub_name":"'
+                - 'cf-dev-asset-tag-eh-asset-status-topic'
+                - '","policy_name":"'
+                - ''
                 - '"}'
                 - '##'

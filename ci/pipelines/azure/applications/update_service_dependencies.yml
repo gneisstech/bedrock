@@ -64,7 +64,13 @@ resources:
           include:
             - 'bedrock-main'
             - 'master-bedrock'
-
+    - pipeline: 'bdtlab-ingest-enrich-post'
+      source: 'bdtlab-k8s-svc-ingest-enrich-post'
+      trigger:
+        branches:
+          include:
+            - 'bedrock-main'
+            - 'master-bdtlab'
 pool:
   vmImage: 'ubuntu-latest'
 
