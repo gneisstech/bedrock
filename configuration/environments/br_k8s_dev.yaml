@@ -517,7 +517,7 @@ target:
             secrets:
               TLS_PEM: ''
         br-oauth-proxy-docker:
-          enabled: false
+          enabled: true
           replicaCount: 1
           config:
             environment:
