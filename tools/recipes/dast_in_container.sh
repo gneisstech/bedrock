@@ -89,10 +89,6 @@ function dast_in_container() {
   if docker_container_has_scala "${container_path}"; then
     /bedrock/recipes/scala/scala_dynamic_analysis.sh
   fi
-
-  if [[ ! docker_container_has_ruby ]] && [[ ! docker_container_has_scala ]]; then
-    true
-  fi
 }
 
 dast_in_container
