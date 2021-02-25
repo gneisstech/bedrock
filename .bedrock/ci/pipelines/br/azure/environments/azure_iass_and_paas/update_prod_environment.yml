@@ -34,14 +34,6 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: >-
             ./ci/recipes/init_bedrock_tools.sh
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         condition: succeeded()
         displayName: 'Static Analysis'
@@ -57,14 +49,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             sast_shellcheck
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         condition: succeeded()
         displayName: 'Provision CI k8s cluster'
@@ -80,14 +64,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             deploy_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         condition: succeeded()
         displayName: 'Deploy Dashboard to Cluster'
@@ -103,14 +79,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             deploy_dashboard_to_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         condition: succeeded()
         displayName: 'Deploy Datadog to Cluster'
@@ -126,14 +94,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             deploy_datadog_to_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         condition: and(false, succeeded())
         displayName: 'Deploy Neuvector to Cluster'
@@ -149,11 +109,3 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             deploy_neuvector_to_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE

@@ -84,14 +84,6 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: >-
             ./ci/recipes/init_bedrock_tools.sh
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         displayName: 'Static Analysis'
         inputs:
@@ -106,14 +98,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             sast_shellcheck
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         displayName: 'Rollup Chart Dependencies'
         inputs:
@@ -128,11 +112,3 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             rollup_chart_dependencies
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE

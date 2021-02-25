@@ -41,14 +41,6 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: >-
             ./ci/recipes/init_bedrock_tools.sh
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Static Analysis'
@@ -64,14 +56,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             sast_shellcheck
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Provision CI k8s cluster'
@@ -87,14 +71,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             deploy_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Login to CI ACR Registry'
@@ -110,14 +86,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             login_cluster_registry
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Copy Deployed Dev Artifacts to CI'
@@ -133,14 +101,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             copy_upstream_to_cluster_k8s
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Push packaged Artifacts to CI'
@@ -156,14 +116,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             publish_packaged_chart_for_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Install latest umbrella chart to development k8s cluster'
@@ -179,14 +131,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             deploy_umbrella_chart_to_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Purge CI k8s cluster'
@@ -202,11 +146,3 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             purge_cluster
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE

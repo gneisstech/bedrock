@@ -36,14 +36,6 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: >-
             ./ci/recipes/init_bedrock_tools.sh
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Static Analysis'
@@ -59,14 +51,6 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             sast_shellcheck
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
       - task: AzureCLI@2
         condition: and(succeeded(), ne(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
         displayName: 'Update Umbrella Chart semver'
@@ -82,11 +66,3 @@ jobs:
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
             ./ci/recipes/invoke_bedrock_recipe.sh
             update_helm_chart
-          # arguments:
-          # scriptPath:
-          # powerShellErrorActionPreference
-          # addSpnToEnvironment
-          # useGlobalConfig
-          # workingDirectory
-          # failOnStandardError
-          # powerShellIgnoreLASTEXITCODE
