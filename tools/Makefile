@@ -155,6 +155,9 @@ integrate_service_with_bedrock: init_service_tree update_repo_permissions instal
 
 integrate_app_with_bedrock: init_app_tree update_repo_permissions install_app_pipelines
 
+read_raw_configuration:
+	@/bedrock/recipes/read_raw_configuration.sh "$$(/bedrock/recipes/get_deployment_json_by_name.sh "${BEDROCK_CLUSTER}")"
+
 bedrock_tools:
 	cd "$(git rev-parse --show-toplevel)"
 	docker build . -f Dockerfile -t gneisstech/bedrock_tools

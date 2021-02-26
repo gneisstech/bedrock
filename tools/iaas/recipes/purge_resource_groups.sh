@@ -51,7 +51,7 @@ function target_config () {
 }
 
 function iaas_configuration () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.iaas'
+    yq eval-all --tojson "$(target_config)" | jq -r -e '.target.iaas'
 }
 
 function resource_group_names () {

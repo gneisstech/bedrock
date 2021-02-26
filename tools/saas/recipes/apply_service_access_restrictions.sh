@@ -68,7 +68,7 @@ function target_config () {
 }
 
 function saas_configuration () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.saas'
+    yq eval-all --tojson "$(target_config)" | jq -r -e '.target.saas'
 }
 
 function svc_attr () {

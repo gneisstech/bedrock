@@ -41,7 +41,7 @@ function get_helm_values_file_name() {
 }
 
 function read_helm_values_as_json() {
-  yq r --tojson "$(get_helm_values_file_name)"
+  yq eval-all --tojson "$(get_helm_values_file_name)"
 }
 
 function get_docker_repo_name() {
@@ -171,7 +171,7 @@ function internal_semver_file() {
 }
 
 function internal_semver_file_json() {
-  yq r "$(internal_semver_file)" --tojson
+  yq eval-all "$(internal_semver_file)" --tojson
 }
 
 function internal_repo_semver() {
@@ -219,7 +219,7 @@ function update_internal_repo_semver() {
   local -r temp_file="$(mktemp)"
   internal_semver_file_json |
     jq -r --arg new_semver "${blessed_release_semver}" '.semver = $new_semver' |
-    yq r - >"${temp_file}"
+    yq eval-all - >"${temp_file}"
   cp "${temp_file}" "$(internal_semver_file)"
   rm -f "${temp_file}"
   git add "$(internal_semver_file)"

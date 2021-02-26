@@ -63,15 +63,15 @@ function target_config () {
 }
 
 function paas_configuration () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
+    yq eval-all --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
 function target_env () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.env'
+    yq eval-all --tojson "$(target_config)" | jq -r -e '.target.env'
 }
 
 function target_app () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.app'
+    yq eval-all --tojson "$(target_config)" | jq -r -e '.target.app'
 }
 
 function service_principal_attr () {

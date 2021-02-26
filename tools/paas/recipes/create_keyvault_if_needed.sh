@@ -51,7 +51,7 @@ function target_config () {
 }
 
 function paas_configuration () {
-    yq read --tojson "$(target_config)" | jq -r -e '.target.paas'
+    yq eval-all --tojson "$(target_config)" | jq -r -e '.target.paas'
 }
 
 function keyvault_name () {

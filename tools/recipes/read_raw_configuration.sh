@@ -39,7 +39,7 @@ function read_raw_configuration () {
     local -r deployment_json="${1}"
     local config_filename
     config_filename="$(raw_configuration_filename "${deployment_json}")"
-    yq r --tojson "${config_filename}"
+    yq eval-all --tojson "${config_filename}"
 }
 
 read_raw_configuration "${@}"

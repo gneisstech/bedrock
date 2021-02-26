@@ -28,7 +28,7 @@ function bedrock_config_deployments_dir () {
 
 function get_deployment_json_by_name () {
     local -r deployment_name="${1}"
-    yq r --tojson "$(bedrock_config_deployments_dir)/${BEDROCK_DEPLOYMENT_CATALOG}" |
+    yq eval-all --tojson "$(bedrock_config_deployments_dir)/${BEDROCK_DEPLOYMENT_CATALOG}" |
         jq -r -e -c \
             --arg deployment_name "${deployment_name}" \
             '.deployments[] | select(.name == "\($deployment_name)")'
