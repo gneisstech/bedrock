@@ -11,86 +11,81 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  DD_CLIENT_API_KEY: ''
-  DD_CLIENT_APP_KEY: ''
+  DD_SECRET_VAULT: 'br-devops-kv'
   BEDROCK_DEPLOYMENT_CATALOG: 'br_deployments.yaml'
   BEDROCK_CLUSTER: 'BR_QA'
   BEDROCK_INVOKED_DIR: ''
   BEDROCK_SUBSCRIPTION: 'br-qa-az-service-connection'
 
 jobs:
-  - job: 'promote_dev_to_qa'
+  - job: 'br_promote_dev_to_qa'
     timeoutInMinutes: 120
     steps:
       - checkout: self
         # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
         persistCredentials: true
       - task: AzureCLI@2
-        # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: succeeded()
         displayName: 'Init Bedrock Tools Container Runtime'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            ./ci/recipes/init_bedrock_tools.sh
+            ./.bedrock/ci/recipes/init_bedrock_tools.sh
       - task: AzureCLI@2
-        # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: succeeded()
         displayName: 'Static Analysis'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
-            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            DD_SECRET_VAULT=$(DD_SECRET_VAULT)
             BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
             BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
-            ./ci/recipes/invoke_bedrock_recipe.sh
-            sast_shellcheck
+            ./.bedrock/ci/recipes/invoke_bedrock_recipe.sh
+            sast_repo
       - task: AzureCLI@2
-        # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: succeeded()
         displayName: 'Copy Deployed Dev Artifacts to QA'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
-            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            DD_SECRET_VAULT=$(DD_SECRET_VAULT)
             BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
             BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
-            ./ci/recipes/invoke_bedrock_recipe.sh
+            ./.bedrock/ci/recipes/invoke_bedrock_recipe.sh
             copy_upstream_to_cluster_k8s
       - task: AzureCLI@2
-        # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: succeeded()
         displayName: 'Push packaged Artifacts to QA'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
-            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            DD_SECRET_VAULT=$(DD_SECRET_VAULT)
             BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
             BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
-            ./ci/recipes/invoke_bedrock_recipe.sh
+            ./.bedrock/ci/recipes/invoke_bedrock_recipe.sh
             publish_packaged_chart_for_cluster
       - task: AzureCLI@2
-        # condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: succeeded()
         displayName: 'Install latest umbrella chart to QA k8s cluster'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
-            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            DD_SECRET_VAULT=$(DD_SECRET_VAULT)
             BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
             BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
-            ./ci/recipes/invoke_bedrock_recipe.sh
+            ./.bedrock/ci/recipes/invoke_bedrock_recipe.sh
             deploy_umbrella_chart_to_cluster

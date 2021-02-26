@@ -20,8 +20,7 @@ pool:
   vmImage: 'ubuntu-18.04'
 
 variables:
-  DD_CLIENT_API_KEY: ''
-  DD_CLIENT_APP_KEY: ''
+  DD_SECRET_VAULT: 'br-devops-kv'
   BEDROCK_DEPLOYMENT_CATALOG: 'br_deployments.yaml'
   BEDROCK_CLUSTER: 'BR_Development'
   BEDROCK_INVOKED_DIR: ''
@@ -32,44 +31,43 @@ jobs:
     timeoutInMinutes: 120
     steps:
       - checkout: self
+        condition: eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit')
         # readme: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/git-commands?view=azure-devops&tabs=yaml
         persistCredentials: true
       - task: AzureCLI@2
-        condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: and( succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit') )
         displayName: 'Init Bedrock Tools Container Runtime'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            ./ci/recipes/init_bedrock_tools.sh
+            ./.bedrock/ci/recipes/init_bedrock_tools.sh
       - task: AzureCLI@2
-        condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: and( succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit') )
         displayName: 'Static Analysis'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
-            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            DD_SECRET_VAULT=$(DD_SECRET_VAULT)
             BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
             BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
-            ./ci/recipes/invoke_bedrock_recipe.sh
-            sast_shellcheck
+            ./.bedrock/ci/recipes/invoke_bedrock_recipe.sh
+            sast_repo
       - task: AzureCLI@2
-        condition: and(succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit'))
+        condition: and( succeeded(), eq(variables['Build.SourceVersionMessage'], 'automated update of semver on git commit') )
         displayName: 'Install latest umbrella chart to development k8s cluster'
         inputs:
           azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: >-
-            DD_CLIENT_API_KEY=$(DD_CLIENT_API_KEY)
-            DD_CLIENT_APP_KEY=$(DD_CLIENT_APP_KEY)
+            DD_SECRET_VAULT=$(DD_SECRET_VAULT)
             BEDROCK_DEPLOYMENT_CATALOG=$(BEDROCK_DEPLOYMENT_CATALOG)
             BEDROCK_CLUSTER=$(BEDROCK_CLUSTER)
             BEDROCK_INVOKED_DIR=$(BEDROCK_INVOKED_DIR)
-            ./ci/recipes/invoke_bedrock_recipe.sh
+            ./.bedrock/ci/recipes/invoke_bedrock_recipe.sh
             deploy_umbrella_chart_to_cluster
