@@ -156,7 +156,7 @@ function internal_semver_file() {
 
 function internal_semver_file_json() {
   local -r deployment_json="${1}"
-  yq r "$(internal_semver_file "${deployment_json}")" --tojson
+  yq eval-all "$(internal_semver_file "${deployment_json}")" --tojson
 }
 
 function internal_repo_semver() {
@@ -234,7 +234,7 @@ function update_internal_repo_semver() {
   local -r temp_file="$(mktemp)"
   internal_semver_file_json "${deployment_json}" |
     jq -r --arg new_semver "${blessed_release_semver}" '.semver = $new_semver' |
-    yq r - >"${temp_file}"
+    yq eval-all - >"${temp_file}"
   cp "${temp_file}" "$(internal_semver_file "${deployment_json}")"
   rm -f "${temp_file}"
   git add "$(internal_semver_file "${deployment_json}")"

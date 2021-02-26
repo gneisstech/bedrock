@@ -107,7 +107,7 @@ function app_pipeline_yaml_file() {
 
 function pipeline_as_json() {
   local -r deployment_json="${1}"
-  yq r --tojson "$(app_pipeline_yaml_file "${deployment_json}")"
+  yq eval-all --tojson "$(app_pipeline_yaml_file "${deployment_json}")"
 }
 
 function get_pipeline_services() {
@@ -130,12 +130,12 @@ function filter_upstream_br_services() {
 
 function get_chart_services() {
   local -r deployment_json="${1}"
-  yq r --tojson "$(chart_dir "${deployment_json}")/Chart.yaml" | filter_upstream_br_services "${deployment_json}" || true
+  yq eval-all --tojson "$(chart_dir "${deployment_json}")/Chart.yaml" | filter_upstream_br_services "${deployment_json}" || true
 }
 
 function get_locked_chart_services() {
   local -r deployment_json="${1}"
-  yq r --tojson "$(chart_dir "${deployment_json}")/Chart.lock" | filter_upstream_br_services "${deployment_json}" || true
+  yq eval-all --tojson "$(chart_dir "${deployment_json}")/Chart.lock" | filter_upstream_br_services "${deployment_json}" || true
 }
 
 function filter_upstream_br_service_semver() {
@@ -149,7 +149,7 @@ function filter_upstream_br_service_semver() {
 function locked_sub_chart_semver() {
   local -r deployment_json="${1}"
   local -r sub_chart="${2}"
-  yq r --tojson "$(chart_dir "${deployment_json}")/Chart.lock" | filter_upstream_br_service_semver "${sub_chart}" || true
+  yq eval-all --tojson "$(chart_dir "${deployment_json}")/Chart.lock" | filter_upstream_br_service_semver "${sub_chart}" || true
 }
 
 function update_helm_repo() {
@@ -183,7 +183,7 @@ function internal_semver_file() {
 
 function internal_semver_file_json() {
   local -r deployment_json="${1}"
-  yq r "$(internal_semver_file "${deployment_json}" )" --tojson
+  yq eval-all "$(internal_semver_file "${deployment_json}" )" --tojson
 }
 
 function internal_repo_semver() {
@@ -197,7 +197,7 @@ function update_internal_repo_semver() {
   local -r temp_file="$(mktemp)"
   internal_semver_file_json "${deployment_json} "|
     jq -r --arg new_semver "${requested_semver}" '.semver = $new_semver' |
-    yq r - >"${temp_file}"
+    yq eval-all - >"${temp_file}"
   cp "${temp_file}" "$(internal_semver_file)"
   rm -f "${temp_file}"
   git add "$(internal_semver_file)"

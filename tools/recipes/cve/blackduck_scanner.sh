@@ -33,7 +33,7 @@ function get_helm_values_file_name() {
 }
 
 function read_helm_values_as_json () {
-  yq r --tojson "$(get_helm_values_file_name)"
+  yq eval-all --tojson "$(get_helm_values_file_name)"
 }
 
 function get_docker_repo_name() {
