@@ -147,6 +147,9 @@ bless_service_artifacts:
 update_repo_permissions:
 	@echo "Not Implemented Yet"
 
+clone_neuvector:
+	/bedrock/recipes/clone_neuvector.sh "${BEDROCK_CLUSTER}"
+
 integrate_service_with_app:
 
 integrate_app_with_cluster_namespace:
