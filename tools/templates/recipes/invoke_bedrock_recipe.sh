@@ -45,6 +45,7 @@ function bedrock_invoked_dir () {
 function invoke_bedrock () {
   local -r az_config_dir="${AZURE_CONFIG_DIR:-${HOME}/.azure}"
   docker run \
+    --rm \
     --env DD_SECRET_VAULT="${DD_SECRET_VAULT:-}" \
     --env BEDROCK_DEPLOYMENT_CATALOG="${BEDROCK_DEPLOYMENT_CATALOG:-}" \
     --env BEDROCK_CLUSTER="${BEDROCK_CLUSTER:-}" \
@@ -64,11 +65,10 @@ function invoke_bedrock () {
 function invoke_bedrock_recipe () {
   local -r make_target="${1}"
   SECONDS=0
-  pushd "$(repo_root)"
+  pushd "$(repo_root)" 1> /dev/null 2>&1
   invoke_bedrock "${@}"
-  popd
+  popd 1> /dev/null 2>&1
   "${BEDROCK_INVOKED_DIR}/.bedrock/ci/recipes/report_metric_to_datadog.sh" "${make_target}" "${SECONDS}"
 }
 
 invoke_bedrock_recipe "$@" 2> >(while read -r line; do (echo "LOGGING: $line"); done)
-echo
