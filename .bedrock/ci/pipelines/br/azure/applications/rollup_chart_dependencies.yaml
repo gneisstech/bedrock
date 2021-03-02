@@ -1,4 +1,3 @@
----
 #
 # trigger this pipeline when any service dependency is updated
 #
@@ -59,7 +58,6 @@ resources:
             - 'master-bedrock'
     - pipeline: 'br-eclypse-relay-api'
       source: 'brock-k8s-svc-eclypse-relay-api'
-      source: 'br_placeholder'
       trigger:
         branches:
           include:
