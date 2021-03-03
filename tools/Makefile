@@ -68,10 +68,10 @@ update_helm_chart:
 	/bedrock/recipes/update_helm_chart.sh "${BEDROCK_CLUSTER}"
 
 init_service_tree:
-	@echo "Not Implemented Yet"
+	/bedrock/recipes/init/init_service_tree.sh
 
 install_service_pipelines:
-	@echo "Not Implemented Yet"
+	/bedrock/recipes/init/init_service_pipelines.sh
 
 init_app_tree:
 	@echo "Not Implemented Yet"
@@ -166,6 +166,18 @@ bedrock_tools:
 	docker build . -f Dockerfile -t gneisstech/bedrock_tools
 	docker push gneisstech/bedrock_tools
 
+install:
+	@echo "You are invited to write this feature"
+
+upgrade:
+	@echo "You are invited to write this feature"
+
+update:
+	@echo "You are invited to write this feature"
+
+doctor:
+	@echo "You are invited to write this feature"
+
 #
 #####################################################################################
 
@@ -185,12 +197,13 @@ help :
 	@echo 'BEDROCK_DEPLOYMENT_CATALOG:  yaml file with catalog of cluster metadata'
 	@echo 'BEDROCK_CLUSTER:             name of cluster to use in makefile target recipe'
 	@echo 'BEDROCK_INVOKED_DIR:			defaults to repo_root, name of base directory for service or app'
-	@echo 'BEDROCK_SERVICE:				name for new service, defaults to "${BEDROCK_INVOKED_DIR}/helm/(service_name)"'
+	@echo 'BEDROCK_SERVICE:				name for new service, defaults to "service_name" from'
+	@echo '                             the directory "${BEDROCK_INVOKED_DIR}/helm/(service_name)"'
 	@echo 'DOCKERFILE:					defaults to "Dockerfile"; used to override default for a multicontainer build'
 	@echo '* pipeline variables from your CI build provider'
 	@echo '** Azure Pipelines: AGENT_* BUILD_* COMMON_* PIPELINE_* ENVIRONMENT_* SYSTEM_* ENDPOINT_* TF_BUILD'
 	@echo ''
-	@echo 'Variables may be set either as shell variables before the make command, or'
+	@echo 'Variables may be set either as shell environment variables before the make command, or'
 	@echo 'as make variables specified after the make command but before makefile targets'
 	@echo ''
 	@echo 'Examples:'

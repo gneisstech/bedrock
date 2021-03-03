@@ -1,4 +1,17 @@
-# bedrock
+# Bedrock
+
+## Table of contents
+* [Introduction](#introduction)
+* [Getting Started](#getting-started)
+  * [prerequisites](#prerequisites)
+  * [repository layout](#repository-layout)
+    * [microservice](#microservice-repo)
+    * [application](#application-repo)
+  * [setup and installation](#setup-and-installation)
+  * [troubleshooting](#troubleshooting)
+  
+# Introduction
+<a name="introduction"/>
 
 infrastructure as code;  bring your own application
 
@@ -108,6 +121,102 @@ General philosophies:
     - when security similar to a VLAN or Network Security Group is needed
     - when isolation of resources is required for security concerns
     - when separation of resources facilitates different life cycles
+  
+# Getting Started
+<a name="getting-started"/>
+
+## Prerequisites
+<a name="prerequisites"/>
+
+* install: bash
+* install: jq
+* install: docker
+  
+### optional
+* install: kubernetes
+* install: helm
+
+## Repository Layout
+<a name="repository-layout"/>
+
+Bedrock tools can anchor to and function at the root of a git repository, or at any subdirectory
+within a repository to support those who prefer a mono-repo rather than one repo per microservice
+or application.
+
+### Microservice Repo
+<a name="microservice-repo"/>
+
+A minimal repository subdirectory containing a microservice with bedrock installed will generally
+have the following structure (for a simple web service):
+
+```text
+├── .bedrock
+│   └── ci
+│       ├── pipelines
+│       │   └── azure
+│       │       └── bless_artifacts.yaml
+│       └── recipes
+│           ├── blackduck_scanner.sh
+│           ├── init_bedrock_tools.sh
+│           ├── invoke_bedrock_recipe.sh
+│           └── report_metric_to_datadog.sh
+├── helm
+│   └── unique-service-name
+│       ├── Chart.yaml
+│       ├── templates
+│       │   ├── NOTES.txt
+│       │   ├── _helpers.tpl
+│       │   ├── deployment.yaml
+│       │   ├── environment-configmap.yaml
+│       │   ├── environment-secrets.yaml
+│       │   ├── ingress.yaml
+│       │   ├── service.yaml
+│       │   ├── serviceaccount.yaml
+│       │   └── tests
+│       │       └── test-connection.yaml
+│       └── values.yaml
+├── Dockerfile
+└── semver.txt
+```
+
+As the developer, you will be responsible for the contents of the `Dockerfile` to build your microservice, and for
+customization of the helm chart contents for your microservice.   Especially the contents of `values.yaml`.
+Bedrock will be responsible for updating  and maintaining the contents of `semver.txt`, `Chart.yaml` (the semantic
+versions therein), and will add the git repository tag with a semantic version for your service upon a successful
+commit + successful CI pipeline based on that commit.
+
+During installation, Bedrock will create and manage the entire contents of the hidden folder `.bedrock` based on its
+determination of whether the current subdirectory of the repo represents a `service` or an `applcation`.
+Bedrock will also create and install the commit based CI pipeline described in
+`.bedrock/ci/pipelines/azure/bless_artifacts.yaml` (or as appropriate for your non-azure CI system)
+
+## Application repo
+<a name="application-repo"/>
+
+
+
+## Setup and Installation
+<a name="setup-and-install"/>
+
+Check out your git reposistory and the branch you wish to use.   Switch to the subdirectory (generally git root, unless
+you have multiple service or applications in one repository) of that repository.
+
+`docker run --rm gneisstech/bedrock_tools install`
+
+`docker run --rm gneisstech/bedrock_tools upgrade`
+
+`docker run --rm gneisstech/bedrock_tools update`
+
+## Troubleshooting
+<a name="troubleshooting"/>
+
+Bedrock will automatically identify many omissions and misconfigurations when you run:
+
+`docker run --rm gneisstech/bedrock_tools doctor`
+
+
+
+## Enjoy!
 
 ```
 MIT License

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: init_service_repo.sh
+# usage: init_service_tree.sh
 
 # Exit script if you try to use an uninitialized variable.
 set -o nounset
@@ -39,7 +39,7 @@ function service_name () {
 }
 
 function get_helm_values_file_name() {
-  printf "%s/helm/%s/values.yaml" "$(service_root)" "$(get_helm_chart_name)"
+  printf "%s/helm/%s/values.yaml" "$(service_root)" "$(service_name)"
 }
 
 function read_helm_values_as_json () {
@@ -78,9 +78,15 @@ function template_cp() {
   template_subst "${source}" > "${target}"
 }
 
+function template_cp_dir() {
+  local -r source="${1}"
+  local -r target="${2}"
+  template_subst "${source}" > "${target}"
+}
+
 function copy_dockerfile_if_needed() {
   local docker_filename
-  docker_filename="$(service_root)/semver.txt"
+  docker_filename="$(service_root)/Dockerfile"
   if [[ ! -e "${docker_filename}" ]]; then
     # @@ TODO allow language specifier for initial dockerfile
     template_cp '/bedrock/templates/docker/Dockerfile' "${docker_filename}"
@@ -89,8 +95,10 @@ function copy_dockerfile_if_needed() {
 }
 
 function copy_helm_chart_if_needed() {
-  if [[ ! -e "$(service_root)/helm/$(service_name)/Chart.yaml" ]]; then
-      false
+  local -r helm_repo_root="$(service_root)/helm/$(service_name)"
+  if [[ ! -e "${helm_repo_root}/Chart.yaml" ]]; then
+    template_cp_dir "/bedrock/templates/helm" "${helm_repo_root}"
+    git add "${helm_repo_root}"
   fi
 }
 
@@ -103,14 +111,34 @@ function copy_semver_if_needed() {
   fi
 }
 
+function copy_bedrock_recipes() {
+  template_cp_dir "/bedrock/templates/recipes" "$(service_root)/.bedrock/ci/recipes"
+}
+
+function copy_bedrock_pipeline() {
+  template_cp_dir "/bedrock/templates/pipelines/" "$(service_root)/.bedrock/ci/pipelines"
+}
+
+function install_service_pipeline() {
+  printf '%s not defined' "${FUNCTION}"
+}
+
+function commit_changes_to_service() {
+  printf '%s not defined' "${FUNCTION}"
+}
+
 function copy_templates_to_repo() {
   create_template_folders
   copy_dockerfile_if_needed
   copy_helm_chart_if_needed
   copy_semver_if_needed
+  copy_bedrock_recipes
+  copy_bedrock_pipeline
+  install_service_pipeline
+  commit_changes_to_service
 }
 
-function init_service_repo () {
+function init_service_tree () {
   if [[ -z "$(service_name)" ]]; then
     printf 'Please provide name for this new service via the BEDROCK_SERVICE environment variable'
     false
@@ -120,4 +148,4 @@ function init_service_repo () {
   fi
 }
 
-init_service_repo
+init_service_tree
