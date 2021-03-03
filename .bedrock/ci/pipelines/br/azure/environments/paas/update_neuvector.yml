@@ -21,7 +21,7 @@ pool:
 variables:
   DD_SECRET_VAULT: 'br-devops-kv'
   BEDROCK_DEPLOYMENT_CATALOG: 'br_deployments.yaml'
-  BEDROCK_CLUSTER: 'CF_Prod'
+  BEDROCK_CLUSTER: 'BR_Development'
   BEDROCK_INVOKED_DIR: ''
   BEDROCK_SUBSCRIPTION: 'br-prod-az-service-connection'
 
