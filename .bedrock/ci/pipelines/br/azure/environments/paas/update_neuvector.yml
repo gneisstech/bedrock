@@ -12,7 +12,7 @@ schedules:
     displayName: Nightly build
     branches:
       include:
-        - bedrock-main
+        - master-bytelight
     always: true
 
 pool:
@@ -21,7 +21,7 @@ pool:
 variables:
   DD_SECRET_VAULT: 'br-devops-kv'
   BEDROCK_DEPLOYMENT_CATALOG: 'br_deployments.yaml'
-  BEDROCK_CLUSTER: 'BR_Prod'
+  BEDROCK_CLUSTER: 'CF_Prod'
   BEDROCK_INVOKED_DIR: ''
   BEDROCK_SUBSCRIPTION: 'br-prod-az-service-connection'
 
@@ -44,7 +44,7 @@ jobs:
       - task: AzureCLI@2
         displayName: 'Update Neuvector Containers'
         inputs:
-          azureSubscription: 'br-prod-az-service-connection'
+          azureSubscription: $(BEDROCK_SUBSCRIPTION)
           scriptType: bash
           scriptLocation: 'inlineScript'
           inlineScript: >-
