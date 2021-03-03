@@ -14,7 +14,7 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
-declare -rx DD_SECRET_VAULT="${DD_SECRET_VAULT:-/src}"
+declare -rx DD_SECRET_VAULT="${DD_SECRET_VAULT:-}"
 
 # Arguments
 # ---------------------
@@ -50,7 +50,9 @@ function acr_registries() {
 
 function acr_logins() {
   local -r app="${1}"
-  acr_registries "${app}" | xargs -n 1 -r az acr login -n
+  for registry in $(acr_registries "${app}"); do
+    az acr login -n "${registry}" || true
+  done
 }
 
 function neuvector_containers() {
