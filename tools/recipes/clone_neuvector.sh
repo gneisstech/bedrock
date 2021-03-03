@@ -72,7 +72,7 @@ function clone_neuvector() {
   local -r deployment_name="${1}"
   local deployment_json
   deployment_json="$(get_deployment_json_by_name "${deployment_name}")"
-  local app containersa
+  local app containers
   app="$(get_app "${deployment_json}")"
   containers="$(neuvector_containers)"
   printf 'containers [%s]\n' "${containers}"
