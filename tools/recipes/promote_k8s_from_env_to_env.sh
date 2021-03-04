@@ -208,9 +208,9 @@ function copy_one_container() {
   container_origin_repo="$(sed -e "s|.* '||" -e "s|'$||" <<<"${container_ref}")"
   # shellcheck disable=2001
   container_target_repo="$(sed -e "s|${origin_registry}|${target_registry}|" <<<"${container_origin_repo}")"
-  docker pull "${container_origin_repo}:${container_version}"
+  docker pull --quiet "${container_origin_repo}:${container_version}"
   docker tag "${container_origin_repo}:${container_version}" "${container_target_repo}:${target_container_version}"
-  docker push "${container_target_repo}:${target_container_version}"
+  docker push --quiet "${container_target_repo}:${target_container_version}"
 }
 
 function acr_login() {
@@ -236,8 +236,10 @@ function copy_containers_from_list() {
       "${origin_registry}" \
       "${target_registry}" \
       "${origin_suffix}" \
-      "${target_suffix}"
+      "${target_suffix}" \
+    &
   done
+  wait
 }
 
 function copy_containers() {
