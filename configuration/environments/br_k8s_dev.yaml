@@ -245,8 +245,8 @@ target:
                 roles:
                   - 'fixme-role-writer'
       instances:
-        - name: &brAuditEhNamespace '##app-env##-audit-log-eh-namespace'
-          <<: *eh_namespace_template
+        - <<: *eh_namespace_template
+          name: &brAuditEhNamespace '##app-env##-audit-log-eh-namespace'
           resource_group: *brAuditLogEhRG
           capacity: '1'
           auto_inflate: 'true'
