@@ -45,6 +45,7 @@ function ruby_dynamic_analysis () {
   container_path="$(get_docker_repo_name):bedrock"
   local db_container_id
     db_container_id="$(docker run \
+        --rm \
         -e 'ACCEPT_EULA=Y' \
         -e 'SA_PASSWORD=xyzzy2XYZZY' \
         -p 127.0.0.1:1433:1433 \
@@ -52,6 +53,7 @@ function ruby_dynamic_analysis () {
         mcr.microsoft.com/mssql/server:2017-latest)"
   container_host="$(docker inspect "${db_container_id}" | jq -r '.[].NetworkSettings.IPAddress')"
   docker run \
+      --rm \
       -e 'RAILS_ENV=test' \
       -e 'CUSTOMCONNSTR_SERVICE_PRINCIPAL_SECRET=xyzzy2XYZZY' \
       -e "DATABASE_HOST=${container_host}" \

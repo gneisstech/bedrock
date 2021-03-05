@@ -120,7 +120,7 @@ function az_create_service_principal () {
                 --name "http://$(sp_name)" \
                 --role "$(service_principal_attr 'role')" \
                 --output 'json' \
-                --scopes $(service_principal_string_attr    '' 'scopes')
+                --scopes $(service_principal_string_attr    '' 'scopes') > /dev/null
         fi
     else
         printf '>>> using prebuilt sp info <<<' > /dev/stderr
