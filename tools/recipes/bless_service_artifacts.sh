@@ -196,7 +196,7 @@ function update_git_config() {
   if is_azure_pipeline_build; then
     # configure azure pipeline workspace
     git config --global user.email "azure_automation@gneiss-tech.net"
-    git config --global user.name "Azure automation Blessing Artifacts from [$(get_app_env)]"
+    git config --global user.name "Azure automation Blessing Artifacts from [app-env)]"
   fi
 }
 
