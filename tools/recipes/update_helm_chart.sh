@@ -337,5 +337,4 @@ function update_helm_chart() {
   update_helm_git "${target_deployment_json}"
 }
 
-set -x
 update_helm_chart "$@"
