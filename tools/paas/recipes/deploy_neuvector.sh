@@ -12,7 +12,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 # Arguments
 # ---------------------
 
@@ -53,7 +53,7 @@ function deploy_neuvector () {
             --namespace "${neuvector_namespace}" \
             --history-max 20 \
             'neuvector' \
-            "$(repo_root)/configuration/k8s/charts/neuvector-helm/" \
+            "${BEDROCK_INVOKED_DIR}/configuration/k8s/charts/neuvector-helm/" \
             --timeout "10m" \
             --wait \
             --values <(jq -r -e '.paas.neuvector.values' <<< "${deployment_json}")

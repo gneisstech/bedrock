@@ -19,7 +19,7 @@ declare -rx BUILD_REPOSITORY_LOCALPATH="${BUILD_REPOSITORY_LOCALPATH:-.}"
 declare -rx TAG="${TAG:-bedrock}"
 declare -rx BUILD_SOURCEBRANCH
 declare -rx TF_BUILD
-declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 
 # Arguments
 # ---------------------
@@ -337,4 +337,5 @@ function update_helm_chart() {
   update_helm_git "${target_deployment_json}"
 }
 
+set -x
 update_helm_chart "$@"

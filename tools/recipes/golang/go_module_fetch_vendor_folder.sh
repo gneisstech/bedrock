@@ -12,7 +12,7 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 
 # Arguments
 # ---------------------

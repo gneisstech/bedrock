@@ -23,7 +23,7 @@ function repo_root () {
 }
 
 function bedrock_config_deployments_dir () {
-  printf "%s/configuration/deployments" "${BEDROCK_INVOKED_DIR:-}"
+  printf "%s/configuration/deployments" "${BEDROCK_INVOKED_DIR:-.}"
 }
 
 function get_deployment_json_by_name () {
