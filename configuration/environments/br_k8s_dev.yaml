@@ -580,7 +580,7 @@ target:
             replicaCount: 1
 
         platform-api-addressvalidation-svc:
-          enabled: true
+          enabled: false
           config:
             environment:
               APP_VERSION: '{{ .Chart.AppVersion }}'
