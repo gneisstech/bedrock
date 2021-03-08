@@ -1,7 +1,7 @@
 dependencies:
 - name: br-http-https-echo
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
-  version: 1.2.7-dev.private
+  version: 1.2.9-dev
 - name: br-oauth-proxy-docker
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
   version: 1.4.4-dev
@@ -11,5 +11,5 @@ dependencies:
 - name: br-tls-certificate-manager-svc-docker
   repository: https://brdevregistry.azurecr.io/helm/v1/repo
   version: 1.3.2-dev
-digest: sha256:d7240f98ae3601810a863fb8d9aded914f64708752e11e4696e93971e9aadbde
-generated: "2021-03-08T07:47:59.592866736Z"
+digest: sha256:d07d6fd0ed5fa9c8b7aed3431677f1a4d72bce3b5780284655495d156c101ffc
+generated: "2021-03-08T08:51:25.901800849Z"
