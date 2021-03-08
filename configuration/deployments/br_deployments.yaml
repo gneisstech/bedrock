@@ -62,11 +62,11 @@ deployments:
           enabled: 'true'
           subscription:
             name: 'Bedrock-Dev'
-            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Bedrock-Dev
           location: 'eastus'
           tls_subscription:
             name: 'Bedrock-Dev'
-            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
+            id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Bedrock-Dev
           dns_subscription:
             name: 'Bedrock-Dev'
             id: 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Bedrock-Dev
@@ -103,7 +103,7 @@ deployments:
       migration_timeout: '10m'
       umbrella:
         registry:
-          name: 'brciregistry'
+          name: 'brdevregistry'
         name: 'br-deployment-umbrella'
         deployment_name: 'brk8s'
         version: '^0.3.0-0'
