@@ -49,20 +49,6 @@ resources:
           include:
             - 'bedrock-main'
             - 'master-bedrock'
-    - pipeline: 'platform-api-addressvalidation-svc'
-      source: 'platform-api-addressvalidation'
-      trigger:
-        branches:
-          include:
-            - 'bedrock-main'
-            - 'master-bedrock'
-    - pipeline: 'br-eclypse-relay-api'
-      source: 'brock-k8s-svc-eclypse-relay-api'
-      trigger:
-        branches:
-          include:
-            - 'bedrock-main'
-            - 'master-bedrock'
 
 pool:
   vmImage: 'ubuntu-latest'
