@@ -7,7 +7,6 @@ target:
       default:
         subscription: &defaultAzureSubscription 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
         location: &defaultAzureLocation 'centralus'
-    tls_cert_subscription: &subscription_tls 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
     dns_subscription: &subscription_dns 'c5f809dc-aa76-428e-a859-9e54a5510fb7'  # Acuity Brands, Inc. Bedrock-Dev
     service_deployment:
       tenant: &brDefaultTenant 'caadbe96-024e-4f67-82ec-fb28ff53d16d'  # sponsored by Acuity Brands, Inc.
@@ -15,21 +14,14 @@ target:
     app_registration:
       bedrock_application_id: &bedrockApplicationID '24b765b5-8108-4374-8141-1a65c0fc42ab'  # Acuity Brands, Inc. sponsored demo application
     k8s_namespace: &brNamespace 'brk8s'
-    tags: &labels 'br-env=##env## br-role=##env##'
-    tls_secret_name: &tlsSecretName 'wildcarddevbedrock-iotcom'
-    address_validation_secret_name: &addressValidationSecretName 'br-validation-usps-userid'
-    iothub_secret_name: &iothubSecretName 'br-eclypse-relay-iothub-connectionstring'
-    blobstorage_secret_name: &blobstorageSecretName 'br-eclypse-relay-blobstorage-connectionstring'
-    appinsights_secret_name: &appinsightsSecretName 'br-dev-app-insights-key'
-    allspice_dev_subscrioption: &allspiceSubscription '5e49f516-d005-4ae8-a287-031c8573401c'
-    connected_facilities_dev_subscription: &connectedFacilitiesSubscription '5649ad97-1fd3-460f-b569-9995bbb6c5c0'
+    tags: &labels 'env=##app-env## role=##app-env##'
   iaas:
     location: *defaultAzureLocation
     resource_groups:
       # for naming conventions, see: https://docs.acuitynext.net/wiki/azure-naming-conventions/
+      - name: &brWafRG 'Waf-brdev'
+        action: 'read'
       # ##app-env## resource groups
-      - name: &brWafRG 'Waf-##appenv##'
-        action: 'create'
       - name: &brDbRG 'Data-##appenv##'
         action: 'create'
       - name: &brKeysRG 'Kv-##appenv##'
@@ -178,7 +170,7 @@ target:
         - name: &certbotState 'certbot-state'
           quota: '10'
           storage_account_name: *sa001name
-          metadata: 'brenv=##env## brrole=##env##'
+          metadata: 'env=##appenv## role=##appenv##'
           pv:
             create: "true"
           pvc:
@@ -188,7 +180,7 @@ target:
       blob_store:
         - name: &auditLogBlobContainerName 'audit-log-history'
           storage_account_name: *auditsa001name
-          metadata: 'brenv=##env## brrole=##env##'
+          metadata: 'env=##appenv## role=##appenv##'
           action: 'create'
     # event hub namespaces - data that must persist longer than a cluster lifetime (survives cluster rebuild)
     event_hub_namespaces:
@@ -334,7 +326,7 @@ target:
           node_osdisk_size: '60'
           node_vm_size: 'Standard_DS2_v2'
           nodepool_labels: *labels
-          nodepool_name: 'brnodepool'
+          nodepool_name: 'brnp001'
           nodepool_tags: *labels
           service_principal:
             - '##secure_secret={"vault":"'
@@ -581,75 +573,3 @@ target:
                 # 'service.beta.kubernetes.io/azure-dns-label-name': 'FIXME-DNS'
           defaultBackend:
             replicaCount: 1
-
-        platform-api-addressvalidation-svc:
-          enabled: false
-          config:
-            environment:
-              APP_VERSION: '{{ .Chart.AppVersion }}'
-              AddressValidationUSPS_BaseURL: 'https://secure.shippingapis.com'
-            secrets:
-              USPS-UserId:
-                - '##secure_secret={"vault":"'
-                - *kvName
-                - '","secret_name":"'
-                - *addressValidationSecretName
-                - '"}'
-                - '##'
-
-        br-eclypse-relay-api:
-          enabled: true
-          config:
-            secrets:
-              ConnectionStrings__IotHubConnectionString:
-                - '##iothub_connection_string={"subscription":"'
-                - *allspiceSubscription
-                - '","resource_group":"'
-                - 'PlatformIngestion-AllspiceDev'
-                - '","iothub_name":"'
-                - 'atrius01ioth2ps7mvh2ku'
-                - '","policy_name":"'
-                - ''
-                - '"}'
-                - '##'
-              ConnectionStrings__BlobStorageConnectionString:
-                - '##storage_account_connection_string={"subscription":"'
-                - *allspiceSubscription
-                - '","resource_group":"'
-                - 'PlatformIngestion-ALLSpiceDev'
-                - '","storage_account_name":"'
-                - 'atrioth01sa2ps7mvh2ku'
-                - '","policy_name":"'
-                - ''
-                - '"}'
-                - '##'
-              ApplicationInsights__InstrumentationKey:
-                - '##secure_secret={"vault":"'
-                - *kvName
-                - '","secret_name":"'
-                - *appinsightsSecretName
-                - '"}'
-                - '##'
-        bdtlab-ingest-enrich-post:
-          enabled: true
-          config:
-            environment:
-              KAFKA_HOST: 'dtlab-kafka.kafka.svc.cluster.local:9092'
-              OUT_TOPIC: 'dt.er.cf.assettag2.status '
-              LOCAL_FILE_PATH: '/data/positionInfo.json'
-              APP_MODE: 'asset-status'
-              EVENTHUBS_IN_CONSUMER_GROUP: 'cf-dev-at-eh-asset-status-twin-cg'
-            secrets:
-              ConnectionStrings__EVENTHUBS_IN_CONNECTION_STRING:
-                - '##eventhub_connection_string={"subscription":"'
-                - *connectedFacilitiesSubscription
-                - '","resource_group":"'
-                - 'AssetTag-Eh-cfdev'
-                - '","namespace_name":"'
-                - 'cf-dev-asset-tag-eh-namespace'
-                - '","eventhub_name":"'
-                - 'cf-dev-asset-tag-eh-asset-status-topic'
-                - '","policy_name":"'
-                - ''
-                - '"}'
-                - '##'
