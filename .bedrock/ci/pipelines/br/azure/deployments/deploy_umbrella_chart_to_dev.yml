@@ -8,7 +8,7 @@ pr: none
 
 resources:
   pipelines:
-    - pipeline: 'deploy_umbrella_chart_to_dev'
+    - pipeline: 'deploy-umbrella-chart-to-dev'
       source: 'update_umbrella_chart'
       trigger:
         branches:
