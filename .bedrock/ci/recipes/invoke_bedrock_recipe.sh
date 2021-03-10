@@ -17,6 +17,8 @@ declare -rx BEDROCK_DEPLOYMENT_CATALOG="${BEDROCK_DEPLOYMENT_CATALOG:-}"
 declare -rx BEDROCK_CLUSTER="${BEDROCK_CLUSTER:-}"
 declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-$(pwd)}"
 declare -rx BEDROCK_SERVICE="${BEDROCK_SERVICE:-}"
+declare -rx BEDROCK_MAX_ALLOWED_CVE_HIGH="${BEDROCK_MAX_ALLOWED_CVE_HIGH:-0}"
+declare -rx BEDROCK_MAX_ALLOWED_CVE_MEDIUM="${BEDROCK_MAX_ALLOWED_CVE_MEDIUM:-2}"
 declare -rx DOCKERFILE="${DOCKERFILE:-Dockerfile}"
 declare -rx HOST_HOME="${HOST_HOME:-$(pwd)}"
 
@@ -45,7 +47,6 @@ function bedrock_invoked_dir () {
 function invoke_bedrock () {
   local -r az_config_dir="${AZURE_CONFIG_DIR:-${HOME}/.azure}"
   docker run \
-    --rm \
     --env DD_SECRET_VAULT="${DD_SECRET_VAULT:-}" \
     --env BEDROCK_DEPLOYMENT_CATALOG="${BEDROCK_DEPLOYMENT_CATALOG:-}" \
     --env BEDROCK_CLUSTER="${BEDROCK_CLUSTER:-}" \
@@ -65,10 +66,11 @@ function invoke_bedrock () {
 function invoke_bedrock_recipe () {
   local -r make_target="${1}"
   SECONDS=0
-  pushd "$(repo_root)" 1> /dev/null 2>&1
+  pushd "$(repo_root)"
   invoke_bedrock "${@}"
-  popd 1> /dev/null 2>&1
+  popd
   "${BEDROCK_INVOKED_DIR}/.bedrock/ci/recipes/report_metric_to_datadog.sh" "${make_target}" "${SECONDS}"
 }
 
 invoke_bedrock_recipe "$@" 2> >(while read -r line; do (echo "LOGGING: $line"); done)
+echo
