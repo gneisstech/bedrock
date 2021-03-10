@@ -123,24 +123,33 @@ function attach_docker_registry () {
   az acr login -n "$(get_docker_registry_name)"
 }
 
+function install_dotnet() {
+  curl -L https://dot.net/v1/dotnet-install.sh -o ./dotnet-install.sh
+  source ./dotnet-install.sh
+  printf '%s\n' "$(command -v dotnet)"
+}
+
 function blackduck_scanner() {
+  local -r base_shared_tools_dir="${HOST_HOME}/.bedrock/ci_pipeline_home"
+
   attach_docker_registry
   setup_ssh
   git config --global --replace-all url.git+ssh://ablcode@vs-ssh.visualstudio.com/v3/ablcode.insteadof https://ablcode.visualstudio.com
 
+  install_dotnet
   java -version
   docker image ls --all
 
   bash <(curl -s -L https://detect.synopsys.com/detect.sh) \
-    --detect.docker.inspector.version=9.1.1 \
-    --detect.docker.passthrough.imageinspector.service.port.ubuntu=8900 \
     --logging.level.com.synopsys.integration=DEBUG \
+    --detect.ignore.connection.failures=true \
+    --detect.output.path="${base_shared_tools_dir}/blackduck" \
     --detect.blackduck.signature.scanner.individual.file.matching=ALL \
     --detect.blackduck.signature.scanner.dry.run=false \
     --blackduck.api.token="$(get_bd_token)" \
     --blackduck.url="$(get_bd_url)" \
     --cleanup.inspector.container=false \
-    --detect.blackduck.signature.scanner.paths="${HOST_HOME}" \
+    --detect.blackduck.signature.scanner.paths="${base_shared_tools_dir}/scanners" \
     --detect.blackduck.signature.scanner.exclusion.pattern.search.depth=100 \
     --detect.project.name="$(get_project_prefix_uc)-${BUILD_DEFINITIONNAME}" \
     --detect.project.version.name="${BUILD_BUILDNUMBER}" \

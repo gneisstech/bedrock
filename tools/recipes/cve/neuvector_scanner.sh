@@ -116,8 +116,8 @@ function attach_docker_registry () {
 }
 
 function neuvector_scanner () {
-  local -r local_shared_dir="$(pwd)/ci_pipeline_home"
-  local -r host_shared_dir="${HOST_HOME}/ci_pipeline_home"
+  local -r local_shared_dir="$(pwd)/.bedrock/ci_pipeline_home"
+  local -r host_shared_dir="${HOST_HOME}/.bedrock/ci_pipeline_home"
   local -r scan_result="${local_shared_dir}/scan_result.json"
 
   attach_docker_registry
