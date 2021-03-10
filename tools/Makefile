@@ -6,6 +6,9 @@ default: help list printvars settings
 export BEDROCK_INVOKED_DIR
 export BEDROCK_DEPLOYMENT_CATALOG
 export BEDROCK_SERVICE
+export BEDROCK_MAX_ALLOWED_CVE_HIGH
+export BEDROCK_MAX_ALLOWED_CVE_MEDIUM
+
 export DOCKERFILE
 
 sast_repo: sast_shellcheck sast_json_lint sast_yaml_lint sast_helm_lint # static analysis which can be performed on the repository prior to building
