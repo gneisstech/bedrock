@@ -33,7 +33,7 @@ function is_azure_pipeline_build () {
 
 function pipeline_env_vars () {
   if is_azure_pipeline_build; then
-    env | grep -E "AGENT_|BUILD_|COMMON_|ENDPOINT_|ENVIRONMENT_|PIPELINE_|RESOURCES_|SYSTEM_|TF_BUILD"
+    env | grep -E "AGENT_|BUILD_|COMMON_|ENDPOINT_|ENVIRONMENT_|PIPELINE_|RESOURCES_|SYSTEM_|TF_BUILD|BEDROCK_"
   fi
 }
 

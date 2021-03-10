@@ -45,7 +45,7 @@ function repo_root () {
 }
 
 function sast_json_lint () {
-    find "${BEDROCK_INVOKED_DIR}" -name "*.json" -print0 | xargs -0 -n 1 -r jq -e 'empty'
+    find "${BEDROCK_INVOKED_DIR}" -name "*.json" -exec jq -e 'empty' {} \;
 }
 
 sast_json_lint

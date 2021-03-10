@@ -12,8 +12,11 @@ set -o pipefail
 
 # Environment Variables
 # ---------------------
-declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
 declare -rx HOST_HOME="${HOST_HOME:-}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
+declare -rx BEDROCK_CLUSTER="${BEDROCK_CLUSTER:-}"
+declare -rx BEDROCK_MAX_ALLOWED_CVE_HIGH="${BEDROCK_MAX_ALLOWED_CVE_HIGH:0}"
+declare -rx BEDROCK_MAX_ALLOWED_CVE_MEDIUM="${BEDROCK_MAX_ALLOWED_CVE_MEDIUM:2}"
 
 # Arguments
 # ---------------------
@@ -38,8 +41,12 @@ function get_docker_repo_name() {
   read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
-function get_docker_registry_name() {
+function get_docker_registry_host() {
   get_docker_repo_name | sed -e 's|\/.*||'
+}
+
+function get_docker_registry_name() {
+  get_docker_registry_host | sed -e 's|\..*||'
 }
 
 function get_vault_secret () {
@@ -53,7 +60,11 @@ function get_vault_secret () {
 }
 
 function get_project_prefix() {
-  get_helm_chart_name | sed -e 's|-.*||'
+  if [[ "${BEDROCK_CLUSTER}" == "" ]]; then
+    get_helm_chart_name | sed -e 's|-.*||'
+  else
+    printf '%s' "${BEDROCK_CLUSTER}" | sed -e 's|_.*||' | tr '[:upper:]' '[:lower:]'
+  fi
 }
 
 function get_project_prefix_uc() {
@@ -105,8 +116,6 @@ function attach_docker_registry () {
 }
 
 function neuvector_scanner () {
-  local -r max_allowed_cve_high="2"
-  local -r max_allowed_cve_medium="0"
   local -r local_shared_dir="$(pwd)/ci_pipeline_home"
   local -r host_shared_dir="${HOST_HOME}/ci_pipeline_home"
   local -r scan_result="${local_shared_dir}/scan_result.json"
@@ -122,13 +131,13 @@ function neuvector_scanner () {
     -e SCANNER_LICENSE="$(get_neuvector_license)" \
     --volume '/var/run/docker.sock:/var/run/docker.sock' \
     --volume "${host_shared_dir}:/var/neuvector" \
-    "$(get_docker_registry_name)/neuvector/scanner:latest"
+    "$(get_docker_registry_host)/neuvector/scanner:latest"
   printf "======== High priority CVE ========\n"
   show_cve_high "${scan_result}"
   printf "======== Medium priority CVE ========\n"
   show_cve_medium "${scan_result}"
-  fail_cve_high "${scan_result}" "${max_allowed_cve_high}"
-  fail_cve_medium "${scan_result}" "${max_allowed_cve_medium}"
+  fail_cve_high "${scan_result}" "${BEDROCK_MAX_ALLOWED_CVE_HIGH}"
+  fail_cve_medium "${scan_result}" "${BEDROCK_MAX_ALLOWED_CVE_MEDIUM}"
   printf "======== CVE checks passed --------\n"
 }
 

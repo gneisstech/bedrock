@@ -13,7 +13,8 @@ set -o pipefail
 # Environment Variables
 # ---------------------
 declare -rx HOST_HOME="${HOST_HOME:-}"
-declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-}"
+declare -rx BEDROCK_INVOKED_DIR="${BEDROCK_INVOKED_DIR:-/src}"
+declare -rx BEDROCK_CLUSTER="${BEDROCK_CLUSTER:-}"
 declare -rx BUILD_BUILDNUMBER="${BUILD_BUILDNUMBER:-}"
 declare -rx BUILD_DEFINITIONNAME="${BUILD_DEFINITIONNAME:-}"
 
@@ -40,8 +41,12 @@ function get_docker_repo_name() {
   read_helm_values_as_json | jq -r -e '.image.repository'
 }
 
-function get_docker_registry_name() {
+function get_docker_registry_host() {
   get_docker_repo_name | sed -e 's|\/.*||'
+}
+
+function get_docker_registry_name() {
+  get_docker_registry_host | sed -e 's|\..*||'
 }
 
 function get_vault_secret () {
@@ -55,7 +60,11 @@ function get_vault_secret () {
 }
 
 function get_project_prefix() {
-  get_helm_chart_name | sed -e 's|-.*||'
+  if [[ "${BEDROCK_CLUSTER}" == "" ]]; then
+    get_helm_chart_name | sed -e 's|-.*||'
+  else
+    printf '%s' "${BEDROCK_CLUSTER}" | sed -e 's|_.*||' | tr '[:upper:]' '[:lower:]'
+  fi
 }
 
 function get_project_prefix_uc() {
