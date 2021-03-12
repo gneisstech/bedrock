@@ -125,6 +125,7 @@ function attach_docker_registry () {
 
 function install_dotnet() {
   curl -L https://dot.net/v1/dotnet-install.sh -o ./dotnet-install.sh
+  #shellcheck disable=SC1091
   source ./dotnet-install.sh
   printf '%s\n' "$(command -v dotnet)"
 }
